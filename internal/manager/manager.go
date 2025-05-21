@@ -80,10 +80,35 @@ func moveFile(src, dst string) error {
 	return os.Remove(src)
 }
 
-// SimpleUpload calls rmapi put
-func SimpleUpload(path, rmDir string) error {
+// // SimpleUpload calls `rmapi put` and returns the filename that was uploaded.
+//
+//	func SimpleUpload(path, rmDir string) (string, error) {
+//		// upload
+//		cmd := exec.Command("rmapi", "put", path, rmDir)
+//		if err := cmd.Run(); err != nil {
+//			return "", err
+//		}
+//		// the device will see the basename of the local file
+//		remoteName := filepath.Base(path)
+//		return remoteName, nil
+//	}
+//
+// SimpleUpload calls `rmapi put` and returns the uploaded filename or a detailed error.
+func SimpleUpload(path, rmDir string) (string, error) {
 	cmd := exec.Command("rmapi", "put", path, rmDir)
-	return cmd.Run()
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		raw := strings.TrimSpace(string(out))
+		// find the first "Error: " in the output
+		if idx := strings.Index(raw, "Error:"); idx != -1 {
+			// return just "Error: entry already exists" (or whatever follows)
+			return "", fmt.Errorf(raw[idx:])
+		}
+		// fallback if we didn't find it
+		return "", fmt.Errorf("rmapi put failed: %s", raw)
+	}
+	remoteName := filepath.Base(path)
+	return remoteName, nil
 }
 
 func RenameLocal(path, prefix string) (string, error) {
@@ -111,8 +136,8 @@ func RenameLocal(path, prefix string) (string, error) {
 	return withYearPath, nil
 }
 
-// RenameAndUpload implements rename/upload logic
-func RenameAndUpload(path, prefix, rmDir string) error {
+// / RenameAndUpload renames locally, uploads via rmapi, and returns the name on the device.
+func RenameAndUpload(path, prefix, rmDir string) (string, error) {
 	// Build target dir under PDF_DIR
 	pdfDir := os.Getenv("PDF_DIR")
 	if pdfDir == "" {
@@ -121,7 +146,7 @@ func RenameAndUpload(path, prefix, rmDir string) error {
 	if prefix != "" {
 		pdfDir = filepath.Join(pdfDir, prefix)
 		if err := os.MkdirAll(pdfDir, 0755); err != nil {
-			return err
+			return "", err
 		}
 	}
 
@@ -136,21 +161,39 @@ func RenameAndUpload(path, prefix, rmDir string) error {
 	}
 	noYearPath := filepath.Join(pdfDir, noYear)
 	if err := moveFile(path, noYearPath); err != nil {
-		return err
+		return "", err
 	}
 
-	// Upload yearless file
-	if err := exec.Command("rmapi", "put", noYearPath, rmDir).Run(); err != nil {
-		return err
+	// Upload the no-year file
+	// cmd := exec.Command("rmapi", "put", noYearPath, rmDir)
+	// out, err := cmd.CombinedOutput()
+	// if err != nil {
+	// 	msg := strings.TrimSpace(string(out))
+	// 	return "", fmt.Errorf("rmapi put failed: %v; output: %q", err, msg)
+	// }
+
+	cmd := exec.Command("rmapi", "put", noYearPath, rmDir)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		raw := strings.TrimSpace(string(out))
+		// find the first "Error: " in the output
+		if idx := strings.Index(raw, "Error:"); idx != -1 {
+			// return just "Error: entry already exists" (or whatever follows)
+			return "", fmt.Errorf(raw[idx:])
+		}
+		// fallback if we didn't find it
+		return "", fmt.Errorf("rmapi put failed: %s", raw)
 	}
 
-	// Rename local to include year
+	// Rename local file to include year (for local storage)
 	withYear := strings.TrimSuffix(noYear, ".pdf") + fmt.Sprintf(" %d.pdf", year)
 	withYearPath := filepath.Join(pdfDir, withYear)
 	if err := moveFile(noYearPath, withYearPath); err != nil {
-		return err
+		return "", err
 	}
-	return nil
+
+	// Return the name that ended up on the device
+	return noYear, nil
 }
 
 func CleanupOld(prefix, rmDir string) error {
