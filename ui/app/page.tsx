@@ -38,13 +38,24 @@ export default function HomePage() {
       await new Promise(r => setTimeout(r, 1500))
       const st = await fetch(`/api/status/${jobId}`).then(r => r.json())
       setMessage(`${st.status}: ${st.message}`)
-      if (st.status === 'success' || st.status === 'error') {
+      if (st.status === 'success') {
+        setMessage(st.message)         // no “success:” prefix
+        done = true
+      } else if (st.status === 'error') {
+        setMessage(`❌ ${st.message}`)  // keep an error indicator
         done = true
       }
     }
 
     setLoading(false)
   }
+      // if (st.status === 'success' || st.status === 'error') {
+      //   done = true
+      // }
+  //   }
+
+  //   setLoading(false)
+  // }
 
   // const handleSubmit = async () => {
   //   setLoading(true)

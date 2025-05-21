@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -82,11 +83,11 @@ func processPDF(form map[string]string) (string, error) {
 	if rmDir == "" {
 		rmDir = manager.DefaultRmDir()
 	}
-
+	var remoteName string
 	// 1) Extract URL
 	match := urlRegex.FindString(body)
 	if match == "" {
-		return "no URL found in request body", fmt.Errorf("no URL")
+		return "No URL found in request body", fmt.Errorf("no URL")
 	}
 
 	// 2) Download
@@ -94,7 +95,7 @@ func processPDF(form map[string]string) (string, error) {
 	manager.Logf("DownloadPDF: tmp=%t, prefix=%q", tmpDir, prefix)
 	path, err := downloader.DownloadPDF(match, tmpDir, prefix)
 	if err != nil {
-		return "download error: " + err.Error(), err
+		return "Download error: " + err.Error(), err
 	}
 
 	// 3) Compress if requested
@@ -102,7 +103,7 @@ func processPDF(form map[string]string) (string, error) {
 		manager.Logf("🔧 Compressing PDF")
 		newPath, err := compressor.CompressPDF(path)
 		if err != nil {
-			return "compress error: " + err.Error(), err
+			return "Compress error: " + err.Error(), err
 		}
 		path = newPath
 
@@ -110,7 +111,7 @@ func processPDF(form map[string]string) (string, error) {
 			// rename compressed back to original basename
 			orig := strings.TrimSuffix(path, "_compressed.pdf") + ".pdf"
 			if err := os.Rename(path, orig); err != nil {
-				return "rename error: " + err.Error(), err
+				return "Rename error: " + err.Error(), err
 			}
 			path = orig
 		}
@@ -120,33 +121,37 @@ func processPDF(form map[string]string) (string, error) {
 	switch {
 	case manage && archive:
 		manager.Logf("📤 Managed archive upload")
-		if err := manager.RenameAndUpload(path, prefix, rmDir); err != nil {
-			return "managed archive upload error: " + err.Error(), err
+		remoteName, err = manager.RenameAndUpload(path, prefix, rmDir)
+		if err != nil {
+			return err.Error(), err
 		}
 
 	case manage && !archive:
 		manager.Logf("📤 Managed in-place workflow")
 		noYearPath, err := manager.RenameLocalNoYear(path, prefix)
 		if err != nil {
-			return "rename local no-year error: " + err.Error(), err
+			return err.Error(), err
 		}
-		if err := manager.SimpleUpload(noYearPath, rmDir); err != nil {
-			return "simple upload error: " + err.Error(), err
+		remoteName, err = manager.SimpleUpload(noYearPath, rmDir)
+		if err != nil {
+			return err.Error(), err
 		}
 		if _, err := manager.AppendYearLocal(noYearPath); err != nil {
-			return "append-year local error: " + err.Error(), err
+			return err.Error(), err
 		}
 
 	case !manage && archive:
 		manager.Logf("📤 Archive-only upload")
-		if err := manager.RenameAndUpload(path, prefix, rmDir); err != nil {
-			return "archive-only upload error: " + err.Error(), err
+		remoteName, err = manager.RenameAndUpload(path, prefix, rmDir)
+		if err != nil {
+			return err.Error(), err
 		}
 
 	default:
 		manager.Logf("📤 Simple upload")
-		if err := manager.SimpleUpload(path, rmDir); err != nil {
-			return "simple upload error: " + err.Error(), err
+		remoteName, err = manager.SimpleUpload(path, rmDir)
+		if err != nil {
+			return err.Error(), err
 		}
 	}
 
@@ -156,8 +161,8 @@ func processPDF(form map[string]string) (string, error) {
 			manager.Logf("cleanup warning: %v", err)
 		}
 	}
-
-	return fmt.Sprintf("completed workflow, final file at %q", path), nil
+	fullPath := filepath.Join(rmDir, remoteName)
+	return fmt.Sprintf("✅ Your document is available on your reMarkable at %q", fullPath), nil
 }
 
 // func processPDF(form map[string]string) {
