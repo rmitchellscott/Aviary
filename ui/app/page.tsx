@@ -17,31 +17,63 @@ export default function HomePage() {
   const handleSubmit = async () => {
     setLoading(true)
     setMessage('')
-    try {
-      const form = new URLSearchParams()
-      form.append('Body', url)
-      form.append('compress', compress ? 'true' : 'false')
 
-      const res = await fetch('/api/webhook', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: form.toString(),
-      })
+    // enqueue
+    const form = new URLSearchParams()
+    form.append('Body', url)
+    form.append('compress', compress ? 'true' : 'false')
+    // …other fields…
 
-      if (res.ok) {
-        setMessage('✅ Request accepted')
-        setUrl('')
-        setCompress(false)
-      } else {
-        const err = await res.json()
-        setMessage(`❌ Error: ${err.message}`)
+    const res = await fetch('/api/webhook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form.toString(),
+    })
+    const { jobId } = await res.json()
+    setMessage(`Job queued: ${jobId}`)
+
+    // poll loop
+    let done = false
+    while (!done) {
+      await new Promise(r => setTimeout(r, 1500))
+      const st = await fetch(`/api/status/${jobId}`).then(r => r.json())
+      setMessage(`${st.status}: ${st.message}`)
+      if (st.status === 'success' || st.status === 'error') {
+        done = true
       }
-    } catch {
-      setMessage('🚫 Network error')
-    } finally {
-      setLoading(false)
     }
+
+    setLoading(false)
   }
+
+  // const handleSubmit = async () => {
+  //   setLoading(true)
+  //   setMessage('')
+  //   try {
+  //     const form = new URLSearchParams()
+  //     form.append('Body', url)
+  //     form.append('compress', compress ? 'true' : 'false')
+
+  //     const res = await fetch('/api/webhook', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  //       body: form.toString(),
+  //     })
+
+  //     if (res.ok) {
+  //       setMessage('✅ Request accepted')
+  //       setUrl('')
+  //       setCompress(false)
+  //     } else {
+  //       const err = await res.json()
+  //       setMessage(`❌ Error: ${err.message}`)
+  //     }
+  //   } catch {
+  //     setMessage('🚫 Network error')
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
   return (
     <div className="min-h-screen bg-background p-8">

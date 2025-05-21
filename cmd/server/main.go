@@ -40,7 +40,12 @@ func main() {
 	// 3) Gin router for /api
 	apiRouter := gin.New()
 	apiRouter.Use(gin.Logger(), gin.Recovery())
-	apiRouter.POST("/api/webhook", webhook.Handler)
+	// apiRouter.POST("/api/webhook", webhook.Handler)
+	// apiRouter.GET("/api/config", func(c *gin.Context) {
+	// 	c.JSON(200, gin.H{"apiUrl": "/api/"})
+	// })
+	apiRouter.POST("/api/webhook", webhook.EnqueueHandler)
+	apiRouter.GET("/api/status/:id", webhook.StatusHandler)
 	apiRouter.GET("/api/config", func(c *gin.Context) {
 		c.JSON(200, gin.H{"apiUrl": "/api/"})
 	})
