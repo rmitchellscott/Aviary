@@ -5,7 +5,6 @@ COPY ui/package.json ui/package-lock.json ./
 RUN npm ci
 COPY ui/ .
 RUN npm run build
-RUN find out -type d -empty -delete
 
 FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS rmapi-builder
 WORKDIR /app
