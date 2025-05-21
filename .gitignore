@@ -47,6 +47,7 @@ ui/.env*
 
 .env
 rmapi.conf
+/aviary-backend
 
 # ======================
 # Common / Misc
