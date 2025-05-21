@@ -1,3 +1,7 @@
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.6.1 AS xx
+
+
+# Frontend build
 FROM node:24-alpine AS ui-builder
 WORKDIR /app/ui
 
@@ -6,35 +10,44 @@ RUN npm ci
 COPY ui/ .
 RUN npm run build
 
-FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS rmapi-builder
+
+FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS go-base
 WORKDIR /app
+COPY --from=xx / /
 RUN apk add --no-cache git
+
+
+# Rmapi build
+FROM --platform=$BUILDPLATFORM go-base AS rmapi-source
+RUN git clone https://github.com/ddvk/rmapi .
+
+FROM --platform=$BUILDPLATFORM go-base AS rmapi-builder
+
+COPY --from=rmapi-source /app/go.mod /app/go.sum ./
+RUN go mod download
+
+COPY --from=rmapi-source /app .
 ARG TARGETPLATFORM
-RUN case "$TARGETPLATFORM" in \
-        'linux/arm/v6') export GOARCH=arm GOARM=6 ;; \
-        'linux/arm/v7') export GOARCH=arm GOARM=7 ;; \
-        'linux/arm64') export GOARCH=arm64 ;; \
-        *) export GOARCH=amd64 ;; \
-    esac && \
-    git clone https://github.com/ddvk/rmapi && \
-    cd rmapi && \
-    go build -ldflags='-w -s' .
+RUN --mount=type=cache,target=/root/.cache \
+    CGO_ENABLED=0 xx-go build -ldflags='-w -s' -trimpath
 
 
-FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.24-alpine AS aviary-builder
-
-WORKDIR /src/aviary-backend
+# Aviary build
+FROM --platform=$BUILDPLATFORM go-base AS aviary-builder
 
 COPY go.mod go.sum ./
-RUN apk add --no-cache git \
- && go mod download
+RUN go mod download
 
 COPY . .
 COPY --from=ui-builder /app/ui/out ./ui/out
 
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /out/aviary-server .
+ARG TARGETPLATFORM
+RUN --mount=type=cache,target=/root/.cache \
+    CGO_ENABLED=0 xx-go build -ldflags='-w -s' -trimpath
 
-FROM alpine:3.21 AS runner
+
+# Final image
+FROM alpine:3.21
 
 # Install runtime dependencies
 RUN apk add --no-cache \
@@ -44,8 +57,8 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-COPY --from=rmapi-builder /app/rmapi/rmapi /usr/local/bin/rmapi
-COPY --from=aviary-builder /out/aviary-server /usr/local/bin/aviary-server
+COPY --from=rmapi-builder /app/rmapi /usr/local/bin/
+COPY --from=aviary-builder /app/aviary-backend /usr/local/bin/
 
 ENV PORT=8000 \
     PDF_DIR=/app/pdfs \
@@ -53,4 +66,4 @@ ENV PORT=8000 \
     GS_COMPAT=1.4 \
     GS_SETTINGS=/ebook
 
-ENTRYPOINT ["/usr/local/bin/aviary-server"]
+ENTRYPOINT ["/usr/local/bin/aviary-backend"]
