@@ -16,8 +16,8 @@ import (
 // 1) Embed index.html plus everything under _next/ recursively
 //    (change static/ if your export has other top-level folders)
 
-//go:embed assets/ui/out/index.html
-//go:embed assets/ui/out/_next/**
+//go:embed assets/ui/out
+//go:embed assets/ui/out/_next
 var embeddedUI embed.FS
 
 func main() {
