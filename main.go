@@ -32,7 +32,7 @@ func main() {
 	addr := ":" + port
 
 	// 2) Create a Sub FS rooted at our static export
-	uiFS, err := fs.Sub(embeddedUI, "assets/ui/out")
+	uiFS, err := fs.Sub(embeddedUI, "ui/out")
 	if err != nil {
 		log.Fatalf("embed error: %v", err)
 	}
