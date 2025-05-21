@@ -38,27 +38,23 @@ func main() {
 	}
 
 	// 3) Gin router for /api
-	apiRouter := gin.New()
-	apiRouter.Use(gin.Logger(), gin.Recovery())
-	// apiRouter.POST("/api/webhook", webhook.Handler)
-	// apiRouter.GET("/api/config", func(c *gin.Context) {
+	router := gin.New()
+	router.Use(gin.Logger(), gin.Recovery())
+	// router.POST("/api/webhook", webhook.Handler)
+	// router.GET("/api/config", func(c *gin.Context) {
 	// 	c.JSON(200, gin.H{"apiUrl": "/api/"})
 	// })
-	apiRouter.POST("/api/webhook", webhook.EnqueueHandler)
-	apiRouter.GET("/api/status/:id", webhook.StatusHandler)
-	apiRouter.GET("/api/config", func(c *gin.Context) {
+	router.POST("/api/webhook", webhook.EnqueueHandler)
+	router.GET("/api/status/:id", webhook.StatusHandler)
+	router.GET("/api/config", func(c *gin.Context) {
 		c.JSON(200, gin.H{"apiUrl": "/api/"})
 	})
 
-	// 4) http.ServeMux for static + SPA fallback
-	mux := http.NewServeMux()
-	mux.Handle("/api/", apiRouter)
-
 	// File server for all embedded files
 	fileServer := http.FileServer(http.FS(uiFS))
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	router.NoRoute(func(c *gin.Context) {
 		// strip leading slash
-		p := strings.TrimPrefix(r.URL.Path, "/")
+		p := strings.TrimPrefix(c.Request.URL.Path, "/")
 		if p == "" {
 			p = "index.html"
 		}
@@ -66,7 +62,7 @@ func main() {
 		// Check if file exists in embedded FS
 		if f, err := uiFS.Open(p); err == nil {
 			if info, _ := f.Stat(); !info.IsDir() {
-				fileServer.ServeHTTP(w, r)
+				fileServer.ServeHTTP(c.Writer, c.Request)
 				return
 			}
 		}
@@ -74,13 +70,13 @@ func main() {
 		// Fallback to index.html for SPA
 		data, err := fs.ReadFile(uiFS, "index.html")
 		if err != nil {
-			http.Error(w, "index.html not found", 500)
+			http.Error(c.Writer, "index.html not found", 500)
 			return
 		}
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Write(data)
+		c.Header("Content-Type", "text/html; charset=utf-8")
+		c.Writer.Write(data)
 	})
 
 	log.Printf("Listening on %s…", addr)
-	log.Fatal(http.ListenAndServe(addr, mux))
+	log.Fatal(http.ListenAndServe(addr, router))
 }
