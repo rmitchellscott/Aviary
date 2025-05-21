@@ -1,0 +1,60 @@
+# ======================
+# UI (Next.js) / Node.js
+# ======================
+ui/node_modules/
+ui/.pnp
+ui/.pnp.*
+ui/.yarn/*
+!ui/.yarn/patches
+!ui/.yarn/plugins
+!ui/.yarn/releases
+!ui/.yarn/versions
+
+# UI build output
+ui/.next/
+ui/out/
+ui/build/
+ui/coverage
+
+# UI misc
+ui/*.pem
+ui/npm-debug.log*
+ui/yarn-debug.log*
+ui/yarn-error.log*
+ui/.pnpm-debug.log*
+ui/.vercel
+ui/next-env.d.ts
+
+# UI TypeScript
+ui/*.tsbuildinfo
+
+# UI environment
+ui/.env*
+
+# ======================
+# Backend / Go
+# ======================
+/bin/
+/vendor/
+/*.exe
+/*.dll
+/*.so
+/*.dylib
+/*.test
+
+/pdfs/
+/app/pdfs/
+
+.env
+rmapi.conf
+
+# ======================
+# Common / Misc
+# ======================
+.vscode/
+.idea/
+*.swp
+*~
+
+.DS_Store
+Thumbs.db

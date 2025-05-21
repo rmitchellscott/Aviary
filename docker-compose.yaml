@@ -1,0 +1,14 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    ports:
+      - '8000:8000'
+    environment:
+      PDF_DIR: /app/pdfs
+      RMAPI_HOST: https://remarkable.mitchellscott.us
+    volumes:
+      - ./pdfs:/app/pdfs
+      - ./rmapi.conf:/root/.config/rmapi/rmapi.conf
