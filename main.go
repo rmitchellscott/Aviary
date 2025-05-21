@@ -51,7 +51,6 @@ func main() {
 	})
 
 	// File server for all embedded files
-	fileServer := http.FileServer(http.FS(uiFS))
 	router.NoRoute(func(c *gin.Context) {
 		// strip leading slash
 		p := strings.TrimPrefix(c.Request.URL.Path, "/")
@@ -60,21 +59,11 @@ func main() {
 		}
 
 		// Check if file exists in embedded FS
-		if f, err := uiFS.Open(p); err == nil {
-			if info, _ := f.Stat(); !info.IsDir() {
-				fileServer.ServeHTTP(c.Writer, c.Request)
-				return
-			}
+		if stat, err := fs.Stat(uiFS, p); err != nil || stat.IsDir() {
+			p = "index.html"
 		}
 
-		// Fallback to index.html for SPA
-		data, err := fs.ReadFile(uiFS, "index.html")
-		if err != nil {
-			http.Error(c.Writer, "index.html not found", 500)
-			return
-		}
-		c.Header("Content-Type", "text/html; charset=utf-8")
-		c.Writer.Write(data)
+		http.ServeFileFS(c.Writer, c.Request, uiFS, p)
 	})
 
 	log.Printf("Listening on %s…", addr)
