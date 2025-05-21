@@ -30,9 +30,9 @@ RUN apk add --no-cache git \
  && go mod download
 
 COPY . .
-COPY --from=ui-builder /app/ui/out cmd/server/assets/ui/out
+COPY --from=ui-builder /app/ui/out ./ui/out
 
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /out/aviary-server cmd/server/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /out/aviary-server .
 
 FROM alpine:3.21 AS runner
 
