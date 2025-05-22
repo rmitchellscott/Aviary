@@ -2,7 +2,7 @@ FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.6.1 AS xx
 
 
 # Frontend build
-FROM node:24-alpine AS ui-builder
+FROM --platform=$BUILDPLATFORM node:24-alpine AS ui-builder
 WORKDIR /app/ui
 
 COPY ui/package.json ui/package-lock.json ./
