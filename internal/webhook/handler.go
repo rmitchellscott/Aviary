@@ -12,10 +12,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/rmitchellscott/aviary-backend/internal/compressor"
-	"github.com/rmitchellscott/aviary-backend/internal/downloader"
-	"github.com/rmitchellscott/aviary-backend/internal/jobs"
-	"github.com/rmitchellscott/aviary-backend/internal/manager"
+	"github.com/rmitchellscott/aviary/internal/compressor"
+	"github.com/rmitchellscott/aviary/internal/downloader"
+	"github.com/rmitchellscott/aviary/internal/jobs"
+	"github.com/rmitchellscott/aviary/internal/manager"
 )
 
 var urlRegex = regexp.MustCompile(`https?://[^\s]+`)

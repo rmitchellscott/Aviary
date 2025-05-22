@@ -58,7 +58,7 @@ RUN apk add --no-cache \
 WORKDIR /app
 
 COPY --from=rmapi-builder /app/rmapi /usr/local/bin/
-COPY --from=aviary-builder /app/aviary-backend /usr/local/bin/
+COPY --from=aviary-builder /app/aviary /usr/local/bin/
 
 ENV PORT=8000 \
     PDF_DIR=/app/pdfs \
@@ -66,4 +66,4 @@ ENV PORT=8000 \
     GS_COMPAT=1.4 \
     GS_SETTINGS=/ebook
 
-ENTRYPOINT ["/usr/local/bin/aviary-backend"]
+ENTRYPOINT ["/usr/local/bin/aviary"]

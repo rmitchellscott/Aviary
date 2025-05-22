@@ -1,11 +1,15 @@
-module github.com/rmitchellscott/aviary-backend
+module github.com/rmitchellscott/aviary
 
-go 1.20
+go 1.23.0
+
+toolchain go1.24.1
 
 require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
+	golang.org/x/term v0.32.0
+	golang.org/x/text v0.7.0
 )
 
 require (
@@ -28,8 +32,7 @@ require (
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
 	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
-	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
