@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Logo } from '@/components/Logo'
 // import { Separator } from '@/components/ui/separator'
 
 export default function HomePage() {
@@ -89,7 +90,10 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background p-8">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold">Aviary</h1>
+        {/* <Logo className="h-8 w-8 text-foreground" /> */}
+        <Logo className="h-16 w-32 text-foreground dark:text-foreground-dark" />
+
+        {/* <h1 className="text-3xl font-bold">Aviary</h1> */}
       </header>
 
       <Card className="max-w-md mx-auto bg-card">
