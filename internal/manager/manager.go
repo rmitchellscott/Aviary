@@ -80,19 +80,6 @@ func moveFile(src, dst string) error {
 	return os.Remove(src)
 }
 
-// // SimpleUpload calls `rmapi put` and returns the filename that was uploaded.
-//
-//	func SimpleUpload(path, rmDir string) (string, error) {
-//		// upload
-//		cmd := exec.Command("rmapi", "put", path, rmDir)
-//		if err := cmd.Run(); err != nil {
-//			return "", err
-//		}
-//		// the device will see the basename of the local file
-//		remoteName := filepath.Base(path)
-//		return remoteName, nil
-//	}
-//
 // SimpleUpload calls `rmapi put` and returns the uploaded filename or a detailed error.
 func SimpleUpload(path, rmDir string) (string, error) {
 	cmd := exec.Command("rmapi", "put", path, rmDir)
@@ -163,14 +150,6 @@ func RenameAndUpload(path, prefix, rmDir string) (string, error) {
 	if err := moveFile(path, noYearPath); err != nil {
 		return "", err
 	}
-
-	// Upload the no-year file
-	// cmd := exec.Command("rmapi", "put", noYearPath, rmDir)
-	// out, err := cmd.CombinedOutput()
-	// if err != nil {
-	// 	msg := strings.TrimSpace(string(out))
-	// 	return "", fmt.Errorf("rmapi put failed: %v; output: %q", err, msg)
-	// }
 
 	cmd := exec.Command("rmapi", "put", noYearPath, rmDir)
 	out, err := cmd.CombinedOutput()

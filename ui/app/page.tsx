@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Logo } from '@/components/Logo'
-// import { Separator } from '@/components/ui/separator'
 
 export default function HomePage() {
   const [url, setUrl] = useState('')
@@ -23,7 +22,6 @@ export default function HomePage() {
     const form = new URLSearchParams()
     form.append('Body', url)
     form.append('compress', compress ? 'true' : 'false')
-    // …other fields…
 
     const res = await fetch('/api/webhook', {
       method: 'POST',
@@ -40,59 +38,21 @@ export default function HomePage() {
       const st = await fetch(`/api/status/${jobId}`).then(r => r.json())
       setMessage(`${st.status}: ${st.message}`)
       if (st.status === 'success') {
-        setMessage(st.message)         // no “success:” prefix
+        setMessage(st.message)
         done = true
       } else if (st.status === 'error') {
-        setMessage(`❌ ${st.message}`)  // keep an error indicator
+        setMessage(`❌ ${st.message}`)
         done = true
       }
     }
 
     setLoading(false)
   }
-      // if (st.status === 'success' || st.status === 'error') {
-      //   done = true
-      // }
-  //   }
-
-  //   setLoading(false)
-  // }
-
-  // const handleSubmit = async () => {
-  //   setLoading(true)
-  //   setMessage('')
-  //   try {
-  //     const form = new URLSearchParams()
-  //     form.append('Body', url)
-  //     form.append('compress', compress ? 'true' : 'false')
-
-  //     const res = await fetch('/api/webhook', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  //       body: form.toString(),
-  //     })
-
-  //     if (res.ok) {
-  //       setMessage('✅ Request accepted')
-  //       setUrl('')
-  //       setCompress(false)
-  //     } else {
-  //       const err = await res.json()
-  //       setMessage(`❌ Error: ${err.message}`)
-  //     }
-  //   } catch {
-  //     setMessage('🚫 Network error')
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
 
   return (
     <div className="min-h-screen bg-background p-8">
       <header className="mb-8">
-        {/* <Logo className="h-8 w-8 text-foreground" /> */}
         <Logo className="h-16 w-32 text-foreground dark:text-foreground-dark" />
-
         {/* <h1 className="text-3xl font-bold">Aviary</h1> */}
       </header>
 

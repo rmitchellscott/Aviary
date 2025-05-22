@@ -13,9 +13,6 @@ import (
 	"github.com/rmitchellscott/aviary-backend/internal/webhook"
 )
 
-// 1) Embed index.html plus everything under _next/ recursively
-//    (change static/ if your export has other top-level folders)
-
 //go:embed ui/out
 //go:embed ui/out/_next
 var embeddedUI embed.FS

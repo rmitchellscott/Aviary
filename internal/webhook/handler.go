@@ -43,13 +43,6 @@ func EnqueueHandler(c *gin.Context) {
 
 	// process in background
 	go func() {
-		// jobStore.Update(id, "Running", "")
-		// msg, err := processPDF(form)
-		// if err != nil {
-		// 	jobStore.Update(id, "Error", msg)
-		// } else {
-		// 	jobStore.Update(id, "Success", msg)
-		// }
         jobStore.Update(id, "Running", "")
 
         // catch panics, too
@@ -63,7 +56,7 @@ func EnqueueHandler(c *gin.Context) {
         // do the work
         msg, err := processPDF(form)
         if err != nil {
-            // 📣 log the full error
+            // log the full error
             manager.Logf("❌ processPDF error: %v, message: %q", err, msg)
             jobStore.Update(id, "error", msg)
         } else {

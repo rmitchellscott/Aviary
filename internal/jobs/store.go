@@ -6,11 +6,11 @@ import (
 
 // Job represents the state of a single PDF process
 type Job struct {
-	Status  string `json:"status"`  // “pending”|“running”|“success”|“error”
-	Message string `json:"message"` // last human-friendly log or error
+	Status  string `json:"status"`
+	Message string `json:"message"`
 }
 
-// Store holds all jobs in memory (for prod you’d swap in Redis/DB)
+// Store holds all jobs in memory
 type Store struct {
 	mu   sync.RWMutex
 	jobs map[string]*Job
