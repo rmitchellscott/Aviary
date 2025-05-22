@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+    "golang.org/x/text/cases"
+    "golang.org/x/text/language"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -21,25 +23,53 @@ var jobStore = jobs.NewStore()
 
 // EnqueueHandler accepts the form, spins off a goroutine, and returns a jobId
 func EnqueueHandler(c *gin.Context) {
-	// parse the same form map you had before...
-	form := map[string]string{
-		"Body": c.PostForm("Body"),
-		// ... other fields ...
-	}
+   form := map[string]string{
+       "Body":     c.PostForm("Body"),
+       "prefix":   c.PostForm("prefix"),
+       "compress": c.DefaultPostForm("compress", "false"),
+       "manage":   c.DefaultPostForm("manage", "false"),
+       "archive":  c.DefaultPostForm("archive", "false"),
+       "rm_dir":   c.PostForm("rm_dir"),
+   }
+    titleCaser := cases.Title(language.English)
 
+    for key, val := range form {
+        humanKey := titleCaser.String(strings.ReplaceAll(key, "_", " "))
+        manager.Logf("%s: %s", humanKey, val)
+    }
 	// create a job
 	id := uuid.NewString()
 	jobStore.Create(id)
 
 	// process in background
 	go func() {
-		jobStore.Update(id, "running", "")
-		msg, err := processPDF(form)
-		if err != nil {
-			jobStore.Update(id, "error", msg)
-		} else {
-			jobStore.Update(id, "success", msg)
-		}
+		// jobStore.Update(id, "Running", "")
+		// msg, err := processPDF(form)
+		// if err != nil {
+		// 	jobStore.Update(id, "Error", msg)
+		// } else {
+		// 	jobStore.Update(id, "Success", msg)
+		// }
+        jobStore.Update(id, "Running", "")
+
+        // catch panics, too
+        defer func() {
+            if r := recover(); r != nil {
+                manager.Logf("❌ Panic in processPDF: %v", r)
+                jobStore.Update(id, "Error", fmt.Sprintf("Panic: %v", r))
+            }
+        }()
+
+        // do the work
+        msg, err := processPDF(form)
+        if err != nil {
+            // 📣 log the full error
+            manager.Logf("❌ processPDF error: %v, message: %q", err, msg)
+            jobStore.Update(id, "error", msg)
+        } else {
+            manager.Logf("✅ processPDF success: %s", msg)
+            jobStore.Update(id, "success", msg)
+        }
 	}()
 
 	// immediately reply with jobId
@@ -162,110 +192,8 @@ func processPDF(form map[string]string) (string, error) {
 		}
 	}
 	fullPath := filepath.Join(rmDir, remoteName)
-	return fmt.Sprintf("✅ Your document is available on your reMarkable at %q", fullPath), nil
+	return fmt.Sprintf("✅ Your document is available on your reMarkable at %s", fullPath), nil
 }
-
-// func processPDF(form map[string]string) {
-// 	body := form["Body"]
-// 	prefix := form["prefix"]
-// 	compress := isTrue(form["compress"])
-// 	manage := isTrue(form["manage"])
-// 	archive := isTrue(form["archive"])
-// 	rmDir := form["rm_dir"]
-// 	if rmDir == "" {
-// 		rmDir = manager.DefaultRmDir()
-// 	}
-
-// 	// Extract URL
-// 	match := urlRegex.FindString(body)
-// 	if match == "" {
-// 		manager.Logf("❌ No URL found in message")
-// 		return
-// 	}
-
-// 	// 1) Download: only into PDF_DIR if archive==true
-// 	tmpDir := !archive
-// 	manager.Logf("DownloadPDF: tmp=%t, prefix=%q", tmpDir, prefix)
-// 	path, err := downloader.DownloadPDF(match, tmpDir, prefix)
-// 	if err != nil {
-// 		manager.Logf("❌ Download error: %v", err)
-// 		return
-// 	}
-
-// 	// 2) Compress if requested
-// 	if compress {
-// 		manager.Logf("🔧 Compressing PDF")
-// 		path, err = compressor.CompressPDF(path)
-// 		if err != nil {
-// 			manager.Logf("❌ Compress error: %v", err)
-// 			return
-// 		}
-// 		if !manage {
-// 			// rename compressed back to original basename
-// 			orig := strings.TrimSuffix(path, "_compressed.pdf") + ".pdf"
-// 			if err := os.Rename(path, orig); err != nil {
-// 				manager.Logf("❌ Rename compressed back error: %v", err)
-// 				return
-// 			}
-// 			path = orig
-// 		}
-// 	}
-
-// 	// 3) Upload / Rename & Upload
-// 	switch {
-// 	case manage && archive:
-// 		// unchanged…
-// 		manager.Logf("📤 Managed upload into PDF_DIR …")
-// 		if err := manager.RenameAndUpload(path, prefix, rmDir); err != nil {
-// 			manager.Logf("❌ Managed workflow error: %v", err)
-// 			return
-// 		}
-
-// 	case manage && !archive:
-// 		// in-place manage: split rename/upload into two steps
-// 		manager.Logf("📤 Managed in-place: rename→upload(no-year)→rename(with-year) …")
-
-// 		// 1) rename to no-year PDF
-// 		noYearPath, err := manager.RenameLocalNoYear(path, prefix)
-// 		if err != nil {
-// 			manager.Logf("❌ Local no-year rename error: %v", err)
-// 			return
-// 		}
-
-// 		// 2) upload the no-year file
-// 		if err := manager.SimpleUpload(noYearPath, rmDir); err != nil {
-// 			manager.Logf("❌ Upload error: %v", err)
-// 			return
-// 		}
-
-// 		// 3) rename to include year
-// 		if _, err := manager.AppendYearLocal(noYearPath); err != nil {
-// 			manager.Logf("❌ Local append-year error: %v", err)
-// 			return
-// 		}
-
-// 	case !manage && archive:
-// 		manager.Logf("📤 Archive-only rename/upload into PDF_DIR …")
-// 		if err := manager.RenameAndUpload(path, prefix, rmDir); err != nil {
-// 			manager.Logf("❌ Archive-only workflow error: %v", err)
-// 			return
-// 		}
-
-// 	default:
-// 		manager.Logf("📤 Simple upload (no rename/cleanup) …")
-// 		if err := manager.SimpleUpload(path, rmDir); err != nil {
-// 			manager.Logf("❌ Upload error: %v", err)
-// 			return
-// 		}
-// 	}
-
-// 	// 4) Always cleanup when manage==true
-// 	if manage {
-// 		if err := manager.CleanupOld(prefix, rmDir); err != nil {
-// 			manager.Logf("❌ Cleanup error: %v", err)
-// 		}
-// 	}
-// }
 
 func isTrue(s string) bool {
 	s = strings.ToLower(s)
