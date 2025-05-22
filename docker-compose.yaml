@@ -4,12 +4,11 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - '8000:8000'
-    tty: true
-    stdin_open: true
+      - "8000:8000"
     environment:
-      PDF_DIR: /app/pdfs
       RMAPI_HOST: "${RMAPI_HOST}"
     volumes:
-      - ./pdfs:/app/pdfs
-      - ./rmapi.conf:/root/.config/rmapi/rmapi.conf
+      - type: bind
+        source: ./rmapi.conf
+        target: /root/.config/rmapi/rmapi.conf
+    restart: unless-stopped

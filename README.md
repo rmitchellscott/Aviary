@@ -37,12 +37,6 @@ A webhook-driven document uploader for reMarkable, featuring a static Next.js + 
     >
   </picture>
 
-## Requirements
-
-- [Ghostscript](https://www.ghostscript.com/) (`gs` CLI)
-- [rmapi](https://github.com/ddvk/rmapi) (must be installed & in your `$PATH`)
-- Access to your reMarkable credentials (`rmapi` setup)
-
 ## Environment Variable Configuration
 
 | Variable                 | Required? | Default | Description |
@@ -80,7 +74,7 @@ curl -X POST http://localhost:8000/api/webhook \
 The following examples are provided as a way to get started. Some adjustments may be required before production use, particularly regarding secret management.
 
 ## Set Up 
-1. Get your device and user token file (rmapi.conf) from the Remarkable cloud by running the following command and entering the one-time code: `docker run -it -e RMAPI_HOST=remarkable.mydomain.com ghcr.io/rmitchellscott/aviary pair`
+1. Get your device and user token file (rmapi.conf) from the reMarkable cloud by running the following command and entering the one-time code: `docker run -it -e RMAPI_HOST=remarkable.mydomain.com ghcr.io/rmitchellscott/aviary pair`
 1. Save the output as rmapi.conf, and this will get mounted into the container.
 
 
@@ -95,13 +89,13 @@ ghcr.io/rmitchellscott/aviary
 ## Docker Compose
 
 ```yaml
-verion: 2.4
-
 services:
-  webhook2remarkable:
+  aviary:
     image: ghcr.io/rmitchellscott/aviary
     ports:
       - "8000:8000"
+    environment:
+      RMAPI_HOST: "${RMAPI_HOST}"
     volumes:
       - type: bind
         source: ~/rmapi.conf
@@ -110,6 +104,12 @@ services:
 ```
 
 ## Building Locally
+### Requirements
+
+- [Ghostscript](https://www.ghostscript.com/) (`gs` CLI)
+- [npm]()
+- [rmapi](https://github.com/ddvk/rmapi) (must be installed & in your `$PATH`)
+- Access to your reMarkable credentials (`rmapi` setup)
 
 Ensure the requirements are installed and available in your PATH.
 ```shell
