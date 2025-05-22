@@ -24,6 +24,19 @@ A webhook-driven document uploader for reMarkable, featuring a static Next.js + 
   - **Managed**: rename by date, upload, then append the year locally & clean up files older than 7 days
 - Clean web UI for uploading of documents by URL
 
+## Screenshot
+
+  <picture>
+    <source
+      srcset="assets/screenshot-dark.webp"
+      media="(prefers-color-scheme: dark)"
+    >
+    <img
+      src="assets/screenshot-light.webp"
+      alt="Aviary UI Screenshot"
+    >
+  </picture>
+
 ## Requirements
 
 - [Ghostscript](https://www.ghostscript.com/) (`gs` CLI)
