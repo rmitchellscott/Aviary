@@ -15,12 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Aviary",
   description: "Send documents to reMarkable",
-  icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon-32x32.png',
-    apple: '/apple-touch-icon.png',
+  appleWebApp: {
+    title: "Aviary",
   },
-  manifest: '/site.webmanifest',
 };
 
 import { ThemeProvider } from "@/components/theme-provider"
