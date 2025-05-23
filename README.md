@@ -69,6 +69,10 @@ curl -X POST http://localhost:8000/api/webhook \
   -d "manage=true" \
   -d "rm_dir=Books"
 ```
+## Integrations
+
+* [AWS SES](https://github.com/rmitchellscott/aviary-integration-ses) - Lambda to provide emailed PDFs/ePubs to Aviary.
+
 
 # Examples
 The following examples are provided as a way to get started. Some adjustments may be required before production use, particularly regarding secret management.
