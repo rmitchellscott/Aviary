@@ -14,6 +14,10 @@
 
 A webhook-driven document uploader for reMarkable, featuring a static Next.js + ShadCN UI and a Go backend that processes and pushes documents to your device. Compatible with both reMarkable Cloud and [rmfakecloud](https://github.com/ddvk/rmfakecloud) via [rmapi](https://github.com/ddvk/rmapi).
 
+## Why the Name?
+
+**Aviary** is a place where birds are kept, chosen to evoke sending documents into the clouds using avian couriers. 
+
 ## Features
 
 - Webhook endpoint (`/api/webhook`) for SMS or HTTP integrations (e.g. Twilio)
