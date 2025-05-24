@@ -11,4 +11,7 @@ services:
       - type: bind
         source: ./rmapi.conf
         target: /root/.config/rmapi/rmapi.conf
+      - type: bind
+        source: ./pdfs
+        target: /app/pdfs
     restart: unless-stopped
