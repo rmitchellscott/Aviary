@@ -124,11 +124,15 @@ func processPDF(form map[string]string) (string, error) {
 	// 3) Compress if requested
 	if compress {
 		manager.Logf("🔧 Compressing PDF")
-		newPath, err := compressor.CompressPDF(path)
-		if err != nil {
-			return "Compress error: " + err.Error(), err
-		}
-		path = newPath
+        compressedPath, err := compressor.CompressPDF(path)
+        if err != nil {
+            return "Compress error: " + err.Error(), err
+        }
+        // remove the original, un-compressed PDF
+        if err := os.Remove(path); err != nil {
+            manager.Logf("  ⚠️ failed to remove uncompressed PDF %q: %v", path, err)
+        }
+        path = compressedPath
 
 		if !manage {
 			// rename compressed back to original basename
@@ -163,9 +167,15 @@ func processPDF(form map[string]string) (string, error) {
 			return err.Error(), err
 		}
 
+	// case !manage && archive:
+	// 	manager.Logf("📤 Archive-only upload")
+	// 	remoteName, err = manager.RenameAndUpload(path, prefix, rmDir)
+	// 	if err != nil {
+	// 		return err.Error(), err
+	// 	}
 	case !manage && archive:
-		manager.Logf("📤 Archive-only upload")
-		remoteName, err = manager.RenameAndUpload(path, prefix, rmDir)
+	 	manager.Logf("📤 Archive-only upload")
+		remoteName, err = manager.SimpleUpload(path, rmDir)
 		if err != nil {
 			return err.Error(), err
 		}
