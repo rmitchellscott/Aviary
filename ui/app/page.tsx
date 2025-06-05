@@ -7,71 +7,171 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Logo } from '@/components/Logo'
+import { FileDropzone } from '@/components/FileDropzone'
+
+/**
+ * Helper to turn any thrown value into a string.
+ */
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) {
+    return err.message
+  }
+  return String(err)
+}
 
 export default function HomePage() {
-  const [url, setUrl] = useState('')
-  const [compress, setCompress] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
+  const [url, setUrl] = useState<string>('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [compress, setCompress] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [message, setMessage] = useState<string>('')
 
+  /**
+   * If a local file is selected, POST it to /api/upload as multipart/form-data.
+   * Otherwise, enqueue by sending a URL to /api/webhook (old behavior).
+   */
   const handleSubmit = async () => {
     setLoading(true)
     setMessage('')
 
-    // enqueue
-    const form = new URLSearchParams()
-    form.append('Body', url)
-    form.append('compress', compress ? 'true' : 'false')
+  if (selectedFile) {
+    // === FILE UPLOAD FLOW (enqueue + poll) ===
+    try {
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+      formData.append('compress', compress ? 'true' : 'false')
 
-    const res = await fetch('/api/webhook', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: form.toString(),
-    })
-    const { jobId } = await res.json()
-    setMessage(`Job queued: ${jobId}`)
+      // 1) send to /api/upload and get back { jobId }
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      if (!res.ok) {
+        const errText = await res.text()
+        throw new Error(`Upload failed: ${errText}`)
+      }
+      const { jobId } = await res.json()
+      setMessage(`Job queued: ${jobId}`)
 
-    // poll loop
-    let done = false
-    while (!done) {
-      await new Promise(r => setTimeout(r, 1500))
-      const st = await fetch(`/api/status/${jobId}`).then(r => r.json())
-      setMessage(`${st.status}: ${st.message}`)
-      if (st.status === 'success') {
-        setMessage(st.message)
-        done = true
-      } else if (st.status === 'error') {
-        setMessage(`❌ ${st.message}`)
-        done = true
+      // 2) poll exactly as in the URL flow
+      let done = false
+      while (!done) {
+        await new Promise((r) => setTimeout(r, 1500))
+        const st = await fetch(`/api/status/${jobId}`).then((r) => r.json())
+        setMessage(`${st.status}: ${st.message}`)
+        if (st.status === 'success') {
+          setMessage(st.message)
+          done = true
+        } else if (st.status === 'error') {
+          setMessage(`❌ ${st.message}`)
+          done = true
+        }
+      }
+    } catch (err: unknown) {
+      const msg = getErrorMessage(err)
+      setMessage(`❌ ${msg}`)
+    } finally {
+      // **** HERE: clear the selected file so <Input> becomes enabled again ****
+      setSelectedFile(null)
+      // (also clear url, in case you want to re‐use it)
+      setUrl('')
+      setLoading(false)
+    }
+  } else {
+      // === URL SUBMIT FLOW (EXISTING) ===
+      const form = new URLSearchParams()
+      form.append('Body', url)
+      form.append('compress', compress ? 'true' : 'false')
+
+      try {
+        const res = await fetch('/api/webhook', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: form.toString(),
+        })
+        if (!res.ok) {
+          const errText = await res.text()
+          throw new Error(`Enqueue failed: ${errText}`)
+        }
+        const { jobId } = await res.json()
+        setMessage(`Job queued: ${jobId}`)
+
+        // poll loop
+        let done = false
+        while (!done) {
+          await new Promise((r) => setTimeout(r, 1500))
+          const st = await fetch(`/api/status/${jobId}`).then((r) => r.json())
+          setMessage(`${st.status}: ${st.message}`)
+          if (st.status === 'success') {
+            setMessage(st.message)
+            done = true
+          } else if (st.status === 'error') {
+            setMessage(`❌ ${st.message}`)
+            done = true
+          }
+        }
+      } catch (err: unknown) {
+        const msg = getErrorMessage(err)
+        setMessage(`❌ ${msg}`)
+      } finally {
+        setUrl('')
+        setLoading(false)
       }
     }
-
-    setLoading(false)
   }
 
   return (
     <div className="min-h-screen bg-background p-8">
       <header className="mb-8">
         <Logo className="h-16 w-32 text-foreground dark:text-foreground-dark" />
-        {/* <h1 className="text-3xl font-bold">Aviary</h1> */}
       </header>
 
       <Card className="max-w-md mx-auto bg-card">
         <CardHeader>
-          <CardTitle className="text-xl">Upload Document</CardTitle>
+          <CardTitle className="text-xl">Send Document</CardTitle>
         </CardHeader>
-        {/* <Separator /> */}
+
         <CardContent className="space-y-6">
+          {/* === URL INPUT === */}
           <div>
             <Input
               id="url"
               type="text"
               value={url}
-              onChange={e => setUrl(e.target.value)}
+              onChange={(e) => {
+                setUrl(e.target.value)
+                // Clear any selected file if the user starts typing a URL
+                if (selectedFile) {
+                  setSelectedFile(null)
+                }
+              }}
               placeholder="https://example.com/file.pdf"
+              disabled={!!selectedFile}
             />
           </div>
 
+          <div className="text-center text-sm text-muted-foreground">— OR —</div>
+
+          {/* === DRAG & DROP FILE === */}
+          <div>
+            <FileDropzone
+              onFileSelected={(file) => {
+                setSelectedFile(file)
+                // Clear any URL if the user picks a file
+                if (url) {
+                  setUrl('')
+                }
+              }}
+              disabled={!!url}
+            />
+            {selectedFile && (
+              <p className="mt-2 text-sm text-foreground">
+                Selected file: <span className="font-medium text-foreground">{selectedFile.name}</span>
+              </p>
+            )}
+          </div>
+
+          {/* === COMPRESS SWITCH === */}
           <div className="flex items-center space-x-2">
             <Switch
               id="compress"
@@ -81,15 +181,13 @@ export default function HomePage() {
             <Label htmlFor="compress">Compress PDF</Label>
           </div>
 
-          <Button
-            onClick={handleSubmit}
-            disabled={loading || !url}
-          >
+          {/* === SUBMIT BUTTON === */}
+          <Button onClick={handleSubmit} disabled={loading || (!url && !selectedFile)}>
             {loading ? 'Sending…' : 'Submit'}
           </Button>
 
           {message && (
-            <p className="text-sm text-muted-foreground">{message}</p>
+            <p className="text-sm text-muted-foreground break-words">{message}</p>
           )}
         </CardContent>
       </Card>
