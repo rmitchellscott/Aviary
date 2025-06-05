@@ -48,9 +48,9 @@ export function FileDropzone({ onFileSelected, disabled = false }: FileDropzoneP
     >
       <input {...getInputProps()} />
       {isDragActive ? (
-        <p className="text-sm">Drop your file here …</p>
+        <p className="text-sm"><b>Click to upload</b> or drag and drop</p>
       ) : (
-        <p className="text-sm">Drag & drop a file here, or click to select</p>
+        <p className="text-sm"><b>Click to upload</b> or drag and drop</p>
       )}
     </div>
   )

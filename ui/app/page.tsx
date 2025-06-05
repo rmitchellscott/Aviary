@@ -150,7 +150,7 @@ export default function HomePage() {
             />
           </div>
 
-          <div className="text-center text-sm text-muted-foreground">— OR —</div>
+          {/* <div className="text-center text-sm text-muted-foreground">— OR —</div> */}
 
           {/* === DRAG & DROP FILE === */}
           <div>
@@ -164,11 +164,25 @@ export default function HomePage() {
               }}
               disabled={!!url}
             />
-            {selectedFile && (
+            {/* {selectedFile && (
               <p className="mt-2 text-sm text-foreground">
                 Selected file: <span className="font-medium text-foreground">{selectedFile.name}</span>
               </p>
-            )}
+            )} */}
+          {selectedFile && (
+            <div className="mt-2 flex justify-between items-center">
+              <p className="text-sm text-foreground">
+                Selected file: <span className="font-medium">{selectedFile.name}</span>
+              </p>
+              {/* “Clear” as plain text that turns black on hover */}
+              <button
+                onClick={() => setSelectedFile(null)}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                <b>Remove</b>
+              </button>
+            </div>
+          )}
           </div>
 
           {/* === COMPRESS SWITCH === */}
@@ -183,7 +197,7 @@ export default function HomePage() {
 
           {/* === SUBMIT BUTTON === */}
           <Button onClick={handleSubmit} disabled={loading || (!url && !selectedFile)}>
-            {loading ? 'Sending…' : 'Submit'}
+            {loading ? 'Sending…' : 'Send'}
           </Button>
 
           {message && (
