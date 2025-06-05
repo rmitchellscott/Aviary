@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import {useMemo} from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -25,6 +26,34 @@ export default function HomePage() {
   const [compress, setCompress] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
+
+  /**
+   * Determine if “Compress PDF” should be enabled:
+   * - File mode: only if selected file name ends with “.pdf”
+   * - URL mode: if URL ends with “.pdf”; if URL has other extension, disable; if no extension, keep enabled.
+   */
+  const isPdfFileOrUrl = useMemo(() => {
+    if (selectedFile) {
+      return selectedFile.name.toLowerCase().endsWith('.pdf')
+    }
+    const trimmed = url.trim().toLowerCase()
+    if (!trimmed) {
+      // No URL entered → allow compress switch (it’s harmless if clicked before submit)
+      return true
+    }
+    // If URL ends with .pdf, enable
+    if (trimmed.endsWith('.pdf')) {
+      return true
+    }
+    // Check for any other extension in the last path segment
+    // e.g. if URL contains “/file.txt” or “/file.docx”, disable.
+    const lastSegment = trimmed.split('/').pop() || ''
+    if (lastSegment.includes('.') && !lastSegment.endsWith('.pdf')) {
+      return false
+    }
+    // No extension in URL (e.g. “https://example.com/download”), allow compress
+    return true
+  }, [selectedFile, url])
 
   /**
    * If a local file is selected, POST it to /api/upload as multipart/form-data.
@@ -150,7 +179,7 @@ export default function HomePage() {
             />
           </div>
 
-          {/* <div className="text-center text-sm text-muted-foreground">— OR —</div> */}
+          <div className="text-center text-sm text-muted-foreground">— OR —</div>
 
           {/* === DRAG & DROP FILE === */}
           <div>
@@ -186,22 +215,27 @@ export default function HomePage() {
           </div>
 
           {/* === COMPRESS SWITCH === */}
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="compress"
-              checked={compress}
-              onCheckedChange={setCompress}
-            />
-            <Label htmlFor="compress">Compress PDF</Label>
-          </div>
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="compress"
+            checked={compress}
+            onCheckedChange={setCompress}
+            disabled={!isPdfFileOrUrl}
+          />
+          <Label htmlFor="compress" className={!isPdfFileOrUrl ? 'opacity-50' : ''}>
+            Compress PDF
+          </Label>
+        </div>
 
           {/* === SUBMIT BUTTON === */}
-          <Button onClick={handleSubmit} disabled={loading || (!url && !selectedFile)}>
-            {loading ? 'Sending…' : 'Send'}
-          </Button>
+          <div className="flex justify-end">
+            <Button onClick={handleSubmit} disabled={loading || (!url && !selectedFile)}>
+              {loading ? 'Sending…' : 'Send'}
+            </Button>
+          </div>
 
           {message && (
-            <p className="text-sm text-muted-foreground break-words">{message}</p>
+            <p className="mt-2 text-sm text-muted-foreground break-words">{message}</p>
           )}
         </CardContent>
       </Card>
