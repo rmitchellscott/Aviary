@@ -26,7 +26,7 @@ A webhook-driven document uploader for reMarkable, featuring a static Next.js + 
 - Two upload modes:
   - **Simple**: upload the raw PDF  
   - **Managed**: rename by date, upload, then append the year locally & clean up files older than 7 days
-- Clean web UI for uploading of documents by URL
+- Clean web UI for uploading of documents by URL or from the local filesystem
 
 ## Screenshot
 
