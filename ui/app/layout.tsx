@@ -20,8 +20,9 @@ export const metadata: Metadata = {
   },
 };
 
-import { ThemeProvider } from "@/components/theme-provider"
-import ThemeSwitcher from '@/components/ThemeSwitcher';
+import { ThemeProvider } from "@/components/theme-provider";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
+import { Logo } from "@/components/Logo";
 
 export default function RootLayout({
   children,
@@ -34,17 +35,17 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-          {/* Place the switcher at the top‐right corner */}
-          <ThemeSwitcher
-            position={{ top: '1rem', right: '1rem' }}
-            size={24}
-          />
-        {children}
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <header className="flex items-center justify-between px-8 py-2 bg-background">
+            <Logo className="h-16 w-32 text-foreground dark:text-foreground-dark" />
+            <ThemeSwitcher size={24} />
+          </header>
+
+          <main>{children}</main>
         </ThemeProvider>
       </body>
     </html>

@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Logo } from '@/components/Logo'
 import { FileDropzone } from '@/components/FileDropzone'
 
 /**
@@ -100,9 +99,8 @@ export default function HomePage() {
       const msg = getErrorMessage(err)
       setMessage(`❌ ${msg}`)
     } finally {
-      // **** HERE: clear the selected file so <Input> becomes enabled again ****
+      // clear the selected file so <Input> becomes enabled again
       setSelectedFile(null)
-      // (also clear url, in case you want to re‐use it)
       setUrl('')
       setLoading(false)
     }
@@ -150,10 +148,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-0 pb-8 px-8">
-      <header className="mb-8">
-        <Logo className="h-16 w-32 text-foreground dark:text-foreground-dark" />
-      </header>
+    <div className="bg-background pt-0 pb-8 px-8">
 
       <Card className="max-w-md mx-auto bg-card">
         <CardHeader>
@@ -193,17 +188,11 @@ export default function HomePage() {
               }}
               disabled={!!url}
             />
-            {/* {selectedFile && (
-              <p className="mt-2 text-sm text-foreground">
-                Selected file: <span className="font-medium text-foreground">{selectedFile.name}</span>
-              </p>
-            )} */}
           {selectedFile && (
             <div className="mt-2 flex justify-between items-center">
               <p className="text-sm text-foreground">
                 Selected file: <span className="font-medium">{selectedFile.name}</span>
               </p>
-              {/* “Clear” as plain text that turns black on hover */}
               <button
                 onClick={() => setSelectedFile(null)}
                 className="text-sm text-muted-foreground hover:text-foreground"
