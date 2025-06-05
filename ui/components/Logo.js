@@ -4,13 +4,18 @@ export function Logo(props) {
   return (
     <svg
       {...props}
+      id="logo-svg"  
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 988 323"
       role="img"
       aria-label="Aviary logo"
     >
       {/* Force all fills to currentColor via CSS */}
-      <style>{`* { fill: currentColor !important; }`}</style>
+      <style>{`
+        #logo-svg * {
+          fill: currentColor !important;
+        }
+      `}</style>
 
     <g transform="matrix(1,0,0,1,-46.3057,-292.948)">
             <g transform="matrix(1,0,0,1,4.8518,-56.825)">

@@ -150,7 +150,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background pt-0 pb-8 px-8">
       <header className="mb-8">
         <Logo className="h-16 w-32 text-foreground dark:text-foreground-dark" />
       </header>
