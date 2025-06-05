@@ -63,6 +63,7 @@ For more rmapi-specific configuration, see [their documentation](https://github.
 | manage                   | No        | true/false | Enable managed handling (renaming and cleanup) |
 | archive                  | No        | true/false | Download to PDF_DIR instead of /tmp |
 | rm_dir                   | No        | Books | Override default reMarkable upload directory |
+| retention_days | No | 30 | Optional integer (in days) for cleanup if manage=true. Defaults to 7. |
 
 ### Example cURL
 ```shell
