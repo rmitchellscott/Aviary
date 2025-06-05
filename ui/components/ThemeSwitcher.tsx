@@ -1,7 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
+import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface IconsMap {
   system: React.ReactNode;
@@ -21,9 +27,9 @@ export default function ThemeSwitcher({
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
-        fill="currentColor"                      // keep currentColor
-        className="text-muted-foreground"       // apply Tailwind muted color
-        style={{ width: '1em', height: '1em' }} // 1em→scales with fontSize
+        fill="currentColor"
+        className="text-muted-foreground"
+        style={{ width: '1em', height: '1em' }}
       >
         <path d="M12 21.997c-5.523 0-10-4.477-10-10s4.477-10 10-10s10 4.477 10 10s-4.477 10-10 10m0-2a8 8 0 1 0 0-16a8 8 0 0 0 0 16m0-2v-12a6 6 0 0 1 0 12" />
       </svg>
@@ -32,8 +38,8 @@ export default function ThemeSwitcher({
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
-        fill="currentColor"                          
-        className="text-muted-foreground"            
+        fill="currentColor"
+        className="text-muted-foreground"
         style={{
           width: '1em',
           height: '1em',
@@ -48,9 +54,9 @@ export default function ThemeSwitcher({
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
-        fill="currentColor"                      
-        className="text-muted-foreground"       
-        style={{ width: '1em', height: '1em' }} 
+        fill="currentColor"
+        className="text-muted-foreground"
+        style={{ width: '1em', height: '1em' }}
       >
         <path d="M12 21.997c-5.523 0-10-4.477-10-10s4.477-10 10-10s10 4.477 10 10s-4.477 10-10 10m0-2a8 8 0 1 0 0-16a8 8 0 0 0 0 16m-5-4.681a8.965 8.965 0 0 0 5.707-2.612a8.965 8.965 0 0 0 2.612-5.707A6 6 0 1 1 7 15.316" />
       </svg>
@@ -59,6 +65,12 @@ export default function ThemeSwitcher({
   position = { top: '1rem', right: '1rem' },
   size = 24,
 }: ThemeSwitcherProps) {
+  // Add a mount guard to prevent hydration mismatches
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { theme, setTheme, systemTheme } = useTheme();
 
   type Mode = 'system' | 'dark' | 'light';
@@ -69,41 +81,51 @@ export default function ThemeSwitcher({
   else if (theme === 'dark') currentIndex = 1;
   else if (theme === 'light') currentIndex = 2;
 
-  if (!theme || !systemTheme) return null;
+  // Don’t render until hydration
+  if (!mounted || !theme || !systemTheme) {
+    return null;
+  }
 
+  // Calculate next mode
+  const nextIndex = (currentIndex < 0 ? 0 : currentIndex + 1) % modes.length;
+  const nextMode = modes[nextIndex];
+
+  // Click handler
   const handleClick = () => {
-    const idx = currentIndex < 0 ? 0 : currentIndex;
-    const nextIndex = (idx + 1) % modes.length;
-    setTheme(modes[nextIndex]);
+    setTheme(nextMode);
   };
 
+  // Choose which icon to show now
   const iconToShow =
-    theme === 'system'
-      ? icons.system
-      : theme === 'dark'
-      ? icons.dark
-      : icons.light;
+    theme === 'system' ? icons.system : theme === 'dark' ? icons.dark : icons.light;
+
+  const labelMap: Record<Mode, string> = {
+    system: 'auto',
+    dark: 'dark',
+    light: 'light',
+  };
 
   return (
-    <button
-      onClick={handleClick}
-      aria-label={`Switch theme (current: ${
-        theme === 'system' ? `system → ${systemTheme}` : theme
-      })`}
-      style={{
-        position: 'fixed',
-        background: 'none',
-        border: 'none',
-        padding: 0,
-        cursor: 'pointer',
-        top: position.top,
-        right: position.right,
-        zIndex: 9999,
-        fontSize: size,         // controls the SVG’s 1em size
-        lineHeight: 0,          // prevent vertical misalignment
-      }}
-    >
-      {iconToShow}
-    </button>
+  <Tooltip>
+        <TooltipTrigger asChild key={theme}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleClick}
+            style={{
+              position: 'fixed',
+              top: position.top,
+              right: position.right,
+              fontSize: size,
+              lineHeight: 0,
+            }}
+          >
+            {iconToShow}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          Switch to {labelMap[nextMode]} mode
+        </TooltipContent>
+      </Tooltip>
   );
 }
