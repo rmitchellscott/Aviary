@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {useMemo} from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,6 +21,7 @@ function getErrorMessage(err: unknown): string {
 
 export default function HomePage() {
   const [url, setUrl] = useState<string>('')
+  const [committedUrl, setCommittedUrl] = useState<string>('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [compress, setCompress] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
@@ -52,7 +53,13 @@ export default function HomePage() {
     }
     // No extension in URL (e.g. “https://example.com/download”), allow compress
     return true
-  }, [selectedFile, url])
+  }, [selectedFile, committedUrl])
+
+  useEffect(() => {
+    if (!isPdfFileOrUrl && compress) {
+      setCompress(false)
+    }
+  }, [isPdfFileOrUrl, compress])
 
   /**
    * If a local file is selected, POST it to /api/upload as multipart/form-data.
@@ -169,6 +176,10 @@ export default function HomePage() {
                   setSelectedFile(null)
                 }
               }}
+            onBlur={() => {
+              // commit the URL once the user leaves the field
+              setCommittedUrl(url)
+            }}
               placeholder="https://example.com/file.pdf"
               disabled={!!selectedFile}
             />
