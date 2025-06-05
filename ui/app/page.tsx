@@ -1,95 +1,241 @@
 'use client'
 
 import { useState } from 'react'
+import {useMemo} from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Logo } from '@/components/Logo'
+import { FileDropzone } from '@/components/FileDropzone'
+
+/**
+ * Helper to turn any thrown value into a string.
+ */
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) {
+    return err.message
+  }
+  return String(err)
+}
 
 export default function HomePage() {
-  const [url, setUrl] = useState('')
-  const [compress, setCompress] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
+  const [url, setUrl] = useState<string>('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [compress, setCompress] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [message, setMessage] = useState<string>('')
 
+  /**
+   * Determine if “Compress PDF” should be enabled:
+   * - File mode: only if selected file name ends with “.pdf”
+   * - URL mode: if URL ends with “.pdf”; if URL has other extension, disable; if no extension, keep enabled.
+   */
+  const isPdfFileOrUrl = useMemo(() => {
+    if (selectedFile) {
+      return selectedFile.name.toLowerCase().endsWith('.pdf')
+    }
+    const trimmed = url.trim().toLowerCase()
+    if (!trimmed) {
+      // No URL entered → allow compress switch (it’s harmless if clicked before submit)
+      return true
+    }
+    // If URL ends with .pdf, enable
+    if (trimmed.endsWith('.pdf')) {
+      return true
+    }
+    // Check for any other extension in the last path segment
+    // e.g. if URL contains “/file.txt” or “/file.docx”, disable.
+    const lastSegment = trimmed.split('/').pop() || ''
+    if (lastSegment.includes('.') && !lastSegment.endsWith('.pdf')) {
+      return false
+    }
+    // No extension in URL (e.g. “https://example.com/download”), allow compress
+    return true
+  }, [selectedFile, url])
+
+  /**
+   * If a local file is selected, POST it to /api/upload as multipart/form-data.
+   * Otherwise, enqueue by sending a URL to /api/webhook (old behavior).
+   */
   const handleSubmit = async () => {
     setLoading(true)
     setMessage('')
 
-    // enqueue
-    const form = new URLSearchParams()
-    form.append('Body', url)
-    form.append('compress', compress ? 'true' : 'false')
+  if (selectedFile) {
+    // === FILE UPLOAD FLOW (enqueue + poll) ===
+    try {
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+      formData.append('compress', compress ? 'true' : 'false')
 
-    const res = await fetch('/api/webhook', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: form.toString(),
-    })
-    const { jobId } = await res.json()
-    setMessage(`Job queued: ${jobId}`)
+      // 1) send to /api/upload and get back { jobId }
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      if (!res.ok) {
+        const errText = await res.text()
+        throw new Error(`Upload failed: ${errText}`)
+      }
+      const { jobId } = await res.json()
+      setMessage(`Job queued: ${jobId}`)
 
-    // poll loop
-    let done = false
-    while (!done) {
-      await new Promise(r => setTimeout(r, 1500))
-      const st = await fetch(`/api/status/${jobId}`).then(r => r.json())
-      setMessage(`${st.status}: ${st.message}`)
-      if (st.status === 'success') {
-        setMessage(st.message)
-        done = true
-      } else if (st.status === 'error') {
-        setMessage(`❌ ${st.message}`)
-        done = true
+      // 2) poll exactly as in the URL flow
+      let done = false
+      while (!done) {
+        await new Promise((r) => setTimeout(r, 1500))
+        const st = await fetch(`/api/status/${jobId}`).then((r) => r.json())
+        setMessage(`${st.status}: ${st.message}`)
+        if (st.status === 'success') {
+          setMessage(st.message)
+          done = true
+        } else if (st.status === 'error') {
+          setMessage(`❌ ${st.message}`)
+          done = true
+        }
+      }
+    } catch (err: unknown) {
+      const msg = getErrorMessage(err)
+      setMessage(`❌ ${msg}`)
+    } finally {
+      // **** HERE: clear the selected file so <Input> becomes enabled again ****
+      setSelectedFile(null)
+      // (also clear url, in case you want to re‐use it)
+      setUrl('')
+      setLoading(false)
+    }
+  } else {
+      // === URL SUBMIT FLOW (EXISTING) ===
+      const form = new URLSearchParams()
+      form.append('Body', url)
+      form.append('compress', compress ? 'true' : 'false')
+
+      try {
+        const res = await fetch('/api/webhook', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: form.toString(),
+        })
+        if (!res.ok) {
+          const errText = await res.text()
+          throw new Error(`Enqueue failed: ${errText}`)
+        }
+        const { jobId } = await res.json()
+        setMessage(`Job queued: ${jobId}`)
+
+        // poll loop
+        let done = false
+        while (!done) {
+          await new Promise((r) => setTimeout(r, 1500))
+          const st = await fetch(`/api/status/${jobId}`).then((r) => r.json())
+          setMessage(`${st.status}: ${st.message}`)
+          if (st.status === 'success') {
+            setMessage(st.message)
+            done = true
+          } else if (st.status === 'error') {
+            setMessage(`❌ ${st.message}`)
+            done = true
+          }
+        }
+      } catch (err: unknown) {
+        const msg = getErrorMessage(err)
+        setMessage(`❌ ${msg}`)
+      } finally {
+        setUrl('')
+        setLoading(false)
       }
     }
-
-    setLoading(false)
   }
 
   return (
     <div className="min-h-screen bg-background p-8">
       <header className="mb-8">
         <Logo className="h-16 w-32 text-foreground dark:text-foreground-dark" />
-        {/* <h1 className="text-3xl font-bold">Aviary</h1> */}
       </header>
 
       <Card className="max-w-md mx-auto bg-card">
         <CardHeader>
-          <CardTitle className="text-xl">Upload Document</CardTitle>
+          <CardTitle className="text-xl">Send Document</CardTitle>
         </CardHeader>
-        {/* <Separator /> */}
+
         <CardContent className="space-y-6">
+          {/* === URL INPUT === */}
           <div>
             <Input
               id="url"
               type="text"
               value={url}
-              onChange={e => setUrl(e.target.value)}
+              onChange={(e) => {
+                setUrl(e.target.value)
+                // Clear any selected file if the user starts typing a URL
+                if (selectedFile) {
+                  setSelectedFile(null)
+                }
+              }}
               placeholder="https://example.com/file.pdf"
+              disabled={!!selectedFile}
             />
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="compress"
-              checked={compress}
-              onCheckedChange={setCompress}
+          <div className="text-center text-sm text-muted-foreground">— OR —</div>
+
+          {/* === DRAG & DROP FILE === */}
+          <div>
+            <FileDropzone
+              onFileSelected={(file) => {
+                setSelectedFile(file)
+                // Clear any URL if the user picks a file
+                if (url) {
+                  setUrl('')
+                }
+              }}
+              disabled={!!url}
             />
-            <Label htmlFor="compress">Compress PDF</Label>
+            {/* {selectedFile && (
+              <p className="mt-2 text-sm text-foreground">
+                Selected file: <span className="font-medium text-foreground">{selectedFile.name}</span>
+              </p>
+            )} */}
+          {selectedFile && (
+            <div className="mt-2 flex justify-between items-center">
+              <p className="text-sm text-foreground">
+                Selected file: <span className="font-medium">{selectedFile.name}</span>
+              </p>
+              {/* “Clear” as plain text that turns black on hover */}
+              <button
+                onClick={() => setSelectedFile(null)}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                <b>Remove</b>
+              </button>
+            </div>
+          )}
           </div>
 
-          <Button
-            onClick={handleSubmit}
-            disabled={loading || !url}
-          >
-            {loading ? 'Sending…' : 'Submit'}
-          </Button>
+          {/* === COMPRESS SWITCH === */}
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="compress"
+            checked={compress}
+            onCheckedChange={setCompress}
+            disabled={!isPdfFileOrUrl}
+          />
+          <Label htmlFor="compress" className={!isPdfFileOrUrl ? 'opacity-50' : ''}>
+            Compress PDF
+          </Label>
+        </div>
+
+          {/* === SUBMIT BUTTON === */}
+          <div className="flex justify-end">
+            <Button onClick={handleSubmit} disabled={loading || (!url && !selectedFile)}>
+              {loading ? 'Sending…' : 'Send'}
+            </Button>
+          </div>
 
           {message && (
-            <p className="text-sm text-muted-foreground">{message}</p>
+            <p className="mt-2 text-sm text-muted-foreground break-words">{message}</p>
           )}
         </CardContent>
       </Card>

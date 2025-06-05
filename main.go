@@ -75,6 +75,7 @@ func main() {
     router := gin.New()
     router.Use(gin.Logger(), gin.Recovery())
     router.POST("/api/webhook", webhook.EnqueueHandler)
+    router.POST("/api/upload", webhook.UploadHandler)
     router.GET("/api/status/:id", webhook.StatusHandler)
     router.GET("/api/config", func(c *gin.Context) {
         c.JSON(http.StatusOK, gin.H{"apiUrl": "/api/"})
