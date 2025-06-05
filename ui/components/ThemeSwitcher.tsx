@@ -7,7 +7,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from '@/components/ui/tooltip';
 
 interface IconsMap {
   system: React.ReactNode;
@@ -17,7 +17,6 @@ interface IconsMap {
 
 interface ThemeSwitcherProps {
   icons?: IconsMap;
-  position?: { top: string; right: string };
   size?: number;
 }
 
@@ -62,10 +61,8 @@ export default function ThemeSwitcher({
       </svg>
     ),
   },
-  position = { top: '1rem', right: '1rem' },
   size = 24,
 }: ThemeSwitcherProps) {
-  // Add a mount guard to prevent hydration mismatches
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
@@ -81,21 +78,17 @@ export default function ThemeSwitcher({
   else if (theme === 'dark') currentIndex = 1;
   else if (theme === 'light') currentIndex = 2;
 
-  // Don’t render until hydration
   if (!mounted || !theme || !systemTheme) {
     return null;
   }
 
-  // Calculate next mode
   const nextIndex = (currentIndex < 0 ? 0 : currentIndex + 1) % modes.length;
   const nextMode = modes[nextIndex];
 
-  // Click handler
   const handleClick = () => {
     setTheme(nextMode);
   };
 
-  // Choose which icon to show now
   const iconToShow =
     theme === 'system' ? icons.system : theme === 'dark' ? icons.dark : icons.light;
 
@@ -106,26 +99,21 @@ export default function ThemeSwitcher({
   };
 
   return (
-  <Tooltip>
-        <TooltipTrigger asChild key={theme}>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleClick}
-            style={{
-              position: 'fixed',
-              top: position.top,
-              right: position.right,
-              fontSize: size,
-              lineHeight: 0,
-            }}
-          >
-            {iconToShow}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          Switch to {labelMap[nextMode]} mode
-        </TooltipContent>
-      </Tooltip>
+    <Tooltip>
+      <TooltipTrigger asChild key={theme}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleClick}
+          style={{
+            fontSize: size,
+            lineHeight: 0,
+          }}
+        >
+          {iconToShow}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>Switch to {labelMap[nextMode]} mode</TooltipContent>
+    </Tooltip>
   );
 }
