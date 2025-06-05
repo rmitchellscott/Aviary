@@ -109,12 +109,22 @@ func processPDF(form map[string]string) (string, error) {
 		localPath  string
 		remoteName string
 		err        error
+		cleanupErr error
 	)
 
 	// 1) If “Body” is already a valid local file path, skip download.
 	if fi, statErr := os.Stat(body); statErr == nil && !fi.IsDir() {
 		localPath = body
 		manager.Logf("processPDF: using local file path %q, skipping download", localPath)
+		// Ensure we delete this file (even on error) once we're done
+		defer func() {
+			// Only attempt removal if the file still exists
+			if _, statErr2 := os.Stat(localPath); statErr2 == nil {
+				if cleanupErr = os.Remove(localPath); cleanupErr != nil {
+					manager.Logf("⚠️ cleanup warning (on exit): could not remove %q: %v", localPath, cleanupErr)
+				}
+			}
+		}()
 	} else {
 		// 2) Otherwise, extract a URL and download to a temp or permanent location.
 		match := urlRegex.FindString(body)
@@ -126,8 +136,18 @@ func processPDF(form map[string]string) (string, error) {
 		manager.Logf("DownloadPDF: tmp=%t, prefix=%q", tmpDir, prefix)
 		localPath, err = downloader.DownloadPDF(match, tmpDir, prefix)
 		if err != nil {
+			// Even if download fails, localPath may be empty—no cleanup needed here.
 			return "Download error: " + err.Error(), err
 		}
+		// Ensure we delete this file (even on error) once we're done
+		defer func() {
+			// Only attempt removal if the file still exists
+			if _, statErr2 := os.Stat(localPath); statErr2 == nil {
+				if cleanupErr = os.Remove(localPath); cleanupErr != nil {
+					manager.Logf("⚠️ cleanup warning (on exit): could not remove %q: %v", localPath, cleanupErr)
+				}
+			}
+		}()
 	}
 
 	// 3) Optionally compress the PDF
@@ -200,7 +220,7 @@ func processPDF(form map[string]string) (string, error) {
 		}
 	}
 
-	// 6) Build a final status message pointing to the reMarkable path
+	// 6) Now that the file has been uploaded to the reMarkable, build final status message
 	fullPath := filepath.Join(rmDir, remoteName)
 	return fmt.Sprintf("✅ Your document is available on your reMarkable at %s", fullPath), nil
 }
