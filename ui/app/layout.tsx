@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 };
 
 import { ThemeProvider } from "@/components/theme-provider"
+import ThemeSwitcher from '@/components/ThemeSwitcher';
 
 export default function RootLayout({
   children,
@@ -38,6 +39,11 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+          {/* Place the switcher at the top‐right corner */}
+          <ThemeSwitcher
+            position={{ top: '1rem', right: '1rem' }}
+            size={24}
+          />
         {children}
         </ThemeProvider>
       </body>
