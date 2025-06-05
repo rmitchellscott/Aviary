@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -75,6 +76,7 @@ func EnqueueHandler(c *gin.Context) {
 		"manage":   c.DefaultPostForm("manage", "false"),
 		"archive":  c.DefaultPostForm("archive", "false"),
 		"rm_dir":   c.PostForm("rm_dir"),
+		"retention_days": c.DefaultPostForm("retention_days", "7"),
 	}
 	id := enqueueJob(form)
 	c.JSON(http.StatusAccepted, gin.H{"jobId": id})
@@ -101,9 +103,16 @@ func processPDF(form map[string]string) (string, error) {
 	manage := isTrue(form["manage"])
 	archive := isTrue(form["archive"])
 	rmDir := form["rm_dir"]
+	retentionStr := form["retention_days"]
 	if rmDir == "" {
 		rmDir = manager.DefaultRmDir()
 	}
+
+    retentionDays := 7
+    if rd, err := strconv.Atoi(retentionStr); err == nil && rd > 0 {
+        retentionDays = rd
+    }
+
 
 	var (
 		localPath  string
@@ -215,10 +224,11 @@ func processPDF(form map[string]string) (string, error) {
 
 	// 5) If manage==true, perform cleanup
 	if manage {
-		if err := manager.CleanupOld(prefix, rmDir); err != nil {
-			manager.Logf("cleanup warning: %v", err)
-		}
+        if err := manager.CleanupOld(prefix, rmDir, retentionDays); err != nil {
+            manager.Logf("cleanup warning: %v", err)
+        }
 	}
+	
 
 	// 6) Now that the file has been uploaded to the reMarkable, build final status message
 	fullPath := filepath.Join(rmDir, remoteName)
