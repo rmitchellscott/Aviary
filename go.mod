@@ -2,7 +2,7 @@ module github.com/rmitchellscott/aviary
 
 go 1.23.0
 
-toolchain go1.24.1
+toolchain go1.24.4
 
 require (
 	github.com/gin-gonic/gin v1.9.0
