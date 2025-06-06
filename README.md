@@ -22,6 +22,7 @@ A webhook-driven document uploader for reMarkable, featuring a static Next.js + 
 
 - Webhook endpoint (`/api/webhook`) for SMS or HTTP integrations (e.g. Twilio)
 - Automatic PDF download with a real-browser User-Agent
+- Automatic conversion of PNG and JPEG images to PDF
 - Optional Ghostscript compression
 - Two upload modes:
   - **Simple**: upload the raw PDF  
@@ -45,6 +46,7 @@ A webhook-driven document uploader for reMarkable, featuring a static Next.js + 
 
 | Variable                 | Required? | Default | Description |
 |--------------------------|-----------|---------|-------------|
+| DISABLE_UI               | No        | false   | Set `true` to disable the UI routes and run in API-only mode |
 | PDF_DIR                  | No        | /app/pdfs| Directory to archive PDFs into |
 | RMAPI_HOST               | No        |         | Self-hosted endpoint to use for rmapi |
 | RM_TARGET_DIR            | No        | /       | Target folder on reMarkable device |
@@ -59,11 +61,11 @@ For more rmapi-specific configuration, see [their documentation](https://github.
 |--------------------------|-----------|---------|-------------|
 | Body                     | Yes       | https://pdfobject.com/pdf/sample.pdf | URL to PDF to download
 | prefix                   | No        | Reports     | Folder and file-name prefix, only used if `manage` is also `true` |
-| compress                 | No        | true/false | Run Ghostscript compression |
-| manage                   | No        | true/false | Enable managed handling (renaming and cleanup) |
-| archive                  | No        | true/false | Download to PDF_DIR instead of /tmp |
-| rm_dir                   | No        | Books | Override default reMarkable upload directory |
-| retention_days | No | 30 | Optional integer (in days) for cleanup if manage=true. Defaults to 7. |
+| compress                 | No        | true/false  | Run Ghostscript compression |
+| manage                   | No        | true/false  | Enable managed handling (renaming and cleanup) |
+| archive                  | No        | true/false  | Download to PDF_DIR instead of /tmp |
+| rm_dir                   | No        | Books       | Override default reMarkable upload directory |
+| retention_days           | No        | 30          | Optional integer (in days) for cleanup if manage=true. Defaults to 7. |
 
 ### Example cURL
 ```shell
