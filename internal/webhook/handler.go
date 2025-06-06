@@ -16,6 +16,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/downloader"
 	"github.com/rmitchellscott/aviary/internal/jobs"
 	"github.com/rmitchellscott/aviary/internal/manager"
+	"github.com/rmitchellscott/aviary/internal/converter"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -159,7 +160,32 @@ func processPDF(form map[string]string) (string, error) {
 		}()
 	}
 
-	// 3) Optionally compress the PDF
+ 	// 3) If the file is an image, convert it to PDF now.
+	ext := strings.ToLower(filepath.Ext(localPath))
+	if ext == ".jpg" || ext == ".jpeg" || ext == ".png" {
+		manager.Logf("🔄 Detected image %q – converting to PDF", localPath)
+		origPath := localPath
+
+		// Convert the image → PDF (using PAGE_RESOLUTION & PAGE_DPI)
+		pdfPath, convErr := converter.ConvertImageToPDF(origPath)
+		if convErr != nil {
+			return "Image→PDF conversion error: " + convErr.Error(), convErr
+		}
+
+		// Schedule cleanup of the generated PDF at the end of processPDF
+		defer func() {
+			if _, statErr2 := os.Stat(pdfPath); statErr2 == nil {
+				if cleanupErr = os.Remove(pdfPath); cleanupErr != nil {
+					manager.Logf("⚠️ cleanup warning (on exit): could not remove generated PDF %q: %v", pdfPath, cleanupErr)
+				}
+			}
+		}()
+
+		// Replace localPath so the rest of the pipeline uses the PDF
+		localPath = pdfPath
+	}
+
+	// 4) Optionally compress the PDF
 	if compress {
 		manager.Logf("🔧 Compressing PDF")
 		compressedPath, compErr := compressor.CompressPDF(localPath)
