@@ -7,7 +7,18 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from '@/components/ui/dialog'
 import { FileDropzone } from '@/components/FileDropzone'
+
+// List of file extensions (lower-cased, including the dot) that we allow compression for:
+const COMPRESSIBLE_EXTS = ['.pdf', '.png', '.jpg', '.jpeg']
 
 /**
  * Helper to turn any thrown value into a string.
@@ -26,40 +37,48 @@ export default function HomePage() {
   const [compress, setCompress] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
+  const [fileError, setFileError] = useState<string | null>(null)
 
-  /**
-   * Determine if “Compress PDF” should be enabled:
-   * - File mode: only if selected file name ends with “.pdf”
-   * - URL mode: if URL ends with “.pdf”; if URL has other extension, disable; if no extension, keep enabled.
-   */
-  const isPdfFileOrUrl = useMemo(() => {
+   /**
+    * Determine if “Compress PDF” should be enabled:
+    * - File mode: only if selected file name ends with a compressible extension
+    * - URL mode: if URL ends with a compressible extension; if URL has some other extension, disable; 
+    *   if no extension, keep enabled.
+    */
+  const isCompressibleFileOrUrl = useMemo(() => {
     if (selectedFile) {
-      return selectedFile.name.toLowerCase().endsWith('.pdf')
+      // See if selectedFile.name ends with any compressible extension
+      const lowerName = selectedFile.name.toLowerCase()
+      return COMPRESSIBLE_EXTS.some(ext => lowerName.endsWith(ext))
     }
-    const trimmed = url.trim().toLowerCase()
+
+    const trimmed = committedUrl.trim().toLowerCase()
     if (!trimmed) {
-      // No URL entered → allow compress switch (it’s harmless if clicked before submit)
+      // No URL entered → allow compress switch (harmless if clicked before submit)
       return true
     }
-    // If URL ends with .pdf, enable
-    if (trimmed.endsWith('.pdf')) {
+
+    // Does URL end with a compressible extension?
+    if (COMPRESSIBLE_EXTS.some(ext => trimmed.endsWith(ext))) {
       return true
     }
+
     // Check for any other extension in the last path segment
-    // e.g. if URL contains “/file.txt” or “/file.docx”, disable.
     const lastSegment = trimmed.split('/').pop() || ''
-    if (lastSegment.includes('.') && !lastSegment.endsWith('.pdf')) {
+    if (lastSegment.includes('.')) {
+      // If it has a dot but doesn’t end with a compressible one, disable
       return false
     }
+
     // No extension in URL (e.g. “https://example.com/download”), allow compress
     return true
   }, [selectedFile, committedUrl])
 
   useEffect(() => {
-    if (!isPdfFileOrUrl && compress) {
+    if (!isCompressibleFileOrUrl && compress) {
       setCompress(false)
     }
-  }, [isPdfFileOrUrl, compress])
+  }, [isCompressibleFileOrUrl, compress])
 
   /**
    * If a local file is selected, POST it to /api/upload as multipart/form-data.
@@ -189,16 +208,20 @@ export default function HomePage() {
 
           {/* === DRAG & DROP FILE === */}
           <div>
-            <FileDropzone
-              onFileSelected={(file) => {
-                setSelectedFile(file)
-                // Clear any URL if the user picks a file
-                if (url) {
-                  setUrl('')
-                }
-              }}
-              disabled={!!url}
-            />
+           <FileDropzone
+             onFileSelected={(file) => {
+               setSelectedFile(file)
+               // Clear any URL if the user picks a file
+               if (url) {
+                 setUrl('')
+               }
+             }}
+             onError={(msg) => {
+               // Set the error text—this will open the Dialog
+               setFileError(msg)
+             }}
+             disabled={!!url}
+           />
           {selectedFile && (
             <div className="mt-2 flex justify-between items-center">
               <p className="text-sm text-foreground">
@@ -220,9 +243,9 @@ export default function HomePage() {
             id="compress"
             checked={compress}
             onCheckedChange={setCompress}
-            disabled={!isPdfFileOrUrl}
+            disabled={!isCompressibleFileOrUrl}
           />
-          <Label htmlFor="compress" className={!isPdfFileOrUrl ? 'opacity-50' : ''}>
+          <Label htmlFor="compress" className={!isCompressibleFileOrUrl ? 'opacity-50' : ''}>
             Compress PDF
           </Label>
         </div>
@@ -239,6 +262,26 @@ export default function HomePage() {
           )}
         </CardContent>
       </Card>
+
+     {/* === ERROR DIALOG === */}
+     <Dialog open={!!fileError} onOpenChange={(open) => {
+       if (!open) setFileError(null)
+     }}>
+       <DialogContent>
+         <DialogHeader>
+           <DialogTitle>Invalid File</DialogTitle>
+           <DialogDescription>
+             {fileError}
+           </DialogDescription>
+         </DialogHeader>
+         <div className="mt-4 flex justify-end">
+           <DialogClose asChild>
+            <Button>OK</Button>
+          </DialogClose>
+         </div>
+       </DialogContent>
+     </Dialog>
+
     </div>
   )
 }
