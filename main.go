@@ -81,21 +81,28 @@ func main() {
         c.JSON(http.StatusOK, gin.H{"apiUrl": "/api/"})
     })
 
-    // File server for all embedded files
-    router.NoRoute(func(c *gin.Context) {
-        // strip leading slash
-        p := strings.TrimPrefix(c.Request.URL.Path, "/")
-        if p == "" {
-            p = "index.html"
-        }
+    // File server for all embedded files (gate behind AVIARY_DISABLE_UI)
+    if os.Getenv("DISABLE_UI") == "" {
+        router.NoRoute(func(c *gin.Context) {
+            // strip leading slash
+            p := strings.TrimPrefix(c.Request.URL.Path, "/")
+            if p == "" {
+                p = "index.html"
+            }
 
-        // Check if file exists in embedded FS
-        if stat, err := fs.Stat(uiFS, p); err != nil || stat.IsDir() {
-            p = "index.html"
-        }
+            // Check if file exists in embedded FS
+            if stat, err := fs.Stat(uiFS, p); err != nil || stat.IsDir() {
+                p = "index.html"
+            }
 
-        http.ServeFileFS(c.Writer, c.Request, uiFS, p)
-    })
+            http.ServeFileFS(c.Writer, c.Request, uiFS, p)
+        })
+    } else {
+        log.Println("DISABLE_UI is set → running in API-only mode (no UI).")
+        router.NoRoute(func(c *gin.Context) {
+            c.AbortWithStatus(http.StatusNotFound)
+        })
+    }
 
     log.Printf("Listening on %s…", addr)
     log.Fatal(http.ListenAndServe(addr, router))
