@@ -2,5 +2,15 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>rmitchellscott/renovate-config"
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": ["Dockerfile"],
+      "matchStrings": [
+        "git clone --branch (?<currentValue>v[\\d.]+) https://github.com/ddvk/rmapi"
+      ],
+      "depNameTemplate": "ddvk/rmapi",
+      "datasourceTemplate": "github-tags"
+    }
   ]
 }
