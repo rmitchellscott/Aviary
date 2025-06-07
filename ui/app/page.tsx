@@ -8,6 +8,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
@@ -53,6 +60,10 @@ export default function HomePage() {
   const [loading, setLoading] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
   const [fileError, setFileError] = useState<string | null>(null)
+  const DEFAULT_RM_DIR = "default"
+  const [folders, setFolders] = useState<string[]>([])
+  const [foldersLoading, setFoldersLoading] = useState<boolean>(true)
+  const [rmDir, setRmDir] = useState<string>(DEFAULT_RM_DIR)
 
    /**
     * Determine if “Compress PDF” should be enabled:
@@ -104,6 +115,22 @@ export default function HomePage() {
     }
   }, [isCompressibleFileOrUrl, compress])
 
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    (async () => {
+      try {
+        const res = await fetch("/api/folders").then((r) => r.json());
+        if (Array.isArray(res.folders)) {
+          const cleaned = res.folders
+            .map((f: string) => f.replace(/^\//, ""))
+            .filter((f: string) => f !== "");
+          setFolders(cleaned);
+        }
+      } catch {}
+      setFoldersLoading(false);
+    })();
+  }, [isAuthenticated]);
+
   // Authentication loading state
   if (isLoading) {
     return (
@@ -132,6 +159,9 @@ export default function HomePage() {
       const formData = new FormData()
       formData.append('file', selectedFile)
       formData.append('compress', compress ? 'true' : 'false')
+      if (rmDir !== DEFAULT_RM_DIR) {
+        formData.append('rm_dir', rmDir)
+      }
 
       // 1) send to /api/upload and get back { jobId }
       const res = await fetch('/api/upload', {
@@ -173,6 +203,9 @@ export default function HomePage() {
       const form = new URLSearchParams()
       form.append('Body', url)
       form.append('compress', compress ? 'true' : 'false')
+      if (rmDir !== DEFAULT_RM_DIR) {
+        form.append('rm_dir', rmDir)
+      }
 
       try {
         const res = await fetch('/api/webhook', {
@@ -226,7 +259,7 @@ export default function HomePage() {
               id="url"
               type="text"
               value={url}
-              onChange={(e) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setUrl(e.target.value)
                 // Clear any selected file if the user starts typing a URL
                 if (selectedFile) {
@@ -283,18 +316,42 @@ export default function HomePage() {
           )}
           </div>
 
+          {/* === FOLDER SELECT === */}
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="rmDir">Destination Folder</Label>
+            <Select value={rmDir} onValueChange={setRmDir}>
+              <SelectTrigger id="rmDir">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={DEFAULT_RM_DIR}>Default</SelectItem>
+                {foldersLoading && (
+                  <SelectItem value="loading" disabled>
+                    Loading...
+                  </SelectItem>
+                )}
+                {folders.map((f) => (
+                  <SelectItem key={f} value={f}>
+                    {f}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* === COMPRESS SWITCH === */}
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="compress"
-            checked={compress}
-            onCheckedChange={setCompress}
-            disabled={!isCompressibleFileOrUrl}
-          />
-          <Label htmlFor="compress" className={!isCompressibleFileOrUrl ? 'opacity-50' : ''}>
-            Compress PDF
-          </Label>
-        </div>
+          <div className="flex items-center space-x-2 mt-4">
+            <Label htmlFor="compress" className={!isCompressibleFileOrUrl ? 'opacity-50' : ''}>
+              Compress PDF
+            </Label>
+            <Switch
+              id="compress"
+              checked={compress}
+              onCheckedChange={setCompress}
+              disabled={!isCompressibleFileOrUrl}
+            />
+          </div>
+
 
           {/* === SUBMIT BUTTON === */}
           <div className="flex justify-end">

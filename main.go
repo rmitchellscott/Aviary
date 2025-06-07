@@ -21,6 +21,7 @@ import (
 	// internal
 	"github.com/rmitchellscott/aviary/internal/auth"
 	"github.com/rmitchellscott/aviary/internal/downloader"
+	"github.com/rmitchellscott/aviary/internal/manager"
 	"github.com/rmitchellscott/aviary/internal/webhook"
 )
 
@@ -102,6 +103,7 @@ func main() {
 	protected.POST("/upload", webhook.UploadHandler)
 	protected.GET("/status/:id", webhook.StatusHandler)
 	protected.GET("/sniff", downloader.SniffHandler)
+	protected.GET("/folders", manager.FoldersHandler)
 	router.GET("/api/config", func(c *gin.Context) {
 		envUsername := os.Getenv("AUTH_USERNAME")
 		envPassword := os.Getenv("AUTH_PASSWORD")
@@ -111,6 +113,7 @@ func main() {
 			"apiUrl":        "/api/",
 			"authEnabled":   authEnabled,
 			"apiKeyEnabled": envApiKey != "",
+			"defaultRmDir":  manager.DefaultRmDir(),
 		})
 	})
 
