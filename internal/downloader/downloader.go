@@ -31,7 +31,7 @@ func init() {
 	rng = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	// Try to fetch the UA list
-	resp, err := http.Get(uaListURL)
+	resp, err := downloadClient.Get(uaListURL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "warning: failed to fetch UA list: %v\n", err)
 		return
@@ -83,7 +83,7 @@ func DownloadPDF(urlStr string, tmp bool, prefix string) (string, error) {
 	}
 	req.Header.Set("User-Agent", pickUA())
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := downloadClient.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("performing request: %w", err)
 	}
