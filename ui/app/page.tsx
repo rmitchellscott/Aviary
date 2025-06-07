@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import {useMemo} from 'react'
+import { useAuth } from '@/components/AuthProvider'
+import { LoginForm } from '@/components/LoginForm'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -31,6 +33,7 @@ function getErrorMessage(err: unknown): string {
 }
 
 export default function HomePage() {
+  const { isAuthenticated, isLoading, login, authConfigured } = useAuth()
   const [url, setUrl] = useState<string>('')
   const [committedUrl, setCommittedUrl] = useState<string>('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -79,6 +82,20 @@ export default function HomePage() {
       setCompress(false)
     }
   }, [isCompressibleFileOrUrl, compress])
+
+  // Authentication loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    )
+  }
+
+  // Show login form if auth is configured and not authenticated
+  if (authConfigured && !isAuthenticated) {
+    return <LoginForm onLogin={login} />
+  }
 
   /**
    * If a local file is selected, POST it to /api/upload as multipart/form-data.
