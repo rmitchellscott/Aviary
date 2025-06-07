@@ -7,16 +7,16 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/compressor"
+	"github.com/rmitchellscott/aviary/internal/converter"
 	"github.com/rmitchellscott/aviary/internal/downloader"
 	"github.com/rmitchellscott/aviary/internal/jobs"
 	"github.com/rmitchellscott/aviary/internal/manager"
-	"github.com/rmitchellscott/aviary/internal/converter"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -71,12 +71,12 @@ func enqueueJob(form map[string]string) string {
 // EnqueueHandler accepts form-values (URL-based flow), enqueues a job, and returns JSON{"jobId": "..."}.
 func EnqueueHandler(c *gin.Context) {
 	form := map[string]string{
-		"Body":     c.PostForm("Body"),
-		"prefix":   c.PostForm("prefix"),
-		"compress": c.DefaultPostForm("compress", "false"),
-		"manage":   c.DefaultPostForm("manage", "false"),
-		"archive":  c.DefaultPostForm("archive", "false"),
-		"rm_dir":   c.PostForm("rm_dir"),
+		"Body":           c.PostForm("Body"),
+		"prefix":         c.PostForm("prefix"),
+		"compress":       c.DefaultPostForm("compress", "false"),
+		"manage":         c.DefaultPostForm("manage", "false"),
+		"archive":        c.DefaultPostForm("archive", "false"),
+		"rm_dir":         c.PostForm("rm_dir"),
 		"retention_days": c.DefaultPostForm("retention_days", "7"),
 	}
 	id := enqueueJob(form)
@@ -109,11 +109,10 @@ func processPDF(form map[string]string) (string, error) {
 		rmDir = manager.DefaultRmDir()
 	}
 
-    retentionDays := 7
-    if rd, err := strconv.Atoi(retentionStr); err == nil && rd > 0 {
-        retentionDays = rd
-    }
-
+	retentionDays := 7
+	if rd, err := strconv.Atoi(retentionStr); err == nil && rd > 0 {
+		retentionDays = rd
+	}
 
 	var (
 		localPath  string
@@ -160,7 +159,7 @@ func processPDF(form map[string]string) (string, error) {
 		}()
 	}
 
- 	// 3) If the file is an image, convert it to PDF now.
+	// 3) If the file is an image, convert it to PDF now.
 	ext := strings.ToLower(filepath.Ext(localPath))
 	if ext == ".jpg" || ext == ".jpeg" || ext == ".png" {
 		manager.Logf("🔄 Detected image %q – converting to PDF", localPath)
@@ -250,11 +249,10 @@ func processPDF(form map[string]string) (string, error) {
 
 	// 5) If manage==true, perform cleanup
 	if manage {
-        if err := manager.CleanupOld(prefix, rmDir, retentionDays); err != nil {
-            manager.Logf("cleanup warning: %v", err)
-        }
+		if err := manager.CleanupOld(prefix, rmDir, retentionDays); err != nil {
+			manager.Logf("cleanup warning: %v", err)
+		}
 	}
-	
 
 	// 6) Now that the file has been uploaded to the reMarkable, build final status message
 	fullPath := filepath.Join(rmDir, remoteName)
