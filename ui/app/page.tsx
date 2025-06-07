@@ -33,7 +33,7 @@ function getErrorMessage(err: unknown): string {
 }
 
 export default function HomePage() {
-  const { isAuthenticated, isLoading, login } = useAuth()
+  const { isAuthenticated, isLoading, login, authConfigured } = useAuth()
   const [url, setUrl] = useState<string>('')
   const [committedUrl, setCommittedUrl] = useState<string>('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -92,8 +92,8 @@ export default function HomePage() {
     )
   }
 
-  // Show login form if not authenticated
-  if (!isAuthenticated) {
+  // Show login form if auth is configured and not authenticated
+  if (authConfigured && !isAuthenticated) {
     return <LoginForm onLogin={login} />
   }
 

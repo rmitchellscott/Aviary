@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,6 +15,14 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    // Focus the username field when component mounts
+    const usernameInput = document.getElementById('username')
+    if (usernameInput) {
+      usernameInput.focus()
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,15 +53,15 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-8">
-      <Card className="max-w-md w-full">
+    <div className="bg-background pt-0 pb-8 px-8">
+      <Card className="max-w-md mx-auto bg-card">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">Login to Aviary</CardTitle>
+          <CardTitle className="text-xl">Login</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username" className="mb-2 block">Username</Label>
               <Input
                 id="username"
                 type="text"
@@ -64,7 +72,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
               />
             </div>
             <div>
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="mb-2 block">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -77,9 +85,11 @@ export function LoginForm({ onLogin }: LoginFormProps) {
             {error && (
               <p className="text-sm text-red-500">{error}</p>
             )}
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign In'}
-            </Button>
+            <div className="flex justify-end">
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Signing in...' : 'Login'}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>

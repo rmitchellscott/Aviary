@@ -87,7 +87,13 @@ func main() {
 	router.POST("/api/upload", webhook.UploadHandler)
 	router.GET("/api/status/:id", webhook.StatusHandler)
 	router.GET("/api/config", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"apiUrl": "/api/"})
+		envUsername := os.Getenv("AUTH_USERNAME")
+		envPassword := os.Getenv("AUTH_PASSWORD")
+		authEnabled := envUsername != "" && envPassword != ""
+		c.JSON(http.StatusOK, gin.H{
+			"apiUrl":     "/api/",
+			"authEnabled": authEnabled,
+		})
 	})
 
 	// File server for all embedded files (gate behind AVIARY_DISABLE_UI)

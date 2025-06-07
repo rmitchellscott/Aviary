@@ -4,10 +4,10 @@ import { useAuth } from './AuthProvider'
 import { Button } from './ui/button'
 
 export function LogoutButton() {
-  const { isAuthenticated, logout } = useAuth()
+  const { isAuthenticated, authConfigured, logout } = useAuth()
 
-  // Only show logout button if user is authenticated
-  if (!isAuthenticated) {
+  // Only show logout button if auth is configured and user is authenticated
+  if (!authConfigured || !isAuthenticated) {
     return null
   }
 
