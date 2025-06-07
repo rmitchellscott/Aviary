@@ -26,6 +26,18 @@ func DefaultRmDir() string {
 func Logf(format string, v ...interface{}) {
 	fmt.Printf("[%s] "+format+"\n", append([]interface{}{time.Now().Format(time.RFC3339)}, v...)...)
 }
+
+// SanitizePrefix ensures prefix is a simple directory name with no path
+// separators, leading slashes, or parent directory components.
+func SanitizePrefix(p string) (string, error) {
+	if p == "" {
+		return "", nil
+	}
+	if filepath.IsAbs(p) || strings.Contains(p, "..") || strings.ContainsAny(p, "/\\") {
+		return "", fmt.Errorf("invalid prefix %q", p)
+	}
+	return p, nil
+}
 func RenameLocalNoYear(src, prefix string) (string, error) {
 	dir := filepath.Dir(src)
 	today := time.Now()
@@ -128,6 +140,12 @@ func RenameLocal(path, prefix string) (string, error) {
 
 // / RenameAndUpload renames locally, uploads via rmapi, and returns the name on the device.
 func RenameAndUpload(path, prefix, rmDir string) (string, error) {
+	// Validate prefix early
+	var err error
+	prefix, err = SanitizePrefix(prefix)
+	if err != nil {
+		return "", err
+	}
 	// Build target dir under PDF_DIR
 	pdfDir := os.Getenv("PDF_DIR")
 	if pdfDir == "" {

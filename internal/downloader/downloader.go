@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/rmitchellscott/aviary/internal/manager"
 )
 
 const (
@@ -58,6 +60,13 @@ func pickUA() string {
 // DownloadPDF fetches the PDF and saves locally.
 // tmp==true → os.TempDir(), else under $PDF_DIR/prefix or $PDF_DIR.
 func DownloadPDF(urlStr string, tmp bool, prefix string) (string, error) {
+	// Sanitize prefix before using it in any paths
+	var err error
+	prefix, err = manager.SanitizePrefix(prefix)
+	if err != nil {
+		return "", err
+	}
+
 	// 1) Determine destination directory
 	var destDir string
 	if tmp {

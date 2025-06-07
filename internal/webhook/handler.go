@@ -100,6 +100,11 @@ func StatusHandler(c *gin.Context) {
 func processPDF(form map[string]string) (string, error) {
 	body := form["Body"]
 	prefix := form["prefix"]
+	if p, perr := manager.SanitizePrefix(prefix); perr != nil {
+		return "invalid prefix", perr
+	} else {
+		prefix = p
+	}
 	compress := isTrue(form["compress"])
 	manage := isTrue(form["manage"])
 	archive := isTrue(form["archive"])
