@@ -12,6 +12,9 @@ import (
 	"time"
 )
 
+// ExecCommand is exec.Command by default, but can be overridden in tests.
+var ExecCommand = exec.Command
+
 func DefaultRmDir() string {
 	d := os.Getenv("RM_TARGET_DIR")
 	if d == "" {
@@ -82,7 +85,7 @@ func moveFile(src, dst string) error {
 
 // SimpleUpload calls `rmapi put` and returns the uploaded filename or a detailed error.
 func SimpleUpload(path, rmDir string) (string, error) {
-	cmd := exec.Command("rmapi", "put", path, rmDir)
+	cmd := ExecCommand("rmapi", "put", path, rmDir)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		raw := strings.TrimSpace(string(out))
@@ -151,7 +154,7 @@ func RenameAndUpload(path, prefix, rmDir string) (string, error) {
 		return "", err
 	}
 
-	cmd := exec.Command("rmapi", "put", noYearPath, rmDir)
+	cmd := ExecCommand("rmapi", "put", noYearPath, rmDir)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		raw := strings.TrimSpace(string(out))
@@ -182,7 +185,7 @@ func CleanupOld(prefix, rmDir string, retentionDays int) error {
 		today.Format("2006-01-02"), cutoff.Format("2006-01-02"))
 
 	// 1) List remote files
-	proc := exec.Command("rmapi", "ls", rmDir)
+	proc := ExecCommand("rmapi", "ls", rmDir)
 	out, err := proc.Output()
 	if err != nil {
 		return err
@@ -239,7 +242,7 @@ func CleanupOld(prefix, rmDir string, retentionDays int) error {
 		if fileDate.Before(cutoff) {
 			Logf("Removing %s (dated %s < %s)",
 				fname, fileDate.Format("2006-01-02"), cutoff.Format("2006-01-02"))
-			exec.Command("rmapi", "rm", filepath.Join(rmDir, fname)).Run()
+			ExecCommand("rmapi", "rm", filepath.Join(rmDir, fname)).Run()
 		}
 	}
 
