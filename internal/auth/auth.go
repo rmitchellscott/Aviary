@@ -5,13 +5,34 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/time/rate"
 )
 
 var jwtSecret []byte
+var (
+	loginLimiters sync.Map
+	loginRate     = rate.Every(time.Minute / 5) // 5 requests per minute
+)
+
+func getLoginLimiter(ip string) *rate.Limiter {
+	val, ok := loginLimiters.Load(ip)
+	if ok {
+		return val.(*rate.Limiter)
+	}
+	limiter := rate.NewLimiter(loginRate, 5)
+	loginLimiters.Store(ip, limiter)
+	return limiter
+}
+
+func allowInsecure() bool {
+	v := strings.ToLower(os.Getenv("ALLOW_INSECURE"))
+	return v == "1" || v == "true" || v == "yes"
+}
 
 func init() {
 	// Generate a random JWT secret if not provided
@@ -29,6 +50,13 @@ type LoginRequest struct {
 }
 
 func LoginHandler(c *gin.Context) {
+	// rate limit by client IP
+	ip := c.ClientIP()
+	if !getLoginLimiter(ip).Allow() {
+		c.JSON(http.StatusTooManyRequests, gin.H{"error": "Too many failed login attempts"})
+		return
+	}
+
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
@@ -63,14 +91,17 @@ func LoginHandler(c *gin.Context) {
 	}
 
 	// Set HTTP-only cookie
+	secure := !allowInsecure()
 	c.SetSameSite(http.SameSiteStrictMode)
-	c.SetCookie("auth_token", tokenString, 24*3600, "/", "", false, true)
+	c.SetCookie("auth_token", tokenString, 24*3600, "/", "", secure, true)
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
 func LogoutHandler(c *gin.Context) {
-	c.SetCookie("auth_token", "", -1, "/", "", false, true)
+	secure := !allowInsecure()
+	c.SetSameSite(http.SameSiteStrictMode)
+	c.SetCookie("auth_token", "", -1, "/", "", secure, true)
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
