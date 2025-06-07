@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Dialog,
@@ -41,6 +42,8 @@ export default function HomePage() {
   const [loading, setLoading] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
   const [fileError, setFileError] = useState<string | null>(null)
+    const [folders, setFolders] = useState<string[]>([])
+  const [rmDir, setRmDir] = useState<string>("/")
 
    /**
     * Determine if “Compress PDF” should be enabled:
@@ -83,6 +86,24 @@ export default function HomePage() {
     }
   }, [isCompressibleFileOrUrl, compress])
 
+    useEffect(() => {
+    if (!isAuthenticated) return;
+    (async () => {
+      try {
+        const cfg = await fetch("/api/config").then((r) => r.json());
+        if (cfg.defaultRmDir) {
+          setRmDir(cfg.defaultRmDir);
+        }
+      } catch {}
+      try {
+        const res = await fetch("/api/folders").then((r) => r.json());
+        if (Array.isArray(res.folders)) {
+          setFolders(res.folders);
+        }
+      } catch {}
+    })();
+  }, [isAuthenticated]);
+
   // Authentication loading state
   if (isLoading) {
     return (
@@ -111,6 +132,7 @@ export default function HomePage() {
       const formData = new FormData()
       formData.append('file', selectedFile)
       formData.append('compress', compress ? 'true' : 'false')
+      formData.append("rm_dir", rmDir)
 
       // 1) send to /api/upload and get back { jobId }
       const res = await fetch('/api/upload', {
@@ -152,6 +174,7 @@ export default function HomePage() {
       const form = new URLSearchParams()
       form.append('Body', url)
       form.append('compress', compress ? 'true' : 'false')
+      form.append("rm_dir", rmDir)
 
       try {
         const res = await fetch('/api/webhook', {
@@ -205,7 +228,7 @@ export default function HomePage() {
               id="url"
               type="text"
               value={url}
-              onChange={(e) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setUrl(e.target.value)
                 // Clear any selected file if the user starts typing a URL
                 if (selectedFile) {
@@ -266,6 +289,26 @@ export default function HomePage() {
             Compress PDF
           </Label>
         </div>
+
+          {/* === FOLDER SELECT === */}
+          <div>
+            <Label htmlFor="rmDir" className="mb-1 block">
+              Destination Folder
+            </Label>
+            <Select value={rmDir} onValueChange={setRmDir}>
+              <SelectTrigger id="rmDir">
+                <SelectValue placeholder="Select folder" />
+              </SelectTrigger>
+              <SelectContent>
+                {folders.map((f) => (
+                  <SelectItem key={f} value={f}>
+                    {f}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
 
           {/* === SUBMIT BUTTON === */}
           <div className="flex justify-end">
