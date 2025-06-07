@@ -1,0 +1,23 @@
+package downloader
+
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
+// SniffHandler responds with the MIME type of the ?url parameter.
+func SniffHandler(c *gin.Context) {
+	urlStr := c.Query("url")
+	if urlStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing url parameter"})
+		return
+	}
+
+	mt, err := SniffMime(urlStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"mime": mt})
+}

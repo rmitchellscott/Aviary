@@ -98,8 +98,18 @@ func DownloadPDF(urlStr string, tmp bool, prefix string) (string, error) {
     if strings.TrimSpace(name) == "" {
         name = filepath.Base(urlStr)
     }
-    if filepath.Ext(name) == "" && strings.HasPrefix(resp.Header.Get("Content-Type"), "application/pdf") {
-        name += ".pdf"
+    if filepath.Ext(name) == "" {
+        ct := resp.Header.Get("Content-Type")
+        switch {
+        case strings.HasPrefix(ct, "application/pdf"):
+            name += ".pdf"
+        case strings.HasPrefix(ct, "image/png"):
+            name += ".png"
+        case strings.HasPrefix(ct, "image/jpeg"), strings.HasPrefix(ct, "image/jpg"):
+            name += ".jpg"
+        case strings.HasPrefix(ct, "application/epub+zip"):
+            name += ".epub"
+        }
     }
 
     // 4) Write to disk

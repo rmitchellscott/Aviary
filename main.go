@@ -20,6 +20,7 @@ import (
 
 	// internal
 	"github.com/rmitchellscott/aviary/internal/auth"
+	"github.com/rmitchellscott/aviary/internal/downloader"
 	"github.com/rmitchellscott/aviary/internal/webhook"
 )
 
@@ -100,14 +101,15 @@ func main() {
 	protected.POST("/webhook", webhook.EnqueueHandler)
 	protected.POST("/upload", webhook.UploadHandler)
 	protected.GET("/status/:id", webhook.StatusHandler)
+	protected.GET("/sniff", downloader.SniffHandler)
 	router.GET("/api/config", func(c *gin.Context) {
 		envUsername := os.Getenv("AUTH_USERNAME")
 		envPassword := os.Getenv("AUTH_PASSWORD")
 		envApiKey := os.Getenv("API_KEY")
 		authEnabled := (envUsername != "" && envPassword != "") || envApiKey != ""
 		c.JSON(http.StatusOK, gin.H{
-			"apiUrl":     "/api/",
-			"authEnabled": authEnabled,
+			"apiUrl":        "/api/",
+			"authEnabled":   authEnabled,
 			"apiKeyEnabled": envApiKey != "",
 		})
 	})
