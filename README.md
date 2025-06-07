@@ -61,6 +61,7 @@ A webhook-driven document uploader for reMarkable, featuring a static Next.js + 
 | AUTH_PASSWORD            | No        |         | Password for web UI login (requires AUTH_USERNAME) |
 | API_KEY                  | No        |         | Secret key for API access via Authorization header |
 | JWT_SECRET               | No        | auto-generated | Custom JWT signing secret (auto-generated if not provided) |
+| ALLOW_INSECURE           | No        |         | Set to `true` to allow non-secure cookies (not recommended) |
 
 For more rmapi-specific configuration, see [their documentation](https://github.com/ddvk/rmapi?tab=readme-ov-file#environment-variables).
 
