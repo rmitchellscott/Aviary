@@ -1,1 +1,63 @@
+# ┌─────────────────────
+# │ Git & Docker config
+# └─────────────────────
+.git
+.gitignore
+.github
+Dockerfile*
+docker-compose.yml
+
+# ┌─────────────────────
+# │ Environment files
+# └─────────────────────
+.env
+.env.*
+
+# ┌─────────────────────
+# │ Node/UI build artifacts & deps
+# └─────────────────────
 ui/node_modules
+ui/.next
+ui/out
+ui/build
+ui/coverage
+
+# ┌─────────────────────
+# │ Go/backend build artifacts & deps
+# └─────────────────────
+bin
+out
+vendor
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+rmapi.conf
+
+# ┌─────────────────────
+# │ Generated PDFs
+# └─────────────────────
+pdfs
+app/pdfs
+
+# ┌─────────────────────
+# │ Logs & temp
+# └─────────────────────
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.tmp
+
+# ┌─────────────────────
+# │ IDE/editor
+# └─────────────────────
+.vscode
+.idea
+
+# ┌─────────────────────
+# │ OS cruft
+# └─────────────────────
+.DS_Store
+Thumbs.db
