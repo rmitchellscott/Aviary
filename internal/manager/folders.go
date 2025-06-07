@@ -14,7 +14,8 @@ import (
 // ListFolders returns a slice of all folder paths on the reMarkable device.
 // Paths are returned with a leading slash, e.g. "/Books/Fiction".
 func ListFolders() ([]string, error) {
-	var folders []string
+	// Include the root directory explicitly so the UI can offer it as an option
+	folders := []string{"/"}
 
 	var walk func(string) error
 	walk = func(p string) error {
@@ -32,6 +33,12 @@ func ListFolders() ([]string, error) {
 			if strings.HasPrefix(line, "[d]") {
 				name := strings.TrimSpace(strings.TrimPrefix(line, "[d]"))
 				name = strings.TrimLeft(name, "\t ")
+
+				// Skip the /trash folder entirely
+				if p == "" && name == "trash" {
+					continue
+				}
+
 				var child string
 				if p == "" {
 					child = name
