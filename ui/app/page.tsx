@@ -131,14 +131,11 @@ export default function HomePage() {
     })();
   }, [isAuthenticated]);
 
-  // Authentication loading state
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
-    )
+    return null
   }
+
+
 
   // Show login form if auth is configured and not authenticated
   if (authConfigured && !isAuthenticated) {

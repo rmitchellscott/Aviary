@@ -33,6 +33,44 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const stored = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const theme = stored === 'light' || stored === 'dark'
+                  ? stored
+                  : (prefersDark ? 'dark' : 'light');
+                if (theme === 'dark') {
+                  document.documentElement.classList.add('dark');
+                }
+
+                try {
+                  const ac = localStorage.getItem('authConfigured');
+                  if (ac === 'true') {
+                    document.documentElement.classList.add('auth-check');
+                  } else if (ac === null) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', '/api/config', false);
+                    xhr.send(null);
+                    if (xhr.status >= 200 && xhr.status < 400) {
+                      var cfg = JSON.parse(xhr.responseText);
+                      if (cfg.authEnabled) {
+                        localStorage.setItem('authConfigured', 'true');
+                        document.documentElement.classList.add('auth-check');
+                      } else {
+                        localStorage.setItem('authConfigured', 'false');
+                      }
+                    }
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
