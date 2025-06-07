@@ -19,7 +19,7 @@ func SniffMime(urlStr string) (string, error) {
 	req.Header.Set("User-Agent", pickUA())
 	req.Header.Set("Range", "bytes=0-4095")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := sniffClient.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("performing request: %w", err)
 	}
