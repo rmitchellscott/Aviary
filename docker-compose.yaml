@@ -7,6 +7,10 @@ services:
       - "8000:8000"
     environment:
       RMAPI_HOST: "${RMAPI_HOST}"
+      # Optional authentication (remove # to enable):
+      # AUTH_USERNAME: "${AUTH_USERNAME}"
+      # AUTH_PASSWORD: "${AUTH_PASSWORD}"
+      # API_KEY: "${API_KEY}"
     volumes:
       - type: bind
         source: ./rmapi.conf

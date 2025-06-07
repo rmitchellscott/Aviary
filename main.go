@@ -29,6 +29,14 @@ import (
 //go:embed ui/out/_next
 var embeddedUI embed.FS
 
+// authRequired checks if any form of authentication is configured
+func authRequired() bool {
+	envUsername := os.Getenv("AUTH_USERNAME")
+	envPassword := os.Getenv("AUTH_PASSWORD")
+	envApiKey := os.Getenv("API_KEY")
+	return (envUsername != "" && envPassword != "") || envApiKey != ""
+}
+
 func main() {
 	// Load .env if present
 	_ = godotenv.Load()
@@ -83,16 +91,24 @@ func main() {
 	router.POST("/api/auth/logout", auth.LogoutHandler)
 	router.GET("/api/auth/check", auth.CheckAuthHandler)
 
-	router.POST("/api/webhook", webhook.EnqueueHandler)
-	router.POST("/api/upload", webhook.UploadHandler)
-	router.GET("/api/status/:id", webhook.StatusHandler)
+	// Protected API endpoints (require auth if configured)
+	protected := router.Group("/api")
+	if authRequired() {
+		protected.Use(auth.ApiKeyOrJWTMiddleware())
+	}
+
+	protected.POST("/webhook", webhook.EnqueueHandler)
+	protected.POST("/upload", webhook.UploadHandler)
+	protected.GET("/status/:id", webhook.StatusHandler)
 	router.GET("/api/config", func(c *gin.Context) {
 		envUsername := os.Getenv("AUTH_USERNAME")
 		envPassword := os.Getenv("AUTH_PASSWORD")
-		authEnabled := envUsername != "" && envPassword != ""
+		envApiKey := os.Getenv("API_KEY")
+		authEnabled := (envUsername != "" && envPassword != "") || envApiKey != ""
 		c.JSON(http.StatusOK, gin.H{
 			"apiUrl":     "/api/",
 			"authEnabled": authEnabled,
+			"apiKeyEnabled": envApiKey != "",
 		})
 	})
 

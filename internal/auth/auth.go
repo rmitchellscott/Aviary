@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -73,7 +74,71 @@ func LogoutHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
+// isValidApiKey checks if the request has a valid API key
+func isValidApiKey(c *gin.Context) bool {
+	envApiKey := os.Getenv("API_KEY")
+	if envApiKey == "" {
+		return false // No API key configured
+	}
+
+	// Check Authorization header (Bearer token)
+	if authHeader := c.GetHeader("Authorization"); authHeader != "" {
+		if strings.HasPrefix(authHeader, "Bearer ") {
+			apiKey := strings.TrimPrefix(authHeader, "Bearer ")
+			return apiKey == envApiKey
+		}
+	}
+
+	// Check X-API-Key header
+	if apiKey := c.GetHeader("X-API-Key"); apiKey != "" {
+		return apiKey == envApiKey
+	}
+
+	return false
+}
+
+// ApiKeyOrJWTMiddleware checks for either valid API key or valid JWT
+func ApiKeyOrJWTMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Check API key first
+		if isValidApiKey(c) {
+			c.Next()
+			return
+		}
+
+		// Then check JWT cookie
+		tokenString, err := c.Cookie("auth_token")
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "No auth token or API key"})
+			c.Abort()
+			return
+		}
+
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, jwt.ErrSignatureInvalid
+			}
+			return jwtSecret, nil
+		})
+
+		if err != nil || !token.Valid {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
+}
+
 func CheckAuthHandler(c *gin.Context) {
+	// Check API key first
+	if isValidApiKey(c) {
+		c.JSON(http.StatusOK, gin.H{"authenticated": true})
+		return
+	}
+
+	// Then check JWT cookie
 	tokenString, err := c.Cookie("auth_token")
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{"authenticated": false})
