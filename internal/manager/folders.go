@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"net/http"
-	"os/exec"
 	"path"
 	"strings"
 
@@ -23,7 +22,7 @@ func ListFolders() ([]string, error) {
 		if p != "" {
 			args = append(args, p)
 		}
-		out, err := exec.Command("rmapi", args...).Output()
+		out, err := ExecCommand("rmapi", args...).Output()
 		if err != nil {
 			return err
 		}
