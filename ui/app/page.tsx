@@ -39,10 +39,22 @@ function getErrorMessage(err: unknown): string {
   return String(err)
 }
 
+async function sniffMime(url: string): Promise<string | null> {
+  try {
+    const resp = await fetch(`/api/sniff?url=${encodeURIComponent(url)}`)
+    if (!resp.ok) return null
+    const data = await resp.json()
+    return data.mime || null
+  } catch {
+    return null
+  }
+}
+
 export default function HomePage() {
   const { isAuthenticated, isLoading, login, authConfigured } = useAuth()
   const [url, setUrl] = useState<string>('')
   const [committedUrl, setCommittedUrl] = useState<string>('')
+  const [urlMime, setUrlMime] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [compress, setCompress] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
@@ -84,9 +96,18 @@ export default function HomePage() {
       return false
     }
 
-    // No extension in URL (e.g. “https://example.com/download”), allow compress
+    // No extension in URL (e.g. “https://example.com/download”)
+    if (urlMime) {
+      const mt = urlMime.toLowerCase()
+      return (
+        mt.startsWith('application/pdf') ||
+        mt.startsWith('image/png') ||
+        mt.startsWith('image/jpeg')
+      )
+    }
+    // No MIME info → allow compress
     return true
-  }, [selectedFile, committedUrl])
+  }, [selectedFile, committedUrl, urlMime])
 
   useEffect(() => {
     if (!isCompressibleFileOrUrl && compress) {
@@ -244,10 +265,17 @@ export default function HomePage() {
                 if (selectedFile) {
                   setSelectedFile(null)
                 }
+                setUrlMime(null)
               }}
-            onBlur={() => {
+            onBlur={async () => {
               // commit the URL once the user leaves the field
               setCommittedUrl(url)
+              if (url.trim()) {
+                const mt = await sniffMime(url.trim())
+                setUrlMime(mt)
+              } else {
+                setUrlMime(null)
+              }
             }}
               placeholder="https://example.com/file.pdf"
               disabled={!!selectedFile}
@@ -259,13 +287,14 @@ export default function HomePage() {
           {/* === DRAG & DROP FILE === */}
           <div>
            <FileDropzone
-             onFileSelected={(file) => {
-               setSelectedFile(file)
-               // Clear any URL if the user picks a file
-               if (url) {
-                 setUrl('')
-               }
-             }}
+           onFileSelected={(file) => {
+              setSelectedFile(file)
+              // Clear any URL if the user picks a file
+              if (url) {
+                setUrl('')
+              }
+              setUrlMime(null)
+            }}
              onError={(msg) => {
                // Set the error text—this will open the Dialog
                setFileError(msg)
