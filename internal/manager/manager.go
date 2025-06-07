@@ -176,8 +176,8 @@ func RenameAndUpload(path, prefix, rmDir string) (string, error) {
 }
 
 func CleanupOld(prefix, rmDir string, retentionDays int) error {
-   today := time.Now()
-   cutoff := today.AddDate(0, 0, -retentionDays)
+	today := time.Now()
+	cutoff := today.AddDate(0, 0, -retentionDays)
 	Logf("[cleanup] today=%s, cutoff=%s",
 		today.Format("2006-01-02"), cutoff.Format("2006-01-02"))
 
