@@ -2,6 +2,8 @@ package auth
 
 import (
 	"crypto/rand"
+	"crypto/subtle"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -14,6 +16,7 @@ import (
 )
 
 var jwtSecret []byte
+var uiSecret string // UI authentication secret
 var (
 	loginLimiters sync.Map
 	loginRate     = rate.Every(time.Minute / 5) // 5 requests per minute
@@ -42,6 +45,11 @@ func init() {
 		jwtSecret = make([]byte, 32)
 		rand.Read(jwtSecret)
 	}
+
+	// Generate a random UI secret for internal authentication
+	uiSecretBytes := make([]byte, 32)
+	rand.Read(uiSecretBytes)
+	uiSecret = fmt.Sprintf("%x", uiSecretBytes)
 }
 
 type LoginRequest struct {
@@ -116,13 +124,17 @@ func isValidApiKey(c *gin.Context) bool {
 	if authHeader := c.GetHeader("Authorization"); authHeader != "" {
 		if strings.HasPrefix(authHeader, "Bearer ") {
 			apiKey := strings.TrimPrefix(authHeader, "Bearer ")
-			return apiKey == envApiKey
+			if subtle.ConstantTimeCompare([]byte(apiKey), []byte(envApiKey)) == 1 {
+				return true
+			}
 		}
 	}
 
 	// Check X-API-Key header
 	if apiKey := c.GetHeader("X-API-Key"); apiKey != "" {
-		return apiKey == envApiKey
+		if subtle.ConstantTimeCompare([]byte(apiKey), []byte(envApiKey)) == 1 {
+			return true
+		}
 	}
 
 	return false
@@ -162,6 +174,11 @@ func ApiKeyOrJWTMiddleware() gin.HandlerFunc {
 	}
 }
 
+// GetUISecret returns the UI authentication secret for embedding in frontend
+func GetUISecret() string {
+	return uiSecret
+}
+
 func CheckAuthHandler(c *gin.Context) {
 	// Check API key first
 	if isValidApiKey(c) {
@@ -169,7 +186,57 @@ func CheckAuthHandler(c *gin.Context) {
 		return
 	}
 
-	// Then check JWT cookie
+	// Check if web authentication is configured
+	envUsername := os.Getenv("AUTH_USERNAME")
+	envPassword := os.Getenv("AUTH_PASSWORD")
+	webAuthEnabled := envUsername != "" && envPassword != ""
+
+	if !webAuthEnabled {
+		// Web auth is disabled - check UI secret before auto-generating JWT
+		uiToken := c.GetHeader("X-UI-Token")
+		if uiToken != uiSecret {
+			// No valid UI token - this is likely an external API call
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+			return
+		}
+
+		// UI secret is valid - check if they already have a valid JWT
+		if tokenString, err := c.Cookie("auth_token"); err == nil {
+			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, jwt.ErrSignatureInvalid
+				}
+				return jwtSecret, nil
+			})
+			if err == nil && token.Valid {
+				c.JSON(http.StatusOK, gin.H{"authenticated": true})
+				return
+			}
+		}
+
+		// Generate auto-JWT for UI user
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"username": "ui-user",
+			"exp":      time.Now().Add(24 * time.Hour).Unix(),
+			"iat":      time.Now().Unix(),
+			"auto":     true, // Mark as auto-generated
+		})
+
+		tokenString, err := token.SignedString(jwtSecret)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate session"})
+			return
+		}
+
+		// Set HTTP-only cookie
+		secure := !allowInsecure()
+		c.SetSameSite(http.SameSiteStrictMode)
+		c.SetCookie("auth_token", tokenString, 24*3600, "/", "", secure, true)
+		c.JSON(http.StatusOK, gin.H{"authenticated": true})
+		return
+	}
+
+	// Web auth is enabled - check JWT cookie normally
 	tokenString, err := c.Cookie("auth_token")
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{"authenticated": false})

@@ -51,7 +51,7 @@ async function sniffMime(url: string): Promise<string | null> {
 }
 
 export default function HomePage() {
-  const { isAuthenticated, isLoading, login, authConfigured } = useAuth()
+  const { isAuthenticated, isLoading, login, authConfigured, uiSecret } = useAuth()
   const [url, setUrl] = useState<string>('')
   const [committedUrl, setCommittedUrl] = useState<string>('')
   const [urlMime, setUrlMime] = useState<string | null>(null)
@@ -66,7 +66,7 @@ export default function HomePage() {
   const [rmDir, setRmDir] = useState<string>(DEFAULT_RM_DIR)
 
    /**
-    * Determine if “Compress PDF” should be enabled:
+    * Determine if "Compress PDF" should be enabled:
     * - File mode: only if selected file name ends with a compressible extension
     * - URL mode: if URL ends with a compressible extension; if URL has some other extension, disable; 
     *   if no extension, keep enabled.
@@ -92,11 +92,11 @@ export default function HomePage() {
     // Check for any other extension in the last path segment
     const lastSegment = trimmed.split('/').pop() || ''
     if (lastSegment.includes('.')) {
-      // If it has a dot but doesn’t end with a compressible one, disable
+      // If it has a dot but doesn't end with a compressible one, disable
       return false
     }
 
-    // No extension in URL (e.g. “https://example.com/download”)
+    // No extension in URL (e.g. "https://example.com/download")
     if (urlMime) {
       const mt = urlMime.toLowerCase()
       return (
@@ -119,14 +119,23 @@ export default function HomePage() {
     if (!isAuthenticated) return;
     (async () => {
       try {
-        const res = await fetch("/api/folders").then((r) => r.json());
+        const headers: HeadersInit = {}
+        if (uiSecret) {
+          headers['X-UI-Token'] = uiSecret
+        }
+        const res = await fetch("/api/folders", { 
+          headers,
+          credentials: 'include' // Important: include cookies for JWT
+        }).then((r) => r.json());
         if (Array.isArray(res.folders)) {
           const cleaned = res.folders
             .map((f: string) => f.replace(/^\//, ""))
             .filter((f: string) => f !== "");
           setFolders(cleaned);
         }
-      } catch {}
+      } catch (error) {
+        console.error('Failed to fetch folders:', error)
+      }
       setFoldersLoading(false);
     })();
   }, [isAuthenticated]);
