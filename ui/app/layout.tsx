@@ -23,6 +23,8 @@ export const metadata: Metadata = {
 import { ThemeProvider } from "@/components/theme-provider";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { Logo } from "@/components/Logo";
+import { AuthProvider } from "@/components/AuthProvider";
+import { LogoutButton } from "@/components/LogoutButton";
 
 export default function RootLayout({
   children,
@@ -40,12 +42,17 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+        <AuthProvider>
           <header className="flex items-center justify-between px-8 py-2 bg-background">
             <Logo className="h-16 w-32 text-foreground dark:text-foreground-dark" />
+            <div className="flex items-center gap-4">
+            <LogoutButton />
             <ThemeSwitcher size={24} />
+            </div>
           </header>
 
           <main>{children}</main>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
