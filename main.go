@@ -108,7 +108,9 @@ func main() {
 		envUsername := os.Getenv("AUTH_USERNAME")
 		envPassword := os.Getenv("AUTH_PASSWORD")
 		envApiKey := os.Getenv("API_KEY")
-		authEnabled := (envUsername != "" && envPassword != "") || envApiKey != ""
+		// Web UI authentication only depends on username + password.
+		// API key authentication is handled separately.
+		authEnabled := envUsername != "" && envPassword != ""
 		c.JSON(http.StatusOK, gin.H{
 			"apiUrl":        "/api/",
 			"authEnabled":   authEnabled,
