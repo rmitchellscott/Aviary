@@ -31,7 +31,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "@vitejs/plugin-react": "^4",
-    "eslint-config-prettier": "^9",
+    "eslint-config-prettier": "^10.0.0",
     "vite": "^5",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.0",
