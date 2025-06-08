@@ -18,7 +18,7 @@ docker-compose.yml
 # └─────────────────────
 ui/node_modules
 ui/.next
-ui/out
+ui/dist
 ui/build
 ui/coverage
 

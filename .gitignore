@@ -12,7 +12,7 @@ ui/.yarn/*
 
 # UI build output
 ui/.next/
-ui/out/
+ui/dist/
 ui/build/
 ui/coverage
 
