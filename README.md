@@ -55,6 +55,7 @@ A webhook-driven document uploader for reMarkable, featuring a static Next.js + 
 | GS_SETTINGS              | No        | /ebook  | Ghostscript PDFSETTINGS preset |
 | SNIFF_TIMEOUT            | No        | 5s      | Timeout for sniffing the MIME type |
 | DOWNLOAD_TIMEOUT         | No        | 1m      | Timeout for Download requests |
+| DRY_RUN                  | No        | false   | Set to `true` to log rmapi commands without running them |
 
 For more rmapi-specific configuration, see [their documentation](https://github.com/ddvk/rmapi?tab=readme-ov-file#environment-variables).
 

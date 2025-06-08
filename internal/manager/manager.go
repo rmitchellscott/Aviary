@@ -15,6 +15,19 @@ import (
 // ExecCommand is exec.Command by default, but can be overridden in tests.
 var ExecCommand = exec.Command
 
+func init() {
+	if os.Getenv("DRY_RUN") != "" {
+		ExecCommand = func(name string, args ...string) *exec.Cmd {
+			cmdStr := name
+			if len(args) > 0 {
+				cmdStr += " " + strings.Join(args, " ")
+			}
+			Logf("[dry-run] would run: %s", cmdStr)
+			return exec.Command("true")
+		}
+	}
+}
+
 func DefaultRmDir() string {
 	d := os.Getenv("RM_TARGET_DIR")
 	if d == "" {
