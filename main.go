@@ -31,12 +31,27 @@ import (
 //go:embed ui/out/_next
 var embeddedUI embed.FS
 
-// authRequired checks if any form of authentication is configured
+// authRequired checks if API authentication is configured
 func authRequired() bool {
-	envUsername := os.Getenv("AUTH_USERNAME")
-	envPassword := os.Getenv("AUTH_PASSWORD")
 	envApiKey := os.Getenv("API_KEY")
-	return (envUsername != "" && envPassword != "") || envApiKey != ""
+	return envApiKey != ""
+}
+
+func serveIndexWithSecret(c *gin.Context, uiFS fs.FS, secret string) {
+	content, err := fs.ReadFile(uiFS, "index.html")
+	if err != nil {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	// Inject secret into HTML
+	html := string(content)
+	// Look for </head> tag and inject script before it
+	scriptTag := fmt.Sprintf(`<script>window.__UI_SECRET__ = "%s";</script></head>`, secret)
+	html = strings.Replace(html, "</head>", scriptTag, 1)
+
+	c.Header("Content-Type", "text/html")
+	c.String(http.StatusOK, html)
 }
 
 func main() {
@@ -128,9 +143,34 @@ func main() {
 				p = "index.html"
 			}
 
+			// Check if this is index.html and if we should inject UI secret
+			if p == "index.html" {
+				envUsername := os.Getenv("AUTH_USERNAME")
+				envPassword := os.Getenv("AUTH_PASSWORD")
+				webAuthDisabled := envUsername == "" || envPassword == ""
+
+				if webAuthDisabled {
+					// Web auth disabled - inject UI secret for auto-authentication
+					serveIndexWithSecret(c, uiFS, auth.GetUISecret())
+					return
+				}
+				// Web auth enabled - serve normal index.html (users must login)
+			}
+
 			// Check if file exists in embedded FS
 			if stat, err := fs.Stat(uiFS, p); err != nil || stat.IsDir() {
 				p = "index.html"
+				// If we're falling back to index.html, check auth again
+				if p == "index.html" {
+					envUsername := os.Getenv("AUTH_USERNAME")
+					envPassword := os.Getenv("AUTH_PASSWORD")
+					webAuthDisabled := envUsername == "" || envPassword == ""
+
+					if webAuthDisabled {
+						serveIndexWithSecret(c, uiFS, auth.GetUISecret())
+						return
+					}
+				}
 			}
 
 			http.ServeFileFS(c.Writer, c.Request, uiFS, p)
