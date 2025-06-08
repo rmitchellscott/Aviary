@@ -27,8 +27,8 @@ import (
 
 //go:generate npm --prefix ui install
 //go:generate npm --prefix ui run build
-//go:embed ui/out
-//go:embed ui/out/_next
+//go:embed ui/dist
+//go:embed ui/dist/assets
 var embeddedUI embed.FS
 
 // authRequired checks if API authentication is configured
@@ -88,7 +88,7 @@ func main() {
 	}
 
 	// Create a Sub FS rooted at our static export
-	uiFS, err := fs.Sub(embeddedUI, "ui/out")
+	uiFS, err := fs.Sub(embeddedUI, "ui/dist")
 	if err != nil {
 		log.Fatalf("embed error: %v", err)
 	}

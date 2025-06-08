@@ -39,7 +39,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-COPY --from=ui-builder /app/ui/out ./ui/out
+COPY --from=ui-builder /app/ui/dist ./ui/dist
 
 ARG TARGETPLATFORM
 RUN --mount=type=cache,target=/root/.cache \
