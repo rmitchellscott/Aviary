@@ -12,7 +12,7 @@
   </picture>
 </p>
 
-A webhook-driven document uploader for reMarkable, featuring a static Next.js + ShadCN UI and a Go backend that processes and pushes documents to your device. Compatible with both reMarkable Cloud and [rmfakecloud](https://github.com/ddvk/rmfakecloud) via [rmapi](https://github.com/ddvk/rmapi).
+A webhook-driven document uploader that automatically downloads and sends PDFs to your reMarkable tablet through a web interface or API. Compatible with both reMarkable Cloud and self-hosted [rmfakecloud](https://github.com/ddvk/rmfakecloud) via [rmapi](https://github.com/ddvk/rmapi), with features like automatic PDF conversion, compression, and organized file management.
 
 ## Why the Name?
 
@@ -199,6 +199,6 @@ services:
 
 Ensure the requirements are installed and available in your PATH.
 ```shell
-go generate # Generate the Next.js static front-end
+go generate # Generate the Vite static front-end
 go build -o aviary
 ```
