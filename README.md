@@ -19,7 +19,7 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 **Aviary** is a place where birds are kept, chosen to evoke sending documents into the clouds using avian couriers. 
 
 ## Features
-Frontend:
+**Frontend**
 - Send from URL
 - Send from local device
 - Toggle for compression for supported filetypes
@@ -27,7 +27,7 @@ Frontend:
 - Light and dark themes, with optional system theme detection
 - Single-user auth via envs
 
-Backend:
+**Backend**
 - Webhook endpoint (`/api/webhook`) for SMS or HTTP integrations (e.g. Twilio)
 - Optional API key
 - Automatic PDF download with a realistic browser User-Agent
