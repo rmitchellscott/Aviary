@@ -19,15 +19,23 @@ A webhook-driven document uploader for reMarkable, featuring a static Next.js + 
 **Aviary** is a place where birds are kept, chosen to evoke sending documents into the clouds using avian couriers. 
 
 ## Features
+Frontend:
+- Send from URL
+- Send from local device
+- Toggle for compression for supported filetypes
+- Destination directory selector
+- Light and dark themes, with optional system theme detection
+- Single-user auth via envs
 
+Backend:
 - Webhook endpoint (`/api/webhook`) for SMS or HTTP integrations (e.g. Twilio)
-- Automatic PDF download with a real-browser User-Agent
+- Optional API key
+- Automatic PDF download with a realistic browser User-Agent
 - Automatic conversion of PNG and JPEG images to PDF
 - Optional Ghostscript compression
 - Two upload modes:
-  - **Simple**: upload the raw PDF  
+  - **Simple**: upload the raw PDF
   - **Managed**: rename by date, upload, then append the year locally & clean up files older than 7 days
-- Clean web UI for uploading of documents by URL or from the local filesystem
 
 ## Screenshot
 
