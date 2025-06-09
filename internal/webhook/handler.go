@@ -45,6 +45,7 @@ func enqueueJob(form map[string]string) string {
 	// Launch background worker
 	go func() {
 		jobStore.Update(id, "Running", "")
+		jobStore.UpdateProgress(id, 0)
 
 		// Catch panics
 		defer func() {
@@ -150,7 +151,7 @@ func processPDF(jobID string, form map[string]string) (string, error) {
 		tmpDir := !archive // if archive==false, we download into a temp dir so it’ll get cleaned up
 		manager.Logf("DownloadPDF: tmp=%t, prefix=%q", tmpDir, prefix)
 		jobStore.Update(jobID, "Running", "Downloading")
-		localPath, err = downloader.DownloadPDF(match, tmpDir, prefix)
+		localPath, err = downloader.DownloadPDF(match, tmpDir, prefix, nil)
 		if err != nil {
 			// Even if download fails, localPath may be empty—no cleanup needed here.
 			return "Download error: " + err.Error(), err
@@ -196,7 +197,11 @@ func processPDF(jobID string, form map[string]string) (string, error) {
 	if compress {
 		manager.Logf("🔧 Compressing PDF")
 		jobStore.Update(jobID, "Running", "Compressing PDF")
-		compressedPath, compErr := compressor.CompressPDF(localPath)
+		jobStore.UpdateProgress(jobID, 0)
+		compressedPath, compErr := compressor.CompressPDFWithProgress(localPath, func(page, total int) {
+			pct := int(float64(page) / float64(total) * 100)
+			jobStore.UpdateProgress(jobID, pct)
+		})
 		if compErr != nil {
 			return "Compress error: " + compErr.Error(), compErr
 		}
@@ -207,6 +212,7 @@ func processPDF(jobID string, form map[string]string) (string, error) {
 		}
 
 		localPath = compressedPath
+		jobStore.UpdateProgress(jobID, 100)
 
 		// If “manage” is false, rename the compressed back to “*.pdf” (drop “_compressed” suffix)
 		if !manage {
@@ -267,6 +273,7 @@ func processPDF(jobID string, form map[string]string) (string, error) {
 	// 6) Now that the file has been uploaded to the reMarkable, build final status message
 	fullPath := filepath.Join(rmDir, remoteName)
 	fullPath = strings.TrimPrefix(fullPath, "/")
+	jobStore.UpdateProgress(jobID, 100)
 	return fmt.Sprintf("Your document is available on your reMarkable at %s", fullPath), nil
 }
 
