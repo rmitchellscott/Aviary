@@ -24,6 +24,7 @@ import {
   DialogClose,
 } from '@/components/ui/dialog'
 import { FileDropzone } from '@/components/FileDropzone'
+import { Loader2, CheckCircle, XCircle } from 'lucide-react'
 
 // List of file extensions (lower-cased, including the dot) that we allow compression for:
 const COMPRESSIBLE_EXTS = ['.pdf', '.png', '.jpg', '.jpeg']
@@ -57,6 +58,7 @@ export default function HomePage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [compress, setCompress] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
+  const [status, setStatus] = useState<string>('')
   const [message, setMessage] = useState<string>('')
   const [fileError, setFileError] = useState<string | null>(null)
   const DEFAULT_RM_DIR = "default"
@@ -174,6 +176,7 @@ export default function HomePage() {
   const handleSubmit = async () => {
     setLoading(true)
     setMessage('')
+    setStatus("");
 
   if (selectedFile) {
     // === FILE UPLOAD FLOW (enqueue + poll) ===
@@ -197,23 +200,22 @@ export default function HomePage() {
       const { jobId } = await res.json()
       setMessage(`Job queued: ${jobId}`)
 
+      setStatus("running")
       // 2) poll exactly as in the URL flow
       let done = false
       while (!done) {
         await new Promise((r) => setTimeout(r, 1500))
         const st = await fetch(`/api/status/${jobId}`).then((r) => r.json())
-        setMessage(`${st.status}: ${st.message}`)
-        if (st.status === 'success') {
-          setMessage(st.message)
-          done = true
-        } else if (st.status === 'error') {
-          setMessage(`❌ ${st.message}`)
+        setStatus(st.status.toLowerCase())
+        setMessage(st.message)
+        if (st.status === 'success' || st.status === 'error') {
           done = true
         }
       }
     } catch (err: unknown) {
       const msg = getErrorMessage(err)
-      setMessage(`❌ ${msg}`)
+      setStatus('error')
+      setMessage(msg)
     } finally {
       // clear the selected file so <Input> becomes enabled again
       setSelectedFile(null)
@@ -240,6 +242,7 @@ export default function HomePage() {
           throw new Error(`Enqueue failed: ${errText}`)
         }
         const { jobId } = await res.json()
+        setStatus('running')
         setMessage(`Job queued: ${jobId}`)
 
         // poll loop
@@ -247,18 +250,16 @@ export default function HomePage() {
         while (!done) {
           await new Promise((r) => setTimeout(r, 1500))
           const st = await fetch(`/api/status/${jobId}`).then((r) => r.json())
-          setMessage(`${st.status}: ${st.message}`)
-          if (st.status === 'success') {
-            setMessage(st.message)
-            done = true
-          } else if (st.status === 'error') {
-            setMessage(`❌ ${st.message}`)
+          setStatus(st.status.toLowerCase())
+          setMessage(st.message)
+          if (st.status === 'success' || st.status === 'error') {
             done = true
           }
         }
       } catch (err: unknown) {
         const msg = getErrorMessage(err)
-        setMessage(`❌ ${msg}`)
+        setStatus('error')
+        setMessage(msg)
       } finally {
         setUrl('')
         setLoading(false)
@@ -383,7 +384,12 @@ export default function HomePage() {
           </div>
 
           {message && (
-            <p className="mt-2 text-sm text-muted-foreground break-words">{message}</p>
+            <div className="mt-2 flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-sm text-secondary-foreground">
+              {status === 'running' && <Loader2 className="size-4 animate-spin" />}
+              {status === 'success' && <CheckCircle className="size-4 text-primary" />}
+              {status === 'error' && <XCircle className="size-4 text-destructive" />}
+              <span className="break-words">{status === 'running' ? `Running: ${message}` : message}</span>
+            </div>
           )}
         </CardContent>
       </Card>

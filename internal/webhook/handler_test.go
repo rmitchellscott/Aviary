@@ -80,7 +80,7 @@ func TestProcessPDFRmapiCommands(t *testing.T) {
 				"rm_dir":         rmDir,
 				"retention_days": "7",
 			}
-			if _, err := processPDF(form); err != nil {
+			if _, err := processPDF("testjob", form); err != nil {
 				t.Fatalf("processPDF error: %v", err)
 			}
 
