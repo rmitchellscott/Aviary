@@ -24,7 +24,7 @@ import {
   DialogClose,
 } from '@/components/ui/dialog'
 import { FileDropzone } from '@/components/FileDropzone'
-import { Loader2, CheckCircle, XCircle } from 'lucide-react'
+import { Loader2, CircleCheck, XCircle } from 'lucide-react'
 
 // List of file extensions (lower-cased, including the dot) that we allow compression for:
 const COMPRESSIBLE_EXTS = ['.pdf', '.png', '.jpg', '.jpeg']
@@ -385,10 +385,10 @@ export default function HomePage() {
 
           {message && (
             <div className="mt-2 flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-sm text-secondary-foreground">
-              {status === 'running' && <Loader2 className="size-4 animate-spin" />}
-              {status === 'success' && <CheckCircle className="size-4 text-primary" />}
-              {status === 'error' && <XCircle className="size-4 text-destructive" />}
-              <span className="break-words">{status === 'running' ? `Running: ${message}` : message}</span>
+              {status === 'running' && <Loader2 className="size-4 flex-shrink-0 animate-spin" />}
+              {status === 'success' && <CircleCheck className="size-4 flex-shrink-0 text-primary" />}
+              {status === 'error' && <XCircle className="size-4 flex-shrink-0 text-destructive" />}
+              <span className="break-words">{message}</span>
             </div>
           )}
         </CardContent>
