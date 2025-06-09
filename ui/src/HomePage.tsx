@@ -419,7 +419,11 @@ export default function HomePage() {
           {status === "running" &&
             message === "Compressing PDF" &&
             progress < 100 && (
-              <Progress value={progress} className="mt-2" />
+              <Progress
+                value={progress}
+                durationMs={POLL_INTERVAL_MS}
+                className="mt-2"
+              />
             )}
         </CardContent>
       </Card>
