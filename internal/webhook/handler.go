@@ -266,6 +266,7 @@ func processPDF(jobID string, form map[string]string) (string, error) {
 
 	// 6) Now that the file has been uploaded to the reMarkable, build final status message
 	fullPath := filepath.Join(rmDir, remoteName)
+	fullPath = strings.TrimPrefix(fullPath, "/")
 	return fmt.Sprintf("Your document is available on your reMarkable at %s", fullPath), nil
 }
 
