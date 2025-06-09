@@ -55,7 +55,7 @@ func enqueueJob(form map[string]string) string {
 		}()
 
 		// Do the actual work
-		msg, err := processPDF(form)
+		msg, err := processPDF(id, form)
 		if err != nil {
 			manager.Logf("❌ processPDF error: %v, message: %q", err, msg)
 			jobStore.Update(id, "error", msg)
@@ -97,7 +97,7 @@ func StatusHandler(c *gin.Context) {
 // (if it exists on disk) or else extracts a URL from form["Body"], downloads it, and then proceeds to
 // (optionally) compress, then upload/manage on the reMarkable. Returns a human-readable status message
 // and/or an error.
-func processPDF(form map[string]string) (string, error) {
+func processPDF(jobID string, form map[string]string) (string, error) {
 	body := form["Body"]
 	prefix := form["prefix"]
 	if p, perr := manager.SanitizePrefix(prefix); perr != nil {
@@ -130,6 +130,7 @@ func processPDF(form map[string]string) (string, error) {
 	if fi, statErr := os.Stat(body); statErr == nil && !fi.IsDir() {
 		localPath = body
 		manager.Logf("processPDF: using local file path %q, skipping download", localPath)
+		jobStore.Update(jobID, "Running", "Using uploaded file")
 		// Ensure we delete this file (even on error) once we're done
 		defer func() {
 			// Only attempt removal if the file still exists
@@ -148,6 +149,7 @@ func processPDF(form map[string]string) (string, error) {
 
 		tmpDir := !archive // if archive==false, we download into a temp dir so it’ll get cleaned up
 		manager.Logf("DownloadPDF: tmp=%t, prefix=%q", tmpDir, prefix)
+		jobStore.Update(jobID, "Running", "Downloading")
 		localPath, err = downloader.DownloadPDF(match, tmpDir, prefix)
 		if err != nil {
 			// Even if download fails, localPath may be empty—no cleanup needed here.
@@ -168,6 +170,7 @@ func processPDF(form map[string]string) (string, error) {
 	ext := strings.ToLower(filepath.Ext(localPath))
 	if ext == ".jpg" || ext == ".jpeg" || ext == ".png" {
 		manager.Logf("🔄 Detected image %q – converting to PDF", localPath)
+		jobStore.Update(jobID, "Running", "Converting to PDF")
 		origPath := localPath
 
 		// Convert the image → PDF (using PAGE_RESOLUTION & PAGE_DPI)
@@ -192,6 +195,7 @@ func processPDF(form map[string]string) (string, error) {
 	// 4) Optionally compress the PDF
 	if compress {
 		manager.Logf("🔧 Compressing PDF")
+		jobStore.Update(jobID, "Running", "Compressing PDF")
 		compressedPath, compErr := compressor.CompressPDF(localPath)
 		if compErr != nil {
 			return "Compress error: " + compErr.Error(), compErr
@@ -215,6 +219,7 @@ func processPDF(form map[string]string) (string, error) {
 	}
 
 	// 4) Upload / Manage workflows
+	jobStore.Update(jobID, "Running", "Uploading")
 	switch {
 	case manage && archive:
 		manager.Logf("📤 Managed archive upload")
@@ -261,7 +266,8 @@ func processPDF(form map[string]string) (string, error) {
 
 	// 6) Now that the file has been uploaded to the reMarkable, build final status message
 	fullPath := filepath.Join(rmDir, remoteName)
-	return fmt.Sprintf("✅ Your document is available on your reMarkable at %s", fullPath), nil
+	fullPath = strings.TrimPrefix(fullPath, "/")
+	return fmt.Sprintf("Your document is available on your reMarkable at %s", fullPath), nil
 }
 
 // isTrue interprets "true"/"1"/"yes" (case-insensitive) as true.
