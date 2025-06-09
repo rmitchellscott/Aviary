@@ -87,6 +87,10 @@ func main() {
 		log.Printf("Could not determine home directory to check rmapi.conf: %v", err)
 	}
 
+	// Warm the folders cache in the background so that initial page loads
+	// don't block on a full directory scan.
+	manager.StartFolderCache()
+
 	// Create a Sub FS rooted at our static export
 	uiFS, err := fs.Sub(embeddedUI, "ui/dist")
 	if err != nil {
