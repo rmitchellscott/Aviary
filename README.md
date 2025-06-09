@@ -21,11 +21,11 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 ## Features
 **Frontend**
 - Send from URL
-- Send from local device
+- Send from local filesystem
 - Toggle for compression for supported filetypes
-- Destination directory selector
+- Destination directory selector with cache for instant loadtimes
 - Light and dark themes, with optional system theme detection
-- Single-user auth via envs
+- Optional single-user auth via environment variables
 
 **Backend**
 - Webhook endpoint (`/api/webhook`) for SMS or HTTP integrations (e.g. Twilio)
@@ -63,6 +63,7 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 | GS_SETTINGS              | No        | /ebook  | Ghostscript PDFSETTINGS preset |
 | SNIFF_TIMEOUT            | No        | 5s      | Timeout for sniffing the MIME type |
 | DOWNLOAD_TIMEOUT         | No        | 1m      | Timeout for Download requests |
+| FOLDER_CACHE_INTERVAL    | No        | 1h      | How often to refresh the folder listing cache. `0` disables caching |
 | DRY_RUN                  | No        | false   | Set to `true` to log rmapi commands without running them |
 
 For more rmapi-specific configuration, see [their documentation](https://github.com/ddvk/rmapi?tab=readme-ov-file#environment-variables).
@@ -88,7 +89,7 @@ AUTH_PASSWORD=mypassword
 ```
 
 ### API Key Authentication  
-Set `API_KEY` to enable programmatic access to API endpoints:
+Set `API_KEY` to protect programmatic access to API endpoints:
 ```bash
 API_KEY=your-secret-api-key-here
 ```

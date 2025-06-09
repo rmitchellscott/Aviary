@@ -122,21 +122,38 @@ export default function HomePage() {
         if (uiSecret) {
           headers['X-UI-Token'] = uiSecret
         }
-        const res = await fetch("/api/folders", { 
+        const res = await fetch('/api/folders', {
           headers,
-          credentials: 'include' // Important: include cookies for JWT
-        }).then((r) => r.json());
+          credentials: 'include'
+        }).then((r) => r.json())
+
         if (Array.isArray(res.folders)) {
           const cleaned = res.folders
-            .map((f: string) => f.replace(/^\//, ""))
-            .filter((f: string) => f !== "");
-          setFolders(cleaned);
+            .map((f: string) => f.replace(/^\//, ''))
+            .filter((f: string) => f !== '')
+          setFolders(cleaned)
         }
+
+        // Fetch an up-to-date list in the background and update state when done
+        fetch('/api/folders?refresh=1', {
+          headers,
+          credentials: 'include'
+        })
+          .then((r) => r.json())
+          .then((fresh) => {
+            if (Array.isArray(fresh.folders)) {
+              const cleanedFresh = fresh.folders
+                .map((f: string) => f.replace(/^\//, ''))
+                .filter((f: string) => f !== '')
+              setFolders(cleanedFresh)
+            }
+          })
+          .catch((err) => console.error('Failed to refresh folders:', err))
       } catch (error) {
         console.error('Failed to fetch folders:', error)
       }
-      setFoldersLoading(false);
-    })();
+      setFoldersLoading(false)
+    })()
   }, [isAuthenticated]);
 
   if (isLoading) {

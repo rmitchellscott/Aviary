@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -61,10 +62,29 @@ func ListFolders() ([]string, error) {
 
 // FoldersHandler writes a JSON {"folders": ["/path", ...]}.
 func FoldersHandler(c *gin.Context) {
+	useCache := cacheRefreshInterval > 0
+	force := strings.EqualFold(c.Query("refresh"), "true") || c.Query("refresh") == "1"
+
+	if useCache && !force {
+		if cached, ok := cachedFolders(); ok {
+			// Kick off a background refresh if the cache is old, but return immediately.
+			maybeRefreshFolderCache()
+			c.JSON(http.StatusOK, gin.H{"folders": cached})
+			return
+		}
+	}
+
+	// Either forced refresh, cache miss, or caching disabled.
 	dirs, err := ListFolders()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
+	}
+	if useCache {
+		globalFoldersCache.mu.Lock()
+		globalFoldersCache.folders = dirs
+		globalFoldersCache.updated = time.Now()
+		globalFoldersCache.mu.Unlock()
 	}
 	c.JSON(http.StatusOK, gin.H{"folders": dirs})
 }
