@@ -418,6 +418,7 @@ export default function HomePage() {
           )}
           {status === "running" &&
             message === "Compressing PDF" &&
+            progress > 0 &&
             progress < 100 && (
               <Progress
                 value={progress}
