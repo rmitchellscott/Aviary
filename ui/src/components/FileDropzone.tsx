@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useDropzone, FileRejection } from 'react-dropzone'
 
 interface FileDropzoneProps {
@@ -63,6 +63,40 @@ export function FileDropzone({
     },
   })
 
+  // Track drag events occurring anywhere on the window so the dropzone becomes
+  // active even when a file is dragged outside the element itself.
+  const [windowDragActive, setWindowDragActive] = useState(false)
+  useEffect(() => {
+    if (disabled) return
+
+    let counter = 0
+    function handleDragEnter(e: DragEvent) {
+      if (Array.from(e.dataTransfer?.types || []).includes('Files')) {
+        counter++
+        setWindowDragActive(true)
+      }
+    }
+    function handleDragLeave() {
+      counter = Math.max(counter - 1, 0)
+      if (counter === 0) setWindowDragActive(false)
+    }
+    function handleDrop() {
+      counter = 0
+      setWindowDragActive(false)
+    }
+
+    window.addEventListener('dragenter', handleDragEnter)
+    window.addEventListener('dragleave', handleDragLeave)
+    window.addEventListener('drop', handleDrop)
+    return () => {
+      window.removeEventListener('dragenter', handleDragEnter)
+      window.removeEventListener('dragleave', handleDragLeave)
+      window.removeEventListener('drop', handleDrop)
+    }
+  }, [disabled])
+
+  const active = isDragActive || windowDragActive
+
   return (
     <div
       {...getRootProps()}
@@ -70,13 +104,13 @@ export function FileDropzone({
         'border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ' +
         (disabled
           ? 'opacity-50 cursor-not-allowed border-input'
-          : isDragActive
+          : active
           ? 'border-primary bg-muted text-foreground'
           : 'border-input hover:border-primary text-muted-foreground')
       }
     >
       <input {...getInputProps()} />
-      {isDragActive ? (
+      {active ? (
         <p className="text-sm">
           <b>Click to upload</b> or drag and drop
         </p>
