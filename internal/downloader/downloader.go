@@ -57,9 +57,28 @@ func pickUA() string {
 	return userAgents[rng.Intn(len(userAgents))]
 }
 
+type progressReader struct {
+	r     io.Reader
+	total int64
+	done  int64
+	cb    func(done, total int64)
+}
+
+func (pr *progressReader) Read(p []byte) (int, error) {
+	n, err := pr.r.Read(p)
+	if n > 0 {
+		pr.done += int64(n)
+		if pr.cb != nil {
+			pr.cb(pr.done, pr.total)
+		}
+	}
+	return n, err
+}
+
 // DownloadPDF fetches the PDF and saves locally.
 // tmp==true → os.TempDir(), else under $PDF_DIR/prefix or $PDF_DIR.
-func DownloadPDF(urlStr string, tmp bool, prefix string) (string, error) {
+// progress is an optional callback receiving bytes downloaded and total bytes.
+func DownloadPDF(urlStr string, tmp bool, prefix string, progress func(done, total int64)) (string, error) {
 	// Sanitize prefix before using it in any paths
 	var err error
 	prefix, err = manager.SanitizePrefix(prefix)
@@ -129,7 +148,11 @@ func DownloadPDF(urlStr string, tmp bool, prefix string) (string, error) {
 	}
 	defer f.Close()
 
-	if _, err := io.Copy(f, resp.Body); err != nil {
+	pr := &progressReader{r: resp.Body, total: resp.ContentLength, cb: progress}
+	if progress != nil && resp.ContentLength > 0 {
+		progress(0, resp.ContentLength)
+	}
+	if _, err := io.Copy(f, pr); err != nil {
 		return "", err
 	}
 
