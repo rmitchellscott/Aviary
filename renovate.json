@@ -5,12 +5,17 @@
   ],
   "regexManagers": [
     {
-      "fileMatch": ["Dockerfile"],
+      "fileMatch": [
+        "Dockerfile"
+      ],
       "matchStrings": [
         "git clone --branch (?<currentValue>v[\\d.]+) https://github.com/ddvk/rmapi"
       ],
       "depNameTemplate": "ddvk/rmapi",
       "datasourceTemplate": "github-tags"
     }
+  ],
+  "schedule": [
+    "* * 1-7 * 1"
   ]
 }

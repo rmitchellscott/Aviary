@@ -80,8 +80,8 @@ commit_parsers = [
   { message = "^.*!:", group = "<!-- 0 -->💥 Breaking Changes" },
   # Features
   { message = "^feat", group = "<!-- 1 -->🚀 Features" },
-  { message = "^fix", group = "<!-- 2 --> 🔧 Fixes" },
-  { message = "^perf", group = "<!-- 2 -->🔧 Fixes" },
+  { message = "^fix", group = "<!-- 2 --> 🔧 Fixes & Tweaks" },
+  { message = "^perf", group = "<!-- 2 -->🔧 Fixes & Tweaks" },
   { message = "\\(deps\\):", group = "<!-- 999 -->📦 Dependencies" },
   { message = "^chore\\(release\\): prepare for", skip = true },
   { message = "^chore\\(deps.*\\)", skip = true },
