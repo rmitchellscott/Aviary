@@ -28,8 +28,33 @@ import { Progress } from "@/components/ui/progress";
 
 // List of file extensions (lower-cased, including the dot) that we allow compression for:
 const COMPRESSIBLE_EXTS = [".pdf", ".png", ".jpg", ".jpeg"];
-// How often to poll for job status updates (ms)
+// How often to animate progress bar updates (ms)
 const POLL_INTERVAL_MS = 200;
+
+function waitForJobWS(
+  jobId: string,
+  onUpdate: (st: any) => void,
+): Promise<void> {
+  return new Promise((resolve) => {
+    const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const ws = new WebSocket(
+      `${proto}//${window.location.host}/api/status/ws/${jobId}`,
+    );
+    ws.onmessage = (ev) => {
+      try {
+        const st = JSON.parse(ev.data);
+        onUpdate(st);
+        if (st.status === "success" || st.status === "error") {
+          ws.close();
+        }
+      } catch {
+        // ignore parse errors
+      }
+    };
+    ws.onclose = () => resolve();
+    ws.onerror = () => resolve();
+  });
+}
 
 /**
  * Helper to turn any thrown value into a string.
@@ -204,20 +229,13 @@ export default function HomePage() {
 
         setStatus("running");
         setProgress(0);
-        // 2) poll exactly as in the URL flow
-        let done = false;
-        while (!done) {
-          await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
-          const st = await fetch(`/api/status/${jobId}`).then((r) => r.json());
+        await waitForJobWS(jobId, (st) => {
           setStatus(st.status.toLowerCase());
           setMessage(st.message);
           if (typeof st.progress === "number") {
             setProgress(st.progress);
           }
-          if (st.status === "success" || st.status === "error") {
-            done = true;
-          }
-        }
+        });
       } catch (err: unknown) {
         const msg = getErrorMessage(err);
         setStatus("error");
@@ -253,20 +271,13 @@ export default function HomePage() {
         setMessage(`Job queued: ${jobId}`);
         setProgress(0);
 
-        // poll loop
-        let done = false;
-        while (!done) {
-          await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
-          const st = await fetch(`/api/status/${jobId}`).then((r) => r.json());
+        await waitForJobWS(jobId, (st) => {
           setStatus(st.status.toLowerCase());
           setMessage(st.message);
           if (typeof st.progress === "number") {
             setProgress(st.progress);
           }
-          if (st.status === "success" || st.status === "error") {
-            done = true;
-          }
-        }
+        });
       } catch (err: unknown) {
         const msg = getErrorMessage(err);
         setStatus("error");
