@@ -121,6 +121,7 @@ func main() {
 	protected.POST("/webhook", webhook.EnqueueHandler)
 	protected.POST("/upload", webhook.UploadHandler)
 	protected.GET("/status/:id", webhook.StatusHandler)
+	protected.GET("/status/ws/:id", webhook.StatusWSHandler)
 	protected.GET("/sniff", downloader.SniffHandler)
 	protected.GET("/folders", manager.FoldersHandler)
 	router.GET("/api/config", func(c *gin.Context) {

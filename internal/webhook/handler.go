@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/coder/websocket"
+	"github.com/coder/websocket/wsjson"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/compressor"
@@ -91,6 +93,35 @@ func StatusHandler(c *gin.Context) {
 		c.JSON(http.StatusOK, job)
 	} else {
 		c.JSON(http.StatusNotFound, gin.H{"error": "job not found"})
+	}
+}
+
+// StatusWSHandler streams job updates over a WebSocket connection.
+func StatusWSHandler(c *gin.Context) {
+	id := c.Param("id")
+	if _, ok := jobStore.Get(id); !ok {
+		c.JSON(http.StatusNotFound, gin.H{"error": "job not found"})
+		return
+	}
+
+	conn, err := websocket.Accept(c.Writer, c.Request, nil)
+	if err != nil {
+		return
+	}
+	defer conn.Close(websocket.StatusInternalError, "internal error")
+
+	ch, unsubscribe := jobStore.Subscribe(id)
+	defer unsubscribe()
+
+	ctx := c.Request.Context()
+	for job := range ch {
+		if err := wsjson.Write(ctx, conn, job); err != nil {
+			return
+		}
+		if job.Status == "success" || job.Status == "error" {
+			conn.Close(websocket.StatusNormalClosure, "done")
+			return
+		}
 	}
 }
 

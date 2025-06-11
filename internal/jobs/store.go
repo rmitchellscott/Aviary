@@ -13,18 +13,66 @@ type Job struct {
 
 // Store holds all jobs in memory
 type Store struct {
-	mu   sync.RWMutex
-	jobs map[string]*Job
+	mu       sync.RWMutex
+	jobs     map[string]*Job
+	watchers map[string][]chan *Job
 }
 
 func NewStore() *Store {
-	return &Store{jobs: make(map[string]*Job)}
+	return &Store{jobs: make(map[string]*Job), watchers: make(map[string][]chan *Job)}
+}
+
+// Subscribe returns a channel that receives job updates for the given id.
+// The returned function should be called to unsubscribe when done.
+func (s *Store) Subscribe(id string) (<-chan *Job, func()) {
+	ch := make(chan *Job, 1)
+	s.mu.Lock()
+	s.watchers[id] = append(s.watchers[id], ch)
+	job := s.jobs[id]
+	s.mu.Unlock()
+
+	if job != nil {
+		// send current state
+		ch <- job
+	}
+
+	return ch, func() {
+		s.mu.Lock()
+		watchers := s.watchers[id]
+		for i, c := range watchers {
+			if c == ch {
+				s.watchers[id] = append(watchers[:i], watchers[i+1:]...)
+				break
+			}
+		}
+		s.mu.Unlock()
+		close(ch)
+	}
+}
+
+func (s *Store) broadcastLocked(id string) {
+	job := s.jobs[id]
+	watchers := append([]chan *Job(nil), s.watchers[id]...)
+	// lock held when called
+	for _, ch := range watchers {
+		select {
+		case ch <- job:
+		default:
+		}
+	}
+}
+
+func (s *Store) broadcast(id string) {
+	s.mu.Lock()
+	s.broadcastLocked(id)
+	s.mu.Unlock()
 }
 
 func (s *Store) Create(id string) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	s.jobs[id] = &Job{Status: "pending", Message: "", Progress: 0}
+	s.broadcastLocked(id)
+	s.mu.Unlock()
 }
 
 func (s *Store) Update(id, status, msg string) {
@@ -33,6 +81,7 @@ func (s *Store) Update(id, status, msg string) {
 	if j, ok := s.jobs[id]; ok {
 		j.Status = status
 		j.Message = msg
+		s.broadcastLocked(id)
 	}
 }
 
@@ -47,6 +96,7 @@ func (s *Store) UpdateProgress(id string, p int) {
 	defer s.mu.Unlock()
 	if j, ok := s.jobs[id]; ok {
 		j.Progress = p
+		s.broadcastLocked(id)
 	}
 }
 
