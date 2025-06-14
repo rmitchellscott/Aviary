@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "displayName": "Svenska"
+  },
+  "login": {
+    "title": "Logga in",
+    "username": "Användarnamn",
+    "password": "Lösenord",
+    "signing_in": "Loggar in...",
+    "button": "Logga in",
+    "network_error": "Nätverksfel",
+    "fail": "Inloggning misslyckades"
+  },
+  "logout": "Logga ut",
+  "home": {
+    "send_document": "Skicka Dokument",
+    "url_placeholder": "https://exempel.com/fil.pdf",
+    "or": "— ELLER —",
+    "selected_file": "Vald fil:",
+    "remove": "Ta bort",
+    "destination_folder": "Destinationsmapp",
+    "default": "Standard",
+    "loading": "Laddar...",
+    "compress_pdf": "Komprimera PDF",
+    "send": "Skicka",
+    "sending": "Skickar…",
+    "invalid_file": "Ogiltig fil",
+    "ok": "OK"
+  },
+  "filedrop": {
+    "instruction": "Klicka för att ladda upp eller dra och släpp",
+    "invalid_type": "Välj en PDF-, EPUB-, JPEG- eller PNG-fil."
+  },
+  "theme": {
+    "switch": "Växla till {{mode}} läge",
+    "auto": "automatiskt",
+    "dark": "mörkt",
+    "light": "ljust"
+  },
+  "language": {
+    "search": "Sök...",
+    "no_results": "Inga resultat.",
+    "tooltip": "Språk"
+  },
+  "backend": {
+    "auth": {
+      "too_many_attempts": "För många misslyckade inloggningsförsök",
+      "invalid_request": "Ogiltig begäran",
+      "not_configured": "Autentisering inte konfigurerad",
+      "invalid_credentials": "Ogiltiga inloggningsuppgifter",
+      "token_error": "Kunde inte generera token",
+      "no_token": "Ingen auth token eller API-nyckel",
+      "invalid_token": "Ogiltig token",
+      "required": "Autentisering krävs",
+      "session_error": "Kunde inte generera session"
+    },
+    "status": {
+      "job_not_found": "Jobb inte hittad",
+      "internal_error": "Internt fel",
+      "done": "Klar",
+      "invalid_prefix": "Ogiltigt prefix",
+      "using_uploaded_file": "Använder uppladdad fil",
+      "no_url": "Ingen URL hittad i begärans kropp",
+      "downloading": "Laddar ner",
+      "download_error": "Nedladdningsfel",
+      "converting_pdf": "Konverterar till PDF",
+      "conversion_error": "Bild→PDF konverteringsfel",
+      "compressing_pdf": "Komprimerar PDF",
+      "compress_error": "Komprimeringsfel",
+      "rename_error": "Namnbytesfel",
+      "uploading": "Laddar upp",
+      "upload_success": "Ditt dokument är tillgängligt på din reMarkable på {{path}}"
+    },
+    "errors": {
+      "missing_url": "Saknad URL-parameter",
+      "parse_form": "Kunde inte parsa multipart formulär",
+      "get_file": "Kunde inte hämta fil",
+      "open_file": "Kunde inte öppna uppladdad fil",
+      "create_dir": "Kunde inte skapa uppladdningskatalog",
+      "create_file": "Kunde inte skapa fil på disk",
+      "save_file": "Kunde inte spara fil",
+      "no_form": "Inget multipart formulär hittades",
+      "no_file_field": "Ingen fil med fältnamn {{field}}"
+    }
+  }
+}

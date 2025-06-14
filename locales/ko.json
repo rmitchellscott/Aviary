@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "displayName": "\ud55c\uad6d\uc5b4"
+  },
+  "login": {
+    "title": "로그인",
+    "username": "사용자명",
+    "password": "비밀번호",
+    "signing_in": "로그인 중...",
+    "button": "로그인",
+    "network_error": "네트워크 오류",
+    "fail": "로그인 실패"
+  },
+  "logout": "로그아웃",
+  "home": {
+    "send_document": "문서 전송",
+    "url_placeholder": "https://example.com/file.pdf",
+    "or": "— 또는 —",
+    "selected_file": "선택된 파일:",
+    "remove": "제거",
+    "destination_folder": "대상 폴더",
+    "default": "기본값",
+    "loading": "로딩 중...",
+    "compress_pdf": "PDF 압축",
+    "send": "전송",
+    "sending": "전송 중…",
+    "invalid_file": "유효하지 않은 파일",
+    "ok": "확인"
+  },
+  "filedrop": {
+    "instruction": "클릭하여 업로드하거나 드래그 앤 드롭하세요",
+    "invalid_type": "PDF, EPUB, JPEG 또는 PNG 파일을 선택해주세요."
+  },
+  "theme": {
+    "switch": "{{mode}} 모드로 전환",
+    "auto": "자동",
+    "dark": "다크",
+    "light": "라이트"
+  },
+  "language": {
+    "search": "검색...",
+    "no_results": "결과가 없습니다.",
+    "tooltip": "언어"
+  },
+  "backend": {
+    "auth": {
+      "too_many_attempts": "로그인 시도 횟수가 너무 많습니다",
+      "invalid_request": "유효하지 않은 요청",
+      "not_configured": "인증이 구성되지 않음",
+      "invalid_credentials": "유효하지 않은 자격 증명",
+      "token_error": "토큰을 생성할 수 없습니다",
+      "no_token": "인증 토큰이나 API 키가 없습니다",
+      "invalid_token": "유효하지 않은 토큰",
+      "required": "인증이 필요합니다",
+      "session_error": "세션을 생성할 수 없습니다"
+    },
+    "status": {
+      "job_not_found": "작업을 찾을 수 없습니다",
+      "internal_error": "내부 오류",
+      "done": "완료",
+      "invalid_prefix": "유효하지 않은 접두사",
+      "using_uploaded_file": "업로드된 파일 사용 중",
+      "no_url": "요청 본문에서 URL을 찾을 수 없습니다",
+      "downloading": "다운로드 중",
+      "download_error": "다운로드 오류",
+      "converting_pdf": "PDF로 변환 중",
+      "conversion_error": "이미지→PDF 변환 오류",
+      "compressing_pdf": "PDF 압축 중",
+      "compress_error": "압축 오류",
+      "rename_error": "이름 변경 오류",
+      "uploading": "업로드 중",
+      "upload_success": "문서가 reMarkable의 {{path}}에서 사용 가능합니다"
+    },
+    "errors": {
+      "missing_url": "URL 매개변수 누락",
+      "parse_form": "멀티파트 폼을 파싱할 수 없습니다",
+      "get_file": "파일을 가져올 수 없습니다",
+      "open_file": "업로드된 파일을 열 수 없습니다",
+      "create_dir": "업로드 디렉토리를 생성할 수 없습니다",
+      "create_file": "디스크에 파일을 생성할 수 없습니다",
+      "save_file": "파일을 저장할 수 없습니다",
+      "no_form": "멀티파트 폼을 찾을 수 없습니다",
+      "no_file_field": "필드명 {{field}}의 파일이 없습니다"
+    }
+  }
+}

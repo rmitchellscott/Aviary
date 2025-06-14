@@ -25,15 +25,24 @@ import { FileDropzone } from "@/components/FileDropzone";
 import { Loader2, CircleCheck, XCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 
 // List of file extensions (lower-cased, including the dot) that we allow compression for:
 const COMPRESSIBLE_EXTS = [".pdf", ".png", ".jpg", ".jpeg"];
 // How often to animate progress bar updates (ms)
 const POLL_INTERVAL_MS = 200;
 
+// Job status from backend
+interface JobStatus {
+  status: string;
+  message: string;
+  progress: number;
+  operation?: string;
+}
+
 function waitForJobWS(
   jobId: string,
-  onUpdate: (st: any) => void,
+  onUpdate: (st: JobStatus) => void,
 ): Promise<void> {
   return new Promise((resolve) => {
     const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -68,7 +77,11 @@ function getErrorMessage(err: unknown): string {
 
 async function sniffMime(url: string): Promise<string | null> {
   try {
-    const resp = await fetch(`/api/sniff?url=${encodeURIComponent(url)}`);
+    const resp = await fetch(`/api/sniff?url=${encodeURIComponent(url)}`, {
+      headers: {
+        "Accept-Language": i18n.language
+      }
+    });
     if (!resp.ok) return null;
     const data = await resp.json();
     return data.mime || null;
@@ -90,6 +103,7 @@ export default function HomePage() {
   const [status, setStatus] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [progress, setProgress] = useState<number>(0);
+  const [operation, setOperation] = useState<string>("");
   const [fileError, setFileError] = useState<string | null>(null);
   const DEFAULT_RM_DIR = "default";
   const [folders, setFolders] = useState<string[]>([]);
@@ -150,7 +164,9 @@ export default function HomePage() {
     if (!isAuthenticated) return;
     (async () => {
       try {
-        const headers: HeadersInit = {};
+        const headers: HeadersInit = {
+          "Accept-Language": i18n.language
+        };
         if (uiSecret) {
           headers["X-UI-Token"] = uiSecret;
         }
@@ -167,8 +183,14 @@ export default function HomePage() {
         }
 
         // Fetch an up-to-date list in the background and update state when done
+        const refreshHeaders: HeadersInit = {
+          "Accept-Language": i18n.language
+        };
+        if (uiSecret) {
+          refreshHeaders["X-UI-Token"] = uiSecret;
+        }
         fetch("/api/folders?refresh=1", {
-          headers,
+          headers: refreshHeaders,
           credentials: "include",
         })
           .then((r) => r.json())
@@ -205,6 +227,7 @@ export default function HomePage() {
     setLoading(true);
     setMessage("");
     setStatus("");
+    setOperation("");
 
     if (selectedFile) {
       // === FILE UPLOAD FLOW (enqueue + poll) ===
@@ -217,8 +240,17 @@ export default function HomePage() {
         }
 
         // 1) send to /api/upload and get back { jobId }
+        const headers: HeadersInit = {};
+        if (uiSecret) {
+          headers["X-UI-Token"] = uiSecret;
+        }
+        // Include current language for backend i18n
+        headers["Accept-Language"] = i18n.language;
+        
         const res = await fetch("/api/upload", {
           method: "POST",
+          headers,
+          credentials: "include",
           body: formData,
         });
         if (!res.ok) {
@@ -233,6 +265,7 @@ export default function HomePage() {
         await waitForJobWS(jobId, (st) => {
           setStatus(st.status.toLowerCase());
           setMessage(st.message);
+          setOperation(st.operation || "");
           if (typeof st.progress === "number") {
             setProgress(st.progress);
           }
@@ -246,6 +279,7 @@ export default function HomePage() {
         setSelectedFile(null);
         setUrl("");
         setProgress(0);
+        setOperation("");
         setLoading(false);
       }
     } else {
@@ -258,9 +292,18 @@ export default function HomePage() {
       }
 
       try {
+        const headers: HeadersInit = { 
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Accept-Language": i18n.language
+        };
+        if (uiSecret) {
+          headers["X-UI-Token"] = uiSecret;
+        }
+        
         const res = await fetch("/api/webhook", {
           method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          headers,
+          credentials: "include",
           body: form.toString(),
         });
         if (!res.ok) {
@@ -275,6 +318,7 @@ export default function HomePage() {
         await waitForJobWS(jobId, (st) => {
           setStatus(st.status.toLowerCase());
           setMessage(st.message);
+          setOperation(st.operation || "");
           if (typeof st.progress === "number") {
             setProgress(st.progress);
           }
@@ -286,6 +330,7 @@ export default function HomePage() {
       } finally {
         setUrl("");
         setProgress(0);
+        setOperation("");
         setLoading(false);
       }
     }
@@ -430,7 +475,7 @@ export default function HomePage() {
             </div>
           )}
           {status === "running" &&
-            message === "Compressing PDF" &&
+            operation === "compressing" &&
             progress > 0 &&
             progress < 100 && (
               <Progress

@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Globe, Check } from "lucide-react"
+import i18n from "@/lib/i18n"
 
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
@@ -20,15 +21,24 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-const LANGS = [
-  { value: "en", label: "English" },
-  { value: "es", label: "Español" },
-]
+// Dynamically generate language list from available i18n resources
+const getAvailableLanguages = () => {
+  const availableLanguages = Object.keys(i18n.options.resources || {})
+  return availableLanguages.map(lang => {
+    const resource = i18n.options.resources?.[lang]?.translation as any
+    const displayName = resource?._meta?.displayName || lang.toUpperCase()
+    return {
+      value: lang,
+      label: displayName
+    }
+  }).sort((a, b) => a.label.localeCompare(b.label))
+}
 
 export default function LanguageSwitcher() {
   const { i18n, t } = useTranslation()
   const current = i18n.resolvedLanguage || i18n.language.split("-")[0]
   const [open, setOpen] = useState(false)
+  const availableLanguages = getAvailableLanguages()
 
   const handleLanguageChange = (langValue: string) => {
     i18n.changeLanguage(langValue)
@@ -41,8 +51,16 @@ export default function LanguageSwitcher() {
         <Popover open={open} onOpenChange={setOpen}>
           <TooltipTrigger asChild>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Select language">
-                <Globe className="size-4" />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                aria-label="Select language"
+                style={{
+                  fontSize: 21,
+                  lineHeight: 0,
+                }}
+              >
+                <Globe className="text-muted-foreground" style={{ width: '1em', height: '1em' }} />
               </Button>
             </PopoverTrigger>
           </TooltipTrigger>
@@ -51,7 +69,7 @@ export default function LanguageSwitcher() {
           <CommandInput placeholder={t("language.search") || "Search languages..."} className="h-8" />
           <CommandList>
             <CommandEmpty>{t("language.no_results") || "No languages found."}</CommandEmpty>
-            {LANGS.map((lang) => (
+            {availableLanguages.map((lang) => (
               <CommandItem
                 key={lang.value}
                 value={lang.label}

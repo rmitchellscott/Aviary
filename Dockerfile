@@ -3,12 +3,13 @@ FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.6.1 AS xx
 
 # Frontend build
 FROM --platform=$BUILDPLATFORM node:24-alpine AS ui-builder
-WORKDIR /app/ui
+WORKDIR /app
 
-COPY ui/package.json ui/package-lock.json ./
-RUN npm ci
-COPY ui/ .
-RUN npm run build
+COPY ui/package.json ui/package-lock.json ui/
+RUN cd ui && npm ci
+COPY locales/ locales/
+COPY ui/ ui/
+RUN cd ui && npm run build
 
 
 FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS go-base
@@ -60,6 +61,7 @@ WORKDIR /app
 
 COPY --from=rmapi-builder /app/rmapi /usr/local/bin/
 COPY --from=aviary-builder /app/aviary /usr/local/bin/
+COPY --from=aviary-builder /app/locales ./locales
 
 ENV PORT=8000 \
     PDF_DIR=/app/pdfs \

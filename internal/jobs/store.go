@@ -6,9 +6,10 @@ import (
 
 // Job represents the state of a single PDF process
 type Job struct {
-	Status   string `json:"status"`
-	Message  string `json:"message"`
-	Progress int    `json:"progress"`
+	Status    string `json:"status"`
+	Message   string `json:"message"`
+	Progress  int    `json:"progress"`
+	Operation string `json:"operation"` // e.g., "downloading", "compressing", "uploading"
 }
 
 // Store holds all jobs in memory
@@ -70,7 +71,7 @@ func (s *Store) broadcast(id string) {
 
 func (s *Store) Create(id string) {
 	s.mu.Lock()
-	s.jobs[id] = &Job{Status: "pending", Message: "", Progress: 0}
+	s.jobs[id] = &Job{Status: "pending", Message: "", Progress: 0, Operation: ""}
 	s.broadcastLocked(id)
 	s.mu.Unlock()
 }
@@ -81,6 +82,18 @@ func (s *Store) Update(id, status, msg string) {
 	if j, ok := s.jobs[id]; ok {
 		j.Status = status
 		j.Message = msg
+		s.broadcastLocked(id)
+	}
+}
+
+// UpdateWithOperation updates both message and operation type
+func (s *Store) UpdateWithOperation(id, status, msg, operation string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if j, ok := s.jobs[id]; ok {
+		j.Status = status
+		j.Message = msg
+		j.Operation = operation
 		s.broadcastLocked(id)
 	}
 }

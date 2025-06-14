@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "displayName": "Suomi"
+  },
+  "login": {
+    "title": "Kirjaudu sisään",
+    "username": "Käyttäjänimi",
+    "password": "Salasana",
+    "signing_in": "Kirjaudutaan sisään...",
+    "button": "Kirjaudu sisään",
+    "network_error": "Verkkovirhe",
+    "fail": "Kirjautuminen epäonnistui"
+  },
+  "logout": "Kirjaudu ulos",
+  "home": {
+    "send_document": "Lähetä Asiakirja",
+    "url_placeholder": "https://esimerkki.com/tiedosto.pdf",
+    "or": "— TAI —",
+    "selected_file": "Valittu tiedosto:",
+    "remove": "Poista",
+    "destination_folder": "Kohdekansio",
+    "default": "Oletus",
+    "loading": "Ladataan...",
+    "compress_pdf": "Pakkaa PDF",
+    "send": "Lähetä",
+    "sending": "Lähetetään…",
+    "invalid_file": "Virheellinen tiedosto",
+    "ok": "OK"
+  },
+  "filedrop": {
+    "instruction": "Klikkaa ladataksesi tai raahaa ja pudota",
+    "invalid_type": "Valitse PDF-, EPUB-, JPEG- tai PNG-tiedosto."
+  },
+  "theme": {
+    "switch": "Vaihda {{mode}} tilaan",
+    "auto": "automaattinen",
+    "dark": "tumma",
+    "light": "vaalea"
+  },
+  "language": {
+    "search": "Hae...",
+    "no_results": "Ei tuloksia.",
+    "tooltip": "Kieli"
+  },
+  "backend": {
+    "auth": {
+      "too_many_attempts": "Liian monta epäonnistunutta kirjautumisyritystä",
+      "invalid_request": "Virheellinen pyyntö",
+      "not_configured": "Todennusta ei ole määritetty",
+      "invalid_credentials": "Virheelliset tunnistetiedot",
+      "token_error": "Token-tunnuksen luominen epäonnistui",
+      "no_token": "Ei auth token -tunnusta tai API-avainta",
+      "invalid_token": "Virheellinen token",
+      "required": "Todennus vaaditaan",
+      "session_error": "Istunnon luominen epäonnistui"
+    },
+    "status": {
+      "job_not_found": "Työtä ei löytynyt",
+      "internal_error": "Sisäinen virhe",
+      "done": "Valmis",
+      "invalid_prefix": "Virheellinen etuliite",
+      "using_uploaded_file": "Käytetään ladattua tiedostoa",
+      "no_url": "URL:ää ei löytynyt pyynnön rungosta",
+      "downloading": "Ladataan",
+      "download_error": "Latausvirhe",
+      "converting_pdf": "Muunnetaan PDF:ksi",
+      "conversion_error": "Kuva→PDF muunnosvirhe",
+      "compressing_pdf": "Pakataan PDF:ää",
+      "compress_error": "Pakkausvirhe",
+      "rename_error": "Uudelleennimeämisvirhe",
+      "uploading": "Lähetetään",
+      "upload_success": "Asiakirjasi on saatavilla reMarkablessa polussa {{path}}"
+    },
+    "errors": {
+      "missing_url": "Puuttuva URL-parametri",
+      "parse_form": "Multipart-lomakkeen jäsentäminen epäonnistui",
+      "get_file": "Tiedoston hakeminen epäonnistui",
+      "open_file": "Ladatun tiedoston avaaminen epäonnistui",
+      "create_dir": "Latauskansiota ei voitu luoda",
+      "create_file": "Tiedostoa ei voitu luoda levylle",
+      "save_file": "Tiedoston tallentaminen epäonnistui",
+      "no_form": "Multipart-lomaketta ei löytynyt",
+      "no_file_field": "Ei tiedostoa kentässä {{field}}"
+    }
+  }
+}
