@@ -13,6 +13,12 @@ import {
   CommandEmpty,
   CommandItem,
 } from "@/components/ui/command"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 const LANGS = [
   { value: "en", label: "English" },
@@ -24,33 +30,66 @@ export default function LanguageSwitcher() {
   const current = i18n.resolvedLanguage || i18n.language.split("-")[0]
   const [open, setOpen] = useState(false)
 
+  const handleLanguageChange = (langValue: string) => {
+    i18n.changeLanguage(langValue)
+    setOpen(false)
+  }
+
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Select language">
-          <Globe className="size-4" />
-        </Button>
-      </PopoverTrigger>
+    <TooltipProvider>
+      <Tooltip>
+        <Popover open={open} onOpenChange={setOpen}>
+          <TooltipTrigger asChild>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Select language">
+                <Globe className="size-4" />
+              </Button>
+            </PopoverTrigger>
+          </TooltipTrigger>
       <PopoverContent className="w-40 p-0">
         <Command>
-          <CommandInput placeholder={t("language.search") || "Search..."} className="h-8" />
+          <CommandInput placeholder={t("language.search") || "Search languages..."} className="h-8" />
           <CommandList>
-            <CommandEmpty>{t("language.no_results") || "No results."}</CommandEmpty>
+            <CommandEmpty>{t("language.no_results") || "No languages found."}</CommandEmpty>
             {LANGS.map((lang) => (
               <CommandItem
                 key={lang.value}
-                onSelect={() => {
-                  i18n.changeLanguage(lang.value)
-                  setOpen(false)
+                value={lang.label}
+                onSelect={() => handleLanguageChange(lang.value)}
+                className="cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                  handleLanguageChange(lang.value)
                 }}
+                onPointerDown={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                  handleLanguageChange(lang.value)
+                }}
+                style={{ pointerEvents: 'auto' }}
               >
-                {lang.label}
-                {current === lang.value && <Check className="ml-auto size-4" />}
+                <span 
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                    handleLanguageChange(lang.value)
+                  }}
+                  className="flex items-center w-full"
+                >
+                  {lang.label}
+                  {current === lang.value && <Check className="ml-auto size-4" />}
+                </span>
               </CommandItem>
             ))}
           </CommandList>
         </Command>
       </PopoverContent>
-    </Popover>
+        </Popover>
+        <TooltipContent>
+          <p>{t("language.tooltip") || "Language"}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }

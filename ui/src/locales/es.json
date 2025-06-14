@@ -36,6 +36,7 @@
   },
   "language": {
     "search": "Buscar...",
-    "no_results": "Sin resultados."
+    "no_results": "Sin resultados.",
+    "tooltip": "Idioma"
   }
 }

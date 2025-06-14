@@ -11,6 +11,7 @@ services:
       # AUTH_USERNAME: "${AUTH_USERNAME}"
       # AUTH_PASSWORD: "${AUTH_PASSWORD}"
       # API_KEY: "${API_KEY}"
+      DRY_RUN: "true"
     volumes:
       - type: bind
         source: ./rmapi.conf
