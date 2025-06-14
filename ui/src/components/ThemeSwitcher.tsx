@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 import {
   Tooltip,
   TooltipContent,
@@ -78,6 +79,8 @@ export default function ThemeSwitcher({
   else if (theme === 'dark') currentIndex = 1;
   else if (theme === 'light') currentIndex = 2;
 
+  const { t } = useTranslation();
+
   if (!mounted || !theme || !systemTheme) {
     return null;
   }
@@ -91,11 +94,10 @@ export default function ThemeSwitcher({
 
   const iconToShow =
     theme === 'system' ? icons.system : theme === 'dark' ? icons.dark : icons.light;
-
   const labelMap: Record<Mode, string> = {
-    system: 'auto',
-    dark: 'dark',
-    light: 'light',
+    system: t('theme.auto'),
+    dark: t('theme.dark'),
+    light: t('theme.light'),
   };
 
   return (
@@ -113,7 +115,7 @@ export default function ThemeSwitcher({
           {iconToShow}
         </Button>
       </TooltipTrigger>
-      <TooltipContent>Switch to {labelMap[nextMode]} mode</TooltipContent>
+      <TooltipContent>{t('theme.switch', { mode: labelMap[nextMode] })}</TooltipContent>
     </Tooltip>
   );
 }

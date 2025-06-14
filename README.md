@@ -25,6 +25,8 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 - Toggle for compression for supported filetypes
 - Destination directory selector with cache for instant loadtimes
 - Light and dark themes, with optional system theme detection
+- Language selector with auto-detected browser locale (English and Spanish,
+  including region codes)
 - Optional single-user auth via environment variables
 
 **Backend**

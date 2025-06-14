@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { LoginForm } from "@/components/LoginForm";
 import { Button } from "@/components/ui/button";
@@ -25,6 +24,7 @@ import {
 import { FileDropzone } from "@/components/FileDropzone";
 import { Loader2, CircleCheck, XCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useTranslation } from "react-i18next";
 
 // List of file extensions (lower-cased, including the dot) that we allow compression for:
 const COMPRESSIBLE_EXTS = [".pdf", ".png", ".jpg", ".jpeg"];
@@ -80,6 +80,7 @@ async function sniffMime(url: string): Promise<string | null> {
 export default function HomePage() {
   const { isAuthenticated, isLoading, login, authConfigured, uiSecret } =
     useAuth();
+  const { t } = useTranslation();
   const [url, setUrl] = useState<string>("");
   const [committedUrl, setCommittedUrl] = useState<string>("");
   const [urlMime, setUrlMime] = useState<string | null>(null);
@@ -294,7 +295,7 @@ export default function HomePage() {
     <div className="bg-background pt-0 pb-8 px-8">
       <Card className="max-w-md mx-auto bg-card">
         <CardHeader>
-          <CardTitle className="text-xl">Send Document</CardTitle>
+          <CardTitle className="text-xl">{t('home.send_document')}</CardTitle>
         </CardHeader>
 
         <CardContent className="space-y-6">
@@ -322,13 +323,13 @@ export default function HomePage() {
                   setUrlMime(null);
                 }
               }}
-              placeholder="https://example.com/file.pdf"
+              placeholder={t('home.url_placeholder')}
               disabled={!!selectedFile}
             />
           </div>
 
           <div className="text-center text-sm text-muted-foreground">
-            — OR —
+            {t('home.or')}
           </div>
 
           {/* === DRAG & DROP FILE === */}
@@ -351,31 +352,32 @@ export default function HomePage() {
             {selectedFile && (
               <div className="mt-2 flex justify-between items-center">
                 <p className="text-sm text-foreground">
-                  Selected file:{" "}
+                  {t('home.selected_file')} {" "}
                   <span className="font-medium">{selectedFile.name}</span>
                 </p>
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setSelectedFile(null)}
-                  className="text-sm text-muted-foreground hover:text-foreground"
                 >
-                  <b>Remove</b>
-                </button>
+                  {t('home.remove')}
+                </Button>
               </div>
             )}
           </div>
 
           {/* === FOLDER SELECT === */}
           <div className="flex items-center space-x-2">
-            <Label htmlFor="rmDir">Destination Folder</Label>
+            <Label htmlFor="rmDir">{t('home.destination_folder')}</Label>
             <Select value={rmDir} onValueChange={setRmDir}>
               <SelectTrigger id="rmDir">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={DEFAULT_RM_DIR}>Default</SelectItem>
+                <SelectItem value={DEFAULT_RM_DIR}>{t('home.default')}</SelectItem>
                 {foldersLoading && (
                   <SelectItem value="loading" disabled>
-                    Loading...
+                    {t('home.loading')}
                   </SelectItem>
                 )}
                 {folders.map((f) => (
@@ -393,7 +395,7 @@ export default function HomePage() {
               htmlFor="compress"
               className={!isCompressibleFileOrUrl ? "opacity-50" : ""}
             >
-              Compress PDF
+              {t('home.compress_pdf')}
             </Label>
             <Switch
               id="compress"
@@ -409,7 +411,7 @@ export default function HomePage() {
               onClick={handleSubmit}
               disabled={loading || (!url && !selectedFile)}
             >
-              {loading ? "Sending…" : "Send"}
+              {loading ? t('home.sending') : t('home.send')}
             </Button>
           </div>
 
@@ -449,12 +451,12 @@ export default function HomePage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Invalid File</DialogTitle>
+            <DialogTitle>{t('home.invalid_file')}</DialogTitle>
             <DialogDescription>{fileError}</DialogDescription>
           </DialogHeader>
           <div className="mt-4 flex justify-end">
             <DialogClose asChild>
-              <Button>OK</Button>
+              <Button>{t('home.ok')}</Button>
             </DialogClose>
           </div>
         </DialogContent>
