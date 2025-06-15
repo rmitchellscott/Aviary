@@ -25,7 +25,8 @@
     "send": "Skicka",
     "sending": "Skickar…",
     "invalid_file": "Ogiltig fil",
-    "ok": "OK"
+    "ok": "OK",
+    "job_queued": "Jobb i kö: {{id}}"
   },
   "filedrop": {
     "instruction": "Klicka för att ladda upp eller dra och släpp",

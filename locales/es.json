@@ -25,7 +25,8 @@
     "send": "Enviar",
     "sending": "Enviando…",
     "invalid_file": "Archivo inválido",
-    "ok": "Aceptar"
+    "ok": "Aceptar",
+    "job_queued": "Trabajo en cola: {{id}}"
   },
   "filedrop": {
     "instruction": "Haz clic para subir o arrastra y suelta",

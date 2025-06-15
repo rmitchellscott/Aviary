@@ -36,6 +36,7 @@ const POLL_INTERVAL_MS = 200;
 interface JobStatus {
   status: string;
   message: string;
+  data?: Record<string, string>;
   progress: number;
   operation?: string;
 }
@@ -79,8 +80,8 @@ async function sniffMime(url: string): Promise<string | null> {
   try {
     const resp = await fetch(`/api/sniff?url=${encodeURIComponent(url)}`, {
       headers: {
-        "Accept-Language": i18n.language
-      }
+        "Accept-Language": i18n.language,
+      },
     });
     if (!resp.ok) return null;
     const data = await resp.json();
@@ -165,7 +166,7 @@ export default function HomePage() {
     (async () => {
       try {
         const headers: HeadersInit = {
-          "Accept-Language": i18n.language
+          "Accept-Language": i18n.language,
         };
         if (uiSecret) {
           headers["X-UI-Token"] = uiSecret;
@@ -184,7 +185,7 @@ export default function HomePage() {
 
         // Fetch an up-to-date list in the background and update state when done
         const refreshHeaders: HeadersInit = {
-          "Accept-Language": i18n.language
+          "Accept-Language": i18n.language,
         };
         if (uiSecret) {
           refreshHeaders["X-UI-Token"] = uiSecret;
@@ -246,7 +247,7 @@ export default function HomePage() {
         }
         // Include current language for backend i18n
         headers["Accept-Language"] = i18n.language;
-        
+
         const res = await fetch("/api/upload", {
           method: "POST",
           headers,
@@ -255,16 +256,16 @@ export default function HomePage() {
         });
         if (!res.ok) {
           const errText = await res.text();
-          throw new Error(`Upload failed: ${errText}`);
+          throw new Error(errText);
         }
         const { jobId } = await res.json();
-        setMessage(`Job queued: ${jobId}`);
+        setMessage(t("home.job_queued", { id: jobId }));
 
         setStatus("running");
         setProgress(0);
         await waitForJobWS(jobId, (st) => {
           setStatus(st.status.toLowerCase());
-          setMessage(st.message);
+          setMessage(t(st.message, st.data || {}));
           setOperation(st.operation || "");
           if (typeof st.progress === "number") {
             setProgress(st.progress);
@@ -273,7 +274,7 @@ export default function HomePage() {
       } catch (err: unknown) {
         const msg = getErrorMessage(err);
         setStatus("error");
-        setMessage(msg);
+        setMessage(t(msg));
       } finally {
         // clear the selected file so <Input> becomes enabled again
         setSelectedFile(null);
@@ -292,14 +293,14 @@ export default function HomePage() {
       }
 
       try {
-        const headers: HeadersInit = { 
+        const headers: HeadersInit = {
           "Content-Type": "application/x-www-form-urlencoded",
-          "Accept-Language": i18n.language
+          "Accept-Language": i18n.language,
         };
         if (uiSecret) {
           headers["X-UI-Token"] = uiSecret;
         }
-        
+
         const res = await fetch("/api/webhook", {
           method: "POST",
           headers,
@@ -308,16 +309,16 @@ export default function HomePage() {
         });
         if (!res.ok) {
           const errText = await res.text();
-          throw new Error(`Enqueue failed: ${errText}`);
+          throw new Error(errText);
         }
         const { jobId } = await res.json();
         setStatus("running");
-        setMessage(`Job queued: ${jobId}`);
+        setMessage(t("home.job_queued", { id: jobId }));
         setProgress(0);
 
         await waitForJobWS(jobId, (st) => {
           setStatus(st.status.toLowerCase());
-          setMessage(st.message);
+          setMessage(t(st.message, st.data || {}));
           setOperation(st.operation || "");
           if (typeof st.progress === "number") {
             setProgress(st.progress);
@@ -326,7 +327,7 @@ export default function HomePage() {
       } catch (err: unknown) {
         const msg = getErrorMessage(err);
         setStatus("error");
-        setMessage(msg);
+        setMessage(t(msg));
       } finally {
         setUrl("");
         setProgress(0);
@@ -340,7 +341,7 @@ export default function HomePage() {
     <div className="bg-background pt-0 pb-8 px-8">
       <Card className="max-w-md mx-auto bg-card">
         <CardHeader>
-          <CardTitle className="text-xl">{t('home.send_document')}</CardTitle>
+          <CardTitle className="text-xl">{t("home.send_document")}</CardTitle>
         </CardHeader>
 
         <CardContent className="space-y-6">
@@ -368,13 +369,13 @@ export default function HomePage() {
                   setUrlMime(null);
                 }
               }}
-              placeholder={t('home.url_placeholder')}
+              placeholder={t("home.url_placeholder")}
               disabled={!!selectedFile}
             />
           </div>
 
           <div className="text-center text-sm text-muted-foreground">
-            {t('home.or')}
+            {t("home.or")}
           </div>
 
           {/* === DRAG & DROP FILE === */}
@@ -397,7 +398,7 @@ export default function HomePage() {
             {selectedFile && (
               <div className="mt-2 flex justify-between items-center">
                 <p className="text-sm text-foreground">
-                  {t('home.selected_file')} {" "}
+                  {t("home.selected_file")}{" "}
                   <span className="font-medium">{selectedFile.name}</span>
                 </p>
                 <Button
@@ -405,7 +406,7 @@ export default function HomePage() {
                   size="sm"
                   onClick={() => setSelectedFile(null)}
                 >
-                  {t('home.remove')}
+                  {t("home.remove")}
                 </Button>
               </div>
             )}
@@ -413,16 +414,18 @@ export default function HomePage() {
 
           {/* === FOLDER SELECT === */}
           <div className="flex items-center space-x-2">
-            <Label htmlFor="rmDir">{t('home.destination_folder')}</Label>
+            <Label htmlFor="rmDir">{t("home.destination_folder")}</Label>
             <Select value={rmDir} onValueChange={setRmDir}>
               <SelectTrigger id="rmDir">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={DEFAULT_RM_DIR}>{t('home.default')}</SelectItem>
+                <SelectItem value={DEFAULT_RM_DIR}>
+                  {t("home.default")}
+                </SelectItem>
                 {foldersLoading && (
                   <SelectItem value="loading" disabled>
-                    {t('home.loading')}
+                    {t("home.loading")}
                   </SelectItem>
                 )}
                 {folders.map((f) => (
@@ -440,7 +443,7 @@ export default function HomePage() {
               htmlFor="compress"
               className={!isCompressibleFileOrUrl ? "opacity-50" : ""}
             >
-              {t('home.compress_pdf')}
+              {t("home.compress_pdf")}
             </Label>
             <Switch
               id="compress"
@@ -456,7 +459,7 @@ export default function HomePage() {
               onClick={handleSubmit}
               disabled={loading || (!url && !selectedFile)}
             >
-              {loading ? t('home.sending') : t('home.send')}
+              {loading ? t("home.sending") : t("home.send")}
             </Button>
           </div>
 
@@ -496,12 +499,12 @@ export default function HomePage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('home.invalid_file')}</DialogTitle>
+            <DialogTitle>{t("home.invalid_file")}</DialogTitle>
             <DialogDescription>{fileError}</DialogDescription>
           </DialogHeader>
           <div className="mt-4 flex justify-end">
             <DialogClose asChild>
-              <Button>{t('home.ok')}</Button>
+              <Button>{t("home.ok")}</Button>
             </DialogClose>
           </div>
         </DialogContent>

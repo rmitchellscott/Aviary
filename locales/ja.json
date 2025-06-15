@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "displayName": "\u65e5\u672c\u8a9e"
+    "displayName": "日本語"
   },
   "login": {
     "title": "ログイン",
@@ -25,7 +25,8 @@
     "send": "送信",
     "sending": "送信中…",
     "invalid_file": "無効なファイル",
-    "ok": "OK"
+    "ok": "はい",
+    "job_queued": "ジョブがキューに追加されました: {{id}}"
   },
   "filedrop": {
     "instruction": "クリックしてアップロードするか、ドラッグ&ドロップしてください",

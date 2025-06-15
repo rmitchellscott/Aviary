@@ -25,7 +25,8 @@
     "send": "Send",
     "sending": "Sender…",
     "invalid_file": "Ugyldig fil",
-    "ok": "OK"
+    "ok": "OK",
+    "job_queued": "Job i kø: {{id}}"
   },
   "filedrop": {
     "instruction": "Klik for at uploade eller træk og slip",

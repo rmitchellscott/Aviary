@@ -25,7 +25,8 @@
     "send": "Senden",
     "sending": "Wird gesendet…",
     "invalid_file": "Ungültige Datei",
-    "ok": "OK"
+    "ok": "OK",
+    "job_queued": "Job in Warteschlange: {{id}}"
   },
   "filedrop": {
     "instruction": "Zum Hochladen klicken oder Datei hierher ziehen",

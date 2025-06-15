@@ -77,7 +77,7 @@ func FoldersHandler(c *gin.Context) {
 	// Either forced refresh, cache miss, or caching disabled.
 	dirs, err := ListFolders()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "backend.status.internal_error"})
 		return
 	}
 	if useCache {

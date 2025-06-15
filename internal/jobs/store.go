@@ -6,10 +6,11 @@ import (
 
 // Job represents the state of a single PDF process
 type Job struct {
-	Status    string `json:"status"`
-	Message   string `json:"message"`
-	Progress  int    `json:"progress"`
-	Operation string `json:"operation"` // e.g., "downloading", "compressing", "uploading"
+	Status    string            `json:"status"`
+	Message   string            `json:"message"` // i18n key
+	Data      map[string]string `json:"data,omitempty"`
+	Progress  int               `json:"progress"`
+	Operation string            `json:"operation"` // e.g., "downloading", "compressing", "uploading"
 }
 
 // Store holds all jobs in memory
@@ -71,28 +72,30 @@ func (s *Store) broadcast(id string) {
 
 func (s *Store) Create(id string) {
 	s.mu.Lock()
-	s.jobs[id] = &Job{Status: "pending", Message: "", Progress: 0, Operation: ""}
+	s.jobs[id] = &Job{Status: "pending", Message: "", Data: nil, Progress: 0, Operation: ""}
 	s.broadcastLocked(id)
 	s.mu.Unlock()
 }
 
-func (s *Store) Update(id, status, msg string) {
+func (s *Store) Update(id, status, msg string, data map[string]string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if j, ok := s.jobs[id]; ok {
 		j.Status = status
 		j.Message = msg
+		j.Data = data
 		s.broadcastLocked(id)
 	}
 }
 
-// UpdateWithOperation updates both message and operation type
-func (s *Store) UpdateWithOperation(id, status, msg, operation string) {
+// UpdateWithOperation updates message, optional data, and operation type
+func (s *Store) UpdateWithOperation(id, status, msg string, data map[string]string, operation string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if j, ok := s.jobs[id]; ok {
 		j.Status = status
 		j.Message = msg
+		j.Data = data
 		j.Operation = operation
 		s.broadcastLocked(id)
 	}

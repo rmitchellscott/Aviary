@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rmitchellscott/aviary/internal/i18n"
 )
 
 // UploadHandler handles a single "file" field plus optional form values.
@@ -18,21 +17,21 @@ import (
 func UploadHandler(c *gin.Context) {
 	// 1) Parse multipart form (allow up to 32 MiB in memory)
 	if err := c.Request.ParseMultipartForm(32 << 20); err != nil {
-		c.String(http.StatusBadRequest, i18n.TFromContext(c.Request.Context(), "backend.errors.parse_form")+": "+err.Error())
+		c.String(http.StatusBadRequest, "backend.errors.parse_form")
 		return
 	}
 
 	// 2) Retrieve the *multipart.FileHeader for "file"
 	fileHeader, err := getFileHeader(c.Request, "file")
 	if err != nil {
-		c.String(http.StatusBadRequest, fmt.Sprintf("could not get file: %v", err))
+		c.String(http.StatusBadRequest, "backend.errors.get_file")
 		return
 	}
 
 	// 3) Open the uploaded file
 	src, err := fileHeader.Open()
 	if err != nil {
-		c.String(http.StatusInternalServerError, fmt.Sprintf("could not open uploaded file: %v", err))
+		c.String(http.StatusInternalServerError, "backend.errors.open_file")
 		return
 	}
 	defer src.Close()
@@ -40,7 +39,7 @@ func UploadHandler(c *gin.Context) {
 	// 4) Ensure ./uploads directory exists
 	uploadDir := "./uploads"
 	if err := os.MkdirAll(uploadDir, 0o755); err != nil {
-		c.String(http.StatusInternalServerError, fmt.Sprintf("could not create upload dir: %v", err))
+		c.String(http.StatusInternalServerError, "backend.errors.create_dir")
 		return
 	}
 
@@ -48,14 +47,14 @@ func UploadHandler(c *gin.Context) {
 	dstPath := filepath.Join(uploadDir, filepath.Base(fileHeader.Filename))
 	dstFile, err := os.Create(dstPath)
 	if err != nil {
-		c.String(http.StatusInternalServerError, fmt.Sprintf("could not create file on disk: %v", err))
+		c.String(http.StatusInternalServerError, "backend.errors.create_file")
 		return
 	}
 	defer dstFile.Close()
 
 	// 6) Copy the uploaded contents into the new file
 	if _, err := io.Copy(dstFile, src); err != nil {
-		c.String(http.StatusInternalServerError, fmt.Sprintf("could not save file: %v", err))
+		c.String(http.StatusInternalServerError, "backend.errors.save_file")
 		return
 	}
 
@@ -75,7 +74,6 @@ func UploadHandler(c *gin.Context) {
 		"manage":   manageVal,
 		"archive":  archiveVal,
 		"rm_dir":   rmDirVal,
-		"language": i18n.GetLanguageFromContext(c.Request.Context()),
 	}
 
 	// 9) Enqueue the job (enqueueJob is defined in handler.go)

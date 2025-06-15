@@ -61,13 +61,13 @@ func LoginHandler(c *gin.Context) {
 	// rate limit by client IP
 	ip := c.ClientIP()
 	if !getLoginLimiter(ip).Allow() {
-		c.JSON(http.StatusTooManyRequests, gin.H{"error": "Too many failed login attempts"})
+		c.JSON(http.StatusTooManyRequests, gin.H{"error": "backend.auth.too_many_attempts"})
 		return
 	}
 
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "backend.auth.invalid_request"})
 		return
 	}
 
@@ -76,12 +76,12 @@ func LoginHandler(c *gin.Context) {
 	envPassword := os.Getenv("AUTH_PASSWORD")
 
 	if envUsername == "" || envPassword == "" {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Authentication not configured"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "backend.auth.not_configured"})
 		return
 	}
 
 	if req.Username != envUsername || req.Password != envPassword {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "backend.auth.invalid_credentials"})
 		return
 	}
 
@@ -94,7 +94,7 @@ func LoginHandler(c *gin.Context) {
 
 	tokenString, err := token.SignedString(jwtSecret)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "backend.auth.token_error"})
 		return
 	}
 
@@ -152,7 +152,7 @@ func ApiKeyOrJWTMiddleware() gin.HandlerFunc {
 		// Then check JWT cookie
 		tokenString, err := c.Cookie("auth_token")
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "No auth token or API key"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "backend.auth.no_token"})
 			c.Abort()
 			return
 		}
@@ -165,7 +165,7 @@ func ApiKeyOrJWTMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "backend.auth.invalid_token"})
 			c.Abort()
 			return
 		}
@@ -196,7 +196,7 @@ func CheckAuthHandler(c *gin.Context) {
 		uiToken := c.GetHeader("X-UI-Token")
 		if uiToken != uiSecret {
 			// No valid UI token - this is likely an external API call
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "backend.auth.required"})
 			return
 		}
 
@@ -224,7 +224,7 @@ func CheckAuthHandler(c *gin.Context) {
 
 		tokenString, err := token.SignedString(jwtSecret)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate session"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "backend.auth.session_error"})
 			return
 		}
 
