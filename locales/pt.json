@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "displayName": "Portugu\u00eas"
+    "displayName": "Português"
   },
   "login": {
     "title": "Entrar",
@@ -25,7 +25,8 @@
     "send": "Enviar",
     "sending": "Enviando…",
     "invalid_file": "Arquivo inválido",
-    "ok": "OK"
+    "ok": "OK",
+    "job_queued": "Trabalho na fila: {{id}}"
   },
   "filedrop": {
     "instruction": "Clique para enviar ou arraste e solte",

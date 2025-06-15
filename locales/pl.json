@@ -25,7 +25,8 @@
     "send": "Wyślij",
     "sending": "Wysyłanie…",
     "invalid_file": "Nieprawidłowy plik",
-    "ok": "OK"
+    "ok": "OK",
+    "job_queued": "Zadanie w kolejce: {{id}}"
   },
   "filedrop": {
     "instruction": "Kliknij, aby przesłać lub przeciągnij i upuść",

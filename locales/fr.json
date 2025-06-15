@@ -25,7 +25,8 @@
     "send": "Envoyer",
     "sending": "Envoi en cours…",
     "invalid_file": "Fichier invalide",
-    "ok": "OK"
+    "ok": "OK",
+    "job_queued": "Tâche en file d'attente: {{id}}"
   },
   "filedrop": {
     "instruction": "Cliquez pour télécharger ou glissez-déposez",

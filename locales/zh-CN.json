@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "displayName": "\u7b80\u4f53\u4e2d\u6587"
+    "displayName": "简体中文"
   },
   "login": {
     "title": "登录",
@@ -25,7 +25,8 @@
     "send": "发送",
     "sending": "发送中…",
     "invalid_file": "无效文件",
-    "ok": "确定"
+    "ok": "确定",
+    "job_queued": "任务已排队: {{id}}"
   },
   "filedrop": {
     "instruction": "点击上传或拖拽文件到此处",

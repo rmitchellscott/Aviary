@@ -25,7 +25,8 @@
     "send": "Invia",
     "sending": "Invio in corso…",
     "invalid_file": "File non valido",
-    "ok": "OK"
+    "ok": "OK",
+    "job_queued": "Lavoro in coda: {{id}}"
   },
   "filedrop": {
     "instruction": "Clicca per caricare o trascina e rilascia",

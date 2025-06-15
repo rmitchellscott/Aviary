@@ -25,7 +25,8 @@
     "send": "Verzenden",
     "sending": "Verzenden…",
     "invalid_file": "Ongeldig Bestand",
-    "ok": "OK"
+    "ok": "OK",
+    "job_queued": "Taak in wachtrij: {{id}}"
   },
   "filedrop": {
     "instruction": "Klik om te uploaden of sleep en zet neer",

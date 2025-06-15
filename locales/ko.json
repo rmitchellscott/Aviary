@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "displayName": "\ud55c\uad6d\uc5b4"
+    "displayName": "한국어"
   },
   "login": {
     "title": "로그인",
@@ -25,7 +25,8 @@
     "send": "전송",
     "sending": "전송 중…",
     "invalid_file": "유효하지 않은 파일",
-    "ok": "확인"
+    "ok": "확인",
+    "job_queued": "작업이 대기열에 추가됨: {{id}}"
   },
   "filedrop": {
     "instruction": "클릭하여 업로드하거나 드래그 앤 드롭하세요",

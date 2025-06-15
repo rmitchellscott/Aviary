@@ -25,7 +25,8 @@
     "send": "Lähetä",
     "sending": "Lähetetään…",
     "invalid_file": "Virheellinen tiedosto",
-    "ok": "OK"
+    "ok": "OK",
+    "job_queued": "Työ jonossa: {{id}}"
   },
   "filedrop": {
     "instruction": "Klikkaa ladataksesi tai raahaa ja pudota",
