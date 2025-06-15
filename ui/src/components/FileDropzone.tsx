@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useDropzone, FileRejection } from 'react-dropzone'
+import { useTranslation } from 'react-i18next'
 
 interface FileDropzoneProps {
   onFileSelected: (file: File) => void
@@ -24,13 +25,14 @@ export function FileDropzone({
   disabled = false,
   onError,
 }: FileDropzoneProps) {
+  const { t } = useTranslation()
   const onDrop = useCallback(
     (acceptedFiles: File[], fileRejections: FileRejection[]) => {
       // If any files were rejected, show the first rejection message
       if (fileRejections.length > 0) {
         // Show a user-friendly list of allowed types:
         if (onError) {
-          onError('Please select a PDF, EPUB, JPEG, or a PNG file.')
+          onError(t('filedrop.invalid_type'))
         }
         return
       }
@@ -80,20 +82,52 @@ export function FileDropzone({
       counter = Math.max(counter - 1, 0)
       if (counter === 0) setWindowDragActive(false)
     }
-    function handleDrop() {
+    function handleDragOver(e: DragEvent) {
+      // Prevent default to allow drop
+      e.preventDefault()
+    }
+    function handleDrop(e: DragEvent) {
+      e.preventDefault()
       counter = 0
       setWindowDragActive(false)
+      
+      // Handle the drop anywhere on the page
+      const files = Array.from(e.dataTransfer?.files || [])
+      if (files.length > 0) {
+        // Use the same validation logic as react-dropzone
+        const file = files[0]
+        const acceptedTypes = [
+          'application/pdf',
+          'application/epub+zip', 
+          'image/jpeg',
+          'image/png'
+        ]
+        const acceptedExtensions = ['.pdf', '.epub', '.jpg', '.jpeg', '.png']
+        
+        const isValidType = acceptedTypes.includes(file.type)
+        const isValidExtension = acceptedExtensions.some(ext => 
+          file.name.toLowerCase().endsWith(ext)
+        )
+        
+        if (isValidType || isValidExtension) {
+          onFileSelected(file)
+        } else if (onError) {
+          onError(t('filedrop.invalid_type'))
+        }
+      }
     }
 
     window.addEventListener('dragenter', handleDragEnter)
     window.addEventListener('dragleave', handleDragLeave)
+    window.addEventListener('dragover', handleDragOver)
     window.addEventListener('drop', handleDrop)
     return () => {
       window.removeEventListener('dragenter', handleDragEnter)
       window.removeEventListener('dragleave', handleDragLeave)
+      window.removeEventListener('dragover', handleDragOver)
       window.removeEventListener('drop', handleDrop)
     }
-  }, [disabled])
+  }, [disabled, onFileSelected, onError, t])
 
   const active = isDragActive || windowDragActive
 
@@ -111,13 +145,9 @@ export function FileDropzone({
     >
       <input {...getInputProps()} />
       {active ? (
-        <p className="text-sm">
-          <b>Click to upload</b> or drag and drop
-        </p>
+        <p className="text-sm">{t('filedrop.instruction')}</p>
       ) : (
-        <p className="text-sm">
-          <b>Click to upload</b> or drag and drop
-        </p>
+        <p className="text-sm">{t('filedrop.instruction')}</p>
       )}
     </div>
   )
