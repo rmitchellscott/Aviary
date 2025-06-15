@@ -82,20 +82,52 @@ export function FileDropzone({
       counter = Math.max(counter - 1, 0)
       if (counter === 0) setWindowDragActive(false)
     }
-    function handleDrop() {
+    function handleDragOver(e: DragEvent) {
+      // Prevent default to allow drop
+      e.preventDefault()
+    }
+    function handleDrop(e: DragEvent) {
+      e.preventDefault()
       counter = 0
       setWindowDragActive(false)
+      
+      // Handle the drop anywhere on the page
+      const files = Array.from(e.dataTransfer?.files || [])
+      if (files.length > 0) {
+        // Use the same validation logic as react-dropzone
+        const file = files[0]
+        const acceptedTypes = [
+          'application/pdf',
+          'application/epub+zip', 
+          'image/jpeg',
+          'image/png'
+        ]
+        const acceptedExtensions = ['.pdf', '.epub', '.jpg', '.jpeg', '.png']
+        
+        const isValidType = acceptedTypes.includes(file.type)
+        const isValidExtension = acceptedExtensions.some(ext => 
+          file.name.toLowerCase().endsWith(ext)
+        )
+        
+        if (isValidType || isValidExtension) {
+          onFileSelected(file)
+        } else if (onError) {
+          onError(t('filedrop.invalid_type'))
+        }
+      }
     }
 
     window.addEventListener('dragenter', handleDragEnter)
     window.addEventListener('dragleave', handleDragLeave)
+    window.addEventListener('dragover', handleDragOver)
     window.addEventListener('drop', handleDrop)
     return () => {
       window.removeEventListener('dragenter', handleDragEnter)
       window.removeEventListener('dragleave', handleDragLeave)
+      window.removeEventListener('dragover', handleDragOver)
       window.removeEventListener('drop', handleDrop)
     }
-  }, [disabled])
+  }, [disabled, onFileSelected, onError, t])
 
   const active = isDragActive || windowDragActive
 
