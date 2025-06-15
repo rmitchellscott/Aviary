@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "displayName": "Nederlands"
+  },
+  "login": {
+    "title": "Inloggen",
+    "username": "Gebruikersnaam",
+    "password": "Wachtwoord",
+    "signing_in": "Inloggen...",
+    "button": "Inloggen",
+    "network_error": "Netwerkfout",
+    "fail": "Inloggen mislukt"
+  },
+  "logout": "Uitloggen",
+  "home": {
+    "send_document": "Document Verzenden",
+    "url_placeholder": "https://voorbeeld.com/bestand.pdf",
+    "or": "— OF —",
+    "selected_file": "Geselecteerd bestand:",
+    "remove": "Verwijderen",
+    "destination_folder": "Doelmap",
+    "default": "Standaard",
+    "loading": "Laden...",
+    "compress_pdf": "PDF Comprimeren",
+    "send": "Verzenden",
+    "sending": "Verzenden…",
+    "invalid_file": "Ongeldig Bestand",
+    "ok": "OK"
+  },
+  "filedrop": {
+    "instruction": "Klik om te uploaden of sleep en zet neer",
+    "invalid_type": "Selecteer alstublieft een PDF-, EPUB-, JPEG- of PNG-bestand."
+  },
+  "theme": {
+    "switch": "Schakel naar {{mode}} modus",
+    "auto": "automatisch",
+    "dark": "donker",
+    "light": "licht"
+  },
+  "language": {
+    "search": "Zoeken...",
+    "no_results": "Geen resultaten.",
+    "tooltip": "Taal"
+  },
+  "backend": {
+    "auth": {
+      "too_many_attempts": "Te veel mislukte inlogpogingen",
+      "invalid_request": "Ongeldig verzoek",
+      "not_configured": "Authenticatie niet geconfigureerd",
+      "invalid_credentials": "Ongeldige inloggegevens",
+      "token_error": "Kon token niet genereren",
+      "no_token": "Geen auth token of API-sleutel",
+      "invalid_token": "Ongeldig token",
+      "required": "Authenticatie vereist",
+      "session_error": "Kon sessie niet genereren"
+    },
+    "status": {
+      "job_not_found": "Taak niet gevonden",
+      "internal_error": "Interne fout",
+      "done": "Klaar",
+      "invalid_prefix": "Ongeldig voorvoegsel",
+      "using_uploaded_file": "Geüpload bestand gebruiken",
+      "no_url": "Geen URL gevonden in verzoekbody",
+      "downloading": "Downloaden",
+      "download_error": "Downloadfout",
+      "converting_pdf": "Converteren naar PDF",
+      "conversion_error": "Afbeelding→PDF conversie fout",
+      "compressing_pdf": "PDF comprimeren",
+      "compress_error": "Compressiefout",
+      "rename_error": "Hernoem fout",
+      "uploading": "Uploaden",
+      "upload_success": "Uw document is beschikbaar op uw reMarkable op {{path}}"
+    },
+    "errors": {
+      "missing_url": "Ontbrekende URL parameter",
+      "parse_form": "Kon multipart formulier niet parseren",
+      "get_file": "Kon bestand niet ophalen",
+      "open_file": "Kon geüpload bestand niet openen",
+      "create_dir": "Kon upload directory niet aanmaken",
+      "create_file": "Kon bestand niet aanmaken op schijf",
+      "save_file": "Kon bestand niet opslaan",
+      "no_form": "Geen multipart formulier gevonden",
+      "no_file_field": "Geen bestand met veldnaam {{field}}"
+    }
+  }
+}

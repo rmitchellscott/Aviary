@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useDropzone, FileRejection } from 'react-dropzone'
+import { useTranslation } from 'react-i18next'
 
 interface FileDropzoneProps {
   onFileSelected: (file: File) => void
@@ -24,13 +25,14 @@ export function FileDropzone({
   disabled = false,
   onError,
 }: FileDropzoneProps) {
+  const { t } = useTranslation()
   const onDrop = useCallback(
     (acceptedFiles: File[], fileRejections: FileRejection[]) => {
       // If any files were rejected, show the first rejection message
       if (fileRejections.length > 0) {
         // Show a user-friendly list of allowed types:
         if (onError) {
-          onError('Please select a PDF, EPUB, JPEG, or a PNG file.')
+          onError(t('filedrop.invalid_type'))
         }
         return
       }
@@ -111,13 +113,9 @@ export function FileDropzone({
     >
       <input {...getInputProps()} />
       {active ? (
-        <p className="text-sm">
-          <b>Click to upload</b> or drag and drop
-        </p>
+        <p className="text-sm">{t('filedrop.instruction')}</p>
       ) : (
-        <p className="text-sm">
-          <b>Click to upload</b> or drag and drop
-        </p>
+        <p className="text-sm">{t('filedrop.instruction')}</p>
       )}
     </div>
   )

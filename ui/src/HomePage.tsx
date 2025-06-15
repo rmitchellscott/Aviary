@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { LoginForm } from "@/components/LoginForm";
 import { Button } from "@/components/ui/button";
@@ -25,15 +24,25 @@ import {
 import { FileDropzone } from "@/components/FileDropzone";
 import { Loader2, CircleCheck, XCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 
 // List of file extensions (lower-cased, including the dot) that we allow compression for:
 const COMPRESSIBLE_EXTS = [".pdf", ".png", ".jpg", ".jpeg"];
 // How often to animate progress bar updates (ms)
 const POLL_INTERVAL_MS = 200;
 
+// Job status from backend
+interface JobStatus {
+  status: string;
+  message: string;
+  progress: number;
+  operation?: string;
+}
+
 function waitForJobWS(
   jobId: string,
-  onUpdate: (st: any) => void,
+  onUpdate: (st: JobStatus) => void,
 ): Promise<void> {
   return new Promise((resolve) => {
     const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -68,7 +77,11 @@ function getErrorMessage(err: unknown): string {
 
 async function sniffMime(url: string): Promise<string | null> {
   try {
-    const resp = await fetch(`/api/sniff?url=${encodeURIComponent(url)}`);
+    const resp = await fetch(`/api/sniff?url=${encodeURIComponent(url)}`, {
+      headers: {
+        "Accept-Language": i18n.language
+      }
+    });
     if (!resp.ok) return null;
     const data = await resp.json();
     return data.mime || null;
@@ -80,6 +93,7 @@ async function sniffMime(url: string): Promise<string | null> {
 export default function HomePage() {
   const { isAuthenticated, isLoading, login, authConfigured, uiSecret } =
     useAuth();
+  const { t } = useTranslation();
   const [url, setUrl] = useState<string>("");
   const [committedUrl, setCommittedUrl] = useState<string>("");
   const [urlMime, setUrlMime] = useState<string | null>(null);
@@ -89,6 +103,7 @@ export default function HomePage() {
   const [status, setStatus] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [progress, setProgress] = useState<number>(0);
+  const [operation, setOperation] = useState<string>("");
   const [fileError, setFileError] = useState<string | null>(null);
   const DEFAULT_RM_DIR = "default";
   const [folders, setFolders] = useState<string[]>([]);
@@ -149,7 +164,9 @@ export default function HomePage() {
     if (!isAuthenticated) return;
     (async () => {
       try {
-        const headers: HeadersInit = {};
+        const headers: HeadersInit = {
+          "Accept-Language": i18n.language
+        };
         if (uiSecret) {
           headers["X-UI-Token"] = uiSecret;
         }
@@ -166,8 +183,14 @@ export default function HomePage() {
         }
 
         // Fetch an up-to-date list in the background and update state when done
+        const refreshHeaders: HeadersInit = {
+          "Accept-Language": i18n.language
+        };
+        if (uiSecret) {
+          refreshHeaders["X-UI-Token"] = uiSecret;
+        }
         fetch("/api/folders?refresh=1", {
-          headers,
+          headers: refreshHeaders,
           credentials: "include",
         })
           .then((r) => r.json())
@@ -204,6 +227,7 @@ export default function HomePage() {
     setLoading(true);
     setMessage("");
     setStatus("");
+    setOperation("");
 
     if (selectedFile) {
       // === FILE UPLOAD FLOW (enqueue + poll) ===
@@ -216,8 +240,17 @@ export default function HomePage() {
         }
 
         // 1) send to /api/upload and get back { jobId }
+        const headers: HeadersInit = {};
+        if (uiSecret) {
+          headers["X-UI-Token"] = uiSecret;
+        }
+        // Include current language for backend i18n
+        headers["Accept-Language"] = i18n.language;
+        
         const res = await fetch("/api/upload", {
           method: "POST",
+          headers,
+          credentials: "include",
           body: formData,
         });
         if (!res.ok) {
@@ -232,6 +265,7 @@ export default function HomePage() {
         await waitForJobWS(jobId, (st) => {
           setStatus(st.status.toLowerCase());
           setMessage(st.message);
+          setOperation(st.operation || "");
           if (typeof st.progress === "number") {
             setProgress(st.progress);
           }
@@ -245,6 +279,7 @@ export default function HomePage() {
         setSelectedFile(null);
         setUrl("");
         setProgress(0);
+        setOperation("");
         setLoading(false);
       }
     } else {
@@ -257,9 +292,18 @@ export default function HomePage() {
       }
 
       try {
+        const headers: HeadersInit = { 
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Accept-Language": i18n.language
+        };
+        if (uiSecret) {
+          headers["X-UI-Token"] = uiSecret;
+        }
+        
         const res = await fetch("/api/webhook", {
           method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          headers,
+          credentials: "include",
           body: form.toString(),
         });
         if (!res.ok) {
@@ -274,6 +318,7 @@ export default function HomePage() {
         await waitForJobWS(jobId, (st) => {
           setStatus(st.status.toLowerCase());
           setMessage(st.message);
+          setOperation(st.operation || "");
           if (typeof st.progress === "number") {
             setProgress(st.progress);
           }
@@ -285,6 +330,7 @@ export default function HomePage() {
       } finally {
         setUrl("");
         setProgress(0);
+        setOperation("");
         setLoading(false);
       }
     }
@@ -294,7 +340,7 @@ export default function HomePage() {
     <div className="bg-background pt-0 pb-8 px-8">
       <Card className="max-w-md mx-auto bg-card">
         <CardHeader>
-          <CardTitle className="text-xl">Send Document</CardTitle>
+          <CardTitle className="text-xl">{t('home.send_document')}</CardTitle>
         </CardHeader>
 
         <CardContent className="space-y-6">
@@ -322,13 +368,13 @@ export default function HomePage() {
                   setUrlMime(null);
                 }
               }}
-              placeholder="https://example.com/file.pdf"
+              placeholder={t('home.url_placeholder')}
               disabled={!!selectedFile}
             />
           </div>
 
           <div className="text-center text-sm text-muted-foreground">
-            — OR —
+            {t('home.or')}
           </div>
 
           {/* === DRAG & DROP FILE === */}
@@ -351,31 +397,32 @@ export default function HomePage() {
             {selectedFile && (
               <div className="mt-2 flex justify-between items-center">
                 <p className="text-sm text-foreground">
-                  Selected file:{" "}
+                  {t('home.selected_file')} {" "}
                   <span className="font-medium">{selectedFile.name}</span>
                 </p>
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setSelectedFile(null)}
-                  className="text-sm text-muted-foreground hover:text-foreground"
                 >
-                  <b>Remove</b>
-                </button>
+                  {t('home.remove')}
+                </Button>
               </div>
             )}
           </div>
 
           {/* === FOLDER SELECT === */}
           <div className="flex items-center space-x-2">
-            <Label htmlFor="rmDir">Destination Folder</Label>
+            <Label htmlFor="rmDir">{t('home.destination_folder')}</Label>
             <Select value={rmDir} onValueChange={setRmDir}>
               <SelectTrigger id="rmDir">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={DEFAULT_RM_DIR}>Default</SelectItem>
+                <SelectItem value={DEFAULT_RM_DIR}>{t('home.default')}</SelectItem>
                 {foldersLoading && (
                   <SelectItem value="loading" disabled>
-                    Loading...
+                    {t('home.loading')}
                   </SelectItem>
                 )}
                 {folders.map((f) => (
@@ -393,7 +440,7 @@ export default function HomePage() {
               htmlFor="compress"
               className={!isCompressibleFileOrUrl ? "opacity-50" : ""}
             >
-              Compress PDF
+              {t('home.compress_pdf')}
             </Label>
             <Switch
               id="compress"
@@ -409,7 +456,7 @@ export default function HomePage() {
               onClick={handleSubmit}
               disabled={loading || (!url && !selectedFile)}
             >
-              {loading ? "Sending…" : "Send"}
+              {loading ? t('home.sending') : t('home.send')}
             </Button>
           </div>
 
@@ -428,7 +475,7 @@ export default function HomePage() {
             </div>
           )}
           {status === "running" &&
-            message === "Compressing PDF" &&
+            operation === "compressing" &&
             progress > 0 &&
             progress < 100 && (
               <Progress
@@ -449,12 +496,12 @@ export default function HomePage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Invalid File</DialogTitle>
+            <DialogTitle>{t('home.invalid_file')}</DialogTitle>
             <DialogDescription>{fileError}</DialogDescription>
           </DialogHeader>
           <div className="mt-4 flex justify-end">
             <DialogClose asChild>
-              <Button>OK</Button>
+              <Button>{t('home.ok')}</Button>
             </DialogClose>
           </div>
         </DialogContent>

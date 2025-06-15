@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rmitchellscott/aviary/internal/i18n"
 )
 
 // UploadHandler handles a single "file" field plus optional form values.
@@ -17,7 +18,7 @@ import (
 func UploadHandler(c *gin.Context) {
 	// 1) Parse multipart form (allow up to 32 MiB in memory)
 	if err := c.Request.ParseMultipartForm(32 << 20); err != nil {
-		c.String(http.StatusBadRequest, fmt.Sprintf("could not parse multipart form: %v", err))
+		c.String(http.StatusBadRequest, i18n.TFromContext(c.Request.Context(), "backend.errors.parse_form")+": "+err.Error())
 		return
 	}
 
@@ -74,6 +75,7 @@ func UploadHandler(c *gin.Context) {
 		"manage":   manageVal,
 		"archive":  archiveVal,
 		"rm_dir":   rmDirVal,
+		"language": i18n.GetLanguageFromContext(c.Request.Context()),
 	}
 
 	// 9) Enqueue the job (enqueueJob is defined in handler.go)

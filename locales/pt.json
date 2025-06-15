@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "displayName": "Portugu\u00eas"
+  },
+  "login": {
+    "title": "Entrar",
+    "username": "Nome de usuário",
+    "password": "Senha",
+    "signing_in": "Entrando...",
+    "button": "Entrar",
+    "network_error": "Erro de rede",
+    "fail": "Falha no login"
+  },
+  "logout": "Sair",
+  "home": {
+    "send_document": "Enviar Documento",
+    "url_placeholder": "https://exemplo.com/arquivo.pdf",
+    "or": "— OU —",
+    "selected_file": "Arquivo selecionado:",
+    "remove": "Remover",
+    "destination_folder": "Pasta de destino",
+    "default": "Padrão",
+    "loading": "Carregando...",
+    "compress_pdf": "Comprimir PDF",
+    "send": "Enviar",
+    "sending": "Enviando…",
+    "invalid_file": "Arquivo inválido",
+    "ok": "OK"
+  },
+  "filedrop": {
+    "instruction": "Clique para enviar ou arraste e solte",
+    "invalid_type": "Selecione um arquivo PDF, EPUB, JPEG ou PNG."
+  },
+  "theme": {
+    "switch": "Mudar para o modo {{mode}}",
+    "auto": "automático",
+    "dark": "escuro",
+    "light": "claro"
+  },
+  "language": {
+    "search": "Pesquisar...",
+    "no_results": "Nenhum resultado.",
+    "tooltip": "Idioma"
+  },
+  "backend": {
+    "auth": {
+      "too_many_attempts": "Muitas tentativas de login falharam",
+      "invalid_request": "Solicitação inválida",
+      "not_configured": "Autenticação não configurada",
+      "invalid_credentials": "Credenciais inválidas",
+      "token_error": "Não foi possível gerar o token",
+      "no_token": "Nenhum token de autenticação ou chave API",
+      "invalid_token": "Token inválido",
+      "required": "Autenticação necessária",
+      "session_error": "Não foi possível gerar a sessão"
+    },
+    "status": {
+      "job_not_found": "Trabalho não encontrado",
+      "internal_error": "Erro interno",
+      "done": "Concluído",
+      "invalid_prefix": "Prefixo inválido",
+      "using_uploaded_file": "Usando arquivo enviado",
+      "no_url": "Nenhuma URL encontrada no corpo da solicitação",
+      "downloading": "Baixando",
+      "download_error": "Erro de download",
+      "converting_pdf": "Convertendo para PDF",
+      "conversion_error": "Erro de conversão Imagem→PDF",
+      "compressing_pdf": "Comprimindo PDF",
+      "compress_error": "Erro de compressão",
+      "rename_error": "Erro ao renomear",
+      "uploading": "Enviando",
+      "upload_success": "Seu documento está disponível no seu reMarkable em {{path}}"
+    },
+    "errors": {
+      "missing_url": "Parâmetro URL ausente",
+      "parse_form": "Não foi possível analisar o formulário multipart",
+      "get_file": "Não foi possível obter o arquivo",
+      "open_file": "Não foi possível abrir o arquivo enviado",
+      "create_dir": "Não foi possível criar o diretório de upload",
+      "create_file": "Não foi possível criar o arquivo no disco",
+      "save_file": "Não foi possível salvar o arquivo",
+      "no_form": "Nenhum formulário multipart encontrado",
+      "no_file_field": "Nenhum arquivo com o nome do campo {{field}}"
+    }
+  }
+}

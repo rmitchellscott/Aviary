@@ -17,6 +17,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/compressor"
 	"github.com/rmitchellscott/aviary/internal/converter"
 	"github.com/rmitchellscott/aviary/internal/downloader"
+	"github.com/rmitchellscott/aviary/internal/i18n"
 	"github.com/rmitchellscott/aviary/internal/jobs"
 	"github.com/rmitchellscott/aviary/internal/manager"
 	"golang.org/x/text/cases"
@@ -81,6 +82,7 @@ func EnqueueHandler(c *gin.Context) {
 		"archive":        c.DefaultPostForm("archive", "false"),
 		"rm_dir":         c.PostForm("rm_dir"),
 		"retention_days": c.DefaultPostForm("retention_days", "7"),
+		"language":       i18n.GetLanguageFromContext(c.Request.Context()),
 	}
 	id := enqueueJob(form)
 	c.JSON(http.StatusAccepted, gin.H{"jobId": id})
@@ -92,7 +94,7 @@ func StatusHandler(c *gin.Context) {
 	if job, ok := jobStore.Get(id); ok {
 		c.JSON(http.StatusOK, job)
 	} else {
-		c.JSON(http.StatusNotFound, gin.H{"error": "job not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": i18n.TFromContext(c.Request.Context(), "backend.status.job_not_found")})
 	}
 }
 
@@ -100,7 +102,7 @@ func StatusHandler(c *gin.Context) {
 func StatusWSHandler(c *gin.Context) {
 	id := c.Param("id")
 	if _, ok := jobStore.Get(id); !ok {
-		c.JSON(http.StatusNotFound, gin.H{"error": "job not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": i18n.TFromContext(c.Request.Context(), "backend.status.job_not_found")})
 		return
 	}
 
@@ -129,11 +131,43 @@ func StatusWSHandler(c *gin.Context) {
 // (if it exists on disk) or else extracts a URL from form["Body"], downloads it, and then proceeds to
 // (optionally) compress, then upload/manage on the reMarkable. Returns a human-readable status message
 // and/or an error.
+// Helper function to safely get translated text
+func safeT(localizer *i18n.Localizer, key string) string {
+	if localizer != nil {
+		return localizer.T(key)
+	}
+	// Return the key as fallback during tests
+	return key
+}
+
+// Helper function to safely get translated text with data
+func safeTWithData(localizer *i18n.Localizer, key string, data map[string]string) string {
+	if localizer != nil {
+		return localizer.TWithData(key, data)
+	}
+	// Return the key as fallback during tests
+	return key
+}
+
 func processPDF(jobID string, form map[string]string) (string, error) {
+	// Create localizer for this job
+	lang := form["language"]
+	if lang == "" {
+		lang = "en"
+	}
+	localizer, locErr := i18n.New(lang)
+	if locErr != nil {
+		localizer, locErr = i18n.New("en") // fallback to English
+		if locErr != nil {
+			// If even English fails (e.g., during tests), just use fallback strings
+			localizer = nil
+		}
+	}
+
 	body := form["Body"]
 	prefix := form["prefix"]
 	if p, perr := manager.SanitizePrefix(prefix); perr != nil {
-		return "invalid prefix", perr
+		return safeT(localizer, "backend.status.invalid_prefix"), perr
 	} else {
 		prefix = p
 	}
@@ -162,7 +196,7 @@ func processPDF(jobID string, form map[string]string) (string, error) {
 	if fi, statErr := os.Stat(body); statErr == nil && !fi.IsDir() {
 		localPath = body
 		manager.Logf("processPDF: using local file path %q, skipping download", localPath)
-		jobStore.Update(jobID, "Running", "Using uploaded file")
+		jobStore.UpdateWithOperation(jobID, "Running", safeT(localizer, "backend.status.using_uploaded_file"), "processing")
 		// Ensure we delete this file (even on error) once we're done
 		defer func() {
 			// Only attempt removal if the file still exists
@@ -176,16 +210,16 @@ func processPDF(jobID string, form map[string]string) (string, error) {
 		// 2) Otherwise, extract a URL and download to a temp or permanent location.
 		match := urlRegex.FindString(body)
 		if match == "" {
-			return "No URL found in request body", fmt.Errorf("no URL")
+			return safeT(localizer, "backend.status.no_url"), fmt.Errorf("no URL")
 		}
 
 		tmpDir := !archive // if archive==false, we download into a temp dir so it’ll get cleaned up
 		manager.Logf("DownloadPDF: tmp=%t, prefix=%q", tmpDir, prefix)
-		jobStore.Update(jobID, "Running", "Downloading")
+		jobStore.UpdateWithOperation(jobID, "Running", safeT(localizer, "backend.status.downloading"), "downloading")
 		localPath, err = downloader.DownloadPDF(match, tmpDir, prefix, nil)
 		if err != nil {
 			// Even if download fails, localPath may be empty—no cleanup needed here.
-			return "Download error: " + err.Error(), err
+			return safeT(localizer, "backend.status.download_error") + ": " + err.Error(), err
 		}
 		// Ensure we delete this file (even on error) once we're done
 		defer func() {
@@ -202,7 +236,7 @@ func processPDF(jobID string, form map[string]string) (string, error) {
 	ext := strings.ToLower(filepath.Ext(localPath))
 	if ext == ".jpg" || ext == ".jpeg" || ext == ".png" {
 		manager.Logf("🔄 Detected image %q – converting to PDF", localPath)
-		jobStore.Update(jobID, "Running", "Converting to PDF")
+		jobStore.UpdateWithOperation(jobID, "Running", safeT(localizer, "backend.status.converting_pdf"), "converting")
 		origPath := localPath
 
 		// Convert the image → PDF (using PAGE_RESOLUTION & PAGE_DPI)
@@ -227,7 +261,7 @@ func processPDF(jobID string, form map[string]string) (string, error) {
 	// 4) Optionally compress the PDF
 	if compress {
 		manager.Logf("🔧 Compressing PDF")
-		jobStore.Update(jobID, "Running", "Compressing PDF")
+		jobStore.UpdateWithOperation(jobID, "Running", safeT(localizer, "backend.status.compressing_pdf"), "compressing")
 		jobStore.UpdateProgress(jobID, 0)
 		compressedPath, compErr := compressor.CompressPDFWithProgress(localPath, func(page, total int) {
 			pct := int(float64(page) / float64(total) * 100)
@@ -256,7 +290,7 @@ func processPDF(jobID string, form map[string]string) (string, error) {
 	}
 
 	// 4) Upload / Manage workflows
-	jobStore.Update(jobID, "Running", "Uploading")
+	jobStore.UpdateWithOperation(jobID, "Running", safeT(localizer, "backend.status.uploading"), "uploading")
 	switch {
 	case manage && archive:
 		manager.Logf("📤 Managed archive upload")
@@ -305,7 +339,7 @@ func processPDF(jobID string, form map[string]string) (string, error) {
 	fullPath := filepath.Join(rmDir, remoteName)
 	fullPath = strings.TrimPrefix(fullPath, "/")
 	jobStore.UpdateProgress(jobID, 100)
-	return fmt.Sprintf("Your document is available on your reMarkable at %s", fullPath), nil
+	return safeTWithData(localizer, "backend.status.upload_success", map[string]string{"path": fullPath}), nil
 }
 
 // isTrue interprets "true"/"1"/"yes" (case-insensitive) as true.

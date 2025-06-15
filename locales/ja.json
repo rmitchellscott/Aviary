@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "displayName": "\u65e5\u672c\u8a9e"
+  },
+  "login": {
+    "title": "ログイン",
+    "username": "ユーザー名",
+    "password": "パスワード",
+    "signing_in": "ログイン中...",
+    "button": "ログイン",
+    "network_error": "ネットワークエラー",
+    "fail": "ログインに失敗しました"
+  },
+  "logout": "ログアウト",
+  "home": {
+    "send_document": "ドキュメント送信",
+    "url_placeholder": "https://example.com/file.pdf",
+    "or": "— または —",
+    "selected_file": "選択されたファイル:",
+    "remove": "削除",
+    "destination_folder": "宛先フォルダ",
+    "default": "デフォルト",
+    "loading": "読み込み中...",
+    "compress_pdf": "PDF圧縮",
+    "send": "送信",
+    "sending": "送信中…",
+    "invalid_file": "無効なファイル",
+    "ok": "OK"
+  },
+  "filedrop": {
+    "instruction": "クリックしてアップロードするか、ドラッグ&ドロップしてください",
+    "invalid_type": "PDF、EPUB、JPEG、またはPNGファイルを選択してください。"
+  },
+  "theme": {
+    "switch": "{{mode}}モードに切り替え",
+    "auto": "自動",
+    "dark": "ダーク",
+    "light": "ライト"
+  },
+  "language": {
+    "search": "検索...",
+    "no_results": "結果がありません。",
+    "tooltip": "言語"
+  },
+  "backend": {
+    "auth": {
+      "too_many_attempts": "ログイン試行回数が多すぎます",
+      "invalid_request": "無効なリクエスト",
+      "not_configured": "認証が設定されていません",
+      "invalid_credentials": "認証情報が無効です",
+      "token_error": "トークンを生成できませんでした",
+      "no_token": "認証トークンまたはAPIキーがありません",
+      "invalid_token": "無効なトークン",
+      "required": "認証が必要です",
+      "session_error": "セッションを生成できませんでした"
+    },
+    "status": {
+      "job_not_found": "ジョブが見つかりません",
+      "internal_error": "内部エラー",
+      "done": "完了",
+      "invalid_prefix": "無効なプレフィックス",
+      "using_uploaded_file": "アップロードされたファイルを使用中",
+      "no_url": "リクエストボディにURLが見つかりません",
+      "downloading": "ダウンロード中",
+      "download_error": "ダウンロードエラー",
+      "converting_pdf": "PDFに変換中",
+      "conversion_error": "画像→PDF変換エラー",
+      "compressing_pdf": "PDF圧縮中",
+      "compress_error": "圧縮エラー",
+      "rename_error": "名前変更エラー",
+      "uploading": "アップロード中",
+      "upload_success": "ドキュメントはreMarkableの{{path}}で利用可能です"
+    },
+    "errors": {
+      "missing_url": "URLパラメータが不足しています",
+      "parse_form": "マルチパートフォームを解析できませんでした",
+      "get_file": "ファイルを取得できませんでした",
+      "open_file": "アップロードされたファイルを開けませんでした",
+      "create_dir": "アップロードディレクトリを作成できませんでした",
+      "create_file": "ディスクにファイルを作成できませんでした",
+      "save_file": "ファイルを保存できませんでした",
+      "no_form": "マルチパートフォームが見つかりません",
+      "no_file_field": "フィールド名{{field}}のファイルがありません"
+    }
+  }
+}

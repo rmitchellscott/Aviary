@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "displayName": "Español"
+  },
+  "login": {
+    "title": "Iniciar sesión",
+    "username": "Usuario",
+    "password": "Contraseña",
+    "signing_in": "Ingresando...",
+    "button": "Entrar",
+    "network_error": "Error de red",
+    "fail": "Error de inicio"
+  },
+  "logout": "Cerrar sesión",
+  "home": {
+    "send_document": "Enviar Documento",
+    "url_placeholder": "https://ejemplo.com/archivo.pdf",
+    "or": "— O —",
+    "selected_file": "Archivo seleccionado:",
+    "remove": "Eliminar",
+    "destination_folder": "Carpeta destino",
+    "default": "Predeterminado",
+    "loading": "Cargando...",
+    "compress_pdf": "Comprimir PDF",
+    "send": "Enviar",
+    "sending": "Enviando…",
+    "invalid_file": "Archivo inválido",
+    "ok": "Aceptar"
+  },
+  "filedrop": {
+    "instruction": "Haz clic para subir o arrastra y suelta",
+    "invalid_type": "Selecciona un archivo PDF, EPUB, JPEG o PNG."
+  },
+  "theme": {
+    "switch": "Cambiar a modo {{mode}}",
+    "auto": "auto",
+    "dark": "oscuro",
+    "light": "claro"
+  },
+  "language": {
+    "search": "Buscar...",
+    "no_results": "Sin resultados.",
+    "tooltip": "Idioma"
+  },
+  "backend": {
+    "auth": {
+      "too_many_attempts": "Demasiados intentos de inicio de sesión fallidos",
+      "invalid_request": "Solicitud inválida",
+      "not_configured": "Autenticación no configurada",
+      "invalid_credentials": "Credenciales inválidas",
+      "token_error": "No se pudo generar el token",
+      "no_token": "No hay token de autenticación o clave API",
+      "invalid_token": "Token inválido",
+      "required": "Autenticación requerida",
+      "session_error": "No se pudo generar la sesión"
+    },
+    "status": {
+      "job_not_found": "Trabajo no encontrado",
+      "internal_error": "Error interno",
+      "done": "Completado",
+      "invalid_prefix": "Prefijo inválido",
+      "using_uploaded_file": "Usando archivo subido",
+      "no_url": "No se encontró URL en el cuerpo de la solicitud",
+      "downloading": "Descargando",
+      "download_error": "Error de descarga",
+      "converting_pdf": "Convirtiendo a PDF",
+      "conversion_error": "Error de conversión Imagen→PDF",
+      "compressing_pdf": "Comprimiendo PDF",
+      "compress_error": "Error de compresión",
+      "rename_error": "Error al renombrar",
+      "uploading": "Subiendo",
+      "upload_success": "Tu documento está disponible en tu reMarkable en {{path}}"
+    },
+    "errors": {
+      "missing_url": "Falta el parámetro URL",
+      "parse_form": "No se pudo analizar el formulario multipart",
+      "get_file": "No se pudo obtener el archivo",
+      "open_file": "No se pudo abrir el archivo subido",
+      "create_dir": "No se pudo crear el directorio de subida",
+      "create_file": "No se pudo crear el archivo en disco",
+      "save_file": "No se pudo guardar el archivo",
+      "no_form": "No se encontró formulario multipart",
+      "no_file_field": "No hay archivo con el nombre de campo {{field}}"
+    }
+  }
+}

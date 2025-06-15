@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "displayName": "Polski"
+  },
+  "login": {
+    "title": "Zaloguj się",
+    "username": "Nazwa użytkownika",
+    "password": "Hasło",
+    "signing_in": "Logowanie...",
+    "button": "Zaloguj się",
+    "network_error": "Błąd sieci",
+    "fail": "Logowanie nieudane"
+  },
+  "logout": "Wyloguj się",
+  "home": {
+    "send_document": "Wyślij Dokument",
+    "url_placeholder": "https://przyklad.com/plik.pdf",
+    "or": "— LUB —",
+    "selected_file": "Wybrany plik:",
+    "remove": "Usuń",
+    "destination_folder": "Folder docelowy",
+    "default": "Domyślny",
+    "loading": "Ładowanie...",
+    "compress_pdf": "Kompresuj PDF",
+    "send": "Wyślij",
+    "sending": "Wysyłanie…",
+    "invalid_file": "Nieprawidłowy plik",
+    "ok": "OK"
+  },
+  "filedrop": {
+    "instruction": "Kliknij, aby przesłać lub przeciągnij i upuść",
+    "invalid_type": "Wybierz plik PDF, EPUB, JPEG lub PNG."
+  },
+  "theme": {
+    "switch": "Przełącz na tryb {{mode}}",
+    "auto": "automatyczny",
+    "dark": "ciemny",
+    "light": "jasny"
+  },
+  "language": {
+    "search": "Szukaj...",
+    "no_results": "Brak wyników.",
+    "tooltip": "Język"
+  },
+  "backend": {
+    "auth": {
+      "too_many_attempts": "Zbyt wiele nieudanych prób logowania",
+      "invalid_request": "Nieprawidłowe żądanie",
+      "not_configured": "Uwierzytelnianie nie skonfigurowane",
+      "invalid_credentials": "Nieprawidłowe dane uwierzytelniające",
+      "token_error": "Nie można wygenerować tokena",
+      "no_token": "Brak tokena uwierzytelniającego lub klucza API",
+      "invalid_token": "Nieprawidłowy token",
+      "required": "Wymagane uwierzytelnienie",
+      "session_error": "Nie można wygenerować sesji"
+    },
+    "status": {
+      "job_not_found": "Zadanie nie znalezione",
+      "internal_error": "Błąd wewnętrzny",
+      "done": "Gotowe",
+      "invalid_prefix": "Nieprawidłowy prefiks",
+      "using_uploaded_file": "Używanie przesłanego pliku",
+      "no_url": "Nie znaleziono URL w treści żądania",
+      "downloading": "Pobieranie",
+      "download_error": "Błąd pobierania",
+      "converting_pdf": "Konwersja do PDF",
+      "conversion_error": "Błąd konwersji Obraz→PDF",
+      "compressing_pdf": "Kompresja PDF",
+      "compress_error": "Błąd kompresji",
+      "rename_error": "Błąd zmiany nazwy",
+      "uploading": "Przesyłanie",
+      "upload_success": "Twój dokument jest dostępny na reMarkable w {{path}}"
+    },
+    "errors": {
+      "missing_url": "Brakujący parametr URL",
+      "parse_form": "Nie można przeanalizować formularza multipart",
+      "get_file": "Nie można pobrać pliku",
+      "open_file": "Nie można otworzyć przesłanego pliku",
+      "create_dir": "Nie można utworzyć katalogu przesyłania",
+      "create_file": "Nie można utworzyć pliku na dysku",
+      "save_file": "Nie można zapisać pliku",
+      "no_form": "Nie znaleziono formularza multipart",
+      "no_file_field": "Brak pliku z nazwą pola {{field}}"
+    }
+  }
+}

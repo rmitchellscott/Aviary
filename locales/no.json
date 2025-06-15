@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "displayName": "Norsk"
+  },
+  "login": {
+    "title": "Logg inn",
+    "username": "Brukernavn",
+    "password": "Passord",
+    "signing_in": "Logger inn...",
+    "button": "Logg inn",
+    "network_error": "Nettverksfeil",
+    "fail": "Innlogging mislyktes"
+  },
+  "logout": "Logg ut",
+  "home": {
+    "send_document": "Send Dokument",
+    "url_placeholder": "https://eksempel.com/fil.pdf",
+    "or": "— ELLER —",
+    "selected_file": "Valgt fil:",
+    "remove": "Fjern",
+    "destination_folder": "Destinasjonsmappe",
+    "default": "Standard",
+    "loading": "Laster...",
+    "compress_pdf": "Komprimer PDF",
+    "send": "Send",
+    "sending": "Sender…",
+    "invalid_file": "Ugyldig fil",
+    "ok": "OK"
+  },
+  "filedrop": {
+    "instruction": "Klikk for å laste opp eller dra og slipp",
+    "invalid_type": "Velg en PDF-, EPUB-, JPEG- eller PNG-fil."
+  },
+  "theme": {
+    "switch": "Bytt til {{mode}} modus",
+    "auto": "automatisk",
+    "dark": "mørk",
+    "light": "lys"
+  },
+  "language": {
+    "search": "Søk...",
+    "no_results": "Ingen resultater.",
+    "tooltip": "Språk"
+  },
+  "backend": {
+    "auth": {
+      "too_many_attempts": "For mange mislykkede innloggingsforsøk",
+      "invalid_request": "Ugyldig forespørsel",
+      "not_configured": "Autentisering ikke konfigurert",
+      "invalid_credentials": "Ugyldige legitimasjoner",
+      "token_error": "Kunne ikke generere token",
+      "no_token": "Ingen auth token eller API-nøkkel",
+      "invalid_token": "Ugyldig token",
+      "required": "Autentisering påkrevd",
+      "session_error": "Kunne ikke generere økt"
+    },
+    "status": {
+      "job_not_found": "Jobb ikke funnet",
+      "internal_error": "Intern feil",
+      "done": "Ferdig",
+      "invalid_prefix": "Ugyldig prefiks",
+      "using_uploaded_file": "Bruker opplastet fil",
+      "no_url": "Ingen URL funnet i forespørselskroppen",
+      "downloading": "Laster ned",
+      "download_error": "Nedlastingsfeil",
+      "converting_pdf": "Konverterer til PDF",
+      "conversion_error": "Bilde→PDF konverteringsfeil",
+      "compressing_pdf": "Komprimerer PDF",
+      "compress_error": "Komprimeringsfeil",
+      "rename_error": "Omdøpingsfeil",
+      "uploading": "Laster opp",
+      "upload_success": "Dokumentet ditt er tilgjengelig på din reMarkable på {{path}}"
+    },
+    "errors": {
+      "missing_url": "Manglende URL-parameter",
+      "parse_form": "Kunne ikke parse multipart skjema",
+      "get_file": "Kunne ikke hente fil",
+      "open_file": "Kunne ikke åpne opplastet fil",
+      "create_dir": "Kunne ikke opprette opplastingskatalog",
+      "create_file": "Kunne ikke opprette fil på disk",
+      "save_file": "Kunne ikke lagre fil",
+      "no_form": "Ingen multipart skjema funnet",
+      "no_file_field": "Ingen fil med feltnavn {{field}}"
+    }
+  }
+}

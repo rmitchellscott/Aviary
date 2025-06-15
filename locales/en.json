@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "displayName": "English"
+  },
+  "login": {
+    "title": "Login",
+    "username": "Username",
+    "password": "Password",
+    "signing_in": "Signing in...",
+    "button": "Login",
+    "network_error": "Network error",
+    "fail": "Login failed"
+  },
+  "logout": "Logout",
+  "home": {
+    "send_document": "Send Document",
+    "url_placeholder": "https://example.com/file.pdf",
+    "or": "— OR —",
+    "selected_file": "Selected file:",
+    "remove": "Remove",
+    "destination_folder": "Destination Folder",
+    "default": "Default",
+    "loading": "Loading...",
+    "compress_pdf": "Compress PDF",
+    "send": "Send",
+    "sending": "Sending…",
+    "invalid_file": "Invalid File",
+    "ok": "OK"
+  },
+  "filedrop": {
+    "instruction": "Click to upload or drag and drop",
+    "invalid_type": "Please select a PDF, EPUB, JPEG, or a PNG file."
+  },
+  "theme": {
+    "switch": "Switch to {{mode}} mode",
+    "auto": "auto",
+    "dark": "dark",
+    "light": "light"
+  },
+  "language": {
+    "search": "Search...",
+    "no_results": "No results.",
+    "tooltip": "Language"
+  },
+  "backend": {
+    "auth": {
+      "too_many_attempts": "Too many failed login attempts",
+      "invalid_request": "Invalid request",
+      "not_configured": "Authentication not configured",
+      "invalid_credentials": "Invalid credentials",
+      "token_error": "Could not generate token",
+      "no_token": "No auth token or API key",
+      "invalid_token": "Invalid token",
+      "required": "Authentication required",
+      "session_error": "Could not generate session"
+    },
+    "status": {
+      "job_not_found": "Job not found",
+      "internal_error": "Internal error",
+      "done": "Done",
+      "invalid_prefix": "Invalid prefix",
+      "using_uploaded_file": "Using uploaded file",
+      "no_url": "No URL found in request body",
+      "downloading": "Downloading",
+      "download_error": "Download error",
+      "converting_pdf": "Converting to PDF",
+      "conversion_error": "Image→PDF conversion error",
+      "compressing_pdf": "Compressing PDF",
+      "compress_error": "Compress error",
+      "rename_error": "Rename error",
+      "uploading": "Uploading",
+      "upload_success": "Your document is available on your reMarkable at {{path}}"
+    },
+    "errors": {
+      "missing_url": "Missing URL parameter",
+      "parse_form": "Could not parse multipart form",
+      "get_file": "Could not get file",
+      "open_file": "Could not open uploaded file",
+      "create_dir": "Could not create upload directory",
+      "create_file": "Could not create file on disk",
+      "save_file": "Could not save file",
+      "no_form": "No multipart form found",
+      "no_file_field": "No file with field name {{field}}"
+    }
+  }
+}
