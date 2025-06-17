@@ -20,7 +20,6 @@ import (
 
 	// internal
 	"github.com/rmitchellscott/aviary/internal/auth"
-	"github.com/rmitchellscott/aviary/internal/i18n"
 	"github.com/rmitchellscott/aviary/internal/downloader"
 	"github.com/rmitchellscott/aviary/internal/manager"
 	"github.com/rmitchellscott/aviary/internal/webhook"
@@ -106,7 +105,7 @@ func main() {
 
 	// Gin router for /api
 	router := gin.New()
-	router.Use(gin.Logger(), gin.Recovery(), i18n.LanguageMiddleware())
+	router.Use(gin.Logger(), gin.Recovery())
 
 	// Auth endpoints (always available)
 	router.POST("/api/auth/login", auth.LoginHandler)
