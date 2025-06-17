@@ -23,6 +23,42 @@ import (
 	"golang.org/x/text/language"
 )
 
+// keyToMessage converts i18n keys to human-readable messages for logging
+func keyToMessage(key string) string {
+	switch key {
+	case "backend.status.upload_success":
+		return "Upload successful"
+	case "backend.status.internal_error":
+		return "Internal error"
+	case "backend.status.using_uploaded_file":
+		return "Using uploaded file"
+	case "backend.status.no_url":
+		return "No URL found"
+	case "backend.status.downloading":
+		return "Downloading"
+	case "backend.status.download_error":
+		return "Download error"
+	case "backend.status.converting_pdf":
+		return "Converting to PDF"
+	case "backend.status.conversion_error":
+		return "Conversion error"
+	case "backend.status.compressing_pdf":
+		return "Compressing PDF"
+	case "backend.status.compress_error":
+		return "Compression error"
+	case "backend.status.rename_error":
+		return "Rename error"
+	case "backend.status.uploading":
+		return "Uploading"
+	case "backend.status.invalid_prefix":
+		return "Invalid prefix"
+	case "backend.status.job_not_found":
+		return "Job not found"
+	default:
+		return key // fallback to key if not found
+	}
+}
+
 var (
 	// urlRegex is used to find an http(s) URL within the Body string.
 	urlRegex = regexp.MustCompile(`https?://[^\s]+`)
@@ -60,10 +96,14 @@ func enqueueJob(form map[string]string) string {
 		// Do the actual work
 		msgKey, data, err := processPDF(id, form)
 		if err != nil {
-			manager.Logf("❌ processPDF error: %v, message: %q", err, msgKey)
+			manager.Logf("❌ processPDF error: %v, message: %s", err, keyToMessage(msgKey))
 			jobStore.Update(id, "error", msgKey, data)
 		} else {
-			manager.Logf("✅ processPDF success: %s", msgKey)
+			logMsg := keyToMessage(msgKey)
+			if data != nil && data["path"] != "" {
+				logMsg += " -> " + data["path"]
+			}
+			manager.Logf("✅ processPDF success: %s", logMsg)
 			jobStore.Update(id, "success", msgKey, data)
 		}
 	}()

@@ -7,7 +7,7 @@ import (
 // Job represents the state of a single PDF process
 type Job struct {
 	Status    string            `json:"status"`
-	Message   string            `json:"message"` // i18n key
+	Message   string            `json:"message"`
 	Data      map[string]string `json:"data,omitempty"`
 	Progress  int               `json:"progress"`
 	Operation string            `json:"operation"` // e.g., "downloading", "compressing", "uploading"
