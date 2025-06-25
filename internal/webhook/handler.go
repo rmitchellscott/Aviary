@@ -2,6 +2,7 @@
 package webhook
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"os"
@@ -64,7 +65,23 @@ var (
 	urlRegex = regexp.MustCompile(`https?://[^\s]+`)
 	// jobStore holds in-memory jobs for status polling.
 	jobStore = jobs.NewStore()
+	// supportedContentTypes lists MIME types we can process
+	supportedContentTypes = []string{"application/pdf", "image/jpeg", "image/png", "application/epub+zip"}
 )
+
+// DocumentRequest represents a webhook request that can contain either a URL or document content
+type DocumentRequest struct {
+	Body        string `form:"Body" json:"body"`               // URL or base64 content
+	ContentType string `form:"ContentType" json:"contentType"` // MIME type for content
+	Filename    string `form:"Filename" json:"filename"`       // Original filename
+	IsContent   bool   `form:"IsContent" json:"isContent"`     // Flag: true=content, false=URL
+	Prefix      string `form:"prefix" json:"prefix"`
+	Compress    string `form:"compress" json:"compress"`
+	Manage      string `form:"manage" json:"manage"`
+	Archive     string `form:"archive" json:"archive"`
+	RmDir       string `form:"rm_dir" json:"rm_dir"`
+	RetentionDays string `form:"retention_days" json:"retention_days"`
+}
 
 // enqueueJob creates a new job ID, logs form fields, starts processPDF(form) in a goroutine,
 // and returns the newly generated jobId.
@@ -80,10 +97,12 @@ func enqueueJob(form map[string]string) string {
 	id := uuid.NewString()
 	jobStore.Create(id)
 
+
 	// Launch background worker
 	go func() {
 		jobStore.Update(id, "Running", "", nil)
 		jobStore.UpdateProgress(id, 0)
+
 
 		// Catch panics
 		defer func() {
@@ -111,19 +130,62 @@ func enqueueJob(form map[string]string) string {
 	return id
 }
 
-// EnqueueHandler accepts form-values (URL-based flow), enqueues a job, and returns JSON{"jobId": "..."}.
+// EnqueueHandler accepts either form-values (URL-based flow) or JSON (document content flow), enqueues a job, and returns JSON{"jobId": "..."}.
 func EnqueueHandler(c *gin.Context) {
-	form := map[string]string{
-		"Body":           c.PostForm("Body"),
-		"prefix":         c.PostForm("prefix"),
-		"compress":       c.DefaultPostForm("compress", "false"),
-		"manage":         c.DefaultPostForm("manage", "false"),
-		"archive":        c.DefaultPostForm("archive", "false"),
-		"rm_dir":         c.PostForm("rm_dir"),
-		"retention_days": c.DefaultPostForm("retention_days", "7"),
+	// Check if this is a JSON request with document content
+	contentType := c.GetHeader("Content-Type")
+	if strings.HasPrefix(contentType, "application/json") {
+		var req DocumentRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
+			return
+		}
+		
+		// Handle document content or URL processing via JSON
+		if req.IsContent {
+			id := enqueueDocumentJob(req)
+			c.JSON(http.StatusAccepted, gin.H{"jobId": id})
+		} else {
+			// JSON URL processing - convert to form map
+			form := map[string]string{
+				"Body":           req.Body,
+				"prefix":         req.Prefix,
+				"compress":       req.Compress,
+				"manage":         req.Manage,
+				"archive":        req.Archive,
+				"rm_dir":         req.RmDir,
+				"retention_days": req.RetentionDays,
+			}
+			// Set defaults for empty values
+			if form["compress"] == "" {
+				form["compress"] = "false"
+			}
+			if form["manage"] == "" {
+				form["manage"] = "false"
+			}
+			if form["archive"] == "" {
+				form["archive"] = "false"
+			}
+			if form["retention_days"] == "" {
+				form["retention_days"] = "7"
+			}
+			id := enqueueJob(form)
+			c.JSON(http.StatusAccepted, gin.H{"jobId": id})
+		}
+	} else {
+		// Legacy form-encoded processing (for frontend compatibility)
+		form := map[string]string{
+			"Body":           c.PostForm("Body"),
+			"prefix":         c.PostForm("prefix"),
+			"compress":       c.DefaultPostForm("compress", "false"),
+			"manage":         c.DefaultPostForm("manage", "false"),
+			"archive":        c.DefaultPostForm("archive", "false"),
+			"rm_dir":         c.PostForm("rm_dir"),
+			"retention_days": c.DefaultPostForm("retention_days", "7"),
+		}
+		id := enqueueJob(form)
+		c.JSON(http.StatusAccepted, gin.H{"jobId": id})
 	}
-	id := enqueueJob(form)
-	c.JSON(http.StatusAccepted, gin.H{"jobId": id})
 }
 
 // StatusHandler returns current status & message for a given jobId.
@@ -347,6 +409,206 @@ func processPDF(jobID string, form map[string]string) (string, map[string]string
 	fullPath = strings.TrimPrefix(fullPath, "/")
 	jobStore.UpdateProgress(jobID, 100)
 	return "backend.status.upload_success", map[string]string{"path": fullPath}, nil
+}
+
+// enqueueDocumentJob processes document content instead of URLs
+func enqueueDocumentJob(req DocumentRequest) string {
+	// Log document processing request
+	manager.Logf("Processing document content: %s (%s)", req.Filename, req.ContentType)
+	
+	// Create a new job in the in-memory store
+	id := uuid.NewString()
+	jobStore.Create(id)
+	
+	// Launch background worker
+	go func() {
+		jobStore.Update(id, "Running", "", nil)
+		jobStore.UpdateProgress(id, 0)
+		
+		// Catch panics
+		defer func() {
+			if r := recover(); r != nil {
+				manager.Logf("❌ Panic in processDocument: %v", r)
+				jobStore.Update(id, "Error", "backend.status.internal_error", nil)
+			}
+		}()
+		
+		// Process the document content
+		msgKey, data, err := processDocument(id, req)
+		if err != nil {
+			manager.Logf("❌ processDocument error: %v, message: %q", err, msgKey)
+			jobStore.Update(id, "error", msgKey, data)
+		} else {
+			manager.Logf("✅ processDocument success: %s", msgKey)
+			jobStore.Update(id, "success", msgKey, data)
+		}
+	}()
+	
+	return id
+}
+
+// processDocument handles document content processing
+func processDocument(jobID string, req DocumentRequest) (string, map[string]string, error) {
+	// Create job-specific temp directory
+	jobTempDir := filepath.Join(os.TempDir(), "aviary_job_"+jobID)
+	if err := os.MkdirAll(jobTempDir, 0755); err != nil {
+		return "backend.status.internal_error", nil, fmt.Errorf("failed to create job temp directory: %w", err)
+	}
+	
+	// Ensure cleanup of job temp directory
+	defer func() {
+		if err := os.RemoveAll(jobTempDir); err != nil {
+			manager.Logf("⚠️ cleanup warning: could not remove job temp directory %q: %v", jobTempDir, err)
+		}
+	}()
+	
+	// Validate content type if provided
+	if req.ContentType != "" {
+		if !isValidContentType(req.ContentType) {
+			return "backend.status.unsupported_file_type", nil, fmt.Errorf("unsupported content type: %s", req.ContentType)
+		}
+	}
+	
+	// Decode base64 content with validation/cleaning
+	jobStore.UpdateWithOperation(jobID, "Running", "backend.status.decoding_content", nil, "decoding")
+	cleanedBase64 := cleanBase64(req.Body)
+	content, err := base64.StdEncoding.DecodeString(cleanedBase64)
+	if err != nil {
+		return "backend.status.decode_error", nil, fmt.Errorf("failed to decode document content: %w", err)
+	}
+	
+	// Verify content type matches actual content
+	detectedType := http.DetectContentType(content[:min(512, len(content))])
+	if req.ContentType != "" && !isContentTypeMatch(req.ContentType, detectedType) {
+		manager.Logf("⚠️ Content type mismatch: claimed %s, detected %s", req.ContentType, detectedType)
+		// Continue but log the mismatch - use detected type for processing
+	}
+	
+	// Sanitize filename
+	filename := sanitizeFilename(req.Filename)
+	if filename == "" {
+		filename = "document"
+		// Add extension based on detected or claimed content type
+		contentTypeToUse := req.ContentType
+		if contentTypeToUse == "" {
+			contentTypeToUse = detectedType
+		}
+		switch {
+		case strings.HasPrefix(contentTypeToUse, "application/pdf"):
+			filename += ".pdf"
+		case strings.HasPrefix(contentTypeToUse, "image/jpeg"):
+			filename += ".jpg"
+		case strings.HasPrefix(contentTypeToUse, "image/png"):
+			filename += ".png"
+		case strings.HasPrefix(contentTypeToUse, "application/epub"):
+			filename += ".epub"
+		}
+	}
+	
+	// Create temp file in job-specific directory
+	tempFile := filepath.Join(jobTempDir, filename)
+	if err := os.WriteFile(tempFile, content, 0644); err != nil {
+		return "backend.status.save_error", nil, fmt.Errorf("failed to save document: %w", err)
+	}
+	
+	// Create form map for existing processing pipeline
+	form := map[string]string{
+		"Body":           tempFile,
+		"prefix":         req.Prefix,
+		"compress":       req.Compress,
+		"manage":         req.Manage,
+		"archive":        req.Archive,
+		"rm_dir":         req.RmDir,
+		"retention_days": req.RetentionDays,
+	}
+	
+	// Set defaults for empty values
+	if form["compress"] == "" {
+		form["compress"] = "false"
+	}
+	if form["manage"] == "" {
+		form["manage"] = "false"
+	}
+	if form["archive"] == "" {
+		form["archive"] = "false"
+	}
+	if form["retention_days"] == "" {
+		form["retention_days"] = "7"
+	}
+	
+	// Process through existing pipeline
+	return processPDF(jobID, form)
+}
+
+// isValidContentType checks if the content type is supported
+func isValidContentType(contentType string) bool {
+	for _, supported := range supportedContentTypes {
+		if strings.HasPrefix(contentType, supported) {
+			return true
+		}
+	}
+	return false
+}
+
+// cleanBase64 removes whitespace and validates base64 content
+func cleanBase64(data string) string {
+	// Remove all whitespace (spaces, newlines, tabs)
+	cleaned := strings.ReplaceAll(data, " ", "")
+	cleaned = strings.ReplaceAll(cleaned, "\n", "")
+	cleaned = strings.ReplaceAll(cleaned, "\r", "")
+	cleaned = strings.ReplaceAll(cleaned, "\t", "")
+	return cleaned
+}
+
+// isContentTypeMatch checks if claimed content type matches detected type
+func isContentTypeMatch(claimed, detected string) bool {
+	// Handle common variations
+	switch {
+	case strings.HasPrefix(claimed, "application/pdf") && strings.HasPrefix(detected, "application/pdf"):
+		return true
+	case strings.HasPrefix(claimed, "image/jpeg") && strings.HasPrefix(detected, "image/jpeg"):
+		return true
+	case strings.HasPrefix(claimed, "image/png") && strings.HasPrefix(detected, "image/png"):
+		return true
+	case strings.HasPrefix(claimed, "application/epub") && strings.HasPrefix(detected, "application/zip"):
+		// EPUB files are detected as application/zip
+		return true
+	default:
+		return strings.HasPrefix(detected, claimed) || strings.HasPrefix(claimed, detected)
+	}
+}
+
+// sanitizeFilename removes dangerous characters from filenames
+func sanitizeFilename(filename string) string {
+	if filename == "" {
+		return ""
+	}
+	
+	// Use only the base filename (no path traversal)
+	filename = filepath.Base(filename)
+	
+	// Remove dangerous characters
+	dangerous := []string{"..", "~", "$", "`", "|", ";", "&", "<", ">", "(", ")", "{", "}", "[", "]", "'", `"`}
+	for _, char := range dangerous {
+		filename = strings.ReplaceAll(filename, char, "_")
+	}
+	
+	// Limit length
+	if len(filename) > 200 {
+		ext := filepath.Ext(filename)
+		base := filename[:200-len(ext)]
+		filename = base + ext
+	}
+	
+	return filename
+}
+
+// min returns the minimum of two integers
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 // isTrue interprets "true"/"1"/"yes" (case-insensitive) as true.
