@@ -24,7 +24,7 @@ func CompressPDFWithProgress(path string, progress func(page, total int)) (strin
 	ext := filepath.Ext(path)
 	base := path[:len(path)-len(ext)]
 	out := fmt.Sprintf("%s_compressed%s", base, ext)
-	compat := getEnv("GS_COMPAT", "1.4")
+	compat := getEnv("GS_COMPAT", "1.7")
 	settings := getEnv("GS_SETTINGS", "/ebook")
 	args := []string{
 		"gs", "-sDEVICE=pdfwrite",

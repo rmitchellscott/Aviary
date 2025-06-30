@@ -66,7 +66,7 @@ COPY --from=aviary-builder /app/locales ./locales
 ENV PORT=8000 \
     PDF_DIR=/app/pdfs \
     RM_TARGET_DIR=/ \
-    GS_COMPAT=1.4 \
+    GS_COMPAT=1.7 \
     GS_SETTINGS=/ebook
 
 ENTRYPOINT ["/usr/local/bin/aviary"]

@@ -75,7 +75,7 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 | PDF_DIR                  | No        | /app/pdfs| Directory to archive PDFs into |
 | RMAPI_HOST               | No        |         | Self-hosted endpoint to use for rmapi |
 | RM_TARGET_DIR            | No        | /       | Target folder on reMarkable device |
-| GS_COMPAT                | No        | 1.4     | Ghostscript compatibility level |
+| GS_COMPAT                | No        | 1.7     | Ghostscript compatibility level |
 | GS_SETTINGS              | No        | /ebook  | Ghostscript PDFSETTINGS preset |
 | SNIFF_TIMEOUT            | No        | 5s      | Timeout for sniffing the MIME type |
 | DOWNLOAD_TIMEOUT         | No        | 1m      | Timeout for Download requests |
