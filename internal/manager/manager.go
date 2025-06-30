@@ -110,7 +110,12 @@ func moveFile(src, dst string) error {
 
 // SimpleUpload calls `rmapi put` and returns the uploaded filename or a detailed error.
 func SimpleUpload(path, rmDir string) (string, error) {
-	cmd := ExecCommand("rmapi", "put", path, rmDir)
+	args := []string{"put"}
+	if os.Getenv("RMAPI_COVERPAGE") == "first" {
+		args = append(args, "--coverpage=1")
+	}
+	args = append(args, path, rmDir)
+	cmd := ExecCommand("rmapi", args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		raw := strings.TrimSpace(string(out))
@@ -185,7 +190,12 @@ func RenameAndUpload(path, prefix, rmDir string) (string, error) {
 		return "", err
 	}
 
-	cmd := ExecCommand("rmapi", "put", noYearPath, rmDir)
+	args := []string{"put"}
+	if os.Getenv("RMAPI_COVERPAGE") == "first" {
+		args = append(args, "--coverpage=1")
+	}
+	args = append(args, noYearPath, rmDir)
+	cmd := ExecCommand("rmapi", args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		raw := strings.TrimSpace(string(out))
