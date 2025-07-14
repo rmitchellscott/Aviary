@@ -8,9 +8,32 @@ services:
     environment:
       RMAPI_HOST: "${RMAPI_HOST}"
       # Optional authentication (remove # to enable):
-      # AUTH_USERNAME: "${AUTH_USERNAME}"
-      # AUTH_PASSWORD: "${AUTH_PASSWORD}"
+      AUTH_USERNAME: "${AUTH_USERNAME}"
+      AUTH_PASSWORD: "${AUTH_PASSWORD}"
       # API_KEY: "${API_KEY}"
+      
+      # Multi-user mode settings:
+      MULTI_USER: "true"
+      ADMIN_EMAIL: "${ADMIN_EMAIL}"
+      
+      # Database settings (defaults to SQLite):
+      # DB_TYPE: "sqlite"  # or "postgres"
+      # DB_HOST: "${DB_HOST}"
+      # DB_PORT: "${DB_PORT}"
+      # DB_USER: "${DB_USER}"
+      # DB_PASSWORD: "${DB_PASSWORD}"
+      # DB_NAME: "${DB_NAME}"
+      # DB_SSLMODE: "${DB_SSLMODE}"
+      # DATA_DIR: "/data"
+      
+      # SMTP settings for password resets:
+      # SMTP_HOST: "${SMTP_HOST}"
+      # SMTP_PORT: "${SMTP_PORT}"
+      # SMTP_USERNAME: "${SMTP_USERNAME}"
+      # SMTP_PASSWORD: "${SMTP_PASSWORD}"
+      # SMTP_FROM: "${SMTP_FROM}"
+      # SMTP_TLS: "true"
+      
       DRY_RUN: "true"
     volumes:
       - type: bind
@@ -19,4 +42,7 @@ services:
       - type: bind
         source: ./pdfs
         target: /app/pdfs
+      - type: bind
+        source: ./data
+        target: /data
     restart: unless-stopped

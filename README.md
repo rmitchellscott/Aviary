@@ -25,7 +25,9 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 - Toggle for compression for supported filetypes
 - Destination directory selector with cache for instant loadtimes
 - Light and dark themes, with optional system theme detection
-- Optional single-user auth via environment variables
+- Single-user auth via environment variables OR multi-user mode with database
+- User settings management (RMAPI host, API keys, default directories)
+- Admin interface for user management and system configuration
 - Internationalization: Support for 15 languages with auto-detected browser locale:
   - English (en)
   - Spanish (es)
@@ -45,7 +47,11 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 
 **Backend**
 - Webhook endpoint (`/api/webhook`) for SMS or HTTP integrations (e.g. Twilio)
-- Optional API key
+- Multi-user support with SQLite or PostgreSQL database
+- Per-user API key management with expiration and usage tracking
+- User authentication with password reset via SMTP
+- Per-user folder caching and document management
+- Admin tools for user management and database backup/restore
 - Automatic PDF download with a realistic browser User-Agent
 - Automatic conversion of PNG and JPEG images to PDF
 - Optional Ghostscript compression
@@ -73,9 +79,9 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 |--------------------------|-----------|---------|-------------|
 | DISABLE_UI               | No        | false   | Set `true` to disable the UI routes and run in API-only mode |
 | PDF_DIR                  | No        | /app/pdfs| Directory to archive PDFs into |
-| RMAPI_HOST               | No        |         | Self-hosted endpoint to use for rmapi |
+| RMAPI_HOST               | No        |         | Self-hosted endpoint to use for rmapi (single-user mode only) |
 | RMAPI_COVERPAGE          | No        |         | Set to `first` to add `--coverpage=1` flag to rmapi put commands |
-| RM_TARGET_DIR            | No        | /       | Target folder on reMarkable device |
+| RM_TARGET_DIR            | No        | /       | Target folder on reMarkable device (single-user mode only) |
 | GS_COMPAT                | No        | 1.7     | Ghostscript compatibility level |
 | GS_SETTINGS              | No        | /ebook  | Ghostscript PDFSETTINGS preset |
 | SNIFF_TIMEOUT            | No        | 5s      | Timeout for sniffing the MIME type |
@@ -83,29 +89,60 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 | FOLDER_CACHE_INTERVAL    | No        | 1h      | How often to refresh the folder listing cache. `0` disables caching |
 | DRY_RUN                  | No        | false   | Set to `true` to log rmapi commands without running them |
 
-For more rmapi-specific configuration, see [their documentation](https://github.com/ddvk/rmapi?tab=readme-ov-file#environment-variables).
-
-### Authentication (Optional)
+### Multi-User Mode Configuration
 | Variable                 | Required? | Default | Description |
 |--------------------------|-----------|---------|-------------|
-| AUTH_USERNAME            | No        |         | Username for web UI login (requires AUTH_PASSWORD) |
-| AUTH_PASSWORD            | No        |         | Password for web UI login (requires AUTH_USERNAME) |
-| API_KEY                  | No        |         | Secret key for API access via Authorization header |
+| MULTI_USER               | No        | false   | Set to `true` to enable multi-user mode with database |
+| ADMIN_EMAIL              | No        | username@localhost | Admin user email (used when creating initial admin from AUTH_USERNAME) |
+| DATA_DIR                 | No        | /data   | Directory for database and user data storage |
+
+### Database Configuration (Multi-User Mode)
+| Variable                 | Required? | Default | Description |
+|--------------------------|-----------|---------|-------------|
+| DB_TYPE                  | No        | sqlite  | Database type: `sqlite` or `postgres` |
+| DB_HOST                  | No        | localhost | PostgreSQL host (postgres only) |
+| DB_PORT                  | No        | 5432    | PostgreSQL port (postgres only) |
+| DB_USER                  | No        | aviary  | PostgreSQL username (postgres only) |
+| DB_PASSWORD              | No        |         | PostgreSQL password (postgres only) |
+| DB_NAME                  | No        | aviary  | PostgreSQL database name (postgres only) |
+| DB_SSLMODE               | No        | disable | PostgreSQL SSL mode (postgres only) |
+
+### SMTP Configuration (Multi-User Mode)
+| Variable                 | Required? | Default | Description |
+|--------------------------|-----------|---------|-------------|
+| SMTP_HOST                | No        |         | SMTP server hostname for password resets |
+| SMTP_PORT                | No        | 587     | SMTP server port |
+| SMTP_USERNAME            | No        |         | SMTP username |
+| SMTP_PASSWORD            | No        |         | SMTP password |
+| SMTP_FROM                | No        |         | From email address for system emails |
+| SMTP_TLS                 | No        | true    | Whether to use TLS for SMTP connection |
+
+For more rmapi-specific configuration, see [their documentation](https://github.com/ddvk/rmapi?tab=readme-ov-file#environment-variables).
+
+### Authentication Configuration
+| Variable                 | Required? | Default | Description |
+|--------------------------|-----------|---------|-------------|
+| AUTH_USERNAME            | No        |         | Username for web UI login (single-user mode) or initial admin user (multi-user mode) |
+| AUTH_PASSWORD            | No        |         | Password for web UI login (single-user mode) or initial admin user (multi-user mode) |
+| API_KEY                  | No        |         | Secret key for API access via Authorization header (single-user mode only) |
 | JWT_SECRET               | No        | auto-generated | Custom JWT signing secret (auto-generated if not provided) |
 | ALLOW_INSECURE           | No        |  false  | Set to `true` to allow non-secure cookies (not recommended) |
 
 ## Authentication
 
-Aviary supports optional authentication to protect your instance:
+Aviary supports two authentication modes:
 
-### Web UI Authentication
+### Single-User Mode (Default)
+Traditional environment variable-based authentication for simple deployments:
+
+#### Web UI Authentication
 Set both `AUTH_USERNAME` and `AUTH_PASSWORD` to enable login-protected web interface:
 ```bash
 AUTH_USERNAME=myuser
 AUTH_PASSWORD=mypassword
 ```
 
-### API Key Authentication
+#### API Key Authentication
 Set `API_KEY` to protect programmatic access to API endpoints:
 ```bash
 API_KEY=your-secret-api-key-here
@@ -115,12 +152,33 @@ Use the API key in requests with either header:
 - `Authorization: Bearer your-api-key`
 - `X-API-Key: your-api-key`
 
-### Flexible Authentication
+#### Flexible Authentication
 - **No auth**: If neither UI nor API auth is configured, all endpoints are open
 - **UI only**: Set `AUTH_USERNAME` + `AUTH_PASSWORD` to protect web interface only
 - **API only**: Set `API_KEY` to protect API endpoints only
 - **Both**: Set all three to enable both authentication methods
 - **API endpoints accept either**: Valid API key OR valid web login session
+
+### Multi-User Mode
+Database-backed authentication with user management:
+
+#### Enabling Multi-User Mode
+Set `MULTI_USER=true` and configure database settings. If `AUTH_USERNAME` and `AUTH_PASSWORD` are set, they will be used to create the initial admin user:
+```bash
+MULTI_USER=true
+AUTH_USERNAME=admin
+AUTH_PASSWORD=secure-admin-password
+ADMIN_EMAIL=admin@example.com
+```
+
+#### Features
+- **User Registration**: Admin can create/manage user accounts
+- **Per-User API Keys**: Each user can generate multiple API keys with expiration
+- **Per-User Settings**: Individual RMAPI_HOST, default directories, and preferences
+- **Password Reset**: Email-based password reset via SMTP
+- **Admin Interface**: User management, system settings, database backup/restore
+- **Database Support**: SQLite (default) or PostgreSQL for production
+- **Per-User Data**: Separate document storage and folder cache per user
 
 ## Translations
 
@@ -228,7 +286,7 @@ docker run -d \
 -v ~/rmapi.conf:/root/.config/rmapi/rmapi.conf \
 ghcr.io/rmitchellscott/aviary
 
-# With authentication
+# With authentication (single-user mode)
 docker run -d \
 -p 8000:8000 \
 -e AUTH_USERNAME=myuser \
@@ -236,10 +294,21 @@ docker run -d \
 -e API_KEY=your-secret-api-key \
 -v ~/rmapi.conf:/root/.config/rmapi/rmapi.conf \
 ghcr.io/rmitchellscott/aviary
+
+# Multi-user mode with SQLite
+docker run -d \
+-p 8000:8000 \
+-e MULTI_USER=true \
+-e AUTH_USERNAME=admin \
+-e AUTH_PASSWORD=secure-admin-password \
+-e ADMIN_EMAIL=admin@example.com \
+-v ./data:/data \
+ghcr.io/rmitchellscott/aviary
 ```
 
 ## Docker Compose
 
+### Single-User Mode
 ```yaml
 services:
   aviary:
@@ -257,6 +326,72 @@ services:
         source: ~/rmapi.conf
         target: /root/.config/rmapi/rmapi.conf
     restart: unless-stopped
+```
+
+### Multi-User Mode with SQLite
+```yaml
+services:
+  aviary:
+    image: ghcr.io/rmitchellscott/aviary
+    ports:
+      - "8000:8000"
+    environment:
+      MULTI_USER: "true"
+      AUTH_USERNAME: "${AUTH_USERNAME}"  # Initial admin user
+      AUTH_PASSWORD: "${AUTH_PASSWORD}"
+      ADMIN_EMAIL: "${ADMIN_EMAIL}"
+      # Optional SMTP for password resets:
+      # SMTP_HOST: "${SMTP_HOST}"
+      # SMTP_PORT: "${SMTP_PORT}"
+      # SMTP_USERNAME: "${SMTP_USERNAME}"
+      # SMTP_PASSWORD: "${SMTP_PASSWORD}"
+      # SMTP_FROM: "${SMTP_FROM}"
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data  # Database and user data storage
+    restart: unless-stopped
+```
+
+### Multi-User Mode with PostgreSQL
+```yaml
+services:
+  aviary:
+    image: ghcr.io/rmitchellscott/aviary
+    ports:
+      - "8000:8000"
+    environment:
+      MULTI_USER: "true"
+      AUTH_USERNAME: "${AUTH_USERNAME}"
+      AUTH_PASSWORD: "${AUTH_PASSWORD}"
+      ADMIN_EMAIL: "${ADMIN_EMAIL}"
+      DB_TYPE: "postgres"
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      DB_USER: "${DB_USER}"
+      DB_PASSWORD: "${DB_PASSWORD}"
+      DB_NAME: "${DB_NAME}"
+      DB_SSLMODE: "disable"
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: "${DB_NAME}"
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
 ```
 
 ## Building Locally

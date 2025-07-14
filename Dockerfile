@@ -36,6 +36,9 @@ RUN --mount=type=cache,target=/root/.cache \
 # Aviary build
 FROM --platform=$BUILDPLATFORM go-base AS aviary-builder
 
+# Add build dependencies for CGO
+RUN apk add --no-cache gcc musl-dev
+
 COPY go.mod go.sum ./
 RUN go mod download
 
@@ -44,7 +47,7 @@ COPY --from=ui-builder /app/ui/dist ./ui/dist
 
 ARG TARGETPLATFORM
 RUN --mount=type=cache,target=/root/.cache \
-    CGO_ENABLED=0 xx-go build -ldflags='-w -s' -trimpath
+    CGO_ENABLED=1 xx-go build -ldflags='-w -s' -trimpath
 
 
 # Final image

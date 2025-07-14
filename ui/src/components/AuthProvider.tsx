@@ -2,11 +2,24 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 
+interface User {
+  id: string
+  username: string
+  email: string
+  is_admin: boolean
+  rmapi_host?: string
+  default_rmdir: string
+  created_at: string
+  last_login?: string
+}
+
 interface AuthContextType {
   isAuthenticated: boolean
   isLoading: boolean
   authConfigured: boolean
+  multiUserMode: boolean
   uiSecret: string | null
+  user: User | null
   login: () => Promise<void>
   logout: () => void
 }
@@ -30,7 +43,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     typeof window !== 'undefined' ? localStorage.getItem('authConfigured') : null
   const initialAuthConfigured = storedConf === 'true'
   const [authConfigured, setAuthConfigured] = useState<boolean>(initialAuthConfigured)
+  const [multiUserMode, setMultiUserMode] = useState<boolean>(false)
   const [uiSecret, setUiSecret] = useState<string | null>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       // Check if we have a UI secret injected (means web auth is disabled)
@@ -68,6 +83,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const uiSecret = (window as Window & { __UI_SECRET__?: string }).__UI_SECRET__ || null
       setUiSecret(uiSecret)
       
+      // Set multi-user mode
+      setMultiUserMode(configData.multiUserMode || false)
+      
       if (configData.authEnabled) {
         // Web authentication is enabled - users need to log in
         setAuthConfigured(true)
@@ -82,6 +100,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         })
         const data = await response.json()
         setIsAuthenticated(data.authenticated)
+        setUser(data.user || null)
         if (typeof window !== 'undefined') {
           if (data.authenticated) {
             const expiry = Date.now() + 24 * 3600 * 1000
@@ -104,6 +123,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         })
         const data = await response.json()
         setIsAuthenticated(data.authenticated)
+        setUser(data.user || null)
         if (typeof window !== 'undefined') {
           const expiry = Date.now() + 24 * 3600 * 1000
           localStorage.setItem('authExpiry', expiry.toString())
@@ -163,6 +183,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Handle error silently
     }
     setIsAuthenticated(false)
+    setUser(null)
     if (typeof window !== 'undefined') {
       localStorage.setItem('authExpiry', '0')
     }
@@ -179,7 +200,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [isLoading])
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout, authConfigured, uiSecret }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout, authConfigured, multiUserMode, uiSecret, user }}>
       {children}
     </AuthContext.Provider>
   )

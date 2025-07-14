@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/components/AuthProvider";
 
 interface LoginFormProps {
   onLogin: () => void;
@@ -13,6 +14,7 @@ interface LoginFormProps {
 
 export function LoginForm({ onLogin }: LoginFormProps) {
   const { t } = useTranslation();
+  const { multiUserMode } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -89,8 +91,20 @@ export function LoginForm({ onLogin }: LoginFormProps) {
               />
             </div>
             {error && <p className="text-sm text-red-500">{error}</p>}
-            <div className="flex justify-end">
-              <Button type="submit" disabled={loading}>
+            <div className="flex justify-between items-center">
+              {multiUserMode && (
+                <Button 
+                  type="button" 
+                  variant="link" 
+                  size="sm"
+                  onClick={() => window.location.href = '/reset-password'}
+                  disabled={loading}
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  Forgot Password?
+                </Button>
+              )}
+              <Button type="submit" disabled={loading} className="ml-auto">
                 {loading ? t("login.signing_in") : t("login.button")}
               </Button>
             </div>
