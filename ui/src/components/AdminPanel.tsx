@@ -328,7 +328,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           </div>
         )}
 
-        <Tabs defaultValue="overview" className="w-full">
+        <Tabs defaultValue="overview" className="w-full h-[600px] flex flex-col">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Activity className="h-4 w-4" />
@@ -352,7 +352,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview">
+          <TabsContent value="overview" className="flex-1 overflow-y-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="pb-2">
@@ -433,7 +433,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="users">
+          <TabsContent value="users" className="flex-1 overflow-y-auto">
             <div className="space-y-4">
               <Card>
                 <CardHeader>
@@ -542,7 +542,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="api-keys">
+          <TabsContent value="api-keys" className="flex-1 overflow-y-auto">
             <Card>
               <CardHeader>
                 <CardTitle>All API Keys ({apiKeys.length})</CardTitle>
@@ -602,7 +602,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </Card>
           </TabsContent>
 
-          <TabsContent value="settings">
+          <TabsContent value="settings" className="flex-1 overflow-y-auto">
             <div className="space-y-4">
               <Card>
                 <CardHeader>
@@ -666,7 +666,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="system">
+          <TabsContent value="system" className="flex-1 overflow-y-auto">
             <div className="space-y-4">
               <Card>
                 <CardHeader>

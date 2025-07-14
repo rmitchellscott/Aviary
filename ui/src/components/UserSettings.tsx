@@ -228,8 +228,25 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setError(null);
 
       const body: any = { name: newKeyName };
-      if (newKeyExpiry) {
-        const expiryDate = new Date(newKeyExpiry);
+      if (newKeyExpiry && newKeyExpiry !== '' && newKeyExpiry !== 'never') {
+        let expiryDate: Date;
+        const now = new Date();
+        switch (newKeyExpiry) {
+          case '1week':
+            expiryDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+            break;
+          case '1month':
+            expiryDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+            break;
+          case '3months':
+            expiryDate = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+            break;
+          case '1year':
+            expiryDate = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+            break;
+          default:
+            expiryDate = new Date(newKeyExpiry); // fallback for date strings
+        }
         body.expires_at = Math.floor(expiryDate.getTime() / 1000);
       }
       
@@ -302,7 +319,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto sm:max-w-7xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
@@ -319,20 +336,23 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           </div>
         )}
 
-        <Tabs defaultValue="profile" className="w-full">
+        <Tabs defaultValue="profile" className="w-full h-[600px] flex flex-col">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Profile
             </TabsTrigger>
-            <TabsTrigger value="password">Password</TabsTrigger>
+            <TabsTrigger value="password" className="flex items-center gap-2">
+              <Key className="h-4 w-4" />
+              Password
+            </TabsTrigger>
             <TabsTrigger value="api-keys" className="flex items-center gap-2">
               <Key className="h-4 w-4" />
               API Keys
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="profile">
+          <TabsContent value="profile" className="flex-1 overflow-y-auto">
             <Card>
               <CardHeader>
                 <CardTitle>Profile Information</CardTitle>
@@ -388,7 +408,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
             </Card>
           </TabsContent>
 
-          <TabsContent value="password">
+          <TabsContent value="password" className="flex-1 overflow-y-auto">
             <Card>
               <CardHeader>
                 <CardTitle>Change Password</CardTitle>
@@ -437,7 +457,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
             </Card>
           </TabsContent>
 
-          <TabsContent value="api-keys">
+          <TabsContent value="api-keys" className="flex-1 overflow-y-auto">
             <div className="space-y-4">
               <Card>
                 <CardHeader>
@@ -461,11 +481,11 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           <SelectValue placeholder="Never expires" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">Never</SelectItem>
-                          <SelectItem value={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}>1 week</SelectItem>
-                          <SelectItem value={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}>1 month</SelectItem>
-                          <SelectItem value={new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}>3 months</SelectItem>
-                          <SelectItem value={new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}>1 year</SelectItem>
+                          <SelectItem value="never">Never</SelectItem>
+                          <SelectItem value="1week">1 week</SelectItem>
+                          <SelectItem value="1month">1 month</SelectItem>
+                          <SelectItem value="3months">3 months</SelectItem>
+                          <SelectItem value="1year">1 year</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
