@@ -10,6 +10,9 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/rmitchellscott/aviary/internal/database"
 )
 
 // ExecCommand is exec.Command by default, but can be overridden in tests.
@@ -156,23 +159,38 @@ func RenameLocal(path, prefix string) (string, error) {
 	return withYearPath, nil
 }
 
-// / RenameAndUpload renames locally, uploads via rmapi, and returns the name on the device.
+// RenameAndUpload renames locally, uploads via rmapi, and returns the name on the device.
 func RenameAndUpload(path, prefix, rmDir string) (string, error) {
+	return RenameAndUploadForUser(path, prefix, rmDir, uuid.Nil)
+}
+
+// RenameAndUploadForUser renames locally, uploads via rmapi, and returns the name on the device for a specific user.
+func RenameAndUploadForUser(path, prefix, rmDir string, userID uuid.UUID) (string, error) {
 	// Validate prefix early
 	var err error
 	prefix, err = SanitizePrefix(prefix)
 	if err != nil {
 		return "", err
 	}
-	// Build target dir under PDF_DIR
-	pdfDir := os.Getenv("PDF_DIR")
-	if pdfDir == "" {
-		pdfDir = "/app/pdfs"
-	}
-	if prefix != "" {
-		pdfDir = filepath.Join(pdfDir, prefix)
-		if err := os.MkdirAll(pdfDir, 0755); err != nil {
+	
+	// Build target dir - use user-specific directory in multi-user mode
+	var pdfDir string
+	if database.IsMultiUserMode() && userID != uuid.Nil {
+		pdfDir, err = GetUserPDFDir(userID, prefix)
+		if err != nil {
 			return "", err
+		}
+	} else {
+		// Single-user mode - use existing logic
+		pdfDir = os.Getenv("PDF_DIR")
+		if pdfDir == "" {
+			pdfDir = "/app/pdfs"
+		}
+		if prefix != "" {
+			pdfDir = filepath.Join(pdfDir, prefix)
+			if err := os.MkdirAll(pdfDir, 0755); err != nil {
+				return "", err
+			}
 		}
 	}
 
@@ -220,10 +238,22 @@ func RenameAndUpload(path, prefix, rmDir string) (string, error) {
 }
 
 func CleanupOld(prefix, rmDir string, retentionDays int) error {
+	return CleanupOldForUser(prefix, rmDir, retentionDays, uuid.Nil)
+}
+
+// CleanupOldForUser removes old files for a specific user in multi-user mode
+func CleanupOldForUser(prefix, rmDir string, retentionDays int, userID uuid.UUID) error {
 	today := time.Now()
 	cutoff := today.AddDate(0, 0, -retentionDays)
-	Logf("[cleanup] today=%s, cutoff=%s",
-		today.Format("2006-01-02"), cutoff.Format("2006-01-02"))
+	
+	// In multi-user mode, add user context to cleanup logs
+	if database.IsMultiUserMode() && userID != uuid.Nil {
+		Logf("[cleanup] user=%s, today=%s, cutoff=%s",
+			userID.String(), today.Format("2006-01-02"), cutoff.Format("2006-01-02"))
+	} else {
+		Logf("[cleanup] today=%s, cutoff=%s",
+			today.Format("2006-01-02"), cutoff.Format("2006-01-02"))
+	}
 
 	// 1) List remote files
 	proc := ExecCommand("rmapi", "ls", rmDir)

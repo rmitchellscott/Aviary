@@ -389,7 +389,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 	switch {
 	case manage && archive:
 		manager.Logf("📤 Managed archive upload")
-		remoteName, err = manager.RenameAndUpload(localPath, prefix, rmDir)
+		remoteName, err = manager.RenameAndUploadForUser(localPath, prefix, rmDir, userID)
 		if err != nil {
 			return "backend.status.internal_error", nil, err
 		}
@@ -425,7 +425,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 
 	// 5) If manage==true, perform cleanup
 	if manage {
-		if err := manager.CleanupOld(prefix, rmDir, retentionDays); err != nil {
+		if err := manager.CleanupOldForUser(prefix, rmDir, retentionDays, userID); err != nil {
 			manager.Logf("cleanup warning: %v", err)
 		}
 	}
