@@ -12,18 +12,18 @@ import (
 
 // UserFolderCacheService manages per-user folder caching
 type UserFolderCacheService struct {
-	db           *gorm.DB
-	caches       map[uuid.UUID]*userFolderCache
-	mu           sync.RWMutex
+	db              *gorm.DB
+	caches          map[uuid.UUID]*userFolderCache
+	mu              sync.RWMutex
 	refreshInterval time.Duration
 }
 
 // userFolderCache represents a single user's folder cache
 type userFolderCache struct {
-	folders     []string
-	updated     time.Time
-	mu          sync.RWMutex
-	refreshing  bool
+	folders    []string
+	updated    time.Time
+	mu         sync.RWMutex
+	refreshing bool
 }
 
 // NewUserFolderCacheService creates a new user folder cache service
@@ -32,7 +32,7 @@ func NewUserFolderCacheService(db *gorm.DB) *UserFolderCacheService {
 	if refreshInterval <= 0 {
 		refreshInterval = 60 * time.Minute
 	}
-	
+
 	return &UserFolderCacheService{
 		db:              db,
 		caches:          make(map[uuid.UUID]*userFolderCache),
@@ -48,7 +48,7 @@ func (s *UserFolderCacheService) GetUserFolders(userID uuid.UUID, force bool) ([
 	if !exists {
 		userCache = &userFolderCache{}
 		s.caches[userID] = userCache
-		
+
 		// Try to load from database
 		if folders, err := s.LoadFolderCacheFromDatabase(userID); err == nil && folders != nil {
 			userCache.folders = folders
@@ -58,8 +58,8 @@ func (s *UserFolderCacheService) GetUserFolders(userID uuid.UUID, force bool) ([
 	s.mu.Unlock()
 
 	userCache.mu.RLock()
-	needsRefresh := len(userCache.folders) == 0 || 
-		time.Since(userCache.updated) > s.refreshInterval || 
+	needsRefresh := len(userCache.folders) == 0 ||
+		time.Since(userCache.updated) > s.refreshInterval ||
 		force
 	userCache.mu.RUnlock()
 
@@ -69,7 +69,7 @@ func (s *UserFolderCacheService) GetUserFolders(userID uuid.UUID, force bool) ([
 
 	userCache.mu.RLock()
 	defer userCache.mu.RUnlock()
-	
+
 	// Return a copy to avoid concurrent modifications
 	result := make([]string, len(userCache.folders))
 	copy(result, userCache.folders)
@@ -127,10 +127,7 @@ func (s *UserFolderCacheService) refreshUserFolders(userID uuid.UUID, userCache 
 
 // listUserFolders lists folders for a specific user using their rmapi configuration
 func (s *UserFolderCacheService) listUserFolders(user *database.User) ([]string, error) {
-	// For now, we'll use the existing ListFolders function
-	// In a full implementation, we'd need to configure rmapi per user
-	// TODO: Implement per-user rmapi configuration
-	return ListFolders()
+	return ListFolders(user)
 }
 
 // saveFolderCacheToDatabase saves the folder cache to the database
@@ -141,22 +138,17 @@ func (s *UserFolderCacheService) saveFolderCacheToDatabase(userID uuid.UUID, fol
 		return err
 	}
 
-	// Create or update folder cache record
-	folderCache := database.FolderCache{
-		ID:          uuid.New(),
-		UserID:      userID,
-		FolderPath:  "/", // Root path for the complete folder listing
-		FolderData:  string(foldersJSON),
-		LastUpdated: time.Now(),
-	}
-
-	// Use GORM's native upsert: update if exists, insert if not
-	return s.db.Where("user_id = ? AND folder_path = ?", userID, "/").
-		Assign(map[string]interface{}{
-			"folder_data":   string(foldersJSON),
-			"last_updated":  time.Now(),
-		}).
-		FirstOrCreate(&folderCache).Error
+	// Use SQLite's native UPSERT for atomic operation
+	// This works with both the old mattn/go-sqlite3 and new glebarez/sqlite drivers
+	query := `
+		INSERT INTO user_folders_cache (id, user_id, folder_path, folder_data, last_updated)
+		VALUES (?, ?, ?, ?, ?)
+		ON CONFLICT(user_id, folder_path) DO UPDATE SET
+			folder_data = EXCLUDED.folder_data,
+			last_updated = EXCLUDED.last_updated
+	`
+	
+	return s.db.Exec(query, uuid.New(), userID, "/", string(foldersJSON), time.Now()).Error
 }
 
 // LoadFolderCacheFromDatabase loads cached folders from the database
@@ -183,7 +175,7 @@ func (s *UserFolderCacheService) LoadFolderCacheFromDatabase(userID uuid.UUID) (
 func (s *UserFolderCacheService) InvalidateUserCache(userID uuid.UUID) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	if userCache, exists := s.caches[userID]; exists {
 		userCache.mu.Lock()
 		userCache.folders = nil
@@ -201,7 +193,7 @@ func (s *UserFolderCacheService) StartBackgroundRefresh() {
 	go func() {
 		ticker := time.NewTicker(s.refreshInterval)
 		defer ticker.Stop()
-		
+
 		for range ticker.C {
 			s.refreshActiveUserCaches()
 		}
@@ -224,7 +216,7 @@ func (s *UserFolderCacheService) refreshActiveUserCaches() {
 				userCache.mu.RLock()
 				needsRefresh := time.Since(userCache.updated) > s.refreshInterval
 				userCache.mu.RUnlock()
-				
+
 				if needsRefresh {
 					_, err := s.GetUserFolders(uid, false)
 					if err != nil {

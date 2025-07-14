@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/database"
 )
 
@@ -39,6 +38,25 @@ func DefaultRmDir() string {
 	return d
 }
 
+// rmapiCmd builds an exec.Cmd to run rmapi with user-specific configuration
+// if provided.
+func rmapiCmd(user *database.User, args ...string) *exec.Cmd {
+	cmd := ExecCommand("rmapi", args...)
+	env := os.Environ()
+	if user != nil {
+		if user.RmapiHost != "" {
+			env = append(env, "RMAPI_HOST="+user.RmapiHost)
+		} else if host := os.Getenv("RMAPI_HOST"); host != "" {
+			env = append(env, "RMAPI_HOST="+host)
+		}
+		if cfg, err := GetUserRmapiConfigPath(user.ID); err == nil {
+			env = append(env, "RMAPI_CONFIG="+cfg)
+		}
+	}
+	cmd.Env = env
+	return cmd
+}
+
 func Logf(format string, v ...interface{}) {
 	fmt.Printf("[%s] "+format+"\n", append([]interface{}{time.Now().Format(time.RFC3339)}, v...)...)
 }
@@ -54,6 +72,7 @@ func SanitizePrefix(p string) (string, error) {
 	}
 	return p, nil
 }
+
 func RenameLocalNoYear(src, prefix string) (string, error) {
 	dir := filepath.Dir(src)
 	today := time.Now()
@@ -83,6 +102,7 @@ func AppendYearLocal(noYearPath string) (string, error) {
 	}
 	return dest, nil
 }
+
 func moveFile(src, dst string) error {
 	in, err := os.Open(src)
 	if err != nil {
@@ -112,13 +132,13 @@ func moveFile(src, dst string) error {
 }
 
 // SimpleUpload calls `rmapi put` and returns the uploaded filename or a detailed error.
-func SimpleUpload(path, rmDir string) (string, error) {
+func SimpleUpload(path, rmDir string, user *database.User) (string, error) {
 	args := []string{"put"}
 	if os.Getenv("RMAPI_COVERPAGE") == "first" {
 		args = append(args, "--coverpage=1")
 	}
 	args = append(args, path, rmDir)
-	cmd := ExecCommand("rmapi", args...)
+	cmd := rmapiCmd(user, args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		raw := strings.TrimSpace(string(out))
@@ -160,23 +180,18 @@ func RenameLocal(path, prefix string) (string, error) {
 }
 
 // RenameAndUpload renames locally, uploads via rmapi, and returns the name on the device.
-func RenameAndUpload(path, prefix, rmDir string) (string, error) {
-	return RenameAndUploadForUser(path, prefix, rmDir, uuid.Nil)
-}
-
-// RenameAndUploadForUser renames locally, uploads via rmapi, and returns the name on the device for a specific user.
-func RenameAndUploadForUser(path, prefix, rmDir string, userID uuid.UUID) (string, error) {
+func RenameAndUpload(path, prefix, rmDir string, user *database.User) (string, error) {
 	// Validate prefix early
 	var err error
 	prefix, err = SanitizePrefix(prefix)
 	if err != nil {
 		return "", err
 	}
-	
+
 	// Build target dir - use user-specific directory in multi-user mode
 	var pdfDir string
-	if database.IsMultiUserMode() && userID != uuid.Nil {
-		pdfDir, err = GetUserPDFDir(userID, prefix)
+	if database.IsMultiUserMode() && user != nil {
+		pdfDir, err = GetUserPDFDir(user.ID, prefix)
 		if err != nil {
 			return "", err
 		}
@@ -213,7 +228,7 @@ func RenameAndUploadForUser(path, prefix, rmDir string, userID uuid.UUID) (strin
 		args = append(args, "--coverpage=1")
 	}
 	args = append(args, noYearPath, rmDir)
-	cmd := ExecCommand("rmapi", args...)
+	cmd := rmapiCmd(user, args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		raw := strings.TrimSpace(string(out))
@@ -237,39 +252,34 @@ func RenameAndUploadForUser(path, prefix, rmDir string, userID uuid.UUID) (strin
 	return noYear, nil
 }
 
-func CleanupOld(prefix, rmDir string, retentionDays int) error {
-	return CleanupOldForUser(prefix, rmDir, retentionDays, uuid.Nil)
-}
-
-// CleanupOldForUser removes old files for a specific user in multi-user mode
-func CleanupOldForUser(prefix, rmDir string, retentionDays int, userID uuid.UUID) error {
+func CleanupOld(prefix, rmDir string, retentionDays int, user *database.User) error {
 	today := time.Now()
 	cutoff := today.AddDate(0, 0, -retentionDays)
-	
+
 	// In multi-user mode, add user context to cleanup logs
-	if database.IsMultiUserMode() && userID != uuid.Nil {
+	if database.IsMultiUserMode() && user != nil {
 		Logf("[cleanup] user=%s, today=%s, cutoff=%s",
-			userID.String(), today.Format("2006-01-02"), cutoff.Format("2006-01-02"))
+			user.ID.String(), today.Format("2006-01-02"), cutoff.Format("2006-01-02"))
 	} else {
 		Logf("[cleanup] today=%s, cutoff=%s",
 			today.Format("2006-01-02"), cutoff.Format("2006-01-02"))
 	}
 
 	// 1) List remote files
-	proc := ExecCommand("rmapi", "ls", rmDir)
+	proc := rmapiCmd(user, "ls", rmDir)
 	out, err := proc.Output()
 	if err != nil {
 		return err
 	}
 
 	// 2) Compile regexes
-	// match any file entry (we’ll strip .pdf later if present)
+	// match any file entry (we'll strip .pdf later if present)
 	lineRe := regexp.MustCompile(`^\[f\]\s+(.*)$`)
 
-	// date pattern: optional prefix, Month, Day, with or without “.pdf”
+	// date pattern: optional prefix, Month, Day, with or without ".pdf"
 	var dateRe *regexp.Regexp
 	if prefix != "" {
-		// e.g. “DUMMY May 7” or “DUMMY May 7.pdf”
+		// e.g. "DUMMY May 7" or "DUMMY May 7.pdf"
 		dateRe = regexp.MustCompile(
 			`^` + regexp.QuoteMeta(prefix+` `) + `([A-Za-z]+)\s+(\d+)(?:\.pdf)?$`,
 		)
@@ -284,7 +294,7 @@ func CleanupOldForUser(prefix, rmDir string, retentionDays int, userID uuid.UUID
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		// grab the name field (might end in “.pdf” or not)
+		// grab the name field (might end in ".pdf" or not)
 		m := lineRe.FindStringSubmatch(line)
 		if m == nil {
 			continue
@@ -313,7 +323,7 @@ func CleanupOldForUser(prefix, rmDir string, retentionDays int, userID uuid.UUID
 		if fileDate.Before(cutoff) {
 			Logf("Removing %s (dated %s < %s)",
 				fname, fileDate.Format("2006-01-02"), cutoff.Format("2006-01-02"))
-			ExecCommand("rmapi", "rm", filepath.Join(rmDir, fname)).Run()
+			rmapiCmd(user, "rm", filepath.Join(rmDir, fname)).Run()
 		}
 	}
 

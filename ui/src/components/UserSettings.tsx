@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,13 +16,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+} from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -30,29 +30,29 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { 
-  Settings, 
-  Key, 
-  User, 
-  Save, 
-  Plus, 
-  Trash2, 
-  Copy, 
-  Eye, 
+} from "@/components/ui/select";
+import {
+  Settings,
+  Key,
+  User,
+  Save,
+  Plus,
+  Trash2,
+  Copy,
+  Eye,
   EyeOff,
   CheckCircle,
   XCircle,
   Clock,
-  AlertTriangle
-} from 'lucide-react';
+  AlertTriangle,
+} from "lucide-react";
 
 interface User {
   id: string;
@@ -87,22 +87,31 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Profile form
-  const [email, setEmail] = useState('');
-  const [rmapiHost, setRmapiHost] = useState('');
-  const [defaultRmdir, setDefaultRmdir] = useState('/');
-  
+  const [email, setEmail] = useState("");
+  const [rmapiHost, setRmapiHost] = useState("");
+  const [rmapiPaired, setRmapiPaired] = useState(false);
+  const [defaultRmdir, setDefaultRmdir] = useState("/");
+
   // Password form
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   // API key form
-  const [newKeyName, setNewKeyName] = useState('');
-  const [newKeyExpiry, setNewKeyExpiry] = useState('');
+  const [newKeyName, setNewKeyName] = useState("");
+  const [newKeyExpiry, setNewKeyExpiry] = useState("");
   const [showNewKey, setShowNewKey] = useState<string | null>(null);
-  
+
+  // Pairing dialog state
+  const [pairingDialog, setPairingDialog] = useState({
+    isOpen: false,
+    code: "",
+    loading: false,
+    error: null as string | null,
+  });
+
   // Delete API key dialog
   const [deleteKeyDialog, setDeleteKeyDialog] = useState<{
     isOpen: boolean;
@@ -119,38 +128,39 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const fetchUserData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/auth/user', {
-        credentials: 'include',
+      const response = await fetch("/api/auth/user", {
+        credentials: "include",
       });
-      
+
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
         setEmail(userData.email);
-        
+        setRmapiPaired(!!userData.rmapi_paired);
+
         // Default to environment RMAPI_HOST if user hasn't set their own
         if (userData.rmapi_host) {
           setRmapiHost(userData.rmapi_host);
         } else {
           // Fetch default RMAPI_HOST from system
           try {
-            const configResponse = await fetch('/api/config', {
-              credentials: 'include',
+            const configResponse = await fetch("/api/config", {
+              credentials: "include",
             });
             if (configResponse.ok) {
               const config = await configResponse.json();
-              setRmapiHost(config.rmapi_host || '');
+              setRmapiHost(config.rmapi_host || "");
             }
           } catch {
-            setRmapiHost('');
+            setRmapiHost("");
           }
         }
-        
-        setDefaultRmdir(userData.default_rmdir || '/');
+
+        setDefaultRmdir(userData.default_rmdir || "/");
       }
     } catch (error) {
-      console.error('Failed to fetch user data:', error);
-      setError('Failed to load user data');
+      console.error("Failed to fetch user data:", error);
+      setError("Failed to load user data");
     } finally {
       setLoading(false);
     }
@@ -158,16 +168,16 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
   const fetchAPIKeys = async () => {
     try {
-      const response = await fetch('/api/api-keys', {
-        credentials: 'include',
+      const response = await fetch("/api/api-keys", {
+        credentials: "include",
       });
-      
+
       if (response.ok) {
         const keys = await response.json();
         setApiKeys(keys);
       }
     } catch (error) {
-      console.error('Failed to fetch API keys:', error);
+      console.error("Failed to fetch API keys:", error);
     }
   };
 
@@ -175,13 +185,13 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     try {
       setSaving(true);
       setError(null);
-      
-      const response = await fetch('/api/profile', {
-        method: 'PUT',
+
+      const response = await fetch("/api/profile", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({
           email,
           rmapi_host: rmapiHost,
@@ -193,10 +203,73 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         await fetchUserData(); // Refresh user data
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to update profile');
+        setError(errorData.error || "Failed to update profile");
       }
     } catch (error) {
-      setError('Failed to update profile');
+      setError("Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const pairRmapi = async () => {
+    setPairingDialog({ isOpen: true, code: "", loading: false, error: null });
+  };
+
+  const handlePairingSubmit = async () => {
+    const code = pairingDialog.code.trim();
+    
+    // Validate code format (8 characters)
+    if (code.length !== 8) {
+      setPairingDialog(prev => ({ ...prev, error: "Code must be 8 characters long" }));
+      return;
+    }
+
+    setPairingDialog(prev => ({ ...prev, loading: true, error: null }));
+    
+    try {
+      const resp = await fetch("/api/profile/pair", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ code }),
+      });
+      
+      if (resp.ok) {
+        setRmapiPaired(true);
+        setPairingDialog({ isOpen: false, code: "", loading: false, error: null });
+      } else {
+        const data = await resp.json();
+        setPairingDialog(prev => ({ 
+          ...prev, 
+          loading: false, 
+          error: data.error || "Failed to pair device" 
+        }));
+      }
+    } catch {
+      setPairingDialog(prev => ({ 
+        ...prev, 
+        loading: false, 
+        error: "Failed to pair device" 
+      }));
+    }
+  };
+
+  const closePairingDialog = () => {
+    setPairingDialog({ isOpen: false, code: "", loading: false, error: null });
+  };
+
+  const disconnectRmapi = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      await fetch("/api/profile/disconnect", {
+        method: "POST",
+        credentials: "include",
+      });
+      setRmapiPaired(false);
+    } catch {
+      setError("Failed to disconnect");
     } finally {
       setSaving(false);
     }
@@ -204,20 +277,20 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
   const updatePassword = async () => {
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
     try {
       setSaving(true);
       setError(null);
-      
-      const response = await fetch('/api/profile/password', {
-        method: 'POST',
+
+      const response = await fetch("/api/profile/password", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({
           current_password: currentPassword,
           new_password: newPassword,
@@ -225,15 +298,15 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       });
 
       if (response.ok) {
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to update password');
+        setError(errorData.error || "Failed to update password");
       }
     } catch (error) {
-      setError('Failed to update password');
+      setError("Failed to update password");
     } finally {
       setSaving(false);
     }
@@ -245,20 +318,20 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setError(null);
 
       const body: any = { name: newKeyName };
-      if (newKeyExpiry && newKeyExpiry !== '' && newKeyExpiry !== 'never') {
+      if (newKeyExpiry && newKeyExpiry !== "" && newKeyExpiry !== "never") {
         let expiryDate: Date;
         const now = new Date();
         switch (newKeyExpiry) {
-          case '1week':
+          case "1week":
             expiryDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
             break;
-          case '1month':
+          case "1month":
             expiryDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
             break;
-          case '3months':
+          case "3months":
             expiryDate = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
             break;
-          case '1year':
+          case "1year":
             expiryDate = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
             break;
           default:
@@ -266,28 +339,28 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         }
         body.expires_at = Math.floor(expiryDate.getTime() / 1000);
       }
-      
-      const response = await fetch('/api/api-keys', {
-        method: 'POST',
+
+      const response = await fetch("/api/api-keys", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify(body),
       });
 
       if (response.ok) {
         const newKey = await response.json();
         setShowNewKey(newKey.api_key);
-        setNewKeyName('');
-        setNewKeyExpiry('');
+        setNewKeyName("");
+        setNewKeyExpiry("");
         await fetchAPIKeys();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to create API key');
+        setError(errorData.error || "Failed to create API key");
       }
     } catch (error) {
-      setError('Failed to create API key');
+      setError("Failed to create API key");
     } finally {
       setSaving(false);
     }
@@ -306,8 +379,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
     try {
       const response = await fetch(`/api/api-keys/${deleteKeyDialog.key.id}`, {
-        method: 'DELETE',
-        credentials: 'include',
+        method: "DELETE",
+        credentials: "include",
       });
 
       if (response.ok) {
@@ -315,10 +388,10 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         closeDeleteKeyDialog();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to delete API key');
+        setError(errorData.error || "Failed to delete API key");
       }
     } catch (error) {
-      setError('Failed to delete API key');
+      setError("Failed to delete API key");
     }
   };
 
@@ -331,321 +404,435 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   };
 
   const getKeyStatus = (key: APIKey) => {
-    if (!key.is_active) return 'inactive';
-    if (key.expires_at && new Date(key.expires_at) < new Date()) return 'expired';
-    return 'active';
+    if (!key.is_active) return "inactive";
+    if (key.expires_at && new Date(key.expires_at) < new Date())
+      return "expired";
+    return "active";
   };
 
   if (loading) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-4xl">
-          <div className="flex items-center justify-center p-8">
-            Loading...
-          </div>
+          <div className="flex items-center justify-center p-8">Loading...</div>
         </DialogContent>
       </Dialog>
     );
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto sm:max-w-7xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            User Settings
-          </DialogTitle>
-          <DialogDescription>
-            Manage your profile, API keys, and preferences
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto sm:max-w-7xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              User Settings
+            </DialogTitle>
+            <DialogDescription>
+              Manage your profile, API keys, and preferences
+            </DialogDescription>
+          </DialogHeader>
 
-        {error && (
-          <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3 text-destructive">
-            {error}
-          </div>
-        )}
+          {error && (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3 text-destructive">
+              {error}
+            </div>
+          )}
 
-        <Tabs defaultValue="profile" className="w-full h-[600px] flex flex-col">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              Profile
-            </TabsTrigger>
-            <TabsTrigger value="password" className="flex items-center gap-2">
-              <Key className="h-4 w-4" />
-              Password
-            </TabsTrigger>
-            <TabsTrigger value="api-keys" className="flex items-center gap-2">
-              <Key className="h-4 w-4" />
-              API Keys
-            </TabsTrigger>
-          </TabsList>
+          <Tabs defaultValue="profile" className="w-full h-[600px] flex flex-col">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="profile" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Profile
+              </TabsTrigger>
+              <TabsTrigger value="password" className="flex items-center gap-2">
+                <Key className="h-4 w-4" />
+                Password
+              </TabsTrigger>
+              <TabsTrigger value="api-keys" className="flex items-center gap-2">
+                <Key className="h-4 w-4" />
+                API Keys
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="profile" className="flex-1 overflow-y-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="username">Username</Label>
-                    <Input 
-                      id="username" 
-                      value={user?.username || ''} 
-                      disabled 
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="rmapi-host">reMarkable Host (optional)</Label>
-                  <Input
-                    id="rmapi-host"
-                    value={rmapiHost}
-                    onChange={(e) => setRmapiHost(e.target.value)}
-                    placeholder="Leave empty for reMarkable Cloud"
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="default-rmdir">Default Directory</Label>
-                  <Input
-                    id="default-rmdir"
-                    value={defaultRmdir}
-                    onChange={(e) => setDefaultRmdir(e.target.value)}
-                    placeholder="/"
-                  />
-                </div>
-
-                <div className="flex justify-end">
-                  <Button onClick={updateProfile} disabled={saving}>
-                    <Save className="h-4 w-4 mr-2" />
-                    {saving ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="password" className="flex-1 overflow-y-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle>Change Password</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="current-password">Current Password</Label>
-                  <Input
-                    id="current-password"
-                    type="password"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="new-password">New Password</Label>
-                  <Input
-                    id="new-password"
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="confirm-password">Confirm New Password</Label>
-                  <Input
-                    id="confirm-password"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
-                </div>
-
-                <div className="flex justify-end">
-                  <Button 
-                    onClick={updatePassword} 
-                    disabled={saving || !currentPassword || !newPassword || !confirmPassword}
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {saving ? 'Updating...' : 'Update Password'}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="api-keys" className="flex-1 overflow-y-auto">
-            <div className="space-y-4">
+            <TabsContent value="profile" className="flex-1 overflow-y-auto">
               <Card>
                 <CardHeader>
-                  <CardTitle>Create New API Key</CardTitle>
+                  <CardTitle>Profile Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="key-name">Name</Label>
+                      <Label htmlFor="username">Username</Label>
                       <Input
-                        id="key-name"
-                        value={newKeyName}
-                        onChange={(e) => setNewKeyName(e.target.value)}
-                        placeholder="My API Key"
+                        id="username"
+                        value={user?.username || ""}
+                        disabled
                       />
                     </div>
                     <div>
-                      <Label htmlFor="key-expiry">Expiry (optional)</Label>
-                      <Select value={newKeyExpiry} onValueChange={setNewKeyExpiry}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Never expires" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="never">Never</SelectItem>
-                          <SelectItem value="1week">1 week</SelectItem>
-                          <SelectItem value="1month">1 month</SelectItem>
-                          <SelectItem value="3months">3 months</SelectItem>
-                          <SelectItem value="1year">1 year</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
                     </div>
                   </div>
-                  
+
+                  <div>
+                    <Label htmlFor="rmapi-host">reMarkable Host (optional)</Label>
+                    <Input
+                      id="rmapi-host"
+                      value={rmapiHost}
+                      onChange={(e) => setRmapiHost(e.target.value)}
+                      placeholder="Leave empty for reMarkable Cloud"
+                    />
+                    <div className="mt-2">
+                      {rmapiPaired ? (
+                        <Button
+                          variant="outline"
+                          onClick={disconnectRmapi}
+                          disabled={saving}
+                        >
+                          Disconnect rmapi
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          onClick={pairRmapi}
+                          disabled={saving}
+                        >
+                          Pair rmapi
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="default-rmdir">Default Directory</Label>
+                    <Input
+                      id="default-rmdir"
+                      value={defaultRmdir}
+                      onChange={(e) => setDefaultRmdir(e.target.value)}
+                      placeholder="/"
+                    />
+                  </div>
+
                   <div className="flex justify-end">
-                    <Button 
-                      onClick={createAPIKey} 
-                      disabled={saving || !newKeyName}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create API Key
+                    <Button onClick={updateProfile} disabled={saving}>
+                      <Save className="h-4 w-4 mr-2" />
+                      {saving ? "Saving..." : "Save Changes"}
                     </Button>
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
 
-              {showNewKey && (
-                <Card className="border-green-200 bg-green-50 dark:bg-green-950/20">
+            <TabsContent value="password" className="flex-1 overflow-y-auto">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Change Password</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="current-password">Current Password</Label>
+                    <Input
+                      id="current-password"
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="new-password">New Password</Label>
+                    <Input
+                      id="new-password"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="confirm-password">Confirm New Password</Label>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={updatePassword}
+                      disabled={
+                        saving ||
+                        !currentPassword ||
+                        !newPassword ||
+                        !confirmPassword
+                      }
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      {saving ? "Updating..." : "Update Password"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="api-keys" className="flex-1 overflow-y-auto">
+              <div className="space-y-4">
+                <Card>
                   <CardHeader>
-                    <CardTitle className="text-green-800 dark:text-green-200">
-                      New API Key Created
-                    </CardTitle>
+                    <CardTitle>Create New API Key</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-green-700 dark:text-green-300 mb-2">
-                      Copy this key now - it won't be shown again:
-                    </p>
-                    <div className="flex items-center gap-2 p-2 bg-white dark:bg-gray-900 rounded border">
-                      <code className="flex-1 font-mono text-sm">{showNewKey}</code>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => copyToClipboard(showNewKey)}
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="key-name">Name</Label>
+                        <Input
+                          id="key-name"
+                          value={newKeyName}
+                          onChange={(e) => setNewKeyName(e.target.value)}
+                          placeholder="My API Key"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="key-expiry">Expiry (optional)</Label>
+                        <Select
+                          value={newKeyExpiry}
+                          onValueChange={setNewKeyExpiry}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Never expires" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="never">Never</SelectItem>
+                            <SelectItem value="1week">1 week</SelectItem>
+                            <SelectItem value="1month">1 month</SelectItem>
+                            <SelectItem value="3months">3 months</SelectItem>
+                            <SelectItem value="1year">1 year</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
-                    <div className="flex justify-end mt-2">
+
+                    <div className="flex justify-end">
                       <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setShowNewKey(null)}
+                        onClick={createAPIKey}
+                        disabled={saving || !newKeyName}
                       >
-                        Got it
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create API Key
                       </Button>
                     </div>
                   </CardContent>
                 </Card>
-              )}
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Your API Keys</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {apiKeys.length === 0 ? (
-                    <p className="text-center text-muted-foreground py-4">
-                      No API keys created yet
-                    </p>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Name</TableHead>
-                          <TableHead>Key Preview</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Created</TableHead>
-                          <TableHead>Last Used</TableHead>
-                          <TableHead>Expires</TableHead>
-                          <TableHead></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {apiKeys.map((key) => {
-                          const status = getKeyStatus(key);
-                          return (
-                            <TableRow key={key.id}>
-                              <TableCell className="font-medium">
-                                {key.name}
-                              </TableCell>
-                              <TableCell>
-                                <code className="text-sm">{key.key_prefix}...</code>
-                              </TableCell>
-                              <TableCell>
-                                <Badge 
-                                  variant={
-                                    status === 'active' ? 'success' : 
-                                    status === 'expired' ? 'destructive' : 
-                                    'secondary'
-                                  }
-                                >
-                                  {status === 'active' && <CheckCircle className="h-3 w-3 mr-1" />}
-                                  {status === 'expired' && <XCircle className="h-3 w-3 mr-1" />}
-                                  {status === 'inactive' && <Clock className="h-3 w-3 mr-1" />}
-                                  {status}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>{formatDate(key.created_at)}</TableCell>
-                              <TableCell>
-                                {key.last_used ? formatDate(key.last_used) : 'Never'}
-                              </TableCell>
-                              <TableCell>
-                                {key.expires_at ? formatDate(key.expires_at) : 'Never'}
-                              </TableCell>
-                              <TableCell>
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  onClick={() => openDeleteKeyDialog(key)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  )}
-                </CardContent>
-              </Card>
+                {showNewKey && (
+                  <Card className="border-green-200 bg-green-50 dark:bg-green-950/20">
+                    <CardHeader>
+                      <CardTitle className="text-green-800 dark:text-green-200">
+                        New API Key Created
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-green-700 dark:text-green-300 mb-2">
+                        Copy this key now - it won't be shown again:
+                      </p>
+                      <div className="flex items-center gap-2 p-2 bg-white dark:bg-gray-900 rounded border">
+                        <code className="flex-1 font-mono text-sm">
+                          {showNewKey}
+                        </code>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => copyToClipboard(showNewKey)}
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="flex justify-end mt-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setShowNewKey(null)}
+                        >
+                          Got it
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Your API Keys</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {apiKeys.length === 0 ? (
+                      <p className="text-center text-muted-foreground py-4">
+                        No API keys created yet
+                      </p>
+                    ) : (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Key Preview</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Created</TableHead>
+                            <TableHead>Last Used</TableHead>
+                            <TableHead>Expires</TableHead>
+                            <TableHead></TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {apiKeys.map((key) => {
+                            const status = getKeyStatus(key);
+                            return (
+                              <TableRow key={key.id}>
+                                <TableCell className="font-medium">
+                                  {key.name}
+                                </TableCell>
+                                <TableCell>
+                                  <code className="text-sm">
+                                    {key.key_prefix}...
+                                  </code>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge
+                                    variant={
+                                      status === "active"
+                                        ? "success"
+                                        : status === "expired"
+                                          ? "destructive"
+                                          : "secondary"
+                                    }
+                                  >
+                                    {status === "active" && (
+                                      <CheckCircle className="h-3 w-3 mr-1" />
+                                    )}
+                                    {status === "expired" && (
+                                      <XCircle className="h-3 w-3 mr-1" />
+                                    )}
+                                    {status === "inactive" && (
+                                      <Clock className="h-3 w-3 mr-1" />
+                                    )}
+                                    {status}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  {formatDate(key.created_at)}
+                                </TableCell>
+                                <TableCell>
+                                  {key.last_used
+                                    ? formatDate(key.last_used)
+                                    : "Never"}
+                                </TableCell>
+                                <TableCell>
+                                  {key.expires_at
+                                    ? formatDate(key.expires_at)
+                                    : "Never"}
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => openDeleteKeyDialog(key)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
+
+      {/* Pairing Dialog */}
+      <Dialog open={pairingDialog.isOpen} onOpenChange={closePairingDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Pair reMarkable Device</DialogTitle>
+            <DialogDescription>
+              Enter one-time code from {rmapiHost && rmapiHost.trim() !== "" ? rmapiHost : "my.remarkable.com"}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="pairing-code">One-time Code</Label>
+              <Input
+                id="pairing-code"
+                value={pairingDialog.code}
+                onChange={(e) => {
+                  // Only allow alphanumeric characters and limit to 8
+                  const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
+                  setPairingDialog(prev => ({ ...prev, code: value, error: null }));
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && pairingDialog.code.length === 8) {
+                    handlePairingSubmit();
+                  }
+                }}
+                placeholder="8 character code"
+                className="font-mono text-center tracking-widest"
+                maxLength={8}
+                disabled={pairingDialog.loading}
+              />
             </div>
-          </TabsContent>
-        </Tabs>
-      </DialogContent>
+            
+            {pairingDialog.error && (
+              <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+                {pairingDialog.error}
+              </div>
+            )}
+            
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="outline"
+                onClick={closePairingDialog}
+                disabled={pairingDialog.loading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handlePairingSubmit}
+                disabled={pairingDialog.loading || pairingDialog.code.length !== 8}
+              >
+                {pairingDialog.loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Pairing...
+                  </>
+                ) : (
+                  'Pair Device'
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete API Key Dialog */}
-      <AlertDialog open={deleteKeyDialog.isOpen} onOpenChange={closeDeleteKeyDialog}>
+      <AlertDialog
+        open={deleteKeyDialog.isOpen}
+        onOpenChange={closeDeleteKeyDialog}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
@@ -653,7 +840,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
               Delete API Key
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the API key <strong>"{deleteKeyDialog.key?.name}"</strong>?
+              Are you sure you want to delete the API key{" "}
+              <strong>"{deleteKeyDialog.key?.name}"</strong>?
               <br />
               <br />
               This action will:
@@ -663,20 +851,22 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                 <li>Remove the key from your account</li>
               </ul>
               <br />
-              <strong className="text-red-600">This action cannot be undone.</strong>
+              <strong className="text-red-600">
+                This action cannot be undone.
+              </strong>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={closeDeleteKeyDialog}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteAPIKey}
-            >
+            <AlertDialogCancel onClick={closeDeleteKeyDialog}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteAPIKey}>
               <Trash2 className="h-4 w-4 mr-2" />
               Delete API Key
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Dialog>
+    </>
   );
 }

@@ -27,7 +27,7 @@ func InitializeUserFolderCache(db *gorm.DB) {
 
 // ListFolders returns a slice of all folder paths on the reMarkable device.
 // Paths are returned with a leading slash, e.g. "/Books/Fiction".
-func ListFolders() ([]string, error) {
+func ListFolders(user *database.User) ([]string, error) {
 	// Include the root directory explicitly so the UI can offer it as an option
 	folders := []string{"/"}
 
@@ -37,7 +37,7 @@ func ListFolders() ([]string, error) {
 		if p != "" {
 			args = append(args, p)
 		}
-		out, err := ExecCommand("rmapi", args...).Output()
+		out, err := rmapiCmd(user, args...).Output()
 		if err != nil {
 			return err
 		}
@@ -108,7 +108,7 @@ func FoldersHandler(c *gin.Context) {
 	}
 
 	// Either forced refresh, cache miss, or caching disabled.
-	dirs, err := ListFolders()
+	dirs, err := ListFolders(nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "backend.status.internal_error"})
 		return

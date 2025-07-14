@@ -43,6 +43,7 @@ type UserResponse struct {
 	IsActive     bool       `json:"is_active"`
 	RmapiHost    string     `json:"rmapi_host,omitempty"`
 	DefaultRmdir string     `json:"default_rmdir"`
+	RmapiPaired  bool       `json:"rmapi_paired"`
 	CreatedAt    time.Time  `json:"created_at"`
 	LastLogin    *time.Time `json:"last_login,omitempty"`
 }
@@ -107,6 +108,7 @@ func RegisterHandler(c *gin.Context) {
 		IsAdmin:      newUser.IsAdmin,
 		IsActive:     newUser.IsActive,
 		RmapiHost:    newUser.RmapiHost,
+		RmapiPaired:  isUserPaired(newUser.ID),
 		DefaultRmdir: newUser.DefaultRmdir,
 		CreatedAt:    newUser.CreatedAt,
 		LastLogin:    newUser.LastLogin,
@@ -203,6 +205,7 @@ func MultiUserLoginHandler(c *gin.Context) {
 			IsAdmin:      user.IsAdmin,
 			IsActive:     user.IsActive,
 			RmapiHost:    user.RmapiHost,
+			RmapiPaired:  isUserPaired(user.ID),
 			DefaultRmdir: user.DefaultRmdir,
 			CreatedAt:    user.CreatedAt,
 			LastLogin:    user.LastLogin,
@@ -307,6 +310,7 @@ func GetCurrentUserHandler(c *gin.Context) {
 		IsAdmin:      user.IsAdmin,
 		IsActive:     user.IsActive,
 		RmapiHost:    user.RmapiHost,
+		RmapiPaired:  isUserPaired(user.ID),
 		DefaultRmdir: user.DefaultRmdir,
 		CreatedAt:    user.CreatedAt,
 		LastLogin:    user.LastLogin,
@@ -378,6 +382,7 @@ func MultiUserCheckAuthHandler(c *gin.Context) {
 			IsAdmin:      user.IsAdmin,
 			IsActive:     user.IsActive,
 			RmapiHost:    user.RmapiHost,
+			RmapiPaired:  isUserPaired(user.ID),
 			DefaultRmdir: user.DefaultRmdir,
 			CreatedAt:    user.CreatedAt,
 			LastLogin:    user.LastLogin,

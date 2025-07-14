@@ -60,7 +60,7 @@ func StartFolderCache() {
 // refreshFolderCache fetches folders from the device and stores them
 // in the global cache.
 func refreshFolderCache() error {
-	dirs, err := ListFolders()
+	dirs, err := ListFolders(nil)
 	if err != nil {
 		return err
 	}

@@ -2,6 +2,9 @@ package auth
 
 import (
 	"net/http"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -33,6 +36,16 @@ type AdminUpdatePasswordRequest struct {
 // AdminResetPasswordRequest represents an admin password reset request
 type AdminResetPasswordRequest struct {
 	NewPassword string `json:"new_password" binding:"required,min=8"`
+}
+
+func isUserPaired(id uuid.UUID) bool {
+	baseDir := os.Getenv("DATA_DIR")
+	if baseDir == "" {
+		baseDir = "/data"
+	}
+	cfgPath := filepath.Join(baseDir, "users", id.String(), "rmapi", "rmapi.conf")
+	info, err := os.Stat(cfgPath)
+	return err == nil && info.Size() > 0
 }
 
 // GetUsersHandler returns all users (admin only)
@@ -101,6 +114,7 @@ func GetUsersHandler(c *gin.Context) {
 			IsAdmin:      user.IsAdmin,
 			IsActive:     user.IsActive,
 			RmapiHost:    user.RmapiHost,
+			RmapiPaired:  isUserPaired(user.ID),
 			DefaultRmdir: user.DefaultRmdir,
 			CreatedAt:    user.CreatedAt,
 			LastLogin:    user.LastLogin,
@@ -155,6 +169,7 @@ func GetUserHandler(c *gin.Context) {
 		IsAdmin:      user.IsAdmin,
 		IsActive:     user.IsActive,
 		RmapiHost:    user.RmapiHost,
+		RmapiPaired:  isUserPaired(user.ID),
 		DefaultRmdir: user.DefaultRmdir,
 		CreatedAt:    user.CreatedAt,
 		LastLogin:    user.LastLogin,
@@ -306,6 +321,78 @@ func UpdatePasswordHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update password"})
 		return
 	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+// PairRMAPIHandler pairs the current user with rmapi using a one-time code.
+func PairRMAPIHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Not available in single-user mode"})
+		return
+	}
+
+	user, ok := RequireUser(c)
+	if !ok {
+		return
+	}
+
+	var req struct {
+		Code string `json:"code" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	var cfgPath string
+	baseDir := os.Getenv("DATA_DIR")
+	if baseDir == "" {
+		baseDir = "/data"
+	}
+	cfgDir := filepath.Join(baseDir, "users", user.ID.String(), "rmapi")
+	if err := os.MkdirAll(cfgDir, 0755); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to determine config path"})
+		return
+	}
+	cfgPath = filepath.Join(cfgDir, "rmapi.conf")
+
+	cmd := exec.Command("rmapi", "cd")
+	cmd.Stdin = strings.NewReader(req.Code + "\n")
+	env := os.Environ()
+	env = append(env, "RMAPI_CONFIG="+cfgPath)
+	if user.RmapiHost != "" {
+		env = append(env, "RMAPI_HOST="+user.RmapiHost)
+	} else if host := os.Getenv("RMAPI_HOST"); host != "" {
+		env = append(env, "RMAPI_HOST="+host)
+	}
+	cmd.Env = env
+	if err := cmd.Run(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Pairing failed"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+// UnpairRMAPIHandler removes the rmapi configuration for the current user.
+func UnpairRMAPIHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Not available in single-user mode"})
+		return
+	}
+
+	user, ok := RequireUser(c)
+	if !ok {
+		return
+	}
+
+	baseDir := os.Getenv("DATA_DIR")
+	if baseDir == "" {
+		baseDir = "/data"
+	}
+	cfgPath := filepath.Join(baseDir, "users", user.ID.String(), "rmapi", "rmapi.conf")
+	_ = os.Remove(cfgPath)
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }

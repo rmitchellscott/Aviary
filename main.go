@@ -148,15 +148,15 @@ func main() {
 	// User management endpoints (multi-user mode only)
 	users := protected.Group("/users")
 	{
-		users.GET("", auth.GetUsersHandler)                          // GET /api/users - list all users (admin)
-		users.GET("/:id", auth.GetUserHandler)                       // GET /api/users/:id - get user (admin)
-		users.PUT("/:id", auth.UpdateUserHandler)                    // PUT /api/users/:id - update user (admin)
-		users.POST("/:id/password", auth.AdminUpdatePasswordHandler) // POST /api/users/:id/password - update password (admin)
+		users.GET("", auth.GetUsersHandler)                               // GET /api/users - list all users (admin)
+		users.GET("/:id", auth.GetUserHandler)                            // GET /api/users/:id - get user (admin)
+		users.PUT("/:id", auth.UpdateUserHandler)                         // PUT /api/users/:id - update user (admin)
+		users.POST("/:id/password", auth.AdminUpdatePasswordHandler)      // POST /api/users/:id/password - update password (admin)
 		users.POST("/:id/reset-password", auth.AdminResetPasswordHandler) // POST /api/users/:id/reset-password - reset password (admin)
-		users.POST("/:id/deactivate", auth.DeactivateUserHandler)    // POST /api/users/:id/deactivate - deactivate user (admin)
-		users.POST("/:id/activate", auth.ActivateUserHandler)        // POST /api/users/:id/activate - activate user (admin)
-		users.DELETE("/:id", auth.DeleteUserHandler)                 // DELETE /api/users/:id - delete user (admin)
-		users.GET("/stats", auth.GetUserStatsHandler)                // GET /api/users/stats - get user statistics (admin)
+		users.POST("/:id/deactivate", auth.DeactivateUserHandler)         // POST /api/users/:id/deactivate - deactivate user (admin)
+		users.POST("/:id/activate", auth.ActivateUserHandler)             // POST /api/users/:id/activate - activate user (admin)
+		users.DELETE("/:id", auth.DeleteUserHandler)                      // DELETE /api/users/:id - delete user (admin)
+		users.GET("/stats", auth.GetUserStatsHandler)                     // GET /api/users/stats - get user statistics (admin)
 	}
 
 	// Current user endpoints (multi-user mode only)
@@ -164,6 +164,8 @@ func main() {
 	{
 		profile.PUT("", auth.UpdateCurrentUserHandler)         // PUT /api/profile - update current user
 		profile.POST("/password", auth.UpdatePasswordHandler)  // POST /api/profile/password - update password
+		profile.POST("/pair", auth.PairRMAPIHandler)           // POST /api/profile/pair - pair rmapi
+		profile.POST("/disconnect", auth.UnpairRMAPIHandler)   // POST /api/profile/disconnect - remove rmapi config
 		profile.GET("/stats", auth.GetCurrentUserStatsHandler) // GET /api/profile/stats - get current user stats
 	}
 
@@ -217,7 +219,7 @@ func main() {
 			// In multi-user mode, auth is always enabled
 			authEnabled = true
 			apiKeyEnabled = true
-			
+
 			// Get user-specific settings if authenticated
 			if user, exists := c.Get("user"); exists {
 				if dbUser, ok := user.(*database.User); ok {
@@ -227,7 +229,7 @@ func main() {
 					} else {
 						defaultRmDir = manager.DefaultRmDir()
 					}
-					
+
 					// Use user-specific rmapi host if set, otherwise use global default
 					if dbUser.RmapiHost != "" {
 						rmapiHost = dbUser.RmapiHost
