@@ -9,10 +9,14 @@ import (
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/rmitchellscott/aviary/internal/auth"
+	"github.com/rmitchellscott/aviary/internal/database"
+	"github.com/rmitchellscott/aviary/internal/manager"
 )
 
 // UploadHandler handles a single "file" field plus optional form values.
-// It saves the uploaded file under ./uploads/<original-filename>, then
+// It saves the uploaded file under per-user upload directory, then
 // enqueues it for processing (skipping download) and returns a JSON { jobId: "..." }.
 func UploadHandler(c *gin.Context) {
 	// 1) Parse multipart form (allow up to 32 MiB in memory)
@@ -36,11 +40,28 @@ func UploadHandler(c *gin.Context) {
 	}
 	defer src.Close()
 
-	// 4) Ensure ./uploads directory exists
-	uploadDir := "./uploads"
-	if err := os.MkdirAll(uploadDir, 0o755); err != nil {
-		c.String(http.StatusInternalServerError, "backend.errors.create_dir")
-		return
+	// 4) Determine upload directory based on user context
+	var uploadDir string
+	var userID uuid.UUID
+	
+	if database.IsMultiUserMode() {
+		user, ok := auth.RequireUser(c)
+		if !ok {
+			return // auth.RequireUser already set the response
+		}
+		userID = user.ID
+		uploadDir, err = manager.GetUserUploadDir(userID)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "backend.errors.create_dir")
+			return
+		}
+	} else {
+		// Single-user mode - use ./uploads
+		uploadDir = "./uploads"
+		if err := os.MkdirAll(uploadDir, 0o755); err != nil {
+			c.String(http.StatusInternalServerError, "backend.errors.create_dir")
+			return
+		}
 	}
 
 	// 5) Create destination file on disk
@@ -77,7 +98,7 @@ func UploadHandler(c *gin.Context) {
 	}
 
 	// 9) Enqueue the job (enqueueJob is defined in handler.go)
-	jobId := enqueueJob(form)
+	jobId := enqueueJobForUser(form, userID)
 
 	// 10) Return the job ID so the client can poll /api/status/{jobId}
 	c.JSON(http.StatusAccepted, gin.H{"jobId": jobId})
