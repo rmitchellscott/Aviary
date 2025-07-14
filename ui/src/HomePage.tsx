@@ -55,13 +55,21 @@ function waitForJobWS(
         const st = JSON.parse(ev.data);
         onUpdate(st);
         if (st.status === "success" || st.status === "error") {
-          ws.close();
+          // Add small delay to ensure React state update completes before resolving
+          setTimeout(() => {
+            ws.close();
+            resolve();
+          }, 10);
+          return;
         }
       } catch {
         // ignore parse errors
       }
     };
-    ws.onclose = () => resolve();
+    ws.onclose = () => {
+      // Only resolve if not already resolved by final status
+      resolve();
+    };
     ws.onerror = () => resolve();
   });
 }
