@@ -36,13 +36,13 @@ type PasswordResetConfirmRequest struct {
 
 // UserResponse represents a user in API responses
 type UserResponse struct {
-	ID           uuid.UUID `json:"id"`
-	Username     string    `json:"username"`
-	Email        string    `json:"email"`
-	IsAdmin      bool      `json:"is_admin"`
-	RmapiHost    string    `json:"rmapi_host,omitempty"`
-	DefaultRmdir string    `json:"default_rmdir"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID           uuid.UUID  `json:"id"`
+	Username     string     `json:"username"`
+	Email        string     `json:"email"`
+	IsAdmin      bool       `json:"is_admin"`
+	RmapiHost    string     `json:"rmapi_host,omitempty"`
+	DefaultRmdir string     `json:"default_rmdir"`
+	CreatedAt    time.Time  `json:"created_at"`
 	LastLogin    *time.Time `json:"last_login,omitempty"`
 }
 
@@ -59,7 +59,7 @@ func RegisterHandler(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
 		return
 	}
-	
+
 	user := currentUser.(*database.User)
 	if !user.IsAdmin {
 		c.JSON(http.StatusForbidden, gin.H{"error": "Admin privileges required"})
@@ -68,7 +68,7 @@ func RegisterHandler(c *gin.Context) {
 
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": validationErrorMessage(err)})
 		return
 	}
 
@@ -242,7 +242,7 @@ func PasswordResetHandler(c *gin.Context) {
 			}
 		}
 	}
-	
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "If the email exists, a password reset link has been sent",
@@ -258,12 +258,12 @@ func PasswordResetConfirmHandler(c *gin.Context) {
 
 	var req PasswordResetConfirmRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": validationErrorMessage(err)})
 		return
 	}
 
 	userService := database.NewUserService(database.DB)
-	
+
 	// Validate the reset token
 	user, err := userService.ValidatePasswordResetToken(req.Token)
 	if err != nil {

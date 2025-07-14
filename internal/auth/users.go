@@ -180,7 +180,7 @@ func UpdateUserHandler(c *gin.Context) {
 
 	var req UpdateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": validationErrorMessage(err)})
 		return
 	}
 
@@ -234,7 +234,7 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 
 	var req UpdateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": validationErrorMessage(err)})
 		return
 	}
 
@@ -282,7 +282,7 @@ func UpdatePasswordHandler(c *gin.Context) {
 
 	var req UpdatePasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": validationErrorMessage(err)})
 		return
 	}
 
@@ -324,7 +324,7 @@ func AdminUpdatePasswordHandler(c *gin.Context) {
 
 	var req AdminUpdatePasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": validationErrorMessage(err)})
 		return
 	}
 

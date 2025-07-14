@@ -74,7 +74,7 @@ func main() {
 			log.Fatalf("Failed to initialize database: %v", err)
 		}
 		defer database.Close()
-		
+
 		// Migrate from single-user to multi-user if needed
 		if err := database.MigrateToMultiUser(); err != nil {
 			log.Fatalf("Failed to migrate to multi-user mode: %v", err)
@@ -127,9 +127,9 @@ func main() {
 	router.POST("/api/auth/login", auth.MultiUserLoginHandler)
 	router.POST("/api/auth/logout", auth.LogoutHandler)
 	router.GET("/api/auth/check", auth.MultiUserCheckAuthHandler)
-	
+
 	// Multi-user specific auth endpoints
-	router.POST("/api/auth/register", auth.RegisterHandler)
+	router.POST("/api/auth/register", auth.MultiUserAuthMiddleware(), auth.RegisterHandler)
 	router.POST("/api/auth/password-reset", auth.PasswordResetHandler)
 	router.POST("/api/auth/password-reset/confirm", auth.PasswordResetConfirmHandler)
 
@@ -138,61 +138,61 @@ func main() {
 	if authRequired() || database.IsMultiUserMode() {
 		protected.Use(auth.MultiUserAuthMiddleware())
 	}
-	
+
 	// Protected auth endpoints
 	protected.GET("/auth/user", auth.GetCurrentUserHandler)
-	
+
 	// User management endpoints (multi-user mode only)
 	users := protected.Group("/users")
 	{
-		users.GET("", auth.GetUsersHandler)                                    // GET /api/users - list all users (admin)
-		users.GET("/:id", auth.GetUserHandler)                                // GET /api/users/:id - get user (admin)
-		users.PUT("/:id", auth.UpdateUserHandler)                             // PUT /api/users/:id - update user (admin)
-		users.POST("/:id/password", auth.AdminUpdatePasswordHandler)          // POST /api/users/:id/password - update password (admin)
-		users.POST("/:id/deactivate", auth.DeactivateUserHandler)             // POST /api/users/:id/deactivate - deactivate user (admin)
-		users.POST("/:id/activate", auth.ActivateUserHandler)                 // POST /api/users/:id/activate - activate user (admin)
-		users.GET("/stats", auth.GetUserStatsHandler)                         // GET /api/users/stats - get user statistics (admin)
+		users.GET("", auth.GetUsersHandler)                          // GET /api/users - list all users (admin)
+		users.GET("/:id", auth.GetUserHandler)                       // GET /api/users/:id - get user (admin)
+		users.PUT("/:id", auth.UpdateUserHandler)                    // PUT /api/users/:id - update user (admin)
+		users.POST("/:id/password", auth.AdminUpdatePasswordHandler) // POST /api/users/:id/password - update password (admin)
+		users.POST("/:id/deactivate", auth.DeactivateUserHandler)    // POST /api/users/:id/deactivate - deactivate user (admin)
+		users.POST("/:id/activate", auth.ActivateUserHandler)        // POST /api/users/:id/activate - activate user (admin)
+		users.GET("/stats", auth.GetUserStatsHandler)                // GET /api/users/stats - get user statistics (admin)
 	}
-	
+
 	// Current user endpoints (multi-user mode only)
 	profile := protected.Group("/profile")
 	{
-		profile.PUT("", auth.UpdateCurrentUserHandler)                        // PUT /api/profile - update current user
-		profile.POST("/password", auth.UpdatePasswordHandler)                 // POST /api/profile/password - update password
-		profile.GET("/stats", auth.GetCurrentUserStatsHandler)                // GET /api/profile/stats - get current user stats
+		profile.PUT("", auth.UpdateCurrentUserHandler)         // PUT /api/profile - update current user
+		profile.POST("/password", auth.UpdatePasswordHandler)  // POST /api/profile/password - update password
+		profile.GET("/stats", auth.GetCurrentUserStatsHandler) // GET /api/profile/stats - get current user stats
 	}
-	
+
 	// API key management endpoints (multi-user mode only)
 	apiKeys := protected.Group("/api-keys")
 	{
-		apiKeys.GET("", auth.GetAPIKeysHandler)                               // GET /api/api-keys - list user's API keys
-		apiKeys.POST("", auth.CreateAPIKeyHandler)                            // POST /api/api-keys - create new API key
-		apiKeys.GET("/:id", auth.GetAPIKeyHandler)                            // GET /api/api-keys/:id - get specific API key
-		apiKeys.PUT("/:id", auth.UpdateAPIKeyHandler)                         // PUT /api/api-keys/:id - update API key name
-		apiKeys.DELETE("/:id", auth.DeleteAPIKeyHandler)                      // DELETE /api/api-keys/:id - delete API key
-		apiKeys.POST("/:id/deactivate", auth.DeactivateAPIKeyHandler)         // POST /api/api-keys/:id/deactivate - deactivate API key
+		apiKeys.GET("", auth.GetAPIKeysHandler)                       // GET /api/api-keys - list user's API keys
+		apiKeys.POST("", auth.CreateAPIKeyHandler)                    // POST /api/api-keys - create new API key
+		apiKeys.GET("/:id", auth.GetAPIKeyHandler)                    // GET /api/api-keys/:id - get specific API key
+		apiKeys.PUT("/:id", auth.UpdateAPIKeyHandler)                 // PUT /api/api-keys/:id - update API key name
+		apiKeys.DELETE("/:id", auth.DeleteAPIKeyHandler)              // DELETE /api/api-keys/:id - delete API key
+		apiKeys.POST("/:id/deactivate", auth.DeactivateAPIKeyHandler) // POST /api/api-keys/:id/deactivate - deactivate API key
 	}
-	
+
 	// Admin API key endpoints (multi-user mode only)
 	adminApiKeys := protected.Group("/admin/api-keys")
 	adminApiKeys.Use(auth.AdminRequiredMiddleware())
 	{
-		adminApiKeys.GET("", auth.GetAllAPIKeysHandler)                       // GET /api/admin/api-keys - list all API keys
-		adminApiKeys.GET("/stats", auth.GetAPIKeyStatsHandler)                // GET /api/admin/api-keys/stats - get API key stats
-		adminApiKeys.POST("/cleanup", auth.CleanupExpiredAPIKeysHandler)      // POST /api/admin/api-keys/cleanup - cleanup expired keys
+		adminApiKeys.GET("", auth.GetAllAPIKeysHandler)                  // GET /api/admin/api-keys - list all API keys
+		adminApiKeys.GET("/stats", auth.GetAPIKeyStatsHandler)           // GET /api/admin/api-keys/stats - get API key stats
+		adminApiKeys.POST("/cleanup", auth.CleanupExpiredAPIKeysHandler) // POST /api/admin/api-keys/cleanup - cleanup expired keys
 	}
-	
+
 	// Admin system endpoints (multi-user mode only)
 	admin := protected.Group("/admin")
 	admin.Use(auth.AdminRequiredMiddleware())
 	{
-		admin.GET("/status", auth.GetSystemStatusHandler)                     // GET /api/admin/status - get system status
-		admin.GET("/settings", auth.GetSystemSettingsHandler)                // GET /api/admin/settings - get system settings
-		admin.PUT("/settings", auth.UpdateSystemSettingHandler)              // PUT /api/admin/settings - update system setting
-		admin.POST("/test-smtp", auth.TestSMTPHandler)                        // POST /api/admin/test-smtp - test SMTP config
-		admin.POST("/cleanup", auth.CleanupDataHandler)                       // POST /api/admin/cleanup - cleanup old data
-		admin.POST("/backup", auth.BackupDatabaseHandler)                     // POST /api/admin/backup - backup database
-		admin.POST("/restore", auth.RestoreDatabaseHandler)                   // POST /api/admin/restore - restore database
+		admin.GET("/status", auth.GetSystemStatusHandler)       // GET /api/admin/status - get system status
+		admin.GET("/settings", auth.GetSystemSettingsHandler)   // GET /api/admin/settings - get system settings
+		admin.PUT("/settings", auth.UpdateSystemSettingHandler) // PUT /api/admin/settings - update system setting
+		admin.POST("/test-smtp", auth.TestSMTPHandler)          // POST /api/admin/test-smtp - test SMTP config
+		admin.POST("/cleanup", auth.CleanupDataHandler)         // POST /api/admin/cleanup - cleanup old data
+		admin.POST("/backup", auth.BackupDatabaseHandler)       // POST /api/admin/backup - backup database
+		admin.POST("/restore", auth.RestoreDatabaseHandler)     // POST /api/admin/restore - restore database
 	}
 
 	protected.POST("/webhook", webhook.EnqueueHandler)
@@ -205,7 +205,7 @@ func main() {
 		var authEnabled bool
 		var apiKeyEnabled bool
 		var multiUserMode = database.IsMultiUserMode()
-		
+
 		if multiUserMode {
 			// In multi-user mode, auth is always enabled
 			authEnabled = true
@@ -218,7 +218,7 @@ func main() {
 			authEnabled = envUsername != "" && envPassword != ""
 			apiKeyEnabled = envApiKey != ""
 		}
-		
+
 		c.JSON(http.StatusOK, gin.H{
 			"apiUrl":        "/api/",
 			"authEnabled":   authEnabled,
