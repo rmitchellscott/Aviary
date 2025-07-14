@@ -47,7 +47,7 @@ COPY --from=ui-builder /app/ui/dist ./ui/dist
 
 ARG TARGETPLATFORM
 RUN --mount=type=cache,target=/root/.cache \
-    CGO_ENABLED=1 xx-go build -ldflags='-w -s' -trimpath
+    CGO_ENABLED=1 xx-go build -tags="nomsgpack,go_json" -ldflags='-w -s' -trimpath
 
 
 # Final image
