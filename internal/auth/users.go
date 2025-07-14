@@ -30,6 +30,11 @@ type AdminUpdatePasswordRequest struct {
 	NewPassword string `json:"new_password" binding:"required,min=8"`
 }
 
+// AdminResetPasswordRequest represents an admin password reset request
+type AdminResetPasswordRequest struct {
+	NewPassword string `json:"new_password" binding:"required,min=8"`
+}
+
 // GetUsersHandler returns all users (admin only)
 func GetUsersHandler(c *gin.Context) {
 	if !database.IsMultiUserMode() {
@@ -94,6 +99,7 @@ func GetUsersHandler(c *gin.Context) {
 			Username:     user.Username,
 			Email:        user.Email,
 			IsAdmin:      user.IsAdmin,
+			IsActive:     user.IsActive,
 			RmapiHost:    user.RmapiHost,
 			DefaultRmdir: user.DefaultRmdir,
 			CreatedAt:    user.CreatedAt,
@@ -147,6 +153,7 @@ func GetUserHandler(c *gin.Context) {
 		Username:     user.Username,
 		Email:        user.Email,
 		IsAdmin:      user.IsAdmin,
+		IsActive:     user.IsActive,
 		RmapiHost:    user.RmapiHost,
 		DefaultRmdir: user.DefaultRmdir,
 		CreatedAt:    user.CreatedAt,
@@ -440,4 +447,72 @@ func GetCurrentUserStatsHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, stats)
+}
+
+// DeleteUserHandler deletes a user (admin only)
+func DeleteUserHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User management not available in single-user mode"})
+		return
+	}
+
+	currentUser, ok := RequireAdmin(c)
+	if !ok {
+		return
+	}
+
+	userIDStr := c.Param("id")
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	// Prevent admin from deleting themselves
+	if currentUser.ID == userID {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot delete yourself"})
+		return
+	}
+
+	userService := database.NewUserService(database.DB)
+	if err := userService.DeleteUser(userID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+// AdminResetPasswordHandler resets any user's password (admin only)
+func AdminResetPasswordHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User management not available in single-user mode"})
+		return
+	}
+
+	_, ok := RequireAdmin(c)
+	if !ok {
+		return
+	}
+
+	userIDStr := c.Param("id")
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var req AdminResetPasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": validationErrorMessage(err)})
+		return
+	}
+
+	userService := database.NewUserService(database.DB)
+	if err := userService.UpdateUserPassword(userID, req.NewPassword); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to reset password"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }

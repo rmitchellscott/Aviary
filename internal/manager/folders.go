@@ -9,7 +9,21 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rmitchellscott/aviary/internal/auth"
+	"github.com/rmitchellscott/aviary/internal/database"
+	"gorm.io/gorm"
 )
+
+// Global instance of user folder cache service
+var userFolderCacheService *UserFolderCacheService
+
+// InitializeUserFolderCache initializes the user folder cache service
+func InitializeUserFolderCache(db *gorm.DB) {
+	if database.IsMultiUserMode() {
+		userFolderCacheService = NewUserFolderCacheService(db)
+		userFolderCacheService.StartBackgroundRefresh()
+	}
+}
 
 // ListFolders returns a slice of all folder paths on the reMarkable device.
 // Paths are returned with a leading slash, e.g. "/Books/Fiction".
@@ -62,8 +76,27 @@ func ListFolders() ([]string, error) {
 
 // FoldersHandler writes a JSON {"folders": ["/path", ...]}.
 func FoldersHandler(c *gin.Context) {
-	useCache := cacheRefreshInterval > 0
 	force := strings.EqualFold(c.Query("refresh"), "true") || c.Query("refresh") == "1"
+
+	// In multi-user mode, use per-user caching
+	if database.IsMultiUserMode() && userFolderCacheService != nil {
+		user, ok := auth.RequireUser(c)
+		if !ok {
+			return
+		}
+
+		folders, err := userFolderCacheService.GetUserFolders(user.ID, force)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "backend.status.internal_error"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"folders": folders})
+		return
+	}
+
+	// Fall back to global cache for single-user mode
+	useCache := cacheRefreshInterval > 0
 
 	if useCache && !force {
 		if cached, ok := cachedFolders(); ok {

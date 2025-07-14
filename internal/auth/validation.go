@@ -19,6 +19,27 @@ func validationErrorMessage(err error) string {
 				case "required":
 					return "Password is required"
 				}
+			case "Email":
+				switch ve.Tag() {
+				case "email":
+					return "Please enter a valid email address"
+				case "required":
+					return "Email is required"
+				}
+			case "Username":
+				switch ve.Tag() {
+				case "min":
+					return "Username must be at least 3 characters long"
+				case "max":
+					return "Username must be no more than 50 characters long"
+				case "required":
+					return "Username is required"
+				}
+			case "CurrentPassword":
+				switch ve.Tag() {
+				case "required":
+					return "Current password is required"
+				}
 			}
 		}
 	}

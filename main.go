@@ -79,6 +79,9 @@ func main() {
 		if err := database.MigrateToMultiUser(); err != nil {
 			log.Fatalf("Failed to migrate to multi-user mode: %v", err)
 		}
+
+		// Initialize user folder cache service
+		manager.InitializeUserFolderCache(database.DB)
 	}
 
 	// Determine port
@@ -149,8 +152,10 @@ func main() {
 		users.GET("/:id", auth.GetUserHandler)                       // GET /api/users/:id - get user (admin)
 		users.PUT("/:id", auth.UpdateUserHandler)                    // PUT /api/users/:id - update user (admin)
 		users.POST("/:id/password", auth.AdminUpdatePasswordHandler) // POST /api/users/:id/password - update password (admin)
+		users.POST("/:id/reset-password", auth.AdminResetPasswordHandler) // POST /api/users/:id/reset-password - reset password (admin)
 		users.POST("/:id/deactivate", auth.DeactivateUserHandler)    // POST /api/users/:id/deactivate - deactivate user (admin)
 		users.POST("/:id/activate", auth.ActivateUserHandler)        // POST /api/users/:id/activate - activate user (admin)
+		users.DELETE("/:id", auth.DeleteUserHandler)                 // DELETE /api/users/:id - delete user (admin)
 		users.GET("/stats", auth.GetUserStatsHandler)                // GET /api/users/stats - get user statistics (admin)
 	}
 
@@ -205,11 +210,40 @@ func main() {
 		var authEnabled bool
 		var apiKeyEnabled bool
 		var multiUserMode = database.IsMultiUserMode()
+		var defaultRmDir string
+		var rmapiHost string
 
 		if multiUserMode {
 			// In multi-user mode, auth is always enabled
 			authEnabled = true
 			apiKeyEnabled = true
+			
+			// Get user-specific settings if authenticated
+			if user, exists := c.Get("user"); exists {
+				if dbUser, ok := user.(*database.User); ok {
+					// Use user-specific defaultrmdir if set, otherwise use global default
+					if dbUser.DefaultRmdir != "" {
+						defaultRmDir = dbUser.DefaultRmdir
+					} else {
+						defaultRmDir = manager.DefaultRmDir()
+					}
+					
+					// Use user-specific rmapi host if set, otherwise use global default
+					if dbUser.RmapiHost != "" {
+						rmapiHost = dbUser.RmapiHost
+					} else {
+						rmapiHost = os.Getenv("RMAPI_HOST")
+					}
+				} else {
+					// Fallback to global defaults
+					defaultRmDir = manager.DefaultRmDir()
+					rmapiHost = os.Getenv("RMAPI_HOST")
+				}
+			} else {
+				// Not authenticated, use global defaults
+				defaultRmDir = manager.DefaultRmDir()
+				rmapiHost = os.Getenv("RMAPI_HOST")
+			}
 		} else {
 			// Single-user mode - use environment variables
 			envUsername := os.Getenv("AUTH_USERNAME")
@@ -217,6 +251,8 @@ func main() {
 			envApiKey := os.Getenv("API_KEY")
 			authEnabled = envUsername != "" && envPassword != ""
 			apiKeyEnabled = envApiKey != ""
+			defaultRmDir = manager.DefaultRmDir()
+			rmapiHost = os.Getenv("RMAPI_HOST")
 		}
 
 		c.JSON(http.StatusOK, gin.H{
@@ -224,8 +260,8 @@ func main() {
 			"authEnabled":   authEnabled,
 			"apiKeyEnabled": apiKeyEnabled,
 			"multiUserMode": multiUserMode,
-			"defaultRmDir":  manager.DefaultRmDir(),
-			"rmapi_host":    os.Getenv("RMAPI_HOST"),
+			"defaultRmDir":  defaultRmDir,
+			"rmapi_host":    rmapiHost,
 		})
 	})
 

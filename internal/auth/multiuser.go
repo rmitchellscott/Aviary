@@ -40,6 +40,7 @@ type UserResponse struct {
 	Username     string     `json:"username"`
 	Email        string     `json:"email"`
 	IsAdmin      bool       `json:"is_admin"`
+	IsActive     bool       `json:"is_active"`
 	RmapiHost    string     `json:"rmapi_host,omitempty"`
 	DefaultRmdir string     `json:"default_rmdir"`
 	CreatedAt    time.Time  `json:"created_at"`
@@ -104,6 +105,7 @@ func RegisterHandler(c *gin.Context) {
 		Username:     newUser.Username,
 		Email:        newUser.Email,
 		IsAdmin:      newUser.IsAdmin,
+		IsActive:     newUser.IsActive,
 		RmapiHost:    newUser.RmapiHost,
 		DefaultRmdir: newUser.DefaultRmdir,
 		CreatedAt:    newUser.CreatedAt,
@@ -199,6 +201,7 @@ func MultiUserLoginHandler(c *gin.Context) {
 			Username:     user.Username,
 			Email:        user.Email,
 			IsAdmin:      user.IsAdmin,
+			IsActive:     user.IsActive,
 			RmapiHost:    user.RmapiHost,
 			DefaultRmdir: user.DefaultRmdir,
 			CreatedAt:    user.CreatedAt,
@@ -302,6 +305,7 @@ func GetCurrentUserHandler(c *gin.Context) {
 		Username:     user.Username,
 		Email:        user.Email,
 		IsAdmin:      user.IsAdmin,
+		IsActive:     user.IsActive,
 		RmapiHost:    user.RmapiHost,
 		DefaultRmdir: user.DefaultRmdir,
 		CreatedAt:    user.CreatedAt,
@@ -372,6 +376,7 @@ func MultiUserCheckAuthHandler(c *gin.Context) {
 			Username:     user.Username,
 			Email:        user.Email,
 			IsAdmin:      user.IsAdmin,
+			IsActive:     user.IsActive,
 			RmapiHost:    user.RmapiHost,
 			DefaultRmdir: user.DefaultRmdir,
 			CreatedAt:    user.CreatedAt,

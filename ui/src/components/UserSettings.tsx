@@ -7,6 +7,16 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,7 +50,8 @@ import {
   EyeOff,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
+  AlertTriangle
 } from 'lucide-react';
 
 interface User {
@@ -91,6 +102,12 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [newKeyName, setNewKeyName] = useState('');
   const [newKeyExpiry, setNewKeyExpiry] = useState('');
   const [showNewKey, setShowNewKey] = useState<string | null>(null);
+  
+  // Delete API key dialog
+  const [deleteKeyDialog, setDeleteKeyDialog] = useState<{
+    isOpen: boolean;
+    key: APIKey | null;
+  }>({ isOpen: false, key: null });
 
   useEffect(() => {
     if (isOpen) {
@@ -276,18 +293,32 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     }
   };
 
-  const deleteAPIKey = async (keyId: string) => {
+  const openDeleteKeyDialog = (key: APIKey) => {
+    setDeleteKeyDialog({ isOpen: true, key });
+  };
+
+  const closeDeleteKeyDialog = () => {
+    setDeleteKeyDialog({ isOpen: false, key: null });
+  };
+
+  const confirmDeleteAPIKey = async () => {
+    if (!deleteKeyDialog.key) return;
+
     try {
-      const response = await fetch(`/api/api-keys/${keyId}`, {
+      const response = await fetch(`/api/api-keys/${deleteKeyDialog.key.id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
 
       if (response.ok) {
         await fetchAPIKeys();
+        closeDeleteKeyDialog();
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to delete API key');
       }
     } catch (error) {
-      console.error('Failed to delete API key:', error);
+      setError('Failed to delete API key');
     }
   };
 
@@ -595,7 +626,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                 <Button
                                   size="sm"
                                   variant="destructive"
-                                  onClick={() => deleteAPIKey(key.id)}
+                                  onClick={() => openDeleteKeyDialog(key)}
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -612,6 +643,40 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           </TabsContent>
         </Tabs>
       </DialogContent>
+
+      {/* Delete API Key Dialog */}
+      <AlertDialog open={deleteKeyDialog.isOpen} onOpenChange={closeDeleteKeyDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              Delete API Key
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the API key <strong>"{deleteKeyDialog.key?.name}"</strong>?
+              <br />
+              <br />
+              This action will:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>Permanently revoke the API key</li>
+                <li>Stop all applications using this key from working</li>
+                <li>Remove the key from your account</li>
+              </ul>
+              <br />
+              <strong className="text-red-600">This action cannot be undone.</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={closeDeleteKeyDialog}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteAPIKey}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete API Key
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

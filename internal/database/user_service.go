@@ -215,3 +215,36 @@ func (s *UserService) CleanupExpiredResetTokens() error {
 		"reset_token_expires": nil,
 	}).Error
 }
+
+// DeleteUser permanently deletes a user and all associated data
+func (s *UserService) DeleteUser(userID uuid.UUID) error {
+	// Start a transaction to ensure atomicity
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		// Delete all user sessions
+		if err := tx.Where("user_id = ?", userID).Delete(&UserSession{}).Error; err != nil {
+			return fmt.Errorf("failed to delete user sessions: %w", err)
+		}
+		
+		// Delete all API keys
+		if err := tx.Where("user_id = ?", userID).Delete(&APIKey{}).Error; err != nil {
+			return fmt.Errorf("failed to delete API keys: %w", err)
+		}
+		
+		// Delete all documents
+		if err := tx.Where("user_id = ?", userID).Delete(&Document{}).Error; err != nil {
+			return fmt.Errorf("failed to delete documents: %w", err)
+		}
+		
+		// Delete login attempts
+		if err := tx.Where("username = (SELECT username FROM users WHERE id = ?)", userID).Delete(&LoginAttempt{}).Error; err != nil {
+			return fmt.Errorf("failed to delete login attempts: %w", err)
+		}
+		
+		// Finally, delete the user
+		if err := tx.Where("id = ?", userID).Delete(&User{}).Error; err != nil {
+			return fmt.Errorf("failed to delete user: %w", err)
+		}
+		
+		return nil
+	})
+}

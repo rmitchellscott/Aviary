@@ -8,6 +8,7 @@
     "lint": "eslint . --ext js"
   },
   "dependencies": {
+    "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-popover": "^1.1.14",

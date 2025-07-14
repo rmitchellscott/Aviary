@@ -6,7 +6,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -43,7 +54,8 @@ import {
   Clock,
   Activity,
   Mail,
-  Server
+  Server,
+  AlertTriangle
 } from 'lucide-react';
 
 interface User {
@@ -119,6 +131,17 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
   const [maxApiKeys, setMaxApiKeys] = useState('10');
   const [sessionTimeout, setSessionTimeout] = useState('24');
+  
+  // Modal states
+  const [resetPasswordDialog, setResetPasswordDialog] = useState<{
+    isOpen: boolean;
+    user: User | null;
+  }>({ isOpen: false, user: null });
+  const [deleteUserDialog, setDeleteUserDialog] = useState<{
+    isOpen: boolean;
+    user: User | null;
+  }>({ isOpen: false, user: null });
+  const [newPasswordValue, setNewPasswordValue] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -227,6 +250,84 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     }
   };
 
+  const openDeleteUserDialog = (user: User) => {
+    setDeleteUserDialog({ isOpen: true, user });
+  };
+
+  const closeDeleteUserDialog = () => {
+    setDeleteUserDialog({ isOpen: false, user: null });
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!deleteUserDialog.user) return;
+
+    try {
+      const response = await fetch(`/api/users/${deleteUserDialog.user.id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        await fetchUsers();
+        await fetchSystemStatus();
+        closeDeleteUserDialog();
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to delete user');
+      }
+    } catch (error) {
+      setError('Failed to delete user');
+    }
+  };
+
+  const openResetPasswordDialog = (user: User) => {
+    setResetPasswordDialog({ isOpen: true, user });
+    setNewPasswordValue('');
+  };
+
+  const closeResetPasswordDialog = () => {
+    setResetPasswordDialog({ isOpen: false, user: null });
+    setNewPasswordValue('');
+  };
+
+  const handleClose = () => {
+    setError(null);
+    onClose();
+  };
+
+  const confirmResetPassword = async () => {
+    if (!resetPasswordDialog.user || !newPasswordValue) return;
+
+    if (newPasswordValue.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const response = await fetch(`/api/users/${resetPasswordDialog.user.id}/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ new_password: newPasswordValue }),
+      });
+
+      if (response.ok) {
+        closeResetPasswordDialog();
+        setError(null);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to reset password');
+      }
+    } catch (error) {
+      setError('Failed to reset password');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const updateSystemSetting = async (key: string, value: string) => {
     try {
       const response = await fetch('/api/admin/settings', {
@@ -310,7 +411,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto sm:max-w-7xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -526,10 +627,25 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                             <div className="flex items-center gap-2">
                               <Button
                                 size="sm"
-                                variant={user.is_active ? 'destructive' : 'default'}
+                                variant="default"
                                 onClick={() => toggleUserStatus(user.id, !user.is_active)}
                               >
                                 {user.is_active ? 'Deactivate' : 'Activate'}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => openResetPasswordDialog(user)}
+                              >
+                                Reset Password
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => openDeleteUserDialog(user)}
+                              >
+                                <Trash2 className="h-3 w-3 mr-1" />
+                                Delete
                               </Button>
                             </div>
                           </TableCell>
@@ -704,6 +820,81 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           </TabsContent>
         </Tabs>
       </DialogContent>
+
+      {/* Password Reset Dialog */}
+      <Dialog open={resetPasswordDialog.isOpen} onOpenChange={closeResetPasswordDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Key className="h-5 w-5" />
+              Reset Password
+            </DialogTitle>
+            <DialogDescription>
+              Reset the password for user: <strong>{resetPasswordDialog.user?.username}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="new-password">New Password</Label>
+              <Input
+                id="new-password"
+                type="password"
+                value={newPasswordValue}
+                onChange={(e) => setNewPasswordValue(e.target.value)}
+                placeholder="Enter new password (minimum 8 characters)"
+                className="mt-1"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={closeResetPasswordDialog}>
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmResetPassword}
+              disabled={saving || newPasswordValue.length < 8}
+            >
+              {saving ? 'Resetting...' : 'Reset Password'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete User Dialog */}
+      <AlertDialog open={deleteUserDialog.isOpen} onOpenChange={closeDeleteUserDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              Delete User
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to permanently delete user <strong>{deleteUserDialog.user?.username}</strong>?
+              <br />
+              <br />
+              This action will:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>Delete all user data including documents and API keys</li>
+                <li>Remove all user sessions</li>
+                <li>Remove all login history</li>
+              </ul>
+              <br />
+              <strong className="text-red-600">This action cannot be undone.</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={closeDeleteUserDialog}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteUser}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete User
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }
