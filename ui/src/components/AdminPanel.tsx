@@ -578,6 +578,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         value={newUsername}
                         onChange={(e) => setNewUsername(e.target.value)}
                         placeholder="username"
+                        className="mt-2"
                       />
                     </div>
                     <div>
@@ -588,6 +589,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         value={newEmail}
                         onChange={(e) => setNewEmail(e.target.value)}
                         placeholder="user@example.com"
+                        className="mt-2"
                       />
                     </div>
                     <div>
@@ -598,6 +600,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="password"
+                        className="mt-2"
                       />
                     </div>
                   </div>
@@ -797,6 +800,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       value={maxApiKeys}
                       onChange={(e) => setMaxApiKeys(e.target.value)}
                       onBlur={() => updateSystemSetting('max_api_keys_per_user', maxApiKeys)}
+                      className="mt-2"
                     />
                   </div>
                 </CardContent>
@@ -815,6 +819,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       value={sessionTimeout}
                       onChange={(e) => setSessionTimeout(e.target.value)}
                       onBlur={() => updateSystemSetting('session_timeout_hours', sessionTimeout)}
+                      className="mt-2"
                     />
                   </div>
                 </CardContent>
@@ -883,7 +888,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 value={newPasswordValue}
                 onChange={(e) => setNewPasswordValue(e.target.value)}
                 placeholder="Enter new password (minimum 8 characters)"
-                className="mt-1"
+                className="mt-2"
               />
             </div>
           </div>

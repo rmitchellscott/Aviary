@@ -9,6 +9,7 @@ import { LogoutButton } from '@/components/LogoutButton';
 import { UserSettings } from '@/components/UserSettings';
 import { AdminPanel } from '@/components/AdminPanel';
 import { PasswordReset } from '@/components/PasswordReset';
+import { RegisterForm } from '@/components/RegisterForm';
 import { Button } from '@/components/ui/button';
 import { Settings, Shield, RotateCcw } from 'lucide-react';
 
@@ -20,9 +21,42 @@ function AppContent() {
   
   // Check if we're on a password reset page
   const isPasswordResetPage = window.location.pathname === '/reset-password' || window.location.search.includes('token=');
+  
+  // Check if we're on a registration page
+  const isRegistrationPage = window.location.pathname === '/register';
 
   if (isPasswordResetPage) {
-    return <PasswordReset onBack={() => window.location.href = '/'} />;
+    return (
+      <>
+        <header className="flex items-center justify-between px-8 py-2 bg-background">
+          <Logo className="h-16 w-32 text-foreground dark:text-foreground-dark" />
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+            <ThemeSwitcher size={24} />
+          </div>
+        </header>
+        <main>
+          <PasswordReset onBack={() => window.location.href = '/'} />
+        </main>
+      </>
+    );
+  }
+  
+  if (isRegistrationPage) {
+    return (
+      <>
+        <header className="flex items-center justify-between px-8 py-2 bg-background">
+          <Logo className="h-16 w-32 text-foreground dark:text-foreground-dark" />
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+            <ThemeSwitcher size={24} />
+          </div>
+        </header>
+        <main>
+          <RegisterForm />
+        </main>
+      </>
+    );
   }
 
   return (

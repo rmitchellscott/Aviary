@@ -9,7 +9,32 @@
     "signing_in": "Signing in...",
     "button": "Login",
     "network_error": "Network error",
-    "fail": "Login failed"
+    "fail": "Login failed",
+    "register": "Create Account"
+  },
+  "register": {
+    "title": "Create Account",
+    "username": "Username",
+    "username_help": "Username must be 3-50 characters long and contain only letters, numbers, underscores, and hyphens",
+    "email": "Email",
+    "password": "Password",
+    "password_help": "Password must be at least 8 characters long",
+    "confirm_password": "Confirm Password",
+    "button": "Create Account",
+    "creating": "Creating account...",
+    "back_to_login": "Back to Login",
+    "success_title": "Account Created!",
+    "success_message": "Your account has been created successfully. You can now log in with your credentials.",
+    "login_now": "Continue to Login",
+    "disabled": "User registration is currently disabled",
+    "disabled_message": "New user registration is currently disabled. Please contact an administrator to create an account.",
+    "missing_fields": "Please fill in all required fields",
+    "password_mismatch": "Passwords do not match",
+    "password_too_short": "Password must be at least 8 characters long",
+    "user_exists": "A user with this username or email already exists",
+    "network_error": "Network error occurred",
+    "fail": "Account creation failed",
+    "already_have_account": "Already have an account? Sign in"
   },
   "logout": "Logout",
   "home": {

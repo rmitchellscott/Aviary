@@ -20,6 +20,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [smtpConfigured, setSmtpConfigured] = useState(false);
+  const [registrationEnabled, setRegistrationEnabled] = useState(false);
 
   useEffect(() => {
     // Focus the username field when component mounts
@@ -28,7 +29,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
       usernameInput.focus();
     }
 
-    // Fetch config to check SMTP status
+    // Fetch config to check SMTP status and registration settings
     const fetchConfig = async () => {
       try {
         const response = await fetch("/api/config", {
@@ -37,6 +38,15 @@ export function LoginForm({ onLogin }: LoginFormProps) {
         if (response.ok) {
           const config = await response.json();
           setSmtpConfigured(config.smtpConfigured || false);
+        }
+        
+        // Check registration settings using public endpoint
+        const registrationResponse = await fetch("/api/auth/registration-status", {
+          credentials: "include",
+        });
+        if (registrationResponse.ok) {
+          const registrationData = await registrationResponse.json();
+          setRegistrationEnabled(registrationData.enabled || false);
         }
       } catch (error) {
         console.error("Failed to fetch config:", error);
@@ -111,20 +121,34 @@ export function LoginForm({ onLogin }: LoginFormProps) {
               />
             </div>
             {error && <p className="text-sm text-red-500">{error}</p>}
-            <div className="flex justify-between items-center">
-              {multiUserMode && smtpConfigured && (
-                <Button 
-                  type="button" 
-                  variant="link" 
-                  size="sm"
-                  onClick={() => window.location.href = '/reset-password'}
-                  disabled={loading}
-                  className="text-sm text-muted-foreground hover:text-foreground"
-                >
-                  Forgot Password?
-                </Button>
-              )}
-              <Button type="submit" disabled={loading} className="ml-auto">
+            <div className="flex justify-between items-end">
+              <div className="flex flex-col space-y-1">
+                {multiUserMode && smtpConfigured && (
+                  <Button 
+                    type="button" 
+                    variant="link" 
+                    size="sm"
+                    onClick={() => window.location.href = '/reset-password'}
+                    disabled={loading}
+                    className="text-sm text-muted-foreground hover:text-foreground p-0 h-auto justify-start"
+                  >
+                    Forgot Password?
+                  </Button>
+                )}
+                {multiUserMode && registrationEnabled && (
+                  <Button 
+                    type="button" 
+                    variant="link" 
+                    size="sm"
+                    onClick={() => window.location.href = '/register'}
+                    disabled={loading}
+                    className="text-sm text-muted-foreground hover:text-foreground p-0 h-auto justify-start"
+                  >
+                    {t("login.register")}
+                  </Button>
+                )}
+              </div>
+              <Button type="submit" disabled={loading}>
                 {loading ? t("login.signing_in") : t("login.button")}
               </Button>
             </div>

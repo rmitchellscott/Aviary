@@ -48,6 +48,68 @@ type UserResponse struct {
 	LastLogin    *time.Time `json:"last_login,omitempty"`
 }
 
+// GetRegistrationStatusHandler returns whether registration is enabled (public endpoint)
+func GetRegistrationStatusHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusOK, gin.H{"enabled": false})
+		return
+	}
+
+	// Check if registration is enabled
+	regEnabled, err := database.GetSystemSetting("registration_enabled")
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"enabled": false})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"enabled": regEnabled == "true"})
+}
+
+// PublicRegisterHandler handles public user registration (when enabled)
+func PublicRegisterHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Registration not available in single-user mode"})
+		return
+	}
+
+	// Check if registration is enabled
+	regEnabled, err := database.GetSystemSetting("registration_enabled")
+	if err != nil || regEnabled != "true" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "User registration is disabled"})
+		return
+	}
+
+	var req RegisterRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": validationErrorMessage(err)})
+		return
+	}
+
+	userService := database.NewUserService(database.DB)
+	newUser, err := userService.CreateUser(req.Username, req.Email, req.Password, false)
+	if err != nil {
+		if strings.Contains(err.Error(), "already exists") {
+			c.JSON(http.StatusConflict, gin.H{"error": "User with this username or email already exists"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		return
+	}
+
+	// Send welcome email if SMTP is configured
+	if smtp.IsSMTPConfigured() {
+		if err := smtp.SendWelcomeEmail(newUser.Email, newUser.Username); err != nil {
+			// Log error but don't fail user creation
+			fmt.Printf("Failed to send welcome email: %v\n", err)
+		}
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"message": "User created successfully",
+	})
+}
+
 // RegisterHandler handles user registration (admin only)
 func RegisterHandler(c *gin.Context) {
 	if !database.IsMultiUserMode() {
@@ -74,12 +136,7 @@ func RegisterHandler(c *gin.Context) {
 		return
 	}
 
-	// Check if registration is enabled
-	regEnabled, err := database.GetSystemSetting("registration_enabled")
-	if err == nil && regEnabled == "false" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "User registration is disabled"})
-		return
-	}
+	// Admin can always create users regardless of registration_enabled setting
 
 	userService := database.NewUserService(database.DB)
 	newUser, err := userService.CreateUser(req.Username, req.Email, req.Password, false)

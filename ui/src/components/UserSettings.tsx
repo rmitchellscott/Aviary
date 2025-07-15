@@ -650,8 +650,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         <li>All API keys and their access</li>
                         <li>Your profile and account settings</li>
                       </ul>
-                      <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded border border-blue-200 dark:border-blue-800 mb-4">
-                        <p className="text-sm text-blue-800 dark:text-blue-200">
+                      <div className="bg-muted/50 p-3 rounded-md border mb-4">
+                        <p className="text-sm text-muted-foreground">
                           <strong>Note:</strong> Your reMarkable Cloud account and device data will remain completely unaffected.
                         </p>
                       </div>

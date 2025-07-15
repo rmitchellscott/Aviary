@@ -16,7 +16,7 @@ services:
       # API_KEY: "${API_KEY}"
       
       # Multi-user mode settings:
-      MULTI_USER: "true"
+      # MULTI_USER: "true"
       ADMIN_EMAIL: "${ADMIN_EMAIL}"
       
       # Database settings (defaults to SQLite):
@@ -37,7 +37,7 @@ services:
       # SMTP_FROM: "${SMTP_FROM}"
       # SMTP_TLS: "true"
       
-      DRY_RUN: "true"
+      # DRY_RUN: "true"
     volumes:
       - type: bind
         source: ./rmapi.conf

@@ -131,9 +131,11 @@ func main() {
 	router.POST("/api/auth/login", auth.MultiUserLoginHandler)
 	router.POST("/api/auth/logout", auth.LogoutHandler)
 	router.GET("/api/auth/check", auth.MultiUserCheckAuthHandler)
+	router.GET("/api/auth/registration-status", auth.GetRegistrationStatusHandler) // Check if registration is enabled
 
 	// Multi-user specific auth endpoints
 	router.POST("/api/auth/register", auth.MultiUserAuthMiddleware(), auth.RegisterHandler)
+	router.POST("/api/auth/register/public", auth.PublicRegisterHandler) // Public registration (when enabled)
 	router.POST("/api/auth/password-reset", auth.PasswordResetHandler)
 	router.POST("/api/auth/password-reset/confirm", auth.PasswordResetConfirmHandler)
 

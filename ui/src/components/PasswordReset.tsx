@@ -124,10 +124,10 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="flex items-center justify-center gap-2">
+    <div className="bg-background pt-0 pb-8 px-8">
+      <Card className="max-w-md mx-auto bg-card">
+        <CardHeader>
+          <CardTitle className="text-xl flex items-center gap-2">
             <Lock className="h-5 w-5" />
             {step === 'request' ? 'Reset Password' : 'Set New Password'}
           </CardTitle>
@@ -163,7 +163,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="flex flex-col space-y-4">
                 <Button 
                   onClick={requestReset} 
                   disabled={loading || !email}
@@ -173,14 +173,17 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                   {loading ? 'Sending...' : 'Send Reset Email'}
                 </Button>
                 
-                <Button 
-                  variant="outline" 
-                  onClick={onBack}
-                  className="w-full"
-                  disabled={loading}
-                >
-                  Back to Login
-                </Button>
+                <div className="text-center">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={onBack}
+                    className="text-sm text-muted-foreground hover:text-foreground hover:bg-muted"
+                    disabled={loading}
+                  >
+                    Back to Login
+                  </Button>
+                </div>
               </div>
 
               <div className="text-center">
