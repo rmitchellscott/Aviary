@@ -38,6 +38,12 @@ type AdminResetPasswordRequest struct {
 	NewPassword string `json:"new_password" binding:"required,min=8"`
 }
 
+// SelfDeleteRequest represents a self-service account deletion request
+type SelfDeleteRequest struct {
+	CurrentPassword string `json:"current_password" binding:"required"`
+	Confirmation    string `json:"confirmation" binding:"required"`
+}
+
 func isUserPaired(id uuid.UUID) bool {
 	// In DRY_RUN mode, always consider users as paired
 	if os.Getenv("DRY_RUN") != "" {
@@ -243,6 +249,52 @@ func UpdateUserHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
 		return
 	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+// DeleteCurrentUserHandler allows users to delete their own account
+func DeleteCurrentUserHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User management not available in single-user mode"})
+		return
+	}
+
+	user, ok := RequireUser(c)
+	if !ok {
+		return
+	}
+
+	var req SelfDeleteRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": validationErrorMessage(err)})
+		return
+	}
+
+	// Require confirmation text to prevent accidental deletions
+	if req.Confirmation != "DELETE MY ACCOUNT" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Confirmation text must be 'DELETE MY ACCOUNT'"})
+		return
+	}
+
+	// Verify current password
+	userService := database.NewUserService(database.DB)
+	_, err := userService.AuthenticateUser(user.Username, req.CurrentPassword)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Current password is incorrect"})
+		return
+	}
+
+	// Delete the user
+	if err := userService.DeleteUser(user.ID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete account"})
+		return
+	}
+
+	// Clear the session cookie
+	secure := !allowInsecure()
+	c.SetSameSite(http.SameSiteStrictMode)
+	c.SetCookie("auth_token", "", -1, "/", "", secure, true)
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }

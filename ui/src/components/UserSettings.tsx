@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -44,6 +45,7 @@ import {
   Settings,
   Key,
   User,
+  UserCog,
   Save,
   Plus,
   Trash2,
@@ -54,6 +56,7 @@ import {
   XCircle,
   Clock,
   AlertTriangle,
+  UserX,
 } from "lucide-react";
 
 interface User {
@@ -103,13 +106,18 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // Account deletion form
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+
   // API key form
   const [newKeyName, setNewKeyName] = useState("");
   const [newKeyExpiry, setNewKeyExpiry] = useState("");
   const [showNewKey, setShowNewKey] = useState<string | null>(null);
 
-  // Pairing dialog state
+  // Dialog states
   const [pairingDialogOpen, setPairingDialogOpen] = useState(false);
+  const [deleteAccountDialog, setDeleteAccountDialog] = useState(false);
 
   // Delete API key dialog
   const [deleteKeyDialog, setDeleteKeyDialog] = useState<{
@@ -353,6 +361,50 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     }
   };
 
+  const openDeleteAccountDialog = () => {
+    setDeletePassword("");
+    setDeleteConfirmation("");
+    setDeleteAccountDialog(true);
+  };
+
+  const closeDeleteAccountDialog = () => {
+    setDeleteAccountDialog(false);
+    setDeletePassword("");
+    setDeleteConfirmation("");
+  };
+
+  const confirmDeleteAccount = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+
+      const response = await fetch("/api/profile", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          current_password: deletePassword,
+          confirmation: deleteConfirmation,
+        }),
+      });
+
+      if (response.ok) {
+        // Account deleted successfully, redirect to login
+        window.location.href = "/login";
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to delete account");
+      }
+    } catch (error) {
+      setError("Failed to delete account");
+    } finally {
+      setSaving(false);
+      setDeleteAccountDialog(false);
+    }
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
@@ -367,6 +419,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       return "expired";
     return "active";
   };
+
+  const canDeleteAccount = deletePassword && deleteConfirmation === "DELETE MY ACCOUNT";
 
   if (userDataLoading) {
     return (
@@ -388,7 +442,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
               User Settings
             </DialogTitle>
             <DialogDescription>
-              Manage your profile, API keys, and preferences
+              Manage your profile, API keys, and account preferences
             </DialogDescription>
           </DialogHeader>
 
@@ -404,9 +458,9 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                 <User className="h-4 w-4" />
                 Profile
               </TabsTrigger>
-              <TabsTrigger value="password" className="flex items-center gap-2">
-                <Key className="h-4 w-4" />
-                Password
+              <TabsTrigger value="account" className="flex items-center gap-2">
+                <UserCog className="h-4 w-4" />
+                Account
               </TabsTrigger>
               <TabsTrigger value="api-keys" className="flex items-center gap-2">
                 <Key className="h-4 w-4" />
@@ -519,61 +573,101 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
               </Card>
             </TabsContent>
 
-            <TabsContent value="password" className="flex-1 overflow-y-auto">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Change Password</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="current-password">Current Password</Label>
-                    <Input
-                      id="current-password"
-                      type="password"
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="mt-2"
-                    />
-                  </div>
+            <TabsContent value="account" className="flex-1 overflow-y-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Change Password</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="current-password">Current Password</Label>
+                      <Input
+                        id="current-password"
+                        type="password"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="mt-2"
+                      />
+                    </div>
 
-                  <div>
-                    <Label htmlFor="new-password">New Password</Label>
-                    <Input
-                      id="new-password"
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="mt-2"
-                    />
-                  </div>
+                    <div>
+                      <Label htmlFor="new-password">New Password</Label>
+                      <Input
+                        id="new-password"
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="mt-2"
+                      />
+                    </div>
 
-                  <div>
-                    <Label htmlFor="confirm-password">Confirm New Password</Label>
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="mt-2"
-                    />
-                  </div>
+                    <div>
+                      <Label htmlFor="confirm-password">Confirm New Password</Label>
+                      <Input
+                        id="confirm-password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="mt-2"
+                      />
+                    </div>
 
-                  <div className="flex justify-end">
-                    <Button
-                      onClick={updatePassword}
-                      disabled={
-                        saving ||
-                        !currentPassword ||
-                        !newPassword ||
-                        !confirmPassword
-                      }
-                    >
-                      <Save className="h-4 w-4 mr-2" />
-                      {saving ? "Updating..." : "Update Password"}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                    <div className="flex justify-end">
+                      <Button
+                        onClick={updatePassword}
+                        disabled={
+                          saving ||
+                          !currentPassword ||
+                          !newPassword ||
+                          !confirmPassword
+                        }
+                      >
+                        <Save className="h-4 w-4 mr-2" />
+                        {saving ? "Updating..." : "Update Password"}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-red-200 bg-red-50 dark:bg-red-950/20">
+                  <CardHeader>
+                    <CardTitle className="text-red-800 dark:text-red-200 flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5" />
+                      Danger Zone
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="bg-white dark:bg-gray-900 p-4 rounded border">
+                      <h3 className="font-medium text-red-800 dark:text-red-200 mb-2">
+                        Delete Account
+                      </h3>
+                      <p className="text-sm text-red-700 dark:text-red-300 mb-4">
+                        Once you delete your account, there is no going back. This action is permanent and will remove all your data including:
+                      </p>
+                      <ul className="text-sm text-red-700 dark:text-red-300 list-disc list-inside space-y-1 mb-4">
+                        <li>All archived documents and files</li>
+                        <li>All API keys and their access</li>
+                        <li>Your profile and account settings</li>
+                      </ul>
+                      <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded border border-blue-200 dark:border-blue-800 mb-4">
+                        <p className="text-sm text-blue-800 dark:text-blue-200">
+                          <strong>Note:</strong> Your reMarkable Cloud account and device data will remain completely unaffected.
+                        </p>
+                      </div>
+                      <div className="flex justify-end">
+                        <Button
+                          variant="destructive"
+                          onClick={openDeleteAccountDialog}
+                        >
+                          <UserX className="h-4 w-4 mr-2" />
+                          Delete My Account
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
 
             <TabsContent value="api-keys" className="flex-1 overflow-y-auto">
@@ -762,6 +856,56 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         onPairingSuccess={handlePairingSuccess}
         rmapiHost={rmapiHost}
       />
+
+      {/* Delete Account Dialog */}
+      <AlertDialog open={deleteAccountDialog} onOpenChange={closeDeleteAccountDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              Delete Account
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to permanently delete your account? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="delete-password">Current Password</Label>
+              <Input
+                id="delete-password"
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                placeholder="Enter your current password"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="delete-confirmation">Type "DELETE MY ACCOUNT" to confirm</Label>
+              <Input
+                id="delete-confirmation"
+                value={deleteConfirmation}
+                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                placeholder="DELETE MY ACCOUNT"
+                className="mt-1"
+              />
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={closeDeleteAccountDialog} disabled={saving}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteAccount}
+              disabled={saving || !canDeleteAccount}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              {saving ? 'Deleting...' : 'Delete My Account'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Delete API Key Dialog */}
       <AlertDialog

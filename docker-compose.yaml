@@ -10,6 +10,9 @@ services:
       # Optional authentication (remove # to enable):
       AUTH_USERNAME: "${AUTH_USERNAME}"
       AUTH_PASSWORD: "${AUTH_PASSWORD}"
+      JWT_SECRET: "${JWT_SECRET}"
+      # FOLDER_CACHE_INTERVAL: 0
+      # GIN_MODE: "debug"
       # API_KEY: "${API_KEY}"
       
       # Multi-user mode settings:

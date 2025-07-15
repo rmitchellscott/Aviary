@@ -125,7 +125,7 @@ For more rmapi-specific configuration, see [their documentation](https://github.
 | AUTH_USERNAME            | No        |         | Username for web UI login (single-user mode) or initial admin user (multi-user mode) |
 | AUTH_PASSWORD            | No        |         | Password for web UI login (single-user mode) or initial admin user (multi-user mode) |
 | API_KEY                  | No        |         | Secret key for API access via Authorization header (single-user mode only) |
-| JWT_SECRET               | No        | auto-generated | Custom JWT signing secret (auto-generated if not provided) |
+| JWT_SECRET               | No        | auto-generated | Custom JWT signing secret (auto-generated if not provided.) If not set, restarting the container will log out all users. |
 | ALLOW_INSECURE           | No        |  false  | Set to `true` to allow non-secure cookies (not recommended) |
 
 ## Authentication

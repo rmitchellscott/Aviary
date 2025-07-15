@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUserData } from '@/hooks/useUserData';
+import { UserDeleteDialog } from '@/components/UserDeleteDialog';
 import {
   Dialog,
   DialogContent,
@@ -145,6 +146,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     user: User | null;
   }>({ isOpen: false, user: null });
   const [newPasswordValue, setNewPasswordValue] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -281,6 +283,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     if (!deleteUserDialog.user) return;
 
     try {
+      setDeleting(true);
       const response = await fetch(`/api/users/${deleteUserDialog.user.id}`, {
         method: 'DELETE',
         credentials: 'include',
@@ -296,6 +299,8 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       }
     } catch (error) {
       setError('Failed to delete user');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -898,38 +903,14 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       </Dialog>
 
       {/* Delete User Dialog */}
-      <AlertDialog open={deleteUserDialog.isOpen} onOpenChange={closeDeleteUserDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-red-500" />
-              Delete User
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to permanently delete user <strong>{deleteUserDialog.user?.username}</strong>?
-              <br />
-              <br />
-              This action will:
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>Delete all user data including documents and API keys</li>
-                <li>Remove all user sessions</li>
-                <li>Remove all login history</li>
-              </ul>
-              <br />
-              <strong className="text-red-600">This action cannot be undone.</strong>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={closeDeleteUserDialog}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteUser}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete User
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <UserDeleteDialog
+        isOpen={deleteUserDialog.isOpen}
+        onClose={closeDeleteUserDialog}
+        onConfirm={confirmDeleteUser}
+        user={deleteUserDialog.user}
+        isCurrentUser={false}
+        loading={deleting}
+      />
     </Dialog>
   );
 }
