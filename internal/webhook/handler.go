@@ -267,11 +267,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 	compress := isTrue(form["compress"])
 	manage := isTrue(form["manage"])
 	archive := isTrue(form["archive"])
-	rmDir := form["rm_dir"]
 	retentionStr := form["retention_days"]
-	if rmDir == "" {
-		rmDir = manager.DefaultRmDir()
-	}
 
 	retentionDays := 7
 	if rd, err := strconv.Atoi(retentionStr); err == nil && rd > 0 {
@@ -288,6 +284,18 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 
 	if database.IsMultiUserMode() && userID != uuid.Nil {
 		dbUser, _ = database.NewUserService(database.DB).GetUserByID(userID)
+	}
+
+	// Determine target reMarkable directory
+	rmDir := form["rm_dir"]
+	if rmDir == "" {
+		// In multi-user mode, use user's personal default folder
+		if database.IsMultiUserMode() && dbUser != nil && dbUser.DefaultRmdir != "" {
+			rmDir = dbUser.DefaultRmdir
+		} else {
+			// Fallback to global default
+			rmDir = manager.DefaultRmDir()
+		}
 	}
 
 	// 1) If "Body" is already a valid local file path, skip download.
