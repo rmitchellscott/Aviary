@@ -19,6 +19,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [smtpConfigured, setSmtpConfigured] = useState(false);
 
   useEffect(() => {
     // Focus the username field when component mounts
@@ -26,7 +27,26 @@ export function LoginForm({ onLogin }: LoginFormProps) {
     if (usernameInput) {
       usernameInput.focus();
     }
-  }, []);
+
+    // Fetch config to check SMTP status
+    const fetchConfig = async () => {
+      try {
+        const response = await fetch("/api/config", {
+          credentials: "include",
+        });
+        if (response.ok) {
+          const config = await response.json();
+          setSmtpConfigured(config.smtpConfigured || false);
+        }
+      } catch (error) {
+        console.error("Failed to fetch config:", error);
+      }
+    };
+
+    if (multiUserMode) {
+      fetchConfig();
+    }
+  }, [multiUserMode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,7 +112,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
             </div>
             {error && <p className="text-sm text-red-500">{error}</p>}
             <div className="flex justify-between items-center">
-              {multiUserMode && (
+              {multiUserMode && smtpConfigured && (
                 <Button 
                   type="button" 
                   variant="link" 

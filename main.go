@@ -23,6 +23,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/downloader"
 	"github.com/rmitchellscott/aviary/internal/manager"
+	"github.com/rmitchellscott/aviary/internal/smtp"
 	"github.com/rmitchellscott/aviary/internal/webhook"
 )
 
@@ -155,6 +156,8 @@ func main() {
 		users.POST("/:id/reset-password", auth.AdminResetPasswordHandler) // POST /api/users/:id/reset-password - reset password (admin)
 		users.POST("/:id/deactivate", auth.DeactivateUserHandler)         // POST /api/users/:id/deactivate - deactivate user (admin)
 		users.POST("/:id/activate", auth.ActivateUserHandler)             // POST /api/users/:id/activate - activate user (admin)
+		users.POST("/:id/promote", auth.PromoteUserHandler)               // POST /api/users/:id/promote - promote user to admin (admin)
+		users.POST("/:id/demote", auth.DemoteUserHandler)                 // POST /api/users/:id/demote - demote admin to user (admin)
 		users.DELETE("/:id", auth.DeleteUserHandler)                      // DELETE /api/users/:id - delete user (admin)
 		users.GET("/stats", auth.GetUserStatsHandler)                     // GET /api/users/stats - get user statistics (admin)
 	}
@@ -257,13 +260,20 @@ func main() {
 			rmapiHost = os.Getenv("RMAPI_HOST")
 		}
 
+		// Check SMTP configuration (only in multi-user mode)
+		smtpConfigured := false
+		if multiUserMode {
+			smtpConfigured = smtp.IsSMTPConfigured()
+		}
+
 		c.JSON(http.StatusOK, gin.H{
-			"apiUrl":        "/api/",
-			"authEnabled":   authEnabled,
-			"apiKeyEnabled": apiKeyEnabled,
-			"multiUserMode": multiUserMode,
-			"defaultRmDir":  defaultRmDir,
-			"rmapi_host":    rmapiHost,
+			"apiUrl":         "/api/",
+			"authEnabled":    authEnabled,
+			"apiKeyEnabled":  apiKeyEnabled,
+			"multiUserMode":  multiUserMode,
+			"defaultRmDir":   defaultRmDir,
+			"rmapi_host":     rmapiHost,
+			"smtpConfigured": smtpConfigured,
 		})
 	})
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useUserData } from '@/hooks/useUserData';
 import {
   Dialog,
   DialogContent,
@@ -115,6 +116,7 @@ interface AdminPanelProps {
 
 export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const { t } = useTranslation();
+  const { user: currentUser } = useUserData();
   const [users, setUsers] = useState<User[]>([]);
   const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
@@ -247,6 +249,22 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       }
     } catch (error) {
       console.error('Failed to toggle user status:', error);
+    }
+  };
+
+  const toggleAdminStatus = async (userId: string, makeAdmin: boolean) => {
+    try {
+      const endpoint = makeAdmin ? 'promote' : 'demote';
+      const response = await fetch(`/api/users/${userId}/${endpoint}`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        await fetchUsers();
+      }
+    } catch (error) {
+      console.error('Failed to toggle admin status:', error);
     }
   };
 
@@ -495,7 +513,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{systemStatus.database.active_sessions}</div>
-                  <p className="text-xs text-muted-foreground">Current sessions</p>
+                  <p className="text-xs text-muted-foreground">Current unexpired sessions</p>
                 </CardContent>
               </Card>
             </div>
@@ -610,12 +628,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           </TableCell>
                           <TableCell>{user.email}</TableCell>
                           <TableCell>
-                            <Badge variant={user.is_admin ? 'default' : 'secondary'}>
+                            <Badge variant={user.is_admin ? 'default' : 'secondary'} className="w-14 justify-center">
                               {user.is_admin ? 'Admin' : 'User'}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <Badge variant={user.is_active ? 'success' : 'secondary'}>
+                            <Badge variant={user.is_active ? 'success' : 'secondary'} className="w-16 justify-center">
                               {user.is_active ? 'Active' : 'Inactive'}
                             </Badge>
                           </TableCell>
@@ -627,17 +645,28 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                             <div className="flex items-center gap-2">
                               <Button
                                 size="sm"
-                                variant="default"
-                                onClick={() => toggleUserStatus(user.id, !user.is_active)}
-                              >
-                                {user.is_active ? 'Deactivate' : 'Activate'}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="default"
+                                variant="outline"
                                 onClick={() => openResetPasswordDialog(user)}
                               >
                                 Reset Password
+                              </Button>
+                              {currentUser && user.id !== currentUser.id && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => toggleAdminStatus(user.id, !user.is_admin)}
+                                  className="w-24"
+                                >
+                                  {user.is_admin ? 'Make User' : 'Make Admin'}
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => toggleUserStatus(user.id, !user.is_active)}
+                                className="w-28"
+                              >
+                                {user.is_active ? 'Deactivate' : 'Activate'}
                               </Button>
                               <Button
                                 size="sm"

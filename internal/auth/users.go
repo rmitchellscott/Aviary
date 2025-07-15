@@ -603,3 +603,73 @@ func AdminResetPasswordHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
+
+// PromoteUserHandler promotes a user to admin (admin only)
+func PromoteUserHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User management not available in single-user mode"})
+		return
+	}
+
+	_, ok := RequireAdmin(c)
+	if !ok {
+		return
+	}
+
+	userIDStr := c.Param("id")
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	userService := database.NewUserService(database.DB)
+	updates := map[string]interface{}{
+		"is_admin": true,
+	}
+	
+	if err := userService.UpdateUserSettings(userID, updates); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to promote user"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+// DemoteUserHandler demotes an admin to user (admin only)
+func DemoteUserHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User management not available in single-user mode"})
+		return
+	}
+
+	currentUser, ok := RequireAdmin(c)
+	if !ok {
+		return
+	}
+
+	userIDStr := c.Param("id")
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	// Prevent admin from demoting themselves
+	if currentUser.ID == userID {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot demote yourself"})
+		return
+	}
+
+	userService := database.NewUserService(database.DB)
+	updates := map[string]interface{}{
+		"is_admin": false,
+	}
+	
+	if err := userService.UpdateUserSettings(userID, updates); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to demote user"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
