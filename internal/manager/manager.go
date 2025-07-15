@@ -61,6 +61,14 @@ func Logf(format string, v ...interface{}) {
 	fmt.Printf("[%s] "+format+"\n", append([]interface{}{time.Now().Format(time.RFC3339)}, v...)...)
 }
 
+// LogfWithUser logs a message with username prefix in multi-user mode
+func LogfWithUser(user *database.User, format string, v ...interface{}) {
+	if database.IsMultiUserMode() && user != nil {
+		format = "[" + user.Username + "] " + format
+	}
+	Logf(format, v...)
+}
+
 // SanitizePrefix ensures prefix is a simple directory name with no path
 // separators, leading slashes, or parent directory components.
 func SanitizePrefix(p string) (string, error) {

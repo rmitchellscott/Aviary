@@ -94,11 +94,20 @@ func enqueueJob(form map[string]string) string {
 // enqueueJobForUser creates a new job ID for a specific user, logs form fields, starts processPDF(form) in a goroutine,
 // and returns the newly generated jobId.
 func enqueueJobForUser(form map[string]string, userID uuid.UUID) string {
-	// Log each form field in "Human Key: Value" format.
+	// Get user for logging context
+	var user *database.User
+	if database.IsMultiUserMode() && userID != uuid.Nil {
+		userService := database.NewUserService(database.DB)
+		if u, err := userService.GetUserByID(userID); err == nil {
+			user = u
+		}
+	}
+
+	// Log each form field in "Human Key: Value" format with username.
 	titleCaser := cases.Title(language.English)
 	for key, val := range form {
 		humanKey := titleCaser.String(strings.ReplaceAll(key, "_", " "))
-		manager.Logf("%s: %s", humanKey, val)
+		manager.LogfWithUser(user, "%s: %s", humanKey, val)
 	}
 
 	// Create a new job in the in-memory store.
@@ -113,7 +122,7 @@ func enqueueJobForUser(form map[string]string, userID uuid.UUID) string {
 		// Catch panics
 		defer func() {
 			if r := recover(); r != nil {
-				manager.Logf("❌ Panic in processPDF: %v", r)
+				manager.LogfWithUser(user, "❌ Panic in processPDF: %v", r)
 				jobStore.Update(id, "Error", "backend.status.internal_error", nil)
 			}
 		}()
@@ -121,14 +130,14 @@ func enqueueJobForUser(form map[string]string, userID uuid.UUID) string {
 		// Do the actual work
 		msgKey, data, err := processPDFForUser(id, form, userID)
 		if err != nil {
-			manager.Logf("❌ processPDF error: %v, message: %s", err, keyToMessage(msgKey))
+			manager.LogfWithUser(user, "❌ processPDF error: %v, message: %s", err, keyToMessage(msgKey))
 			jobStore.Update(id, "error", msgKey, data)
 		} else {
 			logMsg := keyToMessage(msgKey)
 			if data != nil && data["path"] != "" {
 				logMsg += " -> " + data["path"]
 			}
-			manager.Logf("✅ processPDF success: %s", logMsg)
+			manager.LogfWithUser(user, "✅ processPDF success: %s", logMsg)
 			jobStore.Update(id, "success", msgKey, data)
 		}
 	}()

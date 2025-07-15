@@ -1,6 +1,7 @@
 package database
 
 import (
+	"math/rand"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,6 +20,7 @@ type User struct {
 	// User-specific settings
 	RmapiHost    string `gorm:"column:rmapi_host" json:"rmapi_host,omitempty"`
 	DefaultRmdir string `gorm:"column:default_rmdir;default:/" json:"default_rmdir"`
+	FolderRefreshPercent int `gorm:"column:folder_refresh_percent;default:0" json:"folder_refresh_percent"`
 	
 	// Password reset
 	ResetToken        string    `gorm:"index" json:"-"`
@@ -40,10 +42,14 @@ type User struct {
 	Documents     []Document     `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"-"`
 }
 
-// BeforeCreate sets UUID if not already set
+// BeforeCreate sets UUID and randomized folder refresh minute if not already set
 func (u *User) BeforeCreate(tx *gorm.DB) error {
 	if u.ID == uuid.Nil {
 		u.ID = uuid.New()
+	}
+	if u.FolderRefreshPercent == 0 {
+		// Assign a random percentage (1-99) for folder refresh scheduling
+		u.FolderRefreshPercent = rand.Intn(99) + 1
 	}
 	return nil
 }
