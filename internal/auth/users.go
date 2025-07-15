@@ -39,6 +39,11 @@ type AdminResetPasswordRequest struct {
 }
 
 func isUserPaired(id uuid.UUID) bool {
+	// In DRY_RUN mode, always consider users as paired
+	if os.Getenv("DRY_RUN") != "" {
+		return true
+	}
+	
 	baseDir := os.Getenv("DATA_DIR")
 	if baseDir == "" {
 		baseDir = "/data"
@@ -329,6 +334,12 @@ func UpdatePasswordHandler(c *gin.Context) {
 func PairRMAPIHandler(c *gin.Context) {
 	if !database.IsMultiUserMode() {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Not available in single-user mode"})
+		return
+	}
+
+	// Mock successful pairing in DRY_RUN mode
+	if os.Getenv("DRY_RUN") != "" {
+		c.JSON(http.StatusOK, gin.H{"success": true})
 		return
 	}
 

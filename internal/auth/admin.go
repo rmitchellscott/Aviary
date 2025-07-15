@@ -2,6 +2,7 @@ package auth
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rmitchellscott/aviary/internal/database"
@@ -72,6 +73,9 @@ func GetSystemStatusHandler(c *gin.Context) {
 	maxAPIKeys, _ := database.GetSystemSetting("max_api_keys_per_user")
 	sessionTimeout, _ := database.GetSystemSetting("session_timeout_hours")
 
+	// Check if we're in dry run mode
+	dryRunMode := os.Getenv("DRY_RUN") != ""
+
 	c.JSON(http.StatusOK, gin.H{
 		"database": dbStats,
 		"smtp": gin.H{
@@ -83,7 +87,8 @@ func GetSystemStatusHandler(c *gin.Context) {
 			"max_api_keys_per_user":   maxAPIKeys,
 			"session_timeout_hours":   sessionTimeout,
 		},
-		"mode": "multi_user",
+		"mode":    "multi_user",
+		"dry_run": dryRunMode,
 	})
 }
 

@@ -107,6 +107,7 @@ interface SystemStatus {
     session_timeout_hours: string;
   };
   mode: string;
+  dry_run: boolean;
 }
 
 interface AdminPanelProps {
@@ -546,7 +547,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Badge variant="success">Multi-user Mode</Badge>
+                  <div className="flex flex-col gap-2 items-start">
+                    <Badge variant="success">Multi-user Mode</Badge>
+                    {systemStatus.dry_run && (
+                      <Badge variant="destructive">Dry Run Mode</Badge>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </div>
