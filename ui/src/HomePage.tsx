@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { LoginForm } from "@/components/LoginForm";
+import { PairingDialog } from "@/components/PairingDialog";
+import { useUserData } from "@/hooks/useUserData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -103,6 +105,8 @@ export default function HomePage() {
   const { isAuthenticated, isLoading, login, authConfigured, uiSecret } =
     useAuth();
   const { t } = useTranslation();
+  const { rmapiPaired, rmapiHost, loading: userDataLoading, updatePairingStatus } = useUserData();
+  
   const [url, setUrl] = useState<string>("");
   const [committedUrl, setCommittedUrl] = useState<string>("");
   const [urlMime, setUrlMime] = useState<string | null>(null);
@@ -118,6 +122,9 @@ export default function HomePage() {
   const [folders, setFolders] = useState<string[]>([]);
   const [foldersLoading, setFoldersLoading] = useState<boolean>(true);
   const [rmDir, setRmDir] = useState<string>(DEFAULT_RM_DIR);
+  
+  // Pairing dialog state
+  const [pairingDialogOpen, setPairingDialogOpen] = useState(false);
 
   /**
    * Determine if "Compress PDF" should be enabled:
@@ -169,10 +176,17 @@ export default function HomePage() {
     }
   }, [isCompressibleFileOrUrl, compress]);
 
+  // Fetch folders only if paired
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !rmapiPaired || userDataLoading) {
+      setFolders([]);
+      setFoldersLoading(false);
+      return;
+    }
+
     (async () => {
       try {
+        setFoldersLoading(true);
         const headers: HeadersInit = {
           "Accept-Language": i18n.language,
         };
@@ -214,10 +228,15 @@ export default function HomePage() {
           .catch((err) => console.error("Failed to refresh folders:", err));
       } catch (error) {
         console.error("Failed to fetch folders:", error);
+      } finally {
+        setFoldersLoading(false);
       }
-      setFoldersLoading(false);
     })();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, rmapiPaired, userDataLoading]);
+
+  const handlePairingSuccess = () => {
+    updatePairingStatus(true);
+  };
 
   if (isLoading) {
     return null;
@@ -423,7 +442,11 @@ export default function HomePage() {
           {/* === FOLDER SELECT === */}
           <div className="flex items-center space-x-2">
             <Label htmlFor="rmDir">{t("home.destination_folder")}</Label>
-            <Select value={rmDir} onValueChange={setRmDir}>
+            <Select 
+              value={rmDir} 
+              onValueChange={setRmDir}
+              disabled={!rmapiPaired}
+            >
               <SelectTrigger id="rmDir">
                 <SelectValue />
               </SelectTrigger>
@@ -431,12 +454,17 @@ export default function HomePage() {
                 <SelectItem value={DEFAULT_RM_DIR}>
                   {t("home.default")}
                 </SelectItem>
-                {foldersLoading && (
+                {!rmapiPaired && (
+                  <SelectItem value="not-paired" disabled>
+                    Pair with cloud to load folders
+                  </SelectItem>
+                )}
+                {rmapiPaired && foldersLoading && (
                   <SelectItem value="loading" disabled>
                     {t("home.loading")}
                   </SelectItem>
                 )}
-                {folders.map((f) => (
+                {rmapiPaired && folders.map((f) => (
                   <SelectItem key={f} value={f}>
                     {f}
                   </SelectItem>
@@ -461,13 +489,23 @@ export default function HomePage() {
             />
           </div>
 
+          {/* === PAIRING PROMPT === */}
+          {!rmapiPaired && !userDataLoading && (
+            <div className="bg-muted border rounded-md p-3 text-muted-foreground">
+              <p className="text-sm">
+                <strong className="text-foreground">Pair with reMarkable cloud</strong> to upload documents. 
+                Go to Settings for additional configuration.
+              </p>
+            </div>
+          )}
+
           {/* === SUBMIT BUTTON === */}
           <div className="flex justify-end">
             <Button
-              onClick={handleSubmit}
-              disabled={loading || (!url && !selectedFile)}
+              onClick={!rmapiPaired ? () => setPairingDialogOpen(true) : handleSubmit}
+              disabled={loading || (!url && !selectedFile && rmapiPaired)}
             >
-              {loading ? t("home.sending") : t("home.send")}
+              {loading ? t("home.sending") : !rmapiPaired ? "Pair" : t("home.send")}
             </Button>
           </div>
 
@@ -517,6 +555,14 @@ export default function HomePage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* === PAIRING DIALOG === */}
+      <PairingDialog
+        isOpen={pairingDialogOpen}
+        onClose={() => setPairingDialogOpen(false)}
+        onPairingSuccess={handlePairingSuccess}
+        rmapiHost={rmapiHost}
+      />
     </div>
   );
 }

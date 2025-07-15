@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { PairingDialog } from "@/components/PairingDialog";
+import { useUserData } from "@/hooks/useUserData";
 import {
   Dialog,
   DialogContent,
@@ -82,17 +84,19 @@ interface UserSettingsProps {
 
 export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const { t } = useTranslation();
-  const [user, setUser] = useState<User | null>(null);
+  const { user, loading: userDataLoading, rmapiPaired, rmapiHost, refetch, updatePairingStatus } = useUserData();
   const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Profile form
   const [email, setEmail] = useState("");
-  const [rmapiHost, setRmapiHost] = useState("");
-  const [rmapiPaired, setRmapiPaired] = useState(false);
+  const [userRmapiHost, setUserRmapiHost] = useState("");
   const [defaultRmdir, setDefaultRmdir] = useState("/");
+  
+  // Folder cache
+  const [folders, setFolders] = useState<string[]>([]);
+  const [foldersLoading, setFoldersLoading] = useState(false);
 
   // Password form
   const [currentPassword, setCurrentPassword] = useState("");
@@ -105,12 +109,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [showNewKey, setShowNewKey] = useState<string | null>(null);
 
   // Pairing dialog state
-  const [pairingDialog, setPairingDialog] = useState({
-    isOpen: false,
-    code: "",
-    loading: false,
-    error: null as string | null,
-  });
+  const [pairingDialogOpen, setPairingDialogOpen] = useState(false);
 
   // Delete API key dialog
   const [deleteKeyDialog, setDeleteKeyDialog] = useState<{
@@ -120,51 +119,30 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
   useEffect(() => {
     if (isOpen) {
-      fetchUserData();
       fetchAPIKeys();
     }
   }, [isOpen]);
 
-  const fetchUserData = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch("/api/auth/user", {
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-        setEmail(userData.email);
-        setRmapiPaired(!!userData.rmapi_paired);
-
-        // Default to environment RMAPI_HOST if user hasn't set their own
-        if (userData.rmapi_host) {
-          setRmapiHost(userData.rmapi_host);
-        } else {
-          // Fetch default RMAPI_HOST from system
-          try {
-            const configResponse = await fetch("/api/config", {
-              credentials: "include",
-            });
-            if (configResponse.ok) {
-              const config = await configResponse.json();
-              setRmapiHost(config.rmapi_host || "");
-            }
-          } catch {
-            setRmapiHost("");
-          }
-        }
-
-        setDefaultRmdir(userData.default_rmdir || "/");
-      }
-    } catch (error) {
-      console.error("Failed to fetch user data:", error);
-      setError("Failed to load user data");
-    } finally {
-      setLoading(false);
+  // Update form fields when user data changes
+  useEffect(() => {
+    if (user) {
+      setEmail(user.email);
+      setUserRmapiHost(user.rmapi_host || "");
+      setDefaultRmdir(user.default_rmdir || "/");
     }
-  };
+  }, [user]);
+
+  // Fetch folders when user data is loaded and rmapi is paired
+  useEffect(() => {
+    if (isOpen && user && rmapiPaired) {
+      fetchFolders();
+    } else {
+      // Clear folders if not paired
+      setFolders([]);
+      setFoldersLoading(false);
+    }
+  }, [isOpen, user, rmapiPaired]);
+
 
   const fetchAPIKeys = async () => {
     try {
@@ -181,6 +159,29 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     }
   };
 
+  const fetchFolders = async () => {
+    try {
+      setFoldersLoading(true);
+      const response = await fetch("/api/folders", {
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const res = await response.json();
+        if (Array.isArray(res.folders)) {
+          const cleaned = res.folders
+            .map((f: string) => f.replace(/^\//, ""))
+            .filter((f: string) => f !== "");
+          setFolders(cleaned);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch folders:", error);
+    } finally {
+      setFoldersLoading(false);
+    }
+  };
+
   const updateProfile = async () => {
     try {
       setSaving(true);
@@ -194,13 +195,13 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         credentials: "include",
         body: JSON.stringify({
           email,
-          rmapi_host: rmapiHost,
+          rmapi_host: userRmapiHost,
           default_rmdir: defaultRmdir,
         }),
       });
 
       if (response.ok) {
-        await fetchUserData(); // Refresh user data
+        refetch(); // Refresh user data
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to update profile");
@@ -212,51 +213,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     }
   };
 
-  const pairRmapi = async () => {
-    setPairingDialog({ isOpen: true, code: "", loading: false, error: null });
-  };
-
-  const handlePairingSubmit = async () => {
-    const code = pairingDialog.code.trim();
-    
-    // Validate code format (8 characters)
-    if (code.length !== 8) {
-      setPairingDialog(prev => ({ ...prev, error: "Code must be 8 characters long" }));
-      return;
-    }
-
-    setPairingDialog(prev => ({ ...prev, loading: true, error: null }));
-    
-    try {
-      const resp = await fetch("/api/profile/pair", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ code }),
-      });
-      
-      if (resp.ok) {
-        setRmapiPaired(true);
-        setPairingDialog({ isOpen: false, code: "", loading: false, error: null });
-      } else {
-        const data = await resp.json();
-        setPairingDialog(prev => ({ 
-          ...prev, 
-          loading: false, 
-          error: data.error || "Failed to pair device" 
-        }));
-      }
-    } catch {
-      setPairingDialog(prev => ({ 
-        ...prev, 
-        loading: false, 
-        error: "Failed to pair device" 
-      }));
-    }
-  };
-
-  const closePairingDialog = () => {
-    setPairingDialog({ isOpen: false, code: "", loading: false, error: null });
+  const handlePairingSuccess = () => {
+    updatePairingStatus(true);
   };
 
   const disconnectRmapi = async () => {
@@ -267,7 +225,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         method: "POST",
         credentials: "include",
       });
-      setRmapiPaired(false);
+      updatePairingStatus(false);
     } catch {
       setError("Failed to disconnect");
     } finally {
@@ -410,7 +368,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     return "active";
   };
 
-  if (loading) {
+  if (userDataLoading) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-4xl">
@@ -469,6 +427,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         id="username"
                         value={user?.username || ""}
                         disabled
+                        className="mt-2"
                       />
                     </div>
                     <div>
@@ -478,6 +437,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        className="mt-2"
                       />
                     </div>
                   </div>
@@ -486,9 +446,10 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                     <Label htmlFor="rmapi-host">reMarkable Host (optional)</Label>
                     <Input
                       id="rmapi-host"
-                      value={rmapiHost}
-                      onChange={(e) => setRmapiHost(e.target.value)}
+                      value={userRmapiHost}
+                      onChange={(e) => setUserRmapiHost(e.target.value)}
                       placeholder="Leave empty for reMarkable Cloud"
+                      className="mt-2"
                     />
                     <div className="mt-2">
                       {rmapiPaired ? (
@@ -497,15 +458,14 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           onClick={disconnectRmapi}
                           disabled={saving}
                         >
-                          Disconnect rmapi
+                          Unpair
                         </Button>
                       ) : (
                         <Button
-                          variant="outline"
-                          onClick={pairRmapi}
+                          onClick={() => setPairingDialogOpen(true)}
                           disabled={saving}
                         >
-                          Pair rmapi
+                          Pair
                         </Button>
                       )}
                     </div>
@@ -513,12 +473,40 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
                   <div>
                     <Label htmlFor="default-rmdir">Default Directory</Label>
-                    <Input
-                      id="default-rmdir"
-                      value={defaultRmdir}
-                      onChange={(e) => setDefaultRmdir(e.target.value)}
-                      placeholder="/"
-                    />
+                    <Select 
+                      value={defaultRmdir} 
+                      onValueChange={setDefaultRmdir}
+                      disabled={!rmapiPaired}
+                    >
+                      <SelectTrigger id="default-rmdir" className="mt-2">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="/">
+                          /
+                        </SelectItem>
+                        {!rmapiPaired && (
+                          <SelectItem value="not-paired" disabled>
+                            Pair to load folders
+                          </SelectItem>
+                        )}
+                        {rmapiPaired && foldersLoading && (
+                          <SelectItem value="loading" disabled>
+                            Loading...
+                          </SelectItem>
+                        )}
+                        {rmapiPaired && folders.map((f) => (
+                          <SelectItem key={f} value={f}>
+                            {f}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {!rmapiPaired && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Pair with reMarkable cloud to select from existing folders
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex justify-end">
@@ -544,6 +532,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       type="password"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="mt-2"
                     />
                   </div>
 
@@ -554,6 +543,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
+                      className="mt-2"
                     />
                   </div>
 
@@ -564,6 +554,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="mt-2"
                     />
                   </div>
 
@@ -600,6 +591,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           value={newKeyName}
                           onChange={(e) => setNewKeyName(e.target.value)}
                           placeholder="My API Key"
+                          className="mt-2"
                         />
                       </div>
                       <div>
@@ -608,7 +600,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           value={newKeyExpiry}
                           onValueChange={setNewKeyExpiry}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="mt-2">
                             <SelectValue placeholder="Never expires" />
                           </SelectTrigger>
                           <SelectContent>
@@ -764,69 +756,12 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       </Dialog>
 
       {/* Pairing Dialog */}
-      <Dialog open={pairingDialog.isOpen} onOpenChange={closePairingDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Pair reMarkable Device</DialogTitle>
-            <DialogDescription>
-              Enter one-time code from {rmapiHost && rmapiHost.trim() !== "" ? rmapiHost : "my.remarkable.com"}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="pairing-code">One-time Code</Label>
-              <Input
-                id="pairing-code"
-                value={pairingDialog.code}
-                onChange={(e) => {
-                  // Only allow alphanumeric characters and limit to 8
-                  const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
-                  setPairingDialog(prev => ({ ...prev, code: value, error: null }));
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && pairingDialog.code.length === 8) {
-                    handlePairingSubmit();
-                  }
-                }}
-                placeholder="8 character code"
-                className="font-mono text-center tracking-widest"
-                maxLength={8}
-                disabled={pairingDialog.loading}
-              />
-            </div>
-            
-            {pairingDialog.error && (
-              <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
-                {pairingDialog.error}
-              </div>
-            )}
-            
-            <div className="flex justify-end space-x-2">
-              <Button
-                variant="outline"
-                onClick={closePairingDialog}
-                disabled={pairingDialog.loading}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handlePairingSubmit}
-                disabled={pairingDialog.loading || pairingDialog.code.length !== 8}
-              >
-                {pairingDialog.loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Pairing...
-                  </>
-                ) : (
-                  'Pair Device'
-                )}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PairingDialog
+        isOpen={pairingDialogOpen}
+        onClose={() => setPairingDialogOpen(false)}
+        onPairingSuccess={handlePairingSuccess}
+        rmapiHost={rmapiHost}
+      />
 
       {/* Delete API Key Dialog */}
       <AlertDialog
