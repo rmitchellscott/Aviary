@@ -57,6 +57,11 @@ func StartFolderCache() {
 	}()
 }
 
+// RefreshFolderCache manually triggers a folder cache refresh (single-user mode)
+func RefreshFolderCache() error {
+	return refreshFolderCache()
+}
+
 // refreshFolderCache fetches folders from the device and stores them
 // in the global cache.
 func refreshFolderCache() error {

@@ -13,6 +13,22 @@ import (
 	"github.com/rmitchellscott/aviary/internal/database"
 )
 
+// PostPairingCallback is called after successful pairing
+type PostPairingCallback func(userID string, singleUserMode bool)
+
+// Global callback for post-pairing actions
+var postPairingCallback PostPairingCallback
+
+// SetPostPairingCallback sets the callback to be called after successful pairing
+func SetPostPairingCallback(callback PostPairingCallback) {
+	postPairingCallback = callback
+}
+
+// GetPostPairingCallback returns the current post-pairing callback
+func GetPostPairingCallback() PostPairingCallback {
+	return postPairingCallback
+}
+
 // UpdateUserRequest represents a user update request
 type UpdateUserRequest struct {
 	Email            *string `json:"email,omitempty" binding:"omitempty,email"`
@@ -444,6 +460,11 @@ func PairRMAPIHandler(c *gin.Context) {
 	if err := cmd.Run(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Pairing failed"})
 		return
+	}
+
+	// Call post-pairing callback if set
+	if postPairingCallback != nil {
+		go postPairingCallback(user.ID.String(), false) // false = multi-user mode
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true})

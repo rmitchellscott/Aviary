@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/auth"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"gorm.io/gorm"
@@ -23,6 +24,21 @@ func InitializeUserFolderCache(db *gorm.DB) {
 		userFolderCacheService = NewUserFolderCacheService(db)
 		userFolderCacheService.StartBackgroundRefresh()
 	}
+}
+
+// RefreshUserFolderCache manually triggers a folder cache refresh for a specific user
+func RefreshUserFolderCache(userID string) error {
+	if userFolderCacheService == nil {
+		return nil // Not in multi-user mode or not initialized
+	}
+	
+	uuid, err := uuid.Parse(userID)
+	if err != nil {
+		return err
+	}
+	
+	_, err = userFolderCacheService.GetUserFolders(uuid, true) // force refresh
+	return err
 }
 
 // ListFolders returns a slice of all folder paths on the reMarkable device.

@@ -114,6 +114,11 @@ func handlePairRequest(c *gin.Context) {
 		return
 	}
 
+	// Call post-pairing callback if set
+	if auth.GetPostPairingCallback() != nil {
+		go auth.GetPostPairingCallback()("single-user", true) // true = single-user mode
+	}
+
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
@@ -162,8 +167,25 @@ func main() {
 	}
 
 	// Warm the folders cache in the background so that initial page loads
-	// don't block on a full directory scan.
-	manager.StartFolderCache()
+	// don't block on a full directory scan. Only in single-user mode.
+	if !database.IsMultiUserMode() {
+		manager.StartFolderCache()
+	}
+
+	// Set up post-pairing callback to refresh folder cache
+	auth.SetPostPairingCallback(func(userID string, singleUserMode bool) {
+		if singleUserMode {
+			// Single-user mode: refresh global cache
+			if err := manager.RefreshFolderCache(); err != nil {
+				log.Printf("Failed to refresh folder cache after pairing: %v", err)
+			}
+		} else {
+			// Multi-user mode: refresh user-specific cache
+			if err := manager.RefreshUserFolderCache(userID); err != nil {
+				log.Printf("Failed to refresh folder cache after pairing for user %s: %v", userID, err)
+			}
+		}
+	})
 
 	// Create a Sub FS rooted at our static export
 	uiFS, err := fs.Sub(embeddedUI, "ui/dist")
