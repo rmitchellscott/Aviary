@@ -15,7 +15,7 @@ interface UserData {
 }
 
 export function useUserData() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, multiUserMode } = useAuth();
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [rmapiPaired, setRmapiPaired] = useState(false);
@@ -24,6 +24,14 @@ export function useUserData() {
   const fetchUserData = async () => {
     try {
       setLoading(true);
+      
+      // If not authenticated, clear everything
+      if (!isAuthenticated) {
+        setUser(null);
+        setRmapiPaired(false);
+        setRmapiHost("");
+        return;
+      }
       
       // First, get config to determine if we're in multi-user mode
       const configResponse = await fetch("/api/config", {
@@ -83,7 +91,7 @@ export function useUserData() {
 
   useEffect(() => {
     fetchUserData();
-  }, []);
+  }, [isAuthenticated]); // Re-fetch when authentication status changes
 
   // Listen for changes in localStorage to sync across components
   useEffect(() => {
@@ -91,13 +99,21 @@ export function useUserData() {
       fetchUserData();
     };
 
+    const handleLogout = () => {
+      setUser(null);
+      setRmapiPaired(false);
+      setRmapiHost("");
+    };
+
     window.addEventListener('storage', handleStorageChange);
     // Also listen for custom events on the same tab
     window.addEventListener('userDataChanged', handleStorageChange);
+    window.addEventListener('logout', handleLogout);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('userDataChanged', handleStorageChange);
+      window.removeEventListener('logout', handleLogout);
     };
   }, []);
 

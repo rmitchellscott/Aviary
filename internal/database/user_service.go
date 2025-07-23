@@ -42,6 +42,9 @@ func (s *UserService) CreateUser(username, email, password string, isAdmin bool)
 		coverpageSetting = "first"
 	}
 
+	// Set default RMAPI host from environment variable
+	rmapiHost := os.Getenv("RMAPI_HOST")
+
 	user := &User{
 		ID:               uuid.New(),
 		Username:         username,
@@ -49,6 +52,7 @@ func (s *UserService) CreateUser(username, email, password string, isAdmin bool)
 		Password:         string(hashedPassword),
 		IsAdmin:          isAdmin,
 		IsActive:         true,
+		RmapiHost:        rmapiHost,
 		DefaultRmdir:     "/",
 		CoverpageSetting: coverpageSetting,
 		CreatedAt:        time.Now(),

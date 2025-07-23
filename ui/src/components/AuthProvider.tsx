@@ -182,10 +182,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch {
       // Handle error silently
     }
+    
+    // Clear all auth-related state and localStorage
     setIsAuthenticated(false)
     setUser(null)
+    setMultiUserMode(false)
+    setUiSecret(null)
+    
     if (typeof window !== 'undefined') {
       localStorage.setItem('authExpiry', '0')
+      localStorage.setItem('lastAuthCheck', '0')
+      // Trigger a custom event to notify other components
+      window.dispatchEvent(new CustomEvent('logout'))
     }
   }
 
