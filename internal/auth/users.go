@@ -15,11 +15,12 @@ import (
 
 // UpdateUserRequest represents a user update request
 type UpdateUserRequest struct {
-	Email        string `json:"email,omitempty" binding:"omitempty,email"`
-	RmapiHost    string `json:"rmapi_host,omitempty"`
-	DefaultRmdir string `json:"default_rmdir,omitempty"`
-	IsAdmin      *bool  `json:"is_admin,omitempty"`
-	IsActive     *bool  `json:"is_active,omitempty"`
+	Email            *string `json:"email,omitempty" binding:"omitempty,email"`
+	RmapiHost        *string `json:"rmapi_host,omitempty"`
+	DefaultRmdir     *string `json:"default_rmdir,omitempty"`
+	CoverpageSetting *string `json:"coverpage_setting,omitempty"`
+	IsAdmin          *bool   `json:"is_admin,omitempty"`
+	IsActive         *bool   `json:"is_active,omitempty"`
 }
 
 // UpdatePasswordRequest represents a password update request
@@ -119,16 +120,17 @@ func GetUsersHandler(c *gin.Context) {
 	response := make([]UserResponse, len(users))
 	for i, user := range users {
 		response[i] = UserResponse{
-			ID:           user.ID,
-			Username:     user.Username,
-			Email:        user.Email,
-			IsAdmin:      user.IsAdmin,
-			IsActive:     user.IsActive,
-			RmapiHost:    user.RmapiHost,
-			RmapiPaired:  isUserPaired(user.ID),
-			DefaultRmdir: user.DefaultRmdir,
-			CreatedAt:    user.CreatedAt,
-			LastLogin:    user.LastLogin,
+			ID:               user.ID,
+			Username:         user.Username,
+			Email:            user.Email,
+			IsAdmin:          user.IsAdmin,
+			IsActive:         user.IsActive,
+			RmapiHost:        user.RmapiHost,
+			RmapiPaired:      isUserPaired(user.ID),
+			DefaultRmdir:     user.DefaultRmdir,
+			CoverpageSetting: user.CoverpageSetting,
+			CreatedAt:        user.CreatedAt,
+			LastLogin:        user.LastLogin,
 		}
 	}
 
@@ -174,16 +176,17 @@ func GetUserHandler(c *gin.Context) {
 	}
 
 	response := UserResponse{
-		ID:           user.ID,
-		Username:     user.Username,
-		Email:        user.Email,
-		IsAdmin:      user.IsAdmin,
-		IsActive:     user.IsActive,
-		RmapiHost:    user.RmapiHost,
-		RmapiPaired:  isUserPaired(user.ID),
-		DefaultRmdir: user.DefaultRmdir,
-		CreatedAt:    user.CreatedAt,
-		LastLogin:    user.LastLogin,
+		ID:               user.ID,
+		Username:         user.Username,
+		Email:            user.Email,
+		IsAdmin:          user.IsAdmin,
+		IsActive:         user.IsActive,
+		RmapiHost:        user.RmapiHost,
+		RmapiPaired:      isUserPaired(user.ID),
+		DefaultRmdir:     user.DefaultRmdir,
+		CoverpageSetting: user.CoverpageSetting,
+		CreatedAt:        user.CreatedAt,
+		LastLogin:        user.LastLogin,
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -219,14 +222,14 @@ func UpdateUserHandler(c *gin.Context) {
 
 	// Build update map
 	updates := make(map[string]interface{})
-	if req.Email != "" {
-		updates["email"] = req.Email
+	if req.Email != nil && *req.Email != "" {
+		updates["email"] = *req.Email
 	}
-	if req.RmapiHost != "" {
-		updates["rmapi_host"] = req.RmapiHost
+	if req.RmapiHost != nil {
+		updates["rmapi_host"] = *req.RmapiHost
 	}
-	if req.DefaultRmdir != "" {
-		updates["default_rmdir"] = req.DefaultRmdir
+	if req.DefaultRmdir != nil && *req.DefaultRmdir != "" {
+		updates["default_rmdir"] = *req.DefaultRmdir
 	}
 	if req.IsAdmin != nil {
 		updates["is_admin"] = *req.IsAdmin
@@ -319,14 +322,22 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 
 	// Build update map (non-admin users can't change admin/active status)
 	updates := make(map[string]interface{})
-	if req.Email != "" {
-		updates["email"] = req.Email
+	
+	// Update fields only if they were provided in the request (pointers allow us to detect this)
+	if req.Email != nil && *req.Email != "" {
+		updates["email"] = *req.Email
 	}
-	if req.RmapiHost != "" {
-		updates["rmapi_host"] = req.RmapiHost
+	
+	if req.RmapiHost != nil {
+		updates["rmapi_host"] = *req.RmapiHost // Allow clearing by setting to empty string
 	}
-	if req.DefaultRmdir != "" {
-		updates["default_rmdir"] = req.DefaultRmdir
+	
+	if req.DefaultRmdir != nil && *req.DefaultRmdir != "" {
+		updates["default_rmdir"] = *req.DefaultRmdir
+	}
+	
+	if req.CoverpageSetting != nil && *req.CoverpageSetting != "" {
+		updates["coverpage_setting"] = *req.CoverpageSetting
 	}
 
 	if len(updates) == 0 {

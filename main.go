@@ -146,7 +146,7 @@ func main() {
 	}
 
 	// Protected auth endpoints
-	protected.GET("/auth/user", auth.GetCurrentUserHandler)
+	// Note: User data is available via /api/auth/check endpoint
 
 	// User management endpoints (multi-user mode only)
 	users := protected.Group("/users")

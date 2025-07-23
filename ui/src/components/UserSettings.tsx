@@ -66,6 +66,7 @@ interface User {
   is_admin: boolean;
   rmapi_host?: string;
   default_rmdir: string;
+  coverpage_setting: string;
   created_at: string;
   last_login?: string;
 }
@@ -93,9 +94,11 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [error, setError] = useState<string | null>(null);
 
   // Profile form
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [userRmapiHost, setUserRmapiHost] = useState("");
   const [defaultRmdir, setDefaultRmdir] = useState("/");
+  const [coverpageSetting, setCoverpageSetting] = useState("current");
   
   // Folder cache
   const [folders, setFolders] = useState<string[]>([]);
@@ -134,9 +137,11 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   // Update form fields when user data changes
   useEffect(() => {
     if (user) {
+      setUsername(user.username);
       setEmail(user.email);
       setUserRmapiHost(user.rmapi_host || "");
       setDefaultRmdir(user.default_rmdir || "/");
+      setCoverpageSetting(user.coverpage_setting || "current");
     }
   }, [user]);
 
@@ -205,11 +210,13 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           email,
           rmapi_host: userRmapiHost,
           default_rmdir: defaultRmdir,
+          coverpage_setting: coverpageSetting,
         }),
       });
 
       if (response.ok) {
-        refetch(); // Refresh user data
+        // Refresh user data to ensure UI shows any server-side updates
+        refetch();
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to update profile");
@@ -479,7 +486,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       <Label htmlFor="username">Username</Label>
                       <Input
                         id="username"
-                        value={user?.username || ""}
+                        value={username}
                         disabled
                         className="mt-2"
                       />
@@ -561,6 +568,29 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         Pair with reMarkable cloud to select from existing folders
                       </p>
                     )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="coverpage-setting">Cover Page Setting</Label>
+                    <Select 
+                      value={coverpageSetting} 
+                      onValueChange={setCoverpageSetting}
+                    >
+                      <SelectTrigger id="coverpage-setting" className="mt-2">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="current">
+                          Current (default)
+                        </SelectItem>
+                        <SelectItem value="first">
+                          First
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Controls whether the first page or current page is used as the cover when uploading PDFs
+                    </p>
                   </div>
 
                   <div className="flex justify-end">

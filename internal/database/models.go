@@ -21,6 +21,7 @@ type User struct {
 	RmapiHost    string `gorm:"column:rmapi_host" json:"rmapi_host,omitempty"`
 	DefaultRmdir string `gorm:"column:default_rmdir;default:/" json:"default_rmdir"`
 	FolderRefreshPercent int `gorm:"column:folder_refresh_percent;default:0" json:"folder_refresh_percent"`
+	CoverpageSetting string `gorm:"column:coverpage_setting" json:"coverpage_setting"`
 	
 	// Password reset
 	ResetToken        string    `gorm:"index" json:"-"`

@@ -9,6 +9,7 @@ interface UserData {
   rmapi_host?: string;
   rmapi_paired?: boolean;
   default_rmdir: string;
+  coverpage_setting: string;
   created_at: string;
   last_login?: string;
 }
@@ -21,41 +22,39 @@ export function useUserData() {
   const [rmapiHost, setRmapiHost] = useState("");
 
   const fetchUserData = async () => {
-    if (!isAuthenticated) {
-      setUser(null);
-      setRmapiPaired(false);
-      setRmapiHost("");
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
-      const response = await fetch("/api/auth/user", {
+      const response = await fetch("/api/auth/check", {
         credentials: "include",
       });
 
       if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-        setRmapiPaired(!!userData.rmapi_paired);
-        
-        // Default to environment RMAPI_HOST if user hasn't set their own
-        if (userData.rmapi_host) {
-          setRmapiHost(userData.rmapi_host);
-        } else {
-          // Fetch default RMAPI_HOST from system
-          try {
-            const configResponse = await fetch("/api/config", {
-              credentials: "include",
-            });
-            if (configResponse.ok) {
-              const config = await configResponse.json();
-              setRmapiHost(config.rmapi_host || "");
+        const authData = await response.json();
+        if (authData.authenticated && authData.user) {
+          setUser(authData.user);
+          setRmapiPaired(!!authData.user.rmapi_paired);
+          
+          // Default to environment RMAPI_HOST if user hasn't set their own
+          if (authData.user.rmapi_host) {
+            setRmapiHost(authData.user.rmapi_host);
+          } else {
+            // Fetch default RMAPI_HOST from system
+            try {
+              const configResponse = await fetch("/api/config", {
+                credentials: "include",
+              });
+              if (configResponse.ok) {
+                const config = await configResponse.json();
+                setRmapiHost(config.rmapi_host || "");
+              }
+            } catch {
+              setRmapiHost("");
             }
-          } catch {
-            setRmapiHost("");
           }
+        } else {
+          setUser(null);
+          setRmapiPaired(false);
+          setRmapiHost("");
         }
       } else {
         setUser(null);
@@ -74,7 +73,7 @@ export function useUserData() {
 
   useEffect(() => {
     fetchUserData();
-  }, [isAuthenticated]);
+  }, []);
 
   // Listen for changes in localStorage to sync across components
   useEffect(() => {

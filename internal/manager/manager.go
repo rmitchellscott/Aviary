@@ -142,7 +142,18 @@ func moveFile(src, dst string) error {
 // SimpleUpload calls `rmapi put` and returns the uploaded filename or a detailed error.
 func SimpleUpload(path, rmDir string, user *database.User) (string, error) {
 	args := []string{"put"}
-	if os.Getenv("RMAPI_COVERPAGE") == "first" {
+	
+	// Use user's coverpage setting, fallback to environment variable, then default to "current"
+	coverpageSetting := user.CoverpageSetting
+	if coverpageSetting == "" {
+		if os.Getenv("RMAPI_COVERPAGE") == "first" {
+			coverpageSetting = "first"
+		} else {
+			coverpageSetting = "current"
+		}
+	}
+	
+	if coverpageSetting == "first" {
 		args = append(args, "--coverpage=1")
 	}
 	args = append(args, path, rmDir)
@@ -232,7 +243,21 @@ func RenameAndUpload(path, prefix, rmDir string, user *database.User) (string, e
 	}
 
 	args := []string{"put"}
-	if os.Getenv("RMAPI_COVERPAGE") == "first" {
+	
+	// Use user's coverpage setting, fallback to environment variable, then default to "current"
+	coverpageSetting := ""
+	if user != nil {
+		coverpageSetting = user.CoverpageSetting
+	}
+	if coverpageSetting == "" {
+		if os.Getenv("RMAPI_COVERPAGE") == "first" {
+			coverpageSetting = "first"
+		} else {
+			coverpageSetting = "current"
+		}
+	}
+	
+	if coverpageSetting == "first" {
 		args = append(args, "--coverpage=1")
 	}
 	args = append(args, noYearPath, rmDir)

@@ -69,6 +69,18 @@ func MigrateToMultiUser() error {
 		}
 	}
 
+	// Set coverpage setting based on RMAPI_COVERPAGE environment variable
+	coverpageSetting := "current" // default value
+	if os.Getenv("RMAPI_COVERPAGE") == "first" {
+		coverpageSetting = "first"
+	}
+	err = userService.UpdateUserSettings(adminUser.ID, map[string]interface{}{
+		"coverpage_setting": coverpageSetting,
+	})
+	if err != nil {
+		log.Printf("Warning: failed to set coverpage_setting for admin user: %v", err)
+	}
+
 	// Migrate API key from environment to database
 	if envApiKey := os.Getenv("API_KEY"); envApiKey != "" {
 		log.Printf("Migrating API_KEY environment variable to database for admin user")
@@ -89,6 +101,11 @@ func MigrateToMultiUser() error {
 	// Migrate archived files to user directory
 	if err := migrateArchivedFiles(adminUser.ID); err != nil {
 		log.Printf("Warning: failed to migrate archived files: %v", err)
+	}
+
+	// Ensure all existing users have coverpage setting set
+	if err := ensureUsersHaveCoverpageSetting(); err != nil {
+		log.Printf("Warning: failed to set coverpage setting for existing users: %v", err)
 	}
 	
 	return nil
@@ -394,4 +411,25 @@ func copyFile(src, dst string) error {
 		return err
 	}
 	return os.Chmod(dst, sourceInfo.Mode())
+}
+
+// ensureUsersHaveCoverpageSetting sets coverpage setting for users who don't have it set
+func ensureUsersHaveCoverpageSetting() error {
+	// Set coverpage setting based on server's RMAPI_COVERPAGE environment variable
+	coverpageSetting := "current" // default value
+	if os.Getenv("RMAPI_COVERPAGE") == "first" {
+		coverpageSetting = "first"
+	}
+
+	// Update users who have empty or null coverpage_setting
+	result := DB.Model(&User{}).Where("coverpage_setting = ? OR coverpage_setting IS NULL", "").Update("coverpage_setting", coverpageSetting)
+	if result.Error != nil {
+		return fmt.Errorf("failed to update coverpage setting for existing users: %w", result.Error)
+	}
+
+	if result.RowsAffected > 0 {
+		log.Printf("Updated coverpage setting to '%s' for %d existing users", coverpageSetting, result.RowsAffected)
+	}
+
+	return nil
 }

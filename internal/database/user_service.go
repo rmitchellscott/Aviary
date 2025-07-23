@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -35,16 +36,23 @@ func (s *UserService) CreateUser(username, email, password string, isAdmin bool)
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 	
+	// Set coverpage setting based on server's RMAPI_COVERPAGE environment variable
+	coverpageSetting := "current" // default value
+	if os.Getenv("RMAPI_COVERPAGE") == "first" {
+		coverpageSetting = "first"
+	}
+
 	user := &User{
-		ID:           uuid.New(),
-		Username:     username,
-		Email:        email,
-		Password:     string(hashedPassword),
-		IsAdmin:      isAdmin,
-		IsActive:     true,
-		DefaultRmdir: "/",
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
+		ID:               uuid.New(),
+		Username:         username,
+		Email:            email,
+		Password:         string(hashedPassword),
+		IsAdmin:          isAdmin,
+		IsActive:         true,
+		DefaultRmdir:     "/",
+		CoverpageSetting: coverpageSetting,
+		CreatedAt:        time.Now(),
+		UpdatedAt:        time.Now(),
 	}
 	
 	if err := s.db.Create(user).Error; err != nil {
