@@ -102,7 +102,7 @@ async function sniffMime(url: string): Promise<string | null> {
 }
 
 export default function HomePage() {
-  const { isAuthenticated, isLoading, login, authConfigured, uiSecret } =
+  const { isAuthenticated, isLoading, login, authConfigured, uiSecret, multiUserMode } =
     useAuth();
   const { t } = useTranslation();
   const { rmapiPaired, rmapiHost, loading: userDataLoading, updatePairingStatus } = useUserData();
@@ -493,8 +493,9 @@ export default function HomePage() {
           {!rmapiPaired && !userDataLoading && (
             <div className="bg-muted border rounded-md p-3 text-muted-foreground">
               <p className="text-sm">
-                <strong className="text-foreground">Pair with reMarkable cloud</strong> to upload documents. 
-                Go to Settings for additional configuration.
+                <strong className="text-foreground">Pair with reMarkable cloud</strong> to upload documents.{multiUserMode && (
+                  <> Go to Settings for additional configuration.</>
+                )}
               </p>
             </div>
           )}

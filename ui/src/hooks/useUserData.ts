@@ -24,42 +24,52 @@ export function useUserData() {
   const fetchUserData = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/auth/check", {
+      
+      // First, get config to determine if we're in multi-user mode
+      const configResponse = await fetch("/api/config", {
         credentials: "include",
       });
+      
+      let config: any = {};
+      if (configResponse.ok) {
+        config = await configResponse.json();
+      }
+      
+      const isMultiUserMode = config.multiUserMode;
+      
+      if (isMultiUserMode) {
+        // Multi-user mode: check auth status for user data and pairing
+        const response = await fetch("/api/auth/check", {
+          credentials: "include",
+        });
 
-      if (response.ok) {
-        const authData = await response.json();
-        if (authData.authenticated && authData.user) {
-          setUser(authData.user);
-          setRmapiPaired(!!authData.user.rmapi_paired);
-          
-          // Default to environment RMAPI_HOST if user hasn't set their own
-          if (authData.user.rmapi_host) {
-            setRmapiHost(authData.user.rmapi_host);
-          } else {
-            // Fetch default RMAPI_HOST from system
-            try {
-              const configResponse = await fetch("/api/config", {
-                credentials: "include",
-              });
-              if (configResponse.ok) {
-                const config = await configResponse.json();
-                setRmapiHost(config.rmapi_host || "");
-              }
-            } catch {
-              setRmapiHost("");
+        if (response.ok) {
+          const authData = await response.json();
+          if (authData.authenticated && authData.user) {
+            setUser(authData.user);
+            setRmapiPaired(!!authData.user.rmapi_paired);
+            
+            // Default to environment RMAPI_HOST if user hasn't set their own
+            if (authData.user.rmapi_host) {
+              setRmapiHost(authData.user.rmapi_host);
+            } else {
+              setRmapiHost(config.rmapi_host || "");
             }
+          } else {
+            setUser(null);
+            setRmapiPaired(false);
+            setRmapiHost(config.rmapi_host || "");
           }
         } else {
           setUser(null);
           setRmapiPaired(false);
-          setRmapiHost("");
+          setRmapiHost(config.rmapi_host || "");
         }
       } else {
-        setUser(null);
-        setRmapiPaired(false);
-        setRmapiHost("");
+        // Single-user mode: get pairing status from config
+        setUser(null); // No user object in single-user mode
+        setRmapiPaired(!!config.rmapi_paired);
+        setRmapiHost(config.rmapi_host || "");
       }
     } catch (error) {
       console.error("Failed to fetch user data:", error);

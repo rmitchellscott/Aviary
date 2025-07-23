@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/components/AuthProvider";
 
 interface PairingDialogProps {
   isOpen: boolean;
@@ -34,6 +35,8 @@ export function PairingDialog({
     onClose();
   };
 
+  const { multiUserMode } = useAuth();
+
   const handleSubmit = async () => {
     const trimmedCode = code.trim();
     
@@ -47,7 +50,10 @@ export function PairingDialog({
     setError(null);
     
     try {
-      const resp = await fetch("/api/profile/pair", {
+      // Use different endpoint based on mode
+      const endpoint = multiUserMode ? "/api/profile/pair" : "/api/pair";
+      
+      const resp = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

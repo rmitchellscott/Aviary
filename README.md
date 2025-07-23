@@ -174,9 +174,9 @@ ADMIN_EMAIL=admin@example.com
 #### Features
 - **User Registration**: Admin can create/manage user accounts
 - **Per-User API Keys**: Each user can generate multiple API keys with expiration
-- **Per-User Settings**: Individual RMAPI_HOST, default directories, and preferences
+- **Per-User Settings**: Individual RMAPI_HOST, default directories, and cover page preferences
 - **Password Reset**: Email-based password reset via SMTP
-- **Admin Interface**: User management, system settings, database backup/restore
+- **Admin Interface**: User management, system settings, database & storage backup/restore
 - **Database Support**: SQLite (default) or PostgreSQL for production
 - **Per-User Data**: Separate document storage and folder cache per user
 
@@ -274,16 +274,60 @@ curl -X POST http://localhost:8000/api/webhook \
 The following examples are provided as a way to get started. Some adjustments may be required before production use, particularly regarding secret management.
 
 ## Set Up
-1. Get your device and user token file (rmapi.conf) from the reMarkable cloud by running the following command and entering the one-time code: `docker run -it -e RMAPI_HOST=remarkable.mydomain.com ghcr.io/rmitchellscott/aviary pair`
-1. Save the output as rmapi.conf, and this will get mounted into the container.
+
+### Pairing with reMarkable Cloud
+
+Before using Aviary, you need to pair it with your reMarkable Cloud account. There are two ways to do this:
+
+#### Method 1: Command Line Pairing (Recommended for Docker)
+Get your device and user token file (rmapi.conf) by running:
+```bash
+docker run -it -e RMAPI_HOST=remarkable.mydomain.com ghcr.io/rmitchellscott/aviary pair
+```
+
+For the standard reMarkable Cloud, omit the `RMAPI_HOST`:
+```bash
+docker run -it ghcr.io/rmitchellscott/aviary pair
+```
+
+This will prompt you for an 8-character one-time code that you can get from https://my.remarkable.com/device/desktop/connect
+
+Save the output as `rmapi.conf` and mount it into the container at `/root/.config/rmapi/rmapi.conf`.
+
+#### Method 2: Web Interface Pairing
+Alternatively, you can start Aviary without an rmapi.conf file and pair through the web interface:
+
+1. Start Aviary (it will show a warning but continue to run)
+2. Open the web interface
+3. Click the "Pair" button
+4. Enter the 8-character code as prompted
+5. The pairing will be completed automatically
+
+**Note:** In single-user mode, both methods write to the same location (`/root/.config/rmapi/rmapi.conf`). In multi-user mode, each user has their own pairing status managed through their profile settings.
+
+### Multi-User Mode Pairing
+
+In multi-user mode, pairing is handled per-user:
+
+1. Each user must pair individually through their profile settings
+2. Users can access pairing through Settings → Profile → Pair with reMarkable
+3. Each user can configure their own RMAPI_HOST if using self-hosted rmfakecloud
+4. Admin users can see which users are paired through the admin interface
+5. User pairing data is stored in the database, not in filesystem configs
 
 
 ## Docker
 ```shell
-# Basic usage
+# Basic usage (with pre-created rmapi.conf)
 docker run -d \
 -p 8000:8000 \
 -v ~/rmapi.conf:/root/.config/rmapi/rmapi.conf \
+ghcr.io/rmitchellscott/aviary
+
+# Basic usage (pair through web interface)
+docker run -d \
+-p 8000:8000 \
+-v ~/.config/rmapi:/root/.config/rmapi \
 ghcr.io/rmitchellscott/aviary
 
 # With authentication (single-user mode)
@@ -292,7 +336,7 @@ docker run -d \
 -e AUTH_USERNAME=myuser \
 -e AUTH_PASSWORD=mypassword \
 -e API_KEY=your-secret-api-key \
--v ~/rmapi.conf:/root/.config/rmapi/rmapi.conf \
+-v ~/.config/rmapi:/root/.config/rmapi \
 ghcr.io/rmitchellscott/aviary
 
 # Multi-user mode with SQLite
@@ -322,9 +366,14 @@ services:
       # AUTH_PASSWORD: "${AUTH_PASSWORD}"
       # API_KEY: "${API_KEY}"
     volumes:
+      # Option 1: Mount existing rmapi.conf file
+      # - type: bind
+      #   source: ~/rmapi.conf
+      #   target: /root/.config/rmapi/rmapi.conf
+      # Option 2: Mount directory for web interface pairing
       - type: bind
-        source: ~/rmapi.conf
-        target: /root/.config/rmapi/rmapi.conf
+        source: ~/.config/rmapi
+        target: /root/.config/rmapi
     restart: unless-stopped
 ```
 

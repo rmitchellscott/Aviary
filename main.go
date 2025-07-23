@@ -56,6 +56,67 @@ func serveIndexWithSecret(c *gin.Context, uiFS fs.FS, secret string) {
 	c.String(http.StatusOK, html)
 }
 
+// checkSingleUserPaired checks if rmapi.conf exists for single-user mode
+func checkSingleUserPaired() bool {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return false
+	}
+	cfgPath := filepath.Join(home, ".config", "rmapi", "rmapi.conf")
+	info, err := os.Stat(cfgPath)
+	return err == nil && info.Size() > 0
+}
+
+// handlePairRequest handles pairing for both single-user and multi-user modes
+func handlePairRequest(c *gin.Context) {
+	if database.IsMultiUserMode() {
+		// In multi-user mode, delegate to the existing handler
+		auth.PairRMAPIHandler(c)
+		return
+	}
+
+	// Single-user mode pairing
+	var req struct {
+		Code string `json:"code" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	// Ensure the rmapi config directory exists
+	home, err := os.UserHomeDir()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to determine home directory"})
+		return
+	}
+
+	cfgDir := filepath.Join(home, ".config", "rmapi")
+	if err := os.MkdirAll(cfgDir, 0755); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create config directory"})
+		return
+	}
+
+	cfgPath := filepath.Join(cfgDir, "rmapi.conf")
+
+	// Run rmapi pairing command
+	cmd := exec.Command("rmapi", "cd")
+	cmd.Stdin = strings.NewReader(req.Code + "\n")
+	env := os.Environ()
+	env = append(env, "RMAPI_CONFIG="+cfgPath)
+	if host := os.Getenv("RMAPI_HOST"); host != "" {
+		env = append(env, "RMAPI_HOST="+host)
+	}
+	cmd.Env = env
+
+	if err := cmd.Run(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Pairing failed"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
 func main() {
 	// Load .env if present
 	_ = godotenv.Load()
@@ -93,17 +154,10 @@ func main() {
 	addr := ":" + port
 
 	// Check for rmapi.conf (skip in multi-user mode as each user will have their own config)
+	// In single-user mode, just log a warning if not paired - allow UI pairing
 	if !database.IsMultiUserMode() {
-		home, err := os.UserHomeDir()
-		if err == nil {
-			cfgPath := filepath.Join(home, ".config", "rmapi", "rmapi.conf")
-			info, err := os.Stat(cfgPath)
-			if os.IsNotExist(err) || (err == nil && info.Size() == 0) {
-				log.Fatalf("No valid rmapi.conf detected! Please run aviary pair to complete setup. Exiting.")
-				os.Exit(1)
-			}
-		} else {
-			log.Printf("Could not determine home directory to check rmapi.conf: %v", err)
+		if !checkSingleUserPaired() {
+			log.Printf("Warning: No valid rmapi.conf detected. You can pair through the web interface or run 'aviary pair' from the command line.")
 		}
 	}
 
@@ -174,6 +228,9 @@ func main() {
 		profile.GET("/stats", auth.GetCurrentUserStatsHandler) // GET /api/profile/stats - get current user stats
 		profile.DELETE("", auth.DeleteCurrentUserHandler)      // DELETE /api/profile - delete current user account
 	}
+
+	// Single-user pairing endpoint (available in both modes, but works differently)
+	protected.POST("/pair", handlePairRequest)
 
 	// API key management endpoints (multi-user mode only)
 	apiKeys := protected.Group("/api-keys")
@@ -271,7 +328,17 @@ func main() {
 			smtpConfigured = smtp.IsSMTPConfigured()
 		}
 
-		c.JSON(http.StatusOK, gin.H{
+		// Check rmapi pairing status
+		rmapiPaired := false
+		if multiUserMode {
+			// In multi-user mode, pairing status is per-user and handled by /api/auth/check
+			// We don't include it here as it requires user context
+		} else {
+			// In single-user mode, check the global rmapi.conf file
+			rmapiPaired = checkSingleUserPaired()
+		}
+
+		response := gin.H{
 			"apiUrl":         "/api/",
 			"authEnabled":    authEnabled,
 			"apiKeyEnabled":  apiKeyEnabled,
@@ -279,7 +346,14 @@ func main() {
 			"defaultRmDir":   defaultRmDir,
 			"rmapi_host":     rmapiHost,
 			"smtpConfigured": smtpConfigured,
-		})
+		}
+
+		// Add rmapi_paired for single-user mode only
+		if !multiUserMode {
+			response["rmapi_paired"] = rmapiPaired
+		}
+
+		c.JSON(http.StatusOK, response)
 	})
 
 	// File server for all embedded files (gate behind AVIARY_DISABLE_UI)
