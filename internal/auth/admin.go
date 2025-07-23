@@ -6,10 +6,13 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/database"
+	"github.com/rmitchellscott/aviary/internal/export"
 	"github.com/rmitchellscott/aviary/internal/smtp"
 	"github.com/rmitchellscott/aviary/internal/storage"
 )
@@ -212,33 +215,48 @@ func BackupDatabaseHandler(c *gin.Context) {
 		return
 	}
 
+	// Parse query parameters for export options
+	includeFiles := c.DefaultQuery("include_files", "true") == "true"
+	includeConfigs := c.DefaultQuery("include_configs", "true") == "true"
+	userIDsParam := c.Query("user_ids") // Comma-separated list of UUIDs
+
+	// Parse user IDs if specified
+	var userIDs []uuid.UUID
+	if userIDsParam != "" {
+		for _, idStr := range strings.Split(userIDsParam, ",") {
+			if id, err := uuid.Parse(strings.TrimSpace(idStr)); err == nil {
+				userIDs = append(userIDs, id)
+			}
+		}
+	}
+
 	// Generate backup filename with timestamp
 	timestamp := time.Now().Format("20060102_150405")
-	config := database.GetDatabaseConfig()
-
-	var filename string
-	var contentType string
-
-	switch config.Type {
-	case "sqlite":
-		filename = fmt.Sprintf("aviary_backup_sqlite_%s.db", timestamp)
-		contentType = "application/x-sqlite3"
-	case "postgres":
-		filename = fmt.Sprintf("aviary_backup_postgres_%s.sql", timestamp)
-		contentType = "application/sql"
-	default:
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Unsupported database type for backup"})
-		return
-	}
+	filename := fmt.Sprintf("aviary_backup_%s.tar.gz", timestamp)
 
 	// Create temporary backup file
 	tempDir := os.TempDir()
 	backupPath := filepath.Join(tempDir, filename)
 
-	// Perform backup
-	if err := database.BackupDatabase(backupPath); err != nil {
+	// Create exporter
+	dataDir := os.Getenv("DATA_DIR")
+	if dataDir == "" {
+		dataDir = "/data"
+	}
+	exporter := export.NewExporter(database.DB, dataDir)
+
+	// Configure export options
+	exportOptions := export.ExportOptions{
+		IncludeDatabase: true,
+		IncludeFiles:    includeFiles,
+		IncludeConfigs:  includeConfigs,
+		UserIDs:         userIDs,
+	}
+
+	// Perform export
+	if err := exporter.Export(backupPath, exportOptions); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to create database backup: " + err.Error(),
+			"error": "Failed to create backup: " + err.Error(),
 		})
 		return
 	}
@@ -248,8 +266,8 @@ func BackupDatabaseHandler(c *gin.Context) {
 
 	// Set headers for download
 	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
-	c.Header("Content-Type", contentType)
-	c.Header("Content-Description", "Database Backup")
+	c.Header("Content-Type", "application/gzip")
+	c.Header("Content-Description", "Aviary Backup")
 
 	// Stream file to client
 	c.File(backupPath)
@@ -281,33 +299,26 @@ func RestoreDatabaseHandler(c *gin.Context) {
 	}
 	defer file.Close()
 
-	// Validate file type based on database configuration
-	config := database.GetDatabaseConfig()
-	validExtensions := map[string][]string{
-		"sqlite":   {".db", ".sqlite", ".sqlite3"},
-		"postgres": {".sql", ".dump", ".custom"},
-	}
+	// Parse import options
+	overwriteFiles := c.PostForm("overwrite_files") == "true"
+	overwriteDatabase := c.PostForm("overwrite_database") == "true"
+	userIDsParam := c.PostForm("user_ids") // Comma-separated list of UUIDs
 
-	validExts, exists := validExtensions[config.Type]
-	if !exists {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Unsupported database type for restore"})
-		return
-	}
-
-	// Check file extension
-	filename := header.Filename
-	ext := filepath.Ext(filename)
-	isValidExt := false
-	for _, validExt := range validExts {
-		if ext == validExt {
-			isValidExt = true
-			break
+	// Parse user IDs if specified
+	var userIDs []uuid.UUID
+	if userIDsParam != "" {
+		for _, idStr := range strings.Split(userIDsParam, ",") {
+			if id, err := uuid.Parse(strings.TrimSpace(idStr)); err == nil {
+				userIDs = append(userIDs, id)
+			}
 		}
 	}
 
-	if !isValidExt {
+	// Validate file type
+	filename := header.Filename
+	if !strings.HasSuffix(filename, ".tar.gz") && !strings.HasSuffix(filename, ".tgz") {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": fmt.Sprintf("Invalid file type. Expected: %v, got: %s", validExts, ext),
+			"error": "Invalid file type. Expected .tar.gz or .tgz file",
 		})
 		return
 	}
@@ -331,17 +342,38 @@ func RestoreDatabaseHandler(c *gin.Context) {
 	}
 	tempFile.Close()
 
-	// Perform database restore
-	if err := database.RestoreDatabase(tempFilePath); err != nil {
+	// Create importer
+	dataDir := os.Getenv("DATA_DIR")
+	if dataDir == "" {
+		dataDir = "/data"
+	}
+	importer := export.NewImporter(database.DB, dataDir)
+
+	// Configure import options
+	importOptions := export.ImportOptions{
+		OverwriteFiles:    overwriteFiles,
+		OverwriteDatabase: overwriteDatabase,
+		UserIDs:           userIDs,
+	}
+
+	// Perform import
+	metadata, err := importer.Import(tempFilePath, importOptions)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to restore database: " + err.Error(),
+			"error": "Failed to restore backup: " + err.Error(),
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "Database restored successfully from " + filename,
+		"message": fmt.Sprintf("Backup restored successfully from %s", filename),
+		"metadata": gin.H{
+			"aviary_version": metadata.AviaryVersion,
+			"database_type":  metadata.DatabaseType,
+			"users_restored": len(metadata.UsersExported),
+			"export_date":    metadata.ExportTimestamp.Format("2006-01-02 15:04:05"),
+		},
 	})
 }
 

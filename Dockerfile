@@ -42,9 +42,19 @@ RUN go mod download
 COPY . .
 COPY --from=ui-builder /app/ui/dist ./ui/dist
 
+# Build args for version injection
+ARG VERSION=dev
+ARG GIT_COMMIT=unknown
+ARG BUILD_DATE=unknown
 ARG TARGETPLATFORM
+
 RUN --mount=type=cache,target=/root/.cache \
-    CGO_ENABLED=0 xx-go build -ldflags='-w -s' -trimpath
+    CGO_ENABLED=0 xx-go build \
+    -ldflags="-w -s \
+        -X github.com/rmitchellscott/aviary/internal/version.Version=${VERSION} \
+        -X github.com/rmitchellscott/aviary/internal/version.GitCommit=${GIT_COMMIT} \
+        -X github.com/rmitchellscott/aviary/internal/version.BuildDate=${BUILD_DATE}" \
+    -trimpath
 
 
 # Final image
@@ -55,6 +65,7 @@ RUN apk add --no-cache \
       ca-certificates \
       ghostscript \
       imagemagick \
+      postgresql-client \
     && update-ca-certificates
 
 WORKDIR /app

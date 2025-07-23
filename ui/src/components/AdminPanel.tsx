@@ -20,6 +20,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Alert,
+  AlertDescription,
+} from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -460,6 +464,16 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   ) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Validate file type - only check filename extension
+      const fileName = file.name.toLowerCase();
+      const isTarGz = fileName.endsWith('.tar.gz') || fileName.endsWith('.tgz');
+      
+      if (!isTarGz) {
+        setError(`Invalid file type. Please select a backup archive (.tar.gz or .tgz). Selected file: "${file.name}"`);
+        event.target.value = "";
+        return;
+      }
+      
       setRestoreConfirmDialog({ isOpen: true, file });
     }
     // Reset input value so same file can be selected again
@@ -473,9 +487,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     try {
       setSaving(true);
       setError(null);
+      setSuccessMessage(null);
 
       const formData = new FormData();
       formData.append("backup_file", file);
+      formData.append("overwrite_files", "true");
+      formData.append("overwrite_database", "true");
 
       const response = await fetch("/api/admin/restore", {
         method: "POST",
@@ -487,7 +504,11 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       if (response.ok) {
         setRestoreConfirmDialog({ isOpen: false, file: null });
         setError(null);
-        setSuccessMessage(result.message || "Database restored successfully");
+        let message = result.message || "Database restored successfully";
+        if (result.metadata) {
+          message += ` (${result.metadata.users_restored} users, exported ${result.metadata.export_date})`;
+        }
+        setSuccessMessage(message);
         // Refresh system status after restore
         await fetchSystemStatus();
         await fetchUsers();
@@ -496,7 +517,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         setError(result.error || "Failed to restore database");
       }
     } catch (error) {
-      setError("Failed to restore database");
+      setError("Failed to restore database: " + error.message);
     } finally {
       setSaving(false);
     }
@@ -675,15 +696,21 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         </DialogHeader>
 
         {error && (
-          <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3 text-destructive">
-            {error}
-          </div>
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              {error}
+            </AlertDescription>
+          </Alert>
         )}
 
         {successMessage && (
-          <div className="bg-green-50 border border-green-200 rounded-md p-3 text-green-800">
-            {successMessage}
-          </div>
+          <Alert>
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription>
+              {successMessage}
+            </AlertDescription>
+          </Alert>
         )}
 
         <Tabs defaultValue="overview" className="w-full h-[600px] flex flex-col">
@@ -1123,7 +1150,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             <div className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Database Management</CardTitle>
+                  <CardTitle>Data Management</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -1134,14 +1161,14 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       className="w-full"
                     >
                       <Database className="h-4 w-4 mr-2" />
-                      {saving ? "Creating Backup..." : "Backup Database"}
+                      {saving ? "Creating Backup..." : "Backup"}
                     </Button>
                     <div className="w-full">
                       <input
                         type="file"
                         ref={fileInputRef}
                         onChange={handleRestoreFileSelect}
-                        accept=".db,.sqlite,.sqlite3,.sql,.dump,.custom"
+                        accept=".tar.gz,.tgz,application/gzip,application/x-gzip,application/x-tar,application/x-compressed-tar"
                         style={{ display: "none" }}
                       />
                       <Button
@@ -1151,27 +1178,25 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         className="w-full"
                       >
                         <Database className="h-4 w-4 mr-2" />
-                        Restore Database
+                        Restore...
                       </Button>
                     </div>
                   </div>
                   <div className="text-sm text-muted-foreground space-y-2">
                     <p>
-                      <strong>Backup:</strong> Downloads a complete backup of
-                      the database
+                      <strong>Backup:</strong> Downloads a complete backup including database and user files as a .tar.gz archive
                     </p>
                     <p>
-                      <strong>Restore:</strong> Replaces current database with
-                      uploaded backup file
+                      <strong>Restore:</strong> Restores database and user files from uploaded backup archive (.tar.gz format)
                     </p>
                     <p className="text-amber-600">
                       <AlertTriangle className="h-4 w-4 inline mr-1" />
-                      Warning: Database restore will overwrite current database
+                      Warning: Restore will overwrite current database and files
                     </p>
                   </div>
                 </CardContent>
               </Card>
-
+{/* 
               <Card>
                 <CardHeader>
                   <CardTitle>Storage Management</CardTitle>
@@ -1215,7 +1240,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     </p>
                   </div>
                 </CardContent>
-              </Card>
+              </Card> */}
 
               {/* <Card>
                 <CardHeader>
@@ -1301,7 +1326,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-2">
               <p>
-                You are about to restore the database from:{" "}
+                You are about to restore from backup file:{" "}
                 <strong>{restoreConfirmDialog.file?.name}</strong>
               </p>
               <p className="text-destructive font-medium">
@@ -1310,6 +1335,8 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               <ul className="list-disc list-inside text-sm space-y-1 ml-4">
                 <li>All user accounts and settings</li>
                 <li>All API keys and sessions</li>
+                <li>All user documents and files</li>
+                <li>All cloud pairing configuration</li>
                 <li>All folder caches</li>
                 <li>All system settings</li>
               </ul>

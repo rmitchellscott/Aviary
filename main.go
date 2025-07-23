@@ -24,6 +24,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/downloader"
 	"github.com/rmitchellscott/aviary/internal/manager"
 	"github.com/rmitchellscott/aviary/internal/smtp"
+	"github.com/rmitchellscott/aviary/internal/version"
 	"github.com/rmitchellscott/aviary/internal/webhook"
 )
 
@@ -125,6 +126,15 @@ func handlePairRequest(c *gin.Context) {
 func main() {
 	// Load .env if present
 	_ = godotenv.Load()
+
+	// Log version information
+	log.Printf("Starting %s", version.String())
+
+	// Add --version flag support
+	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
+		fmt.Println(version.String())
+		os.Exit(0)
+	}
 
 	// Interactive pair flow
 	if len(os.Args) > 1 && os.Args[1] == "pair" {
@@ -295,6 +305,9 @@ func main() {
 	protected.GET("/status/ws/:id", webhook.StatusWSHandler)
 	protected.GET("/sniff", downloader.SniffHandler)
 	protected.GET("/folders", manager.FoldersHandler)
+	protected.GET("/version", func(c *gin.Context) {
+		c.JSON(http.StatusOK, version.Get())
+	})
 	router.GET("/api/config", func(c *gin.Context) {
 		var authEnabled bool
 		var apiKeyEnabled bool

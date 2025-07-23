@@ -1,14 +1,11 @@
 package database
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -147,213 +144,16 @@ func MigrateUserDocuments(userID uuid.UUID) error {
 	return nil
 }
 
-// BackupDatabase creates a backup of the database
+// BackupDatabase creates a backup using the new JSON export system
+// This function is kept for backward compatibility but now uses JSON export
 func BackupDatabase(backupPath string) error {
-	config := GetDatabaseConfig()
-	
-	switch config.Type {
-	case "sqlite":
-		return backupSQLiteDatabase(backupPath)
-	case "postgres":
-		return backupPostgresDatabase(backupPath, config)
-	default:
-		return fmt.Errorf("backup not implemented for database type: %s", config.Type)
-	}
+	return fmt.Errorf("legacy backup method deprecated - use JSON export system instead")
 }
 
-// backupSQLiteDatabase creates a backup of SQLite database
-func backupSQLiteDatabase(backupPath string) error {
-	config := GetDatabaseConfig()
-	dbPath := filepath.Join(config.DataDir, "aviary.db")
-	
-	// Check if source database exists
-	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
-		return fmt.Errorf("database file not found: %s", dbPath)
-	}
-	
-	// Ensure backup directory exists
-	if err := os.MkdirAll(filepath.Dir(backupPath), 0755); err != nil {
-		return fmt.Errorf("failed to create backup directory: %w", err)
-	}
-	
-	// Use VACUUM INTO command for consistent backup
-	if err := DB.Exec("VACUUM INTO ?", backupPath).Error; err != nil {
-		// Fallback to file copy if VACUUM INTO is not supported
-		log.Printf("VACUUM INTO failed, falling back to file copy: %v", err)
-		return copyFile(dbPath, backupPath)
-	}
-	
-	log.Printf("SQLite database backed up successfully to: %s", backupPath)
-	return nil
-}
-
-// backupPostgresDatabase creates a backup of PostgreSQL database
-func backupPostgresDatabase(backupPath string, config *DatabaseConfig) error {
-	// Ensure backup directory exists
-	if err := os.MkdirAll(filepath.Dir(backupPath), 0755); err != nil {
-		return fmt.Errorf("failed to create backup directory: %w", err)
-	}
-	
-	// Prepare pg_dump command - use plain text format for better compatibility
-	args := []string{
-		"--host=" + config.Host,
-		"--port=" + fmt.Sprintf("%d", config.Port),
-		"--username=" + config.User,
-		"--no-password", // Use PGPASSWORD environment variable
-		"--verbose",
-		"--clean",
-		"--if-exists",
-		"--create",
-		"--format=plain", // Use plain text format
-		"--no-comments", // Skip comments to avoid version compatibility issues
-		"--no-tablespaces", // Avoid tablespace issues
-		"--no-security-labels", // Skip security labels
-		"--no-privileges", // Skip privilege assignments
-		"--file=" + backupPath,
-		config.DBName,
-	}
-	
-	cmd := exec.Command("pg_dump", args...)
-	
-	// Set password via environment variable
-	cmd.Env = append(os.Environ(), "PGPASSWORD="+config.Password)
-	
-	// Capture output for logging
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("pg_dump failed: %v, stderr: %s", err, stderr.String())
-	}
-	
-	log.Printf("PostgreSQL database backed up successfully to: %s", backupPath)
-	return nil
-}
-
-// RestoreDatabase restores a database from backup
+// RestoreDatabase restores from a backup using the new JSON import system
+// This function is kept for backward compatibility but now uses JSON import
 func RestoreDatabase(backupPath string) error {
-	config := GetDatabaseConfig()
-	
-	switch config.Type {
-	case "sqlite":
-		return restoreSQLiteDatabase(backupPath)
-	case "postgres":
-		return restorePostgresDatabase(backupPath, config)
-	default:
-		return fmt.Errorf("restore not implemented for database type: %s", config.Type)
-	}
-}
-
-// restoreSQLiteDatabase restores SQLite database from backup
-func restoreSQLiteDatabase(backupPath string) error {
-	config := GetDatabaseConfig()
-	dbPath := filepath.Join(config.DataDir, "aviary.db")
-	
-	// Check if backup file exists
-	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
-		return fmt.Errorf("backup file not found: %s", backupPath)
-	}
-	
-	// Close current database connection
-	if DB != nil {
-		sqlDB, err := DB.DB()
-		if err != nil {
-			return fmt.Errorf("failed to get underlying database connection: %w", err)
-		}
-		if err := sqlDB.Close(); err != nil {
-			log.Printf("Warning: failed to close database connection: %v", err)
-		}
-		DB = nil
-	}
-	
-	// Create backup of current database before restore
-	backupCurrentPath := dbPath + ".pre-restore-backup"
-	if _, err := os.Stat(dbPath); err == nil {
-		if err := copyFile(dbPath, backupCurrentPath); err != nil {
-			log.Printf("Warning: failed to backup current database: %v", err)
-		} else {
-			log.Printf("Current database backed up to: %s", backupCurrentPath)
-		}
-	}
-	
-	// Restore from backup (replace current database)
-	if err := copyFile(backupPath, dbPath); err != nil {
-		return fmt.Errorf("failed to restore database: %w", err)
-	}
-	
-	// Reinitialize database connection
-	if err := Initialize(); err != nil {
-		return fmt.Errorf("failed to reinitialize database after restore: %w", err)
-	}
-	
-	log.Printf("SQLite database restored successfully from: %s", backupPath)
-	return nil
-}
-
-// restorePostgresDatabase restores PostgreSQL database from backup
-func restorePostgresDatabase(backupPath string, config *DatabaseConfig) error {
-	// Check if backup file exists
-	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
-		return fmt.Errorf("backup file not found: %s", backupPath)
-	}
-	
-	// Close current database connection
-	if DB != nil {
-		sqlDB, err := DB.DB()
-		if err != nil {
-			return fmt.Errorf("failed to get underlying database connection: %w", err)
-		}
-		if err := sqlDB.Close(); err != nil {
-			log.Printf("Warning: failed to close database connection: %v", err)
-		}
-		DB = nil
-	}
-	
-	// Use psql to restore plain SQL backup - this handles version differences better
-	args := []string{
-		"--host=" + config.Host,
-		"--port=" + fmt.Sprintf("%d", config.Port),
-		"--username=" + config.User,
-		"--no-password",
-		"--dbname=postgres", // Connect to postgres database first
-		"--file=" + backupPath,
-		"--quiet", // Reduce verbose output
-		"--set=ON_ERROR_STOP=off", // Continue on errors (like unrecognized parameters)
-	}
-	
-	cmd := exec.Command("psql", args...)
-	
-	// Set password via environment variable
-	cmd.Env = append(os.Environ(), "PGPASSWORD="+config.Password)
-	
-	// Capture output for logging
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	
-	if err := cmd.Run(); err != nil {
-		// Check stderr for critical errors vs warnings
-		stderrStr := stderr.String()
-		if strings.Contains(stderrStr, "unrecognized configuration parameter") ||
-			 strings.Contains(stderrStr, "already exists") ||
-			 strings.Contains(stderrStr, "does not exist") {
-			// These are typically non-fatal warnings during restore
-			log.Printf("psql restore completed with warnings (likely version/state differences): %s", stderrStr)
-		} else {
-			// Try to reinitialize database connection even if restore failed
-			if initErr := Initialize(); initErr != nil {
-				log.Printf("Warning: failed to reinitialize database after failed restore: %v", initErr)
-			}
-			return fmt.Errorf("psql restore failed: %v, stderr: %s", err, stderrStr)
-		}
-	}
-	
-	// Reinitialize database connection
-	if err := Initialize(); err != nil {
-		return fmt.Errorf("failed to reinitialize database after restore: %w", err)
-	}
-	
-	log.Printf("PostgreSQL database restored successfully from: %s", backupPath)
-	return nil
+	return fmt.Errorf("legacy restore method deprecated - use JSON import system instead")
 }
 
 // CleanupOldData removes old data based on retention policies
