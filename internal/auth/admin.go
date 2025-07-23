@@ -1,8 +1,12 @@
 package auth
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"path/filepath"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rmitchellscott/aviary/internal/database"
@@ -207,13 +211,47 @@ func BackupDatabaseHandler(c *gin.Context) {
 		return
 	}
 
-	// For now, just return a TODO message
-	// This would need to be implemented based on the specific backup requirements
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "Database backup functionality is not yet implemented",
-		"todo":    "Implement backup functionality based on requirements",
-	})
+	// Generate backup filename with timestamp
+	timestamp := time.Now().Format("20060102_150405")
+	config := database.GetDatabaseConfig()
+	
+	var filename string
+	var contentType string
+	
+	switch config.Type {
+	case "sqlite":
+		filename = fmt.Sprintf("aviary_backup_sqlite_%s.db", timestamp)
+		contentType = "application/x-sqlite3"
+	case "postgres":
+		filename = fmt.Sprintf("aviary_backup_postgres_%s.sql", timestamp)
+		contentType = "application/sql"
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unsupported database type for backup"})
+		return
+	}
+	
+	// Create temporary backup file
+	tempDir := os.TempDir()
+	backupPath := filepath.Join(tempDir, filename)
+	
+	// Perform backup
+	if err := database.BackupDatabase(backupPath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to create database backup: " + err.Error(),
+		})
+		return
+	}
+	
+	// Clean up backup file after download
+	defer os.Remove(backupPath)
+	
+	// Set headers for download
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
+	c.Header("Content-Type", contentType)
+	c.Header("Content-Description", "Database Backup")
+	
+	// Stream file to client
+	c.File(backupPath)
 }
 
 // RestoreDatabaseHandler initiates database restore (admin only)
@@ -228,11 +266,80 @@ func RestoreDatabaseHandler(c *gin.Context) {
 		return
 	}
 
-	// For now, just return a TODO message
-	// This would need to be implemented based on the specific restore requirements
+	// Parse multipart form
+	if err := c.Request.ParseMultipartForm(32 << 20); err != nil { // 32MB max
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse multipart form: " + err.Error()})
+		return
+	}
+
+	// Get uploaded file
+	file, header, err := c.Request.FormFile("backup_file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No backup file provided"})
+		return
+	}
+	defer file.Close()
+
+	// Validate file type based on database configuration
+	config := database.GetDatabaseConfig()
+	validExtensions := map[string][]string{
+		"sqlite":   {".db", ".sqlite", ".sqlite3"},
+		"postgres": {".sql", ".dump", ".custom"},
+	}
+
+	validExts, exists := validExtensions[config.Type]
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unsupported database type for restore"})
+		return
+	}
+
+	// Check file extension
+	filename := header.Filename
+	ext := filepath.Ext(filename)
+	isValidExt := false
+	for _, validExt := range validExts {
+		if ext == validExt {
+			isValidExt = true
+			break
+		}
+	}
+
+	if !isValidExt {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": fmt.Sprintf("Invalid file type. Expected: %v, got: %s", validExts, ext),
+		})
+		return
+	}
+
+	// Create temporary file for upload
+	tempDir := os.TempDir()
+	tempFilePath := filepath.Join(tempDir, "restore_"+filename)
+	
+	tempFile, err := os.Create(tempFilePath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create temporary file"})
+		return
+	}
+	defer os.Remove(tempFilePath)
+	defer tempFile.Close()
+
+	// Copy uploaded file to temp location
+	if _, err := io.Copy(tempFile, file); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save uploaded file"})
+		return
+	}
+	tempFile.Close()
+
+	// Perform database restore
+	if err := database.RestoreDatabase(tempFilePath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to restore database: " + err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "Database restore functionality is not yet implemented",
-		"todo":    "Implement restore functionality based on requirements",
+		"message": "Database restored successfully from " + filename,
 	})
 }

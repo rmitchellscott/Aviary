@@ -1,10 +1,12 @@
 package database
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"time"
 
@@ -160,20 +162,66 @@ func BackupDatabase(backupPath string) error {
 
 // backupSQLiteDatabase creates a backup of SQLite database
 func backupSQLiteDatabase(backupPath string) error {
-	// For SQLite, we can just copy the database file
 	config := GetDatabaseConfig()
-	dbPath := fmt.Sprintf("%s/aviary.db", config.DataDir)
+	dbPath := filepath.Join(config.DataDir, "aviary.db")
 	
-	// Use OS commands to copy the file
-	// This is a simplified implementation
-	log.Printf("TODO: Implement SQLite backup from %s to %s", dbPath, backupPath)
+	// Check if source database exists
+	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
+		return fmt.Errorf("database file not found: %s", dbPath)
+	}
+	
+	// Ensure backup directory exists
+	if err := os.MkdirAll(filepath.Dir(backupPath), 0755); err != nil {
+		return fmt.Errorf("failed to create backup directory: %w", err)
+	}
+	
+	// Use VACUUM INTO command for consistent backup
+	if err := DB.Exec("VACUUM INTO ?", backupPath).Error; err != nil {
+		// Fallback to file copy if VACUUM INTO is not supported
+		log.Printf("VACUUM INTO failed, falling back to file copy: %v", err)
+		return copyFile(dbPath, backupPath)
+	}
+	
+	log.Printf("SQLite database backed up successfully to: %s", backupPath)
 	return nil
 }
 
 // backupPostgresDatabase creates a backup of PostgreSQL database
 func backupPostgresDatabase(backupPath string, config *DatabaseConfig) error {
-	// Use pg_dump command
-	log.Printf("TODO: Implement PostgreSQL backup to %s", backupPath)
+	// Ensure backup directory exists
+	if err := os.MkdirAll(filepath.Dir(backupPath), 0755); err != nil {
+		return fmt.Errorf("failed to create backup directory: %w", err)
+	}
+	
+	// Prepare pg_dump command
+	args := []string{
+		"--host=" + config.Host,
+		"--port=" + fmt.Sprintf("%d", config.Port),
+		"--username=" + config.User,
+		"--no-password", // Use PGPASSWORD environment variable
+		"--verbose",
+		"--clean",
+		"--if-exists",
+		"--create",
+		"--format=custom",
+		"--file=" + backupPath,
+		config.DBName,
+	}
+	
+	cmd := exec.Command("pg_dump", args...)
+	
+	// Set password via environment variable
+	cmd.Env = append(os.Environ(), "PGPASSWORD="+config.Password)
+	
+	// Capture output for logging
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("pg_dump failed: %v, stderr: %s", err, stderr.String())
+	}
+	
+	log.Printf("PostgreSQL database backed up successfully to: %s", backupPath)
 	return nil
 }
 
@@ -193,13 +241,106 @@ func RestoreDatabase(backupPath string) error {
 
 // restoreSQLiteDatabase restores SQLite database from backup
 func restoreSQLiteDatabase(backupPath string) error {
-	log.Printf("TODO: Implement SQLite restore from %s", backupPath)
+	config := GetDatabaseConfig()
+	dbPath := filepath.Join(config.DataDir, "aviary.db")
+	
+	// Check if backup file exists
+	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
+		return fmt.Errorf("backup file not found: %s", backupPath)
+	}
+	
+	// Close current database connection
+	if DB != nil {
+		sqlDB, err := DB.DB()
+		if err != nil {
+			return fmt.Errorf("failed to get underlying database connection: %w", err)
+		}
+		if err := sqlDB.Close(); err != nil {
+			log.Printf("Warning: failed to close database connection: %v", err)
+		}
+		DB = nil
+	}
+	
+	// Create backup of current database before restore
+	backupCurrentPath := dbPath + ".pre-restore-backup"
+	if _, err := os.Stat(dbPath); err == nil {
+		if err := copyFile(dbPath, backupCurrentPath); err != nil {
+			log.Printf("Warning: failed to backup current database: %v", err)
+		} else {
+			log.Printf("Current database backed up to: %s", backupCurrentPath)
+		}
+	}
+	
+	// Restore from backup (replace current database)
+	if err := copyFile(backupPath, dbPath); err != nil {
+		return fmt.Errorf("failed to restore database: %w", err)
+	}
+	
+	// Reinitialize database connection
+	if err := Initialize(); err != nil {
+		return fmt.Errorf("failed to reinitialize database after restore: %w", err)
+	}
+	
+	log.Printf("SQLite database restored successfully from: %s", backupPath)
 	return nil
 }
 
 // restorePostgresDatabase restores PostgreSQL database from backup
 func restorePostgresDatabase(backupPath string, config *DatabaseConfig) error {
-	log.Printf("TODO: Implement PostgreSQL restore from %s", backupPath)
+	// Check if backup file exists
+	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
+		return fmt.Errorf("backup file not found: %s", backupPath)
+	}
+	
+	// Close current database connection
+	if DB != nil {
+		sqlDB, err := DB.DB()
+		if err != nil {
+			return fmt.Errorf("failed to get underlying database connection: %w", err)
+		}
+		if err := sqlDB.Close(); err != nil {
+			log.Printf("Warning: failed to close database connection: %v", err)
+		}
+		DB = nil
+	}
+	
+	// Prepare pg_restore command
+	args := []string{
+		"--host=" + config.Host,
+		"--port=" + fmt.Sprintf("%d", config.Port),
+		"--username=" + config.User,
+		"--no-password", // Use PGPASSWORD environment variable
+		"--verbose",
+		"--clean",
+		"--if-exists",
+		"--create",
+		"--dbname=postgres", // Connect to postgres database to restore
+		backupPath,
+	}
+	
+	cmd := exec.Command("pg_restore", args...)
+	
+	// Set password via environment variable
+	cmd.Env = append(os.Environ(), "PGPASSWORD="+config.Password)
+	
+	// Capture output for logging
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	
+	if err := cmd.Run(); err != nil {
+		// Try to reinitialize database connection even if restore failed
+		if initErr := Initialize(); initErr != nil {
+			log.Printf("Warning: failed to reinitialize database after failed restore: %v", initErr)
+		}
+		return fmt.Errorf("pg_restore failed: %v, stderr: %s", err, stderr.String())
+	}
+	
+	// Reinitialize database connection
+	if err := Initialize(); err != nil {
+		return fmt.Errorf("failed to reinitialize database after restore: %w", err)
+	}
+	
+	log.Printf("PostgreSQL database restored successfully from: %s", backupPath)
 	return nil
 }
 

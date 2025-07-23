@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUserData } from '@/hooks/useUserData';
 import { UserDeleteDialog } from '@/components/UserDeleteDialog';
@@ -125,6 +125,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
   // User creation form
   const [newUsername, setNewUsername] = useState('');
@@ -147,6 +148,13 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   }>({ isOpen: false, user: null });
   const [newPasswordValue, setNewPasswordValue] = useState('');
   const [deleting, setDeleting] = useState(false);
+  
+  // Database backup/restore
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [restoreConfirmDialog, setRestoreConfirmDialog] = useState<{
+    isOpen: boolean;
+    file: File | null;
+  }>({ isOpen: false, file: null });
 
   useEffect(() => {
     if (isOpen) {
@@ -316,6 +324,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   const handleClose = () => {
     setError(null);
+    setSuccessMessage(null);
     onClose();
   };
 
@@ -395,6 +404,97 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     }
   };
 
+  const handleBackupDatabase = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      
+      const response = await fetch('/api/admin/backup', {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        // Get filename from Content-Disposition header or create default
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = 'database_backup.db';
+        if (contentDisposition) {
+          const matches = contentDisposition.match(/filename=([^;]+)/);
+          if (matches && matches[1]) {
+            filename = matches[1].replace(/"/g, '');
+          }
+        }
+
+        // Create blob and download
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to create backup');
+      }
+    } catch (error) {
+      setError('Failed to create backup');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRestoreFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setRestoreConfirmDialog({ isOpen: true, file });
+    }
+    // Reset input value so same file can be selected again
+    event.target.value = '';
+  };
+
+  const confirmDatabaseRestore = async () => {
+    const file = restoreConfirmDialog.file;
+    if (!file) return;
+
+    try {
+      setSaving(true);
+      setError(null);
+      
+      const formData = new FormData();
+      formData.append('backup_file', file);
+
+      const response = await fetch('/api/admin/restore', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        setRestoreConfirmDialog({ isOpen: false, file: null });
+        setError(null);
+        setSuccessMessage(result.message || 'Database restored successfully');
+        // Refresh system status after restore
+        await fetchSystemStatus();
+        await fetchUsers();
+        await fetchAPIKeys();
+      } else {
+        setError(result.error || 'Failed to restore database');
+      }
+    } catch (error) {
+      setError('Failed to restore database');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const closeRestoreConfirmDialog = () => {
+    setRestoreConfirmDialog({ isOpen: false, file: null });
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
   };
@@ -450,6 +550,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         {error && (
           <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3 text-destructive">
             {error}
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="bg-green-50 border border-green-200 rounded-md p-3 text-green-800">
+            {successMessage}
           </div>
         )}
 
@@ -835,18 +941,41 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <Button variant="outline" disabled>
+                    <Button variant="outline" onClick={handleBackupDatabase} disabled={saving} className="w-full">
                       <Database className="h-4 w-4 mr-2" />
-                      Backup Database
+                      {saving ? 'Creating Backup...' : 'Backup Database'}
                     </Button>
-                    <Button variant="outline" disabled>
-                      <Database className="h-4 w-4 mr-2" />
-                      Restore Database
-                    </Button>
+                    <div className="w-full">
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleRestoreFileSelect}
+                        accept=".db,.sqlite,.sqlite3,.sql,.dump,.custom"
+                        style={{ display: 'none' }}
+                      />
+                      <Button 
+                        variant="outline" 
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={saving}
+                        className="w-full"
+                      >
+                        <Database className="h-4 w-4 mr-2" />
+                        Restore Database
+                      </Button>
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Database backup and restore functionality coming soon
-                  </p>
+                  <div className="text-sm text-muted-foreground space-y-2">
+                    <p>
+                      <strong>Backup:</strong> Downloads a complete backup of your database
+                    </p>
+                    <p>
+                      <strong>Restore:</strong> Replaces current database with uploaded backup file
+                    </p>
+                    <p className="text-amber-600">
+                      <AlertTriangle className="h-4 w-4 inline mr-1" />
+                      Warning: Database restore will overwrite all current data
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -916,6 +1045,45 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         isCurrentUser={false}
         loading={deleting}
       />
+
+      {/* Database Restore Confirmation Dialog */}
+      <AlertDialog open={restoreConfirmDialog.isOpen} onOpenChange={closeRestoreConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Confirm Database Restore
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>
+                You are about to restore the database from: <strong>{restoreConfirmDialog.file?.name}</strong>
+              </p>
+              <p className="text-destructive font-medium">
+                This will permanently overwrite all current data including:
+              </p>
+              <ul className="list-disc list-inside text-sm space-y-1 ml-4">
+                <li>All user accounts and settings</li>
+                <li>All API keys and sessions</li>
+                <li>All documents and folder cache</li>
+                <li>All system settings</li>
+              </ul>
+              <p className="text-destructive font-medium">
+                This action cannot be undone. Make sure you have a current backup before proceeding.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={saving}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDatabaseRestore}
+              disabled={saving}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {saving ? 'Restoring...' : 'Restore Database'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }
