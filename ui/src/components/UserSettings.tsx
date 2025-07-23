@@ -571,7 +571,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                   </div>
 
                   <div>
-                    <Label htmlFor="coverpage-setting">Cover Page Setting</Label>
+                    <Label htmlFor="coverpage-setting">Cover Page</Label>
                     <Select 
                       value={coverpageSetting} 
                       onValueChange={setCoverpageSetting}
@@ -581,10 +581,10 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="current">
-                          Current (default)
+                          Current page
                         </SelectItem>
                         <SelectItem value="first">
-                          First
+                          First page
                         </SelectItem>
                       </SelectContent>
                     </Select>

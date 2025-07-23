@@ -1050,7 +1050,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         Enable User Registration
                       </Label>
                       <p className="text-sm text-muted-foreground">
-                        Allow admins to create new user accounts
+                        Allow self-service creation of new user accounts
                       </p>
                     </div>
                     <Switch
@@ -1310,7 +1310,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               <ul className="list-disc list-inside text-sm space-y-1 ml-4">
                 <li>All user accounts and settings</li>
                 <li>All API keys and sessions</li>
-                <li>All documents and folder cache</li>
+                <li>All folder caches</li>
                 <li>All system settings</li>
               </ul>
               <p className="text-destructive font-medium">

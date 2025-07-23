@@ -186,7 +186,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Clear all auth-related state and localStorage
     setIsAuthenticated(false)
     setUser(null)
-    setMultiUserMode(false)
     setUiSecret(null)
     
     if (typeof window !== 'undefined') {

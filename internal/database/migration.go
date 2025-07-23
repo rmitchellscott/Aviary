@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -193,7 +194,7 @@ func backupPostgresDatabase(backupPath string, config *DatabaseConfig) error {
 		return fmt.Errorf("failed to create backup directory: %w", err)
 	}
 	
-	// Prepare pg_dump command
+	// Prepare pg_dump command - use plain text format for better compatibility
 	args := []string{
 		"--host=" + config.Host,
 		"--port=" + fmt.Sprintf("%d", config.Port),
@@ -203,7 +204,11 @@ func backupPostgresDatabase(backupPath string, config *DatabaseConfig) error {
 		"--clean",
 		"--if-exists",
 		"--create",
-		"--format=custom",
+		"--format=plain", // Use plain text format
+		"--no-comments", // Skip comments to avoid version compatibility issues
+		"--no-tablespaces", // Avoid tablespace issues
+		"--no-security-labels", // Skip security labels
+		"--no-privileges", // Skip privilege assignments
 		"--file=" + backupPath,
 		config.DBName,
 	}
@@ -304,21 +309,19 @@ func restorePostgresDatabase(backupPath string, config *DatabaseConfig) error {
 		DB = nil
 	}
 	
-	// Prepare pg_restore command
+	// Use psql to restore plain SQL backup - this handles version differences better
 	args := []string{
 		"--host=" + config.Host,
 		"--port=" + fmt.Sprintf("%d", config.Port),
 		"--username=" + config.User,
-		"--no-password", // Use PGPASSWORD environment variable
-		"--verbose",
-		"--clean",
-		"--if-exists",
-		"--create",
-		"--dbname=postgres", // Connect to postgres database to restore
-		backupPath,
+		"--no-password",
+		"--dbname=postgres", // Connect to postgres database first
+		"--file=" + backupPath,
+		"--quiet", // Reduce verbose output
+		"--set=ON_ERROR_STOP=off", // Continue on errors (like unrecognized parameters)
 	}
 	
-	cmd := exec.Command("pg_restore", args...)
+	cmd := exec.Command("psql", args...)
 	
 	// Set password via environment variable
 	cmd.Env = append(os.Environ(), "PGPASSWORD="+config.Password)
@@ -328,11 +331,20 @@ func restorePostgresDatabase(backupPath string, config *DatabaseConfig) error {
 	cmd.Stderr = &stderr
 	
 	if err := cmd.Run(); err != nil {
-		// Try to reinitialize database connection even if restore failed
-		if initErr := Initialize(); initErr != nil {
-			log.Printf("Warning: failed to reinitialize database after failed restore: %v", initErr)
+		// Check stderr for critical errors vs warnings
+		stderrStr := stderr.String()
+		if strings.Contains(stderrStr, "unrecognized configuration parameter") ||
+			 strings.Contains(stderrStr, "already exists") ||
+			 strings.Contains(stderrStr, "does not exist") {
+			// These are typically non-fatal warnings during restore
+			log.Printf("psql restore completed with warnings (likely version/state differences): %s", stderrStr)
+		} else {
+			// Try to reinitialize database connection even if restore failed
+			if initErr := Initialize(); initErr != nil {
+				log.Printf("Warning: failed to reinitialize database after failed restore: %v", initErr)
+			}
+			return fmt.Errorf("psql restore failed: %v, stderr: %s", err, stderrStr)
 		}
-		return fmt.Errorf("pg_restore failed: %v, stderr: %s", err, stderr.String())
 	}
 	
 	// Reinitialize database connection
