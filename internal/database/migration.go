@@ -2,8 +2,10 @@ package database
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/google/uuid"
@@ -65,6 +67,28 @@ func MigrateToMultiUser() error {
 		if err != nil {
 			log.Printf("Warning: failed to set default_rmdir for admin user: %v", err)
 		}
+	}
+
+	// Migrate API key from environment to database
+	if envApiKey := os.Getenv("API_KEY"); envApiKey != "" {
+		log.Printf("Migrating API_KEY environment variable to database for admin user")
+		apiKeyService := NewAPIKeyService(DB)
+		_, err := apiKeyService.CreateAPIKeyFromValue(adminUser.ID, "Migrated from API_KEY env var", envApiKey, nil)
+		if err != nil {
+			log.Printf("Warning: failed to migrate API_KEY to database: %v", err)
+		} else {
+			log.Printf("Successfully migrated API_KEY to database with never-expiring key")
+		}
+	}
+
+	// Copy rmapi config from root to user directory
+	if err := migrateRmapiConfig(adminUser.ID); err != nil {
+		log.Printf("Warning: failed to migrate rmapi config: %v", err)
+	}
+
+	// Migrate archived files to user directory
+	if err := migrateArchivedFiles(adminUser.ID); err != nil {
+		log.Printf("Warning: failed to migrate archived files: %v", err)
 	}
 	
 	return nil
@@ -234,4 +258,140 @@ func GetDatabaseStats() (map[string]interface{}, error) {
 	stats["active_sessions"] = sessionCount
 	
 	return stats, nil
+}
+
+// migrateRmapiConfig copies the root rmapi.conf file to the admin user's directory
+func migrateRmapiConfig(adminUserID uuid.UUID) error {
+	// Check if single-user rmapi.conf exists at /root/.config/rmapi/rmapi.conf
+	rootRmapiPath := "/root/.config/rmapi/rmapi.conf"
+	if _, err := os.Stat(rootRmapiPath); os.IsNotExist(err) {
+		log.Printf("No single-user rmapi.conf found to migrate at %s", rootRmapiPath)
+		return nil
+	}
+
+	// Get the user's rmapi config path using local logic to avoid import cycle
+	baseDir := os.Getenv("DATA_DIR")
+	if baseDir == "" {
+		baseDir = "/data"
+	}
+	
+	userDir := filepath.Join(baseDir, "users", adminUserID.String())
+	cfgDir := filepath.Join(userDir, "rmapi")
+	userRmapiPath := filepath.Join(cfgDir, "rmapi.conf")
+
+	// Check if user already has rmapi config
+	if _, err := os.Stat(userRmapiPath); err == nil {
+		log.Printf("User already has rmapi config, skipping migration")
+		return nil
+	}
+
+	// Ensure the rmapi config directory exists
+	if err := os.MkdirAll(cfgDir, 0755); err != nil {
+		return fmt.Errorf("failed to create rmapi config directory: %w", err)
+	}
+
+	// Copy the file
+	if err := copyFile(rootRmapiPath, userRmapiPath); err != nil {
+		return fmt.Errorf("failed to copy rmapi config: %w", err)
+	}
+
+	log.Printf("Successfully migrated rmapi.conf from root to user directory: %s", userRmapiPath)
+	return nil
+}
+
+// migrateArchivedFiles copies archived files from root pdfs directory to admin user's pdfs directory
+func migrateArchivedFiles(adminUserID uuid.UUID) error {
+	// Determine source directory - either PDF_DIR env var or default pdfs/
+	sourceDir := os.Getenv("PDF_DIR")
+	if sourceDir == "" {
+		sourceDir = "pdfs"
+	}
+
+	// Check if source directory exists
+	if _, err := os.Stat(sourceDir); os.IsNotExist(err) {
+		log.Printf("No archived files directory found to migrate: %s", sourceDir)
+		return nil
+	}
+
+	// Get the user's PDF directory using local logic to avoid import cycle
+	baseDir := os.Getenv("DATA_DIR")
+	if baseDir == "" {
+		baseDir = "/data"
+	}
+	
+	userDir := filepath.Join(baseDir, "users", adminUserID.String())
+	destDir := filepath.Join(userDir, "pdfs")
+
+	// Ensure the user PDF directory exists
+	if err := os.MkdirAll(destDir, 0755); err != nil {
+		return fmt.Errorf("failed to create user PDF directory: %w", err)
+	}
+
+	// Copy all files and directories from source to destination
+	err := filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// Calculate relative path from source
+		relPath, err := filepath.Rel(sourceDir, path)
+		if err != nil {
+			return err
+		}
+
+		// Skip the root directory itself
+		if relPath == "." {
+			return nil
+		}
+
+		destPath := filepath.Join(destDir, relPath)
+
+		if info.IsDir() {
+			// Create directory in destination
+			return os.MkdirAll(destPath, info.Mode())
+		} else {
+			// Copy file to destination
+			return copyFile(path, destPath)
+		}
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to migrate archived files: %w", err)
+	}
+
+	log.Printf("Successfully migrated archived files from %s to %s", sourceDir, destDir)
+	return nil
+}
+
+// copyFile copies a file from src to dst
+func copyFile(src, dst string) error {
+	// Ensure destination directory exists
+	destDir := filepath.Dir(dst)
+	if err := os.MkdirAll(destDir, 0755); err != nil {
+		return err
+	}
+
+	sourceFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer sourceFile.Close()
+
+	destFile, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer destFile.Close()
+
+	_, err = io.Copy(destFile, sourceFile)
+	if err != nil {
+		return err
+	}
+
+	// Copy file permissions
+	sourceInfo, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+	return os.Chmod(dst, sourceInfo.Mode())
 }

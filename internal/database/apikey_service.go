@@ -244,3 +244,56 @@ func (s *APIKeyService) GetAPIKeyByID(keyID uuid.UUID, userID uuid.UUID) (*APIKe
 	}
 	return &apiKey, nil
 }
+
+// CreateAPIKeyFromValue creates an API key record from an existing key value (for migrations)
+func (s *APIKeyService) CreateAPIKeyFromValue(userID uuid.UUID, name string, apiKey string, expiresAt *time.Time) (*APIKey, error) {
+	// Check if user has reached the maximum number of API keys
+	maxKeysStr, err := GetSystemSetting("max_api_keys_per_user")
+	if err != nil {
+		maxKeysStr = "10" // Default fallback
+	}
+	
+	maxKeys, err := strconv.Atoi(maxKeysStr)
+	if err != nil {
+		maxKeys = 10
+	}
+	
+	var existingCount int64
+	if err := s.db.Model(&APIKey{}).Where("user_id = ? AND is_active = ?", userID, true).Count(&existingCount).Error; err != nil {
+		return nil, fmt.Errorf("failed to count existing API keys: %w", err)
+	}
+	
+	if existingCount >= int64(maxKeys) {
+		return nil, fmt.Errorf("maximum number of API keys (%d) reached", maxKeys)
+	}
+	
+	// Hash the provided API key for storage
+	hashedKey, err := bcrypt.GenerateFromPassword([]byte(apiKey), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, fmt.Errorf("failed to hash API key: %w", err)
+	}
+	
+	// Determine key prefix for display
+	keyPrefix := apiKey
+	if len(apiKey) > 16 {
+		keyPrefix = apiKey[:16]
+	}
+	
+	// Create the API key record
+	apiKeyRecord := &APIKey{
+		ID:        uuid.New(),
+		UserID:    userID,
+		Name:      name,
+		KeyHash:   string(hashedKey),
+		KeyPrefix: keyPrefix,
+		IsActive:  true,
+		ExpiresAt: expiresAt,
+		CreatedAt: time.Now(),
+	}
+	
+	if err := s.db.Create(apiKeyRecord).Error; err != nil {
+		return nil, fmt.Errorf("failed to create API key: %w", err)
+	}
+	
+	return apiKeyRecord, nil
+}
