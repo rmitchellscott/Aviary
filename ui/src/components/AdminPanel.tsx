@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useUserData } from '@/hooks/useUserData';
-import { UserDeleteDialog } from '@/components/UserDeleteDialog';
+import React, { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { useUserData } from "@/hooks/useUserData";
+import { UserDeleteDialog } from "@/components/UserDeleteDialog";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,14 +19,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
+} from "@/components/ui/alert-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -34,22 +34,22 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { 
-  Shield, 
-  Users, 
-  Key, 
-  Settings as SettingsIcon, 
+} from "@/components/ui/select";
+import {
+  Shield,
+  Users,
+  Key,
+  Settings as SettingsIcon,
   Database,
-  Plus, 
-  Trash2, 
+  Plus,
+  Trash2,
   Edit,
   CheckCircle,
   XCircle,
@@ -57,8 +57,8 @@ import {
   Activity,
   Mail,
   Server,
-  AlertTriangle
-} from 'lucide-react';
+  AlertTriangle,
+} from "lucide-react";
 
 interface User {
   id: string;
@@ -126,17 +126,16 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  
   // User creation form
-  const [newUsername, setNewUsername] = useState('');
-  const [newEmail, setNewEmail] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  
+  const [newUsername, setNewUsername] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+
   // Settings
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
-  const [maxApiKeys, setMaxApiKeys] = useState('10');
-  const [sessionTimeout, setSessionTimeout] = useState('24');
-  
+  const [maxApiKeys, setMaxApiKeys] = useState("10");
+  const [sessionTimeout, setSessionTimeout] = useState("24");
+
   // Modal states
   const [resetPasswordDialog, setResetPasswordDialog] = useState<{
     isOpen: boolean;
@@ -146,15 +145,21 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     isOpen: boolean;
     user: User | null;
   }>({ isOpen: false, user: null });
-  const [newPasswordValue, setNewPasswordValue] = useState('');
+  const [newPasswordValue, setNewPasswordValue] = useState("");
   const [deleting, setDeleting] = useState(false);
-  
+
   // Database backup/restore
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [restoreConfirmDialog, setRestoreConfirmDialog] = useState<{
     isOpen: boolean;
     file: File | null;
   }>({ isOpen: false, file: null });
+  const storageFileInputRef = useRef<HTMLInputElement>(null);
+  const [storageRestoreDialog, setStorageRestoreDialog] = useState<{
+    isOpen: boolean;
+    file: File | null;
+  }>({ isOpen: false, file: null });
+  const [restoreMode, setRestoreMode] = useState<"skip" | "overwrite">("skip");
 
   useEffect(() => {
     if (isOpen) {
@@ -166,49 +171,49 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   const fetchSystemStatus = async () => {
     try {
-      const response = await fetch('/api/admin/status', {
-        credentials: 'include',
+      const response = await fetch("/api/admin/status", {
+        credentials: "include",
       });
-      
+
       if (response.ok) {
         const status = await response.json();
         setSystemStatus(status);
-        setRegistrationEnabled(status.settings.registration_enabled === 'true');
+        setRegistrationEnabled(status.settings.registration_enabled === "true");
         setMaxApiKeys(status.settings.max_api_keys_per_user);
         setSessionTimeout(status.settings.session_timeout_hours);
       }
     } catch (error) {
-      console.error('Failed to fetch system status:', error);
+      console.error("Failed to fetch system status:", error);
     }
   };
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/users', {
-        credentials: 'include',
+      const response = await fetch("/api/users", {
+        credentials: "include",
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setUsers(data.users);
       }
     } catch (error) {
-      console.error('Failed to fetch users:', error);
+      console.error("Failed to fetch users:", error);
     }
   };
 
   const fetchAPIKeys = async () => {
     try {
-      const response = await fetch('/api/admin/api-keys', {
-        credentials: 'include',
+      const response = await fetch("/api/admin/api-keys", {
+        credentials: "include",
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setApiKeys(data.api_keys);
       }
     } catch (error) {
-      console.error('Failed to fetch API keys:', error);
+      console.error("Failed to fetch API keys:", error);
     }
   };
 
@@ -216,13 +221,13 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     try {
       setSaving(true);
       setError(null);
-      
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
+
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({
           username: newUsername,
           email: newEmail,
@@ -231,17 +236,17 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       });
 
       if (response.ok) {
-        setNewUsername('');
-        setNewEmail('');
-        setNewPassword('');
+        setNewUsername("");
+        setNewEmail("");
+        setNewPassword("");
         await fetchUsers();
         await fetchSystemStatus();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to create user');
+        setError(errorData.error || "Failed to create user");
       }
     } catch (error) {
-      setError('Failed to create user');
+      setError("Failed to create user");
     } finally {
       setSaving(false);
     }
@@ -249,33 +254,33 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   const toggleUserStatus = async (userId: string, isActive: boolean) => {
     try {
-      const endpoint = isActive ? 'activate' : 'deactivate';
+      const endpoint = isActive ? "activate" : "deactivate";
       const response = await fetch(`/api/users/${userId}/${endpoint}`, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
       });
 
       if (response.ok) {
         await fetchUsers();
       }
     } catch (error) {
-      console.error('Failed to toggle user status:', error);
+      console.error("Failed to toggle user status:", error);
     }
   };
 
   const toggleAdminStatus = async (userId: string, makeAdmin: boolean) => {
     try {
-      const endpoint = makeAdmin ? 'promote' : 'demote';
+      const endpoint = makeAdmin ? "promote" : "demote";
       const response = await fetch(`/api/users/${userId}/${endpoint}`, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
       });
 
       if (response.ok) {
         await fetchUsers();
       }
     } catch (error) {
-      console.error('Failed to toggle admin status:', error);
+      console.error("Failed to toggle admin status:", error);
     }
   };
 
@@ -293,8 +298,8 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     try {
       setDeleting(true);
       const response = await fetch(`/api/users/${deleteUserDialog.user.id}`, {
-        method: 'DELETE',
-        credentials: 'include',
+        method: "DELETE",
+        credentials: "include",
       });
 
       if (response.ok) {
@@ -303,10 +308,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         closeDeleteUserDialog();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to delete user');
+        setError(errorData.error || "Failed to delete user");
       }
     } catch (error) {
-      setError('Failed to delete user');
+      setError("Failed to delete user");
     } finally {
       setDeleting(false);
     }
@@ -314,12 +319,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   const openResetPasswordDialog = (user: User) => {
     setResetPasswordDialog({ isOpen: true, user });
-    setNewPasswordValue('');
+    setNewPasswordValue("");
   };
 
   const closeResetPasswordDialog = () => {
     setResetPasswordDialog({ isOpen: false, user: null });
-    setNewPasswordValue('');
+    setNewPasswordValue("");
   };
 
   const handleClose = () => {
@@ -332,30 +337,33 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     if (!resetPasswordDialog.user || !newPasswordValue) return;
 
     if (newPasswordValue.length < 8) {
-      setError('Password must be at least 8 characters long');
+      setError("Password must be at least 8 characters long");
       return;
     }
 
     try {
       setSaving(true);
-      const response = await fetch(`/api/users/${resetPasswordDialog.user.id}/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `/api/users/${resetPasswordDialog.user.id}/reset-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ new_password: newPasswordValue }),
         },
-        credentials: 'include',
-        body: JSON.stringify({ new_password: newPasswordValue }),
-      });
+      );
 
       if (response.ok) {
         closeResetPasswordDialog();
         setError(null);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to reset password');
+        setError(errorData.error || "Failed to reset password");
       }
     } catch (error) {
-      setError('Failed to reset password');
+      setError("Failed to reset password");
     } finally {
       setSaving(false);
     }
@@ -363,12 +371,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   const updateSystemSetting = async (key: string, value: string) => {
     try {
-      const response = await fetch('/api/admin/settings', {
-        method: 'PUT',
+      const response = await fetch("/api/admin/settings", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({ key, value }),
       });
 
@@ -376,7 +384,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         await fetchSystemStatus();
       }
     } catch (error) {
-      console.error('Failed to update setting:', error);
+      console.error("Failed to update setting:", error);
     }
   };
 
@@ -384,10 +392,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     try {
       setSaving(true);
       setError(null);
-      
-      const response = await fetch('/api/admin/test-smtp', {
-        method: 'POST',
-        credentials: 'include',
+
+      const response = await fetch("/api/admin/test-smtp", {
+        method: "POST",
+        credentials: "include",
       });
 
       const result = await response.json();
@@ -395,10 +403,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         setError(null);
         // Show success message
       } else {
-        setError(result.error || 'SMTP test failed');
+        setError(result.error || "SMTP test failed");
       }
     } catch (error) {
-      setError('Failed to test SMTP');
+      setError("Failed to test SMTP");
     } finally {
       setSaving(false);
     }
@@ -408,27 +416,27 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     try {
       setSaving(true);
       setError(null);
-      
-      const response = await fetch('/api/admin/backup', {
-        method: 'POST',
-        credentials: 'include',
+
+      const response = await fetch("/api/admin/backup", {
+        method: "POST",
+        credentials: "include",
       });
 
       if (response.ok) {
         // Get filename from Content-Disposition header or create default
-        const contentDisposition = response.headers.get('Content-Disposition');
-        let filename = 'database_backup.db';
+        const contentDisposition = response.headers.get("Content-Disposition");
+        let filename = "database_backup.db";
         if (contentDisposition) {
           const matches = contentDisposition.match(/filename=([^;]+)/);
           if (matches && matches[1]) {
-            filename = matches[1].replace(/"/g, '');
+            filename = matches[1].replace(/"/g, "");
           }
         }
 
         // Create blob and download
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
         a.download = filename;
         document.body.appendChild(a);
@@ -437,22 +445,24 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         window.URL.revokeObjectURL(url);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to create backup');
+        setError(errorData.error || "Failed to create backup");
       }
     } catch (error) {
-      setError('Failed to create backup');
+      setError("Failed to create backup");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleRestoreFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRestoreFileSelect = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       setRestoreConfirmDialog({ isOpen: true, file });
     }
     // Reset input value so same file can be selected again
-    event.target.value = '';
+    event.target.value = "";
   };
 
   const confirmDatabaseRestore = async () => {
@@ -462,13 +472,13 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     try {
       setSaving(true);
       setError(null);
-      
-      const formData = new FormData();
-      formData.append('backup_file', file);
 
-      const response = await fetch('/api/admin/restore', {
-        method: 'POST',
-        credentials: 'include',
+      const formData = new FormData();
+      formData.append("backup_file", file);
+
+      const response = await fetch("/api/admin/restore", {
+        method: "POST",
+        credentials: "include",
         body: formData,
       });
 
@@ -476,16 +486,16 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       if (response.ok) {
         setRestoreConfirmDialog({ isOpen: false, file: null });
         setError(null);
-        setSuccessMessage(result.message || 'Database restored successfully');
+        setSuccessMessage(result.message || "Database restored successfully");
         // Refresh system status after restore
         await fetchSystemStatus();
         await fetchUsers();
         await fetchAPIKeys();
       } else {
-        setError(result.error || 'Failed to restore database');
+        setError(result.error || "Failed to restore database");
       }
     } catch (error) {
-      setError('Failed to restore database');
+      setError("Failed to restore database");
     } finally {
       setSaving(false);
     }
@@ -495,30 +505,124 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     setRestoreConfirmDialog({ isOpen: false, file: null });
   };
 
+  const handleBackupStorage = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+
+      const response = await fetch("/api/admin/storage/backup", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const contentDisposition = response.headers.get("Content-Disposition");
+        let filename = "storage_backup.tar.gz";
+        if (contentDisposition) {
+          const matches = contentDisposition.match(/filename=([^;]+)/);
+          if (matches && matches[1]) {
+            filename = matches[1].replace(/"/g, "");
+          }
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to create backup");
+      }
+    } catch (error) {
+      setError("Failed to create backup");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRestoreStorageSelect = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setStorageRestoreDialog({ isOpen: true, file });
+    }
+    event.target.value = "";
+  };
+
+  const confirmStorageRestore = async () => {
+    const file = storageRestoreDialog.file;
+    if (!file) return;
+
+    try {
+      setSaving(true);
+      setError(null);
+
+      const formData = new FormData();
+      formData.append("backup_file", file);
+      formData.append("mode", restoreMode);
+
+      const response = await fetch("/api/admin/storage/restore", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        setStorageRestoreDialog({ isOpen: false, file: null });
+        setSuccessMessage(result.message || "Storage restored successfully");
+      } else {
+        setError(result.error || "Failed to restore storage");
+      }
+    } catch (error) {
+      setError("Failed to restore storage");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const closeStorageRestoreDialog = () => {
+    setStorageRestoreDialog({ isOpen: false, file: null });
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
   };
 
   const getKeyStatus = (key: APIKey) => {
-    if (!key.is_active) return 'inactive';
-    if (key.expires_at && new Date(key.expires_at) < new Date()) return 'expired';
-    return 'active';
+    if (!key.is_active) return "inactive";
+    if (key.expires_at && new Date(key.expires_at) < new Date())
+      return "expired";
+    return "active";
   };
 
   const getSMTPStatusColor = (status: string) => {
     switch (status) {
-      case 'configured_and_working': return 'success';
-      case 'configured_but_failed': return 'destructive';
-      default: return 'secondary';
+      case "configured_and_working":
+        return "success";
+      case "configured_but_failed":
+        return "destructive";
+      default:
+        return "secondary";
     }
   };
 
   const getSMTPStatusText = (status: string) => {
     switch (status) {
-      case 'configured_and_working': return 'Working';
-      case 'configured_but_failed': return 'Failed';
-      case 'not_configured': return 'Not configured';
-      default: return 'Unknown';
+      case "configured_and_working":
+        return "Working";
+      case "configured_but_failed":
+        return "Failed";
+      case "not_configured":
+        return "Not configured";
+      default:
+        return "Unknown";
     }
   };
 
@@ -526,9 +630,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-6xl">
-          <div className="flex items-center justify-center p-8">
-            Loading...
-          </div>
+          <div className="flex items-center justify-center p-8">Loading...</div>
         </DialogContent>
       </Dialog>
     );
@@ -587,45 +689,65 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Total Users
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{systemStatus.database.total_users}</div>
+                  <div className="text-2xl font-bold">
+                    {systemStatus.database.total_users}
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     {systemStatus.database.active_users} active
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">API Keys</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    API Keys
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{systemStatus.database.api_keys.total}</div>
+                  <div className="text-2xl font-bold">
+                    {systemStatus.database.api_keys.total}
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     {systemStatus.database.api_keys.active} active
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Documents</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Documents
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{systemStatus.database.documents}</div>
-                  <p className="text-xs text-muted-foreground">Total uploaded</p>
+                  <div className="text-2xl font-bold">
+                    {systemStatus.database.documents}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Total uploaded
+                  </p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Active Sessions</CardTitle>
+                  <CardTitle className="text-sm font-medium">
+                    Active Sessions
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{systemStatus.database.active_sessions}</div>
-                  <p className="text-xs text-muted-foreground">Current unexpired sessions</p>
+                  <div className="text-2xl font-bold">
+                    {systemStatus.database.active_sessions}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Current unexpired sessions
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -640,7 +762,9 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between">
-                    <Badge variant={getSMTPStatusColor(systemStatus.smtp.status)}>
+                    <Badge
+                      variant={getSMTPStatusColor(systemStatus.smtp.status)}
+                    >
                       {getSMTPStatusText(systemStatus.smtp.status)}
                     </Badge>
                     <Button size="sm" onClick={testSMTP} disabled={saving}>
@@ -710,11 +834,13 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-end">
-                    <Button 
-                      onClick={createUser} 
-                      disabled={saving || !newUsername || !newEmail || !newPassword}
+                    <Button
+                      onClick={createUser}
+                      disabled={
+                        saving || !newUsername || !newEmail || !newPassword
+                      }
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Create User
@@ -748,18 +874,26 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           </TableCell>
                           <TableCell>{user.email}</TableCell>
                           <TableCell>
-                            <Badge variant={user.is_admin ? 'default' : 'secondary'} className="w-14 justify-center">
-                              {user.is_admin ? 'Admin' : 'User'}
+                            <Badge
+                              variant={user.is_admin ? "default" : "secondary"}
+                              className="w-14 justify-center"
+                            >
+                              {user.is_admin ? "Admin" : "User"}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <Badge variant={user.is_active ? 'success' : 'secondary'} className="w-16 justify-center">
-                              {user.is_active ? 'Active' : 'Inactive'}
+                            <Badge
+                              variant={user.is_active ? "success" : "secondary"}
+                              className="w-16 justify-center"
+                            >
+                              {user.is_active ? "Active" : "Inactive"}
                             </Badge>
                           </TableCell>
                           <TableCell>{formatDate(user.created_at)}</TableCell>
                           <TableCell>
-                            {user.last_login ? formatDate(user.last_login) : 'Never'}
+                            {user.last_login
+                              ? formatDate(user.last_login)
+                              : "Never"}
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
@@ -774,19 +908,23 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => toggleAdminStatus(user.id, !user.is_admin)}
+                                  onClick={() =>
+                                    toggleAdminStatus(user.id, !user.is_admin)
+                                  }
                                   className="w-24"
                                 >
-                                  {user.is_admin ? 'Make User' : 'Make Admin'}
+                                  {user.is_admin ? "Make User" : "Make Admin"}
                                 </Button>
                               )}
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => toggleUserStatus(user.id, !user.is_active)}
+                                onClick={() =>
+                                  toggleUserStatus(user.id, !user.is_active)
+                                }
                                 className="w-28"
                               >
-                                {user.is_active ? 'Deactivate' : 'Activate'}
+                                {user.is_active ? "Deactivate" : "Activate"}
                               </Button>
                               <Button
                                 size="sm"
@@ -838,25 +976,37 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                             <code className="text-sm">{key.key_prefix}...</code>
                           </TableCell>
                           <TableCell>
-                            <Badge 
+                            <Badge
                               variant={
-                                status === 'active' ? 'success' : 
-                                status === 'expired' ? 'destructive' : 
-                                'secondary'
+                                status === "active"
+                                  ? "success"
+                                  : status === "expired"
+                                    ? "destructive"
+                                    : "secondary"
                               }
                             >
-                              {status === 'active' && <CheckCircle className="h-3 w-3 mr-1" />}
-                              {status === 'expired' && <XCircle className="h-3 w-3 mr-1" />}
-                              {status === 'inactive' && <Clock className="h-3 w-3 mr-1" />}
+                              {status === "active" && (
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                              )}
+                              {status === "expired" && (
+                                <XCircle className="h-3 w-3 mr-1" />
+                              )}
+                              {status === "inactive" && (
+                                <Clock className="h-3 w-3 mr-1" />
+                              )}
                               {status}
                             </Badge>
                           </TableCell>
                           <TableCell>{formatDate(key.created_at)}</TableCell>
                           <TableCell>
-                            {key.last_used ? formatDate(key.last_used) : 'Never'}
+                            {key.last_used
+                              ? formatDate(key.last_used)
+                              : "Never"}
                           </TableCell>
                           <TableCell>
-                            {key.expires_at ? formatDate(key.expires_at) : 'Never'}
+                            {key.expires_at
+                              ? formatDate(key.expires_at)
+                              : "Never"}
                           </TableCell>
                         </TableRow>
                       );
@@ -876,7 +1026,9 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label htmlFor="registration-enabled">Enable User Registration</Label>
+                      <Label htmlFor="registration-enabled">
+                        Enable User Registration
+                      </Label>
                       <p className="text-sm text-muted-foreground">
                         Allow admins to create new user accounts
                       </p>
@@ -886,7 +1038,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       checked={registrationEnabled}
                       onCheckedChange={(checked) => {
                         setRegistrationEnabled(checked);
-                        updateSystemSetting('registration_enabled', checked.toString());
+                        updateSystemSetting(
+                          "registration_enabled",
+                          checked.toString(),
+                        );
                       }}
                     />
                   </div>
@@ -899,13 +1054,17 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="max-api-keys">Maximum API Keys per User</Label>
+                    <Label htmlFor="max-api-keys">
+                      Maximum API Keys per User
+                    </Label>
                     <Input
                       id="max-api-keys"
                       type="number"
                       value={maxApiKeys}
                       onChange={(e) => setMaxApiKeys(e.target.value)}
-                      onBlur={() => updateSystemSetting('max_api_keys_per_user', maxApiKeys)}
+                      onBlur={() =>
+                        updateSystemSetting("max_api_keys_per_user", maxApiKeys)
+                      }
                       className="mt-2"
                     />
                   </div>
@@ -918,13 +1077,20 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="session-timeout">Session Timeout (hours)</Label>
+                    <Label htmlFor="session-timeout">
+                      Session Timeout (hours)
+                    </Label>
                     <Input
                       id="session-timeout"
                       type="number"
                       value={sessionTimeout}
                       onChange={(e) => setSessionTimeout(e.target.value)}
-                      onBlur={() => updateSystemSetting('session_timeout_hours', sessionTimeout)}
+                      onBlur={() =>
+                        updateSystemSetting(
+                          "session_timeout_hours",
+                          sessionTimeout,
+                        )
+                      }
                       className="mt-2"
                     />
                   </div>
@@ -941,9 +1107,14 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <Button variant="outline" onClick={handleBackupDatabase} disabled={saving} className="w-full">
+                    <Button
+                      variant="outline"
+                      onClick={handleBackupDatabase}
+                      disabled={saving}
+                      className="w-full"
+                    >
                       <Database className="h-4 w-4 mr-2" />
-                      {saving ? 'Creating Backup...' : 'Backup Database'}
+                      {saving ? "Creating Backup..." : "Backup Database"}
                     </Button>
                     <div className="w-full">
                       <input
@@ -951,10 +1122,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         ref={fileInputRef}
                         onChange={handleRestoreFileSelect}
                         accept=".db,.sqlite,.sqlite3,.sql,.dump,.custom"
-                        style={{ display: 'none' }}
+                        style={{ display: "none" }}
                       />
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={saving}
                         className="w-full"
@@ -966,20 +1137,67 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   </div>
                   <div className="text-sm text-muted-foreground space-y-2">
                     <p>
-                      <strong>Backup:</strong> Downloads a complete backup of your database
+                      <strong>Backup:</strong> Downloads a complete backup of
+                      the database
                     </p>
                     <p>
-                      <strong>Restore:</strong> Replaces current database with uploaded backup file
+                      <strong>Restore:</strong> Replaces current database with
+                      uploaded backup file
                     </p>
                     <p className="text-amber-600">
                       <AlertTriangle className="h-4 w-4 inline mr-1" />
-                      Warning: Database restore will overwrite all current data
+                      Warning: Database restore will overwrite current database
                     </p>
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
+                <CardHeader>
+                  <CardTitle>Storage Management</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <Button
+                      variant="outline"
+                      onClick={handleBackupStorage}
+                      disabled={saving}
+                      className="w-full"
+                    >
+                      <Server className="h-4 w-4 mr-2" />
+                      {saving ? "Creating Backup..." : "Backup Storage"}
+                    </Button>
+                    <div className="w-full">
+                      <input
+                        type="file"
+                        ref={storageFileInputRef}
+                        onChange={handleRestoreStorageSelect}
+                        accept=".tar.gz"
+                        style={{ display: "none" }}
+                      />
+                      <Button
+                        variant="outline"
+                        onClick={() => storageFileInputRef.current?.click()}
+                        disabled={saving}
+                        className="w-full"
+                      >
+                        <Server className="h-4 w-4 mr-2" />
+                        Restore Storage...
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted-foreground space-y-2">
+                    <p>
+                      <strong>Backup:</strong> Downloads a backup of the users directory. Includes rmapi pairings and archived files.
+                    </p>
+                    <p>
+                      <strong>Restore:</strong> Extracts uploaded archive into users directory
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* <Card>
                 <CardHeader>
                   <CardTitle>Maintenance</CardTitle>
                 </CardHeader>
@@ -989,14 +1207,17 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     Cleanup Old Data
                   </Button>
                 </CardContent>
-              </Card>
+              </Card> */}
             </div>
           </TabsContent>
         </Tabs>
       </DialogContent>
 
       {/* Password Reset Dialog */}
-      <Dialog open={resetPasswordDialog.isOpen} onOpenChange={closeResetPasswordDialog}>
+      <Dialog
+        open={resetPasswordDialog.isOpen}
+        onOpenChange={closeResetPasswordDialog}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -1004,10 +1225,11 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               Reset Password
             </DialogTitle>
             <DialogDescription>
-              Reset the password for user: <strong>{resetPasswordDialog.user?.username}</strong>
+              Reset the password for user:{" "}
+              <strong>{resetPasswordDialog.user?.username}</strong>
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <div>
               <Label htmlFor="new-password">New Password</Label>
@@ -1021,7 +1243,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               />
             </div>
           </div>
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={closeResetPasswordDialog}>
               Cancel
@@ -1030,7 +1252,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               onClick={confirmResetPassword}
               disabled={saving || newPasswordValue.length < 8}
             >
-              {saving ? 'Resetting...' : 'Reset Password'}
+              {saving ? "Resetting..." : "Reset Password"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1047,7 +1269,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       />
 
       {/* Database Restore Confirmation Dialog */}
-      <AlertDialog open={restoreConfirmDialog.isOpen} onOpenChange={closeRestoreConfirmDialog}>
+      <AlertDialog
+        open={restoreConfirmDialog.isOpen}
+        onOpenChange={closeRestoreConfirmDialog}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
@@ -1056,7 +1281,8 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-2">
               <p>
-                You are about to restore the database from: <strong>{restoreConfirmDialog.file?.name}</strong>
+                You are about to restore the database from:{" "}
+                <strong>{restoreConfirmDialog.file?.name}</strong>
               </p>
               <p className="text-destructive font-medium">
                 This will permanently overwrite all current data including:
@@ -1068,7 +1294,8 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 <li>All system settings</li>
               </ul>
               <p className="text-destructive font-medium">
-                This action cannot be undone. Make sure you have a current backup before proceeding.
+                This action cannot be undone. Make sure you have a current
+                backup before proceeding.
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -1079,7 +1306,51 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               disabled={saving}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {saving ? 'Restoring...' : 'Restore Database'}
+              {saving ? "Restoring..." : "Restore Database"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Storage Restore Confirmation Dialog */}
+      <AlertDialog
+        open={storageRestoreDialog.isOpen}
+        onOpenChange={closeStorageRestoreDialog}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Confirm Storage Restore
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              You are about to restore the data directory from:{" "}
+              <strong>{storageRestoreDialog.file?.name}</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-2 py-2">
+            <Label htmlFor="restore-mode">Conflict Resolution</Label>
+            <Select
+              value={restoreMode}
+              onValueChange={(v) => setRestoreMode(v as "skip" | "overwrite")}
+            >
+              <SelectTrigger id="restore-mode">
+                <SelectValue placeholder="Choose mode" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="skip">Skip Existing</SelectItem>
+                <SelectItem value="overwrite">Overwrite</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={saving}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmStorageRestore}
+              disabled={saving}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {saving ? "Restoring..." : "Restore Storage"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

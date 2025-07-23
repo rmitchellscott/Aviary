@@ -199,13 +199,15 @@ func main() {
 	admin := protected.Group("/admin")
 	admin.Use(auth.AdminRequiredMiddleware())
 	{
-		admin.GET("/status", auth.GetSystemStatusHandler)       // GET /api/admin/status - get system status
-		admin.GET("/settings", auth.GetSystemSettingsHandler)   // GET /api/admin/settings - get system settings
-		admin.PUT("/settings", auth.UpdateSystemSettingHandler) // PUT /api/admin/settings - update system setting
-		admin.POST("/test-smtp", auth.TestSMTPHandler)          // POST /api/admin/test-smtp - test SMTP config
-		admin.POST("/cleanup", auth.CleanupDataHandler)         // POST /api/admin/cleanup - cleanup old data
-		admin.POST("/backup", auth.BackupDatabaseHandler)       // POST /api/admin/backup - backup database
-		admin.POST("/restore", auth.RestoreDatabaseHandler)     // POST /api/admin/restore - restore database
+		admin.GET("/status", auth.GetSystemStatusHandler)          // GET /api/admin/status - get system status
+		admin.GET("/settings", auth.GetSystemSettingsHandler)      // GET /api/admin/settings - get system settings
+		admin.PUT("/settings", auth.UpdateSystemSettingHandler)    // PUT /api/admin/settings - update system setting
+		admin.POST("/test-smtp", auth.TestSMTPHandler)             // POST /api/admin/test-smtp - test SMTP config
+		admin.POST("/cleanup", auth.CleanupDataHandler)            // POST /api/admin/cleanup - cleanup old data
+		admin.POST("/backup", auth.BackupDatabaseHandler)          // POST /api/admin/backup - backup database
+		admin.POST("/restore", auth.RestoreDatabaseHandler)        // POST /api/admin/restore - restore database
+		admin.POST("/storage/backup", auth.BackupStorageHandler)   // POST /api/admin/storage/backup - backup storage
+		admin.POST("/storage/restore", auth.RestoreStorageHandler) // POST /api/admin/storage/restore - restore storage
 	}
 
 	protected.POST("/webhook", webhook.EnqueueHandler)
