@@ -67,6 +67,7 @@ interface User {
   is_admin: boolean;
   is_active: boolean;
   rmapi_host?: string;
+  rmapi_paired: boolean;
   default_rmdir: string;
   created_at: string;
   last_login?: string;
@@ -626,6 +627,30 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     }
   };
 
+  const getUserStatusBadge = (user: User) => {
+    if (!user.is_active) {
+      return (
+        <Badge variant="secondary" className="w-16 justify-center">
+          Inactive
+        </Badge>
+      );
+    }
+    
+    if (user.rmapi_paired) {
+      return (
+        <Badge variant="default" className="w-16 justify-center bg-green-600 hover:bg-green-700">
+          Paired
+        </Badge>
+      );
+    }
+    
+    return (
+      <Badge variant="default" className="w-16 justify-center">
+        Unpaired
+      </Badge>
+    );
+  };
+
   if (!systemStatus) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -882,12 +907,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <Badge
-                              variant={user.is_active ? "success" : "secondary"}
-                              className="w-16 justify-center"
-                            >
-                              {user.is_active ? "Active" : "Inactive"}
-                            </Badge>
+                            {getUserStatusBadge(user)}
                           </TableCell>
                           <TableCell>{formatDate(user.created_at)}</TableCell>
                           <TableCell>
