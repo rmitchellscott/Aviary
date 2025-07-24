@@ -115,7 +115,7 @@ func handlePairRequest(c *gin.Context) {
 		return
 	}
 
-	// Call post-pairing callback if set
+	// Call post-pairing callback if set (async for folder cache refresh)
 	if auth.GetPostPairingCallback() != nil {
 		go auth.GetPostPairingCallback()("single-user", true) // true = single-user mode
 	}

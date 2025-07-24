@@ -115,21 +115,22 @@ export function useUserData() {
       window.removeEventListener('userDataChanged', handleStorageChange);
       window.removeEventListener('logout', handleLogout);
     };
-  }, []);
+  }, [rmapiPaired, isAuthenticated]);
 
   const refetch = useCallback(() => {
     fetchUserData();
-  }, []);
+  }, [rmapiPaired, isAuthenticated]);
 
   const updatePairingStatus = useCallback((paired: boolean) => {
     setRmapiPaired(paired);
-    // Trigger a refetch after a short delay to ensure API calls complete
+    
+    // Trigger a refetch to sync with backend state
     setTimeout(() => {
       fetchUserData();
       // Notify other components by triggering a custom event
       window.dispatchEvent(new CustomEvent('userDataChanged'));
-    }, 100);
-  }, []);
+    }, 50); // Reduced from 100ms to 50ms
+  }, [isAuthenticated]);
 
   return {
     user,

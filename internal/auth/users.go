@@ -462,7 +462,7 @@ func PairRMAPIHandler(c *gin.Context) {
 		return
 	}
 
-	// Call post-pairing callback if set
+	// Call post-pairing callback if set (async for folder cache refresh)
 	if postPairingCallback != nil {
 		go postPairingCallback(user.ID.String(), false) // false = multi-user mode
 	}
