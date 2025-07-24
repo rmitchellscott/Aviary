@@ -49,6 +49,7 @@
     "compress_pdf": "Compress PDF",
     "send": "Send",
     "sending": "Sending…",
+    "uploading": "Uploading to Aviary",
     "invalid_file": "Invalid File",
     "ok": "OK",
     "job_queued": "Job queued: {{id}}"
@@ -94,7 +95,7 @@
       "compressing_pdf": "Compressing PDF",
       "compress_error": "Compress error",
       "rename_error": "Rename error",
-      "uploading": "Uploading",
+      "uploading": "Uploading to cloud",
       "upload_success": "Your document is available on your reMarkable at {{path}}"
     },
     "errors": {

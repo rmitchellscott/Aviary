@@ -78,9 +78,10 @@ func (i *Importer) Import(archivePath string, options ImportOptions) (*ExportMet
 // importDatabase imports all JSON files back to database tables
 func (i *Importer) importDatabase(dbDir string, options ImportOptions) error {
 	// Get the import order - dependencies first
+	// Note: system_settings references users, so import users first, then update system_settings
 	importOrder := []string{
-		"system_settings",
 		"users",
+		"system_settings",
 		"api_keys",
 		"user_sessions", 
 		"documents",
@@ -184,8 +185,8 @@ func (i *Importer) importTable(jsonFile, tableName string, options ImportOptions
 			return fmt.Errorf("failed to clear existing user data: %w", err)
 		}
 	} else {
-		// Clear entire table for full restore
-		if err := i.db.Where("1 = 1").Delete(model).Error; err != nil {
+		// Clear entire table for full restore using constraint-aware method
+		if err := i.clearTableWithConstraintHandling(tableName, model); err != nil {
 			return fmt.Errorf("failed to clear existing data: %w", err)
 		}
 	}
@@ -287,6 +288,8 @@ func (i *Importer) importSystemSettingBatch(records []map[string]interface{}) er
 		if err := mapToStruct(record, &setting); err != nil {
 			return err
 		}
+		// Clear the updated_by field since we don't care about preserving this info
+		setting.UpdatedBy = nil
 		batch = append(batch, setting)
 	}
 	return i.db.CreateInBatches(batch, len(batch)).Error
@@ -406,6 +409,30 @@ func (i *Importer) importUserFiles(sourceDir, subDir string, options ImportOptio
 }
 
 // Helper functions
+
+// clearUserForeignKeyReferences clears foreign key references to users table before deletion
+func (i *Importer) clearUserForeignKeyReferences() error {
+	// Clear updated_by references in system_settings since we don't care about preserving this info
+	if err := i.db.Model(&database.SystemSetting{}).Where("updated_by IS NOT NULL").Update("updated_by", nil).Error; err != nil {
+		return fmt.Errorf("failed to clear system_settings.updated_by references: %w", err)
+	}
+	fmt.Println("Import: Cleared system_settings.updated_by references to allow user table clearing")
+	return nil
+}
+
+// clearTableWithConstraintHandling safely clears a table while handling foreign key constraints
+func (i *Importer) clearTableWithConstraintHandling(tableName string, model interface{}) error {
+	// For users table, always clear foreign key references first
+	if tableName == "users" {
+		fmt.Println("Import: Clearing foreign key references before deleting users")
+		if err := i.clearUserForeignKeyReferences(); err != nil {
+			return fmt.Errorf("failed to clear foreign key references: %w", err)
+		}
+	}
+	
+	// Clear the table
+	return i.db.Where("1 = 1").Delete(model).Error
+}
 
 func (i *Importer) validateMetadata(metadata *ExportMetadata) error {
 	// Add validation logic here

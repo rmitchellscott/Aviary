@@ -116,7 +116,8 @@ export default function HomePage() {
   const [status, setStatus] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [progress, setProgress] = useState<number>(0);
-  const [operation, setOperation] = useState<string>("");
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadPhase, setUploadPhase] = useState<'idle' | 'uploading' | 'processing'>('idle');
   const [fileError, setFileError] = useState<string | null>(null);
   const DEFAULT_RM_DIR = "default";
   const [folders, setFolders] = useState<string[]>([]);
@@ -248,6 +249,54 @@ export default function HomePage() {
   }
 
   /**
+   * Upload file with progress tracking using XMLHttpRequest
+   */
+  const uploadFileWithProgress = async (formData: FormData): Promise<{ jobId: string }> => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      
+      // Track upload progress
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = (event.loaded / event.total) * 100;
+          setUploadProgress(percentComplete);
+        }
+      });
+      
+      // Handle completion
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } catch (err) {
+            reject(new Error('Invalid response format'));
+          }
+        } else {
+          reject(new Error(xhr.responseText || `HTTP ${xhr.status}`));
+        }
+      });
+      
+      // Handle errors
+      xhr.addEventListener('error', () => {
+        reject(new Error('Upload failed'));
+      });
+      
+      // Set up request
+      xhr.open('POST', '/api/upload');
+      
+      // Add headers
+      if (uiSecret) {
+        xhr.setRequestHeader('X-UI-Token', uiSecret);
+      }
+      xhr.setRequestHeader('Accept-Language', i18n.language);
+      xhr.withCredentials = true;
+      
+      // Send the request
+      xhr.send(formData);
+    });
+  };
+  /**
    * If a local file is selected, POST it to /api/upload as multipart/form-data.
    * Otherwise, enqueue by sending a URL to /api/webhook (old behavior).
    */
@@ -255,10 +304,11 @@ export default function HomePage() {
     setLoading(true);
     setMessage("");
     setStatus("");
-    setOperation("");
+    setUploadProgress(0);
+    setUploadPhase('idle');
 
     if (selectedFile) {
-      // === FILE UPLOAD FLOW (enqueue + poll) ===
+      // === FILE UPLOAD FLOW (upload with progress + enqueue + poll) ===
       try {
         const formData = new FormData();
         formData.append("file", selectedFile);
@@ -267,33 +317,21 @@ export default function HomePage() {
           formData.append("rm_dir", rmDir);
         }
 
-        // 1) send to /api/upload and get back { jobId }
-        const headers: HeadersInit = {};
-        if (uiSecret) {
-          headers["X-UI-Token"] = uiSecret;
-        }
-        // Include current language for backend i18n
-        headers["Accept-Language"] = i18n.language;
-
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          headers,
-          credentials: "include",
-          body: formData,
-        });
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(errText);
-        }
-        const { jobId } = await res.json();
+        // 1) Upload file with progress tracking
+        setUploadPhase('uploading');
+        setMessage(t("home.uploading"));
+        const { jobId } = await uploadFileWithProgress(formData);
+        
+        // 2) File uploaded, now processing
+        setUploadPhase('processing');
         setMessage(t("home.job_queued", { id: jobId }));
+        setUploadProgress(100); // Upload complete
 
         setStatus("running");
         setProgress(0);
         await waitForJobWS(jobId, (st) => {
           setStatus(st.status.toLowerCase());
           setMessage(t(st.message, st.data || {}));
-          setOperation(st.operation || "");
           if (typeof st.progress === "number") {
             setProgress(st.progress);
           }
@@ -307,7 +345,8 @@ export default function HomePage() {
         setSelectedFile(null);
         setUrl("");
         setProgress(0);
-        setOperation("");
+        setUploadProgress(0);
+        setUploadPhase('idle');
         setLoading(false);
       }
     } else {
@@ -346,7 +385,6 @@ export default function HomePage() {
         await waitForJobWS(jobId, (st) => {
           setStatus(st.status.toLowerCase());
           setMessage(t(st.message, st.data || {}));
-          setOperation(st.operation || "");
           if (typeof st.progress === "number") {
             setProgress(st.progress);
           }
@@ -358,7 +396,6 @@ export default function HomePage() {
       } finally {
         setUrl("");
         setProgress(0);
-        setOperation("");
         setLoading(false);
       }
     }
@@ -512,7 +549,7 @@ export default function HomePage() {
 
           {message && (
             <div className="mt-2 flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-sm text-secondary-foreground">
-              {status === "running" && (
+              {(status === "running" || uploadPhase === 'uploading') && (
                 <Loader2 className="size-4 flex-shrink-0 animate-spin" />
               )}
               {status === "success" && (
@@ -524,16 +561,14 @@ export default function HomePage() {
               <span className="break-words">{message}</span>
             </div>
           )}
-          {status === "running" &&
-            operation === "compressing" &&
-            progress > 0 &&
-            progress < 100 && (
+          {(uploadPhase === 'uploading' && uploadProgress > 0 && uploadProgress < 100) ||
+           (status === "running" && progress > 0 && progress < 100) ? (
               <Progress
-                value={progress}
+                value={uploadPhase === 'uploading' ? uploadProgress : progress}
                 durationMs={POLL_INTERVAL_MS}
                 className="mt-2"
               />
-            )}
+            ) : null}
         </CardContent>
       </Card>
 
