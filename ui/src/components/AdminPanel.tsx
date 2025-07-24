@@ -245,10 +245,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         await fetchSystemStatus();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || "Failed to create user");
+        setError(errorData.error || t("admin.errors.create_user"));
       }
     } catch (error) {
-      setError("Failed to create user");
+      setError(t("admin.errors.create_user"));
     } finally {
       setSaving(false);
     }
@@ -310,10 +310,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         closeDeleteUserDialog();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || "Failed to delete user");
+        setError(errorData.error || t("admin.errors.delete_user"));
       }
     } catch (error) {
-      setError("Failed to delete user");
+      setError(t("admin.errors.delete_user"));
     } finally {
       setDeleting(false);
     }
@@ -339,7 +339,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     if (!resetPasswordDialog.user || !newPasswordValue) return;
 
     if (newPasswordValue.length < 8) {
-      setError("Password must be at least 8 characters long");
+      setError(t("admin.errors.password_length"));
       return;
     }
 
@@ -362,10 +362,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         setError(null);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || "Failed to reset password");
+        setError(errorData.error || t("admin.errors.reset_password"));
       }
     } catch (error) {
-      setError("Failed to reset password");
+      setError(t("admin.errors.reset_password"));
     } finally {
       setSaving(false);
     }
@@ -405,10 +405,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         setError(null);
         // Show success message
       } else {
-        setError(result.error || "SMTP test failed");
+        setError(result.error || t("admin.errors.smtp_test"));
       }
     } catch (error) {
-      setError("Failed to test SMTP");
+      setError(t("admin.errors.smtp_test_network"));
     } finally {
       setSaving(false);
     }
@@ -447,10 +447,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         window.URL.revokeObjectURL(url);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || "Failed to create backup");
+        setError(errorData.error || t("admin.errors.backup_create"));
       }
     } catch (error) {
-      setError("Failed to create backup");
+      setError(t("admin.errors.backup_create"));
     } finally {
       setSaving(false);
     }
@@ -480,11 +480,11 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         });
         return true;
       } else {
-        setError(result.error || "Invalid backup file");
+        setError(result.error || t("admin.errors.backup_invalid"));
         return false;
       }
     } catch (error) {
-      setError("Failed to analyze backup file: " + error.message);
+      setError(t("admin.errors.backup_analyze") + error.message);
       return false;
     } finally {
       setSaving(false);
@@ -501,7 +501,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       const isTarGz = fileName.endsWith('.tar.gz') || fileName.endsWith('.tgz');
       
       if (!isTarGz) {
-        setError(`Invalid file type. Please select a backup archive (.tar.gz or .tgz). Selected file: "${file.name}"`);
+        setError(t("admin.errors.backup_file_type") + `"${file.name}"`);
         event.target.value = "";
         return;
       }
@@ -550,10 +550,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         await fetchUsers();
         await fetchAPIKeys();
       } else {
-        setError(result.error || "Failed to restore database");
+        setError(result.error || t("admin.errors.restore_failed"));
       }
     } catch (error) {
-      setError("Failed to restore database: " + error.message);
+      setError(t("admin.errors.restore_error") + error.message);
     } finally {
       setSaving(false);
     }
@@ -591,13 +591,13 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const getSMTPStatusText = (status: string) => {
     switch (status) {
       case "configured_and_working":
-        return "Working";
+        return t("admin.status.working");
       case "configured_but_failed":
-        return "Failed";
+        return t("admin.status.failed");
       case "not_configured":
-        return "Not configured";
+        return t("admin.status.not_configured");
       default:
-        return "Unknown";
+        return t("admin.status.unknown");
     }
   };
 
@@ -605,7 +605,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     if (!user.is_active) {
       return (
         <Badge variant="secondary" className="w-16 justify-center">
-          Inactive
+          {t("admin.status.inactive")}
         </Badge>
       );
     }
@@ -613,14 +613,14 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     if (user.rmapi_paired) {
       return (
         <Badge variant="default" className="w-16 justify-center bg-primary text-primary-foreground hover:bg-primary/80">
-          Paired
+          {t("admin.status.paired")}
         </Badge>
       );
     }
     
     return (
       <Badge variant="default" className="w-16 justify-center">
-        Unpaired
+        {t("admin.status.unpaired")}
       </Badge>
     );
   };
@@ -633,7 +633,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-6xl">
-          <div className="flex items-center justify-center p-8">Loading...</div>
+          <div className="flex items-center justify-center p-8">{t("admin.loading_states.loading")}</div>
         </DialogContent>
       </Dialog>
     );
@@ -645,10 +645,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
-            Admin Panel
+            {t("admin.title")}
           </DialogTitle>
           <DialogDescription>
-            Manage users, system settings, and monitor system health
+            {t("admin.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -674,23 +674,23 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Activity className="h-4 w-4" />
-              Overview
+              {t("admin.tabs.overview")}
             </TabsTrigger>
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              Users
+              {t("admin.tabs.users")}
             </TabsTrigger>
             <TabsTrigger value="api-keys" className="flex items-center gap-2">
               <Key className="h-4 w-4" />
-              API Keys
+              {t("admin.tabs.api_keys")}
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <SettingsIcon className="h-4 w-4" />
-              Settings
+              {t("admin.tabs.settings")}
             </TabsTrigger>
             <TabsTrigger value="system" className="flex items-center gap-2">
               <Database className="h-4 w-4" />
-              System
+              {t("admin.tabs.system")}
             </TabsTrigger>
           </TabsList>
 

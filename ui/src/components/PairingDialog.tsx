@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,7 @@ export function PairingDialog({
   onPairingSuccess,
   rmapiHost = ""
 }: PairingDialogProps) {
+  const { t } = useTranslation();
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export function PairingDialog({
     
     // Validate code format (8 characters)
     if (trimmedCode.length !== 8) {
-      setError("Code must be 8 characters long");
+      setError(t("pairing.code_error"));
       return;
     }
 
@@ -65,10 +67,10 @@ export function PairingDialog({
         handleClose();
       } else {
         const data = await resp.json();
-        setError(data.error || "Failed to pair");
+        setError(data.error || t("pairing.pair_error"));
       }
     } catch {
-      setError("Failed to pair");
+      setError(t("pairing.pair_error"));
     } finally {
       setLoading(false);
     }
@@ -93,21 +95,21 @@ export function PairingDialog({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Pair with reMarkable Cloud</DialogTitle>
+          <DialogTitle>{t("pairing.title")}</DialogTitle>
           <DialogDescription>
-            Enter one-time code from {displayHost}
+            {t("pairing.description", { displayHost })}
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">
           <div>
-            <Label htmlFor="pairing-code">One-time Code</Label>
+            <Label htmlFor="pairing-code">{t("pairing.code_label")}</Label>
             <Input
               id="pairing-code"
               value={code}
               onChange={(e) => handleCodeChange(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="8 character code"
+              placeholder={t("pairing.code_placeholder")}
               className="font-mono text-center tracking-widest mt-2"
               maxLength={8}
               disabled={loading}
@@ -126,7 +128,7 @@ export function PairingDialog({
               onClick={handleClose}
               disabled={loading}
             >
-              Cancel
+              {t("pairing.cancel")}
             </Button>
             <Button
               onClick={handleSubmit}
@@ -135,10 +137,10 @@ export function PairingDialog({
               {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>
-                  Pairing...
+                  {t("pairing.pairing")}
                 </>
               ) : (
-                'Pair'
+                t("pairing.pair")
               )}
             </Button>
           </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import HomePage from './HomePage';
 import { ThemeProvider } from '@/components/theme-provider';
 import ThemeSwitcher from '@/components/ThemeSwitcher';
@@ -14,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Settings, Shield, RotateCcw } from 'lucide-react';
 
 function AppContent() {
+  const { t } = useTranslation();
   const { isAuthenticated, multiUserMode, user } = useAuth();
   const [showUserSettings, setShowUserSettings] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
@@ -73,7 +75,7 @@ function AppContent() {
                 className="flex items-center gap-2"
               >
                 <Settings className="h-4 w-4" />
-                Settings
+                {t("app.settings")}
               </Button>
               
               {user?.is_admin && (
@@ -84,7 +86,7 @@ function AppContent() {
                   className="flex items-center gap-2"
                 >
                   <Shield className="h-4 w-4" />
-                  Admin
+                  {t("app.admin")}
                 </Button>
               )}
             </>

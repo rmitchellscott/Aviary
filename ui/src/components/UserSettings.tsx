@@ -458,13 +458,13 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     return "active";
   };
 
-  const canDeleteAccount = deletePassword && deleteConfirmation === "DELETE MY ACCOUNT";
+  const canDeleteAccount = deletePassword && deleteConfirmation === t('settings.placeholders.delete_confirm');
 
   if (userDataLoading) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-4xl">
-          <div className="flex items-center justify-center p-8">Loading...</div>
+          <div className="flex items-center justify-center p-8">{t('settings.loading_states.loading')}</div>
         </DialogContent>
       </Dialog>
     );
@@ -540,7 +540,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       id="rmapi-host"
                       value={userRmapiHost}
                       onChange={(e) => setUserRmapiHost(e.target.value)}
-                      placeholder="Leave empty for reMarkable Cloud"
+                      placeholder={t('settings.placeholders.cloud_default')}
                       className="mt-2"
                     />
                     <div className="mt-2">
@@ -584,7 +584,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         )}
                         {rmapiPaired && foldersLoading && (
                           <SelectItem value="loading" disabled>
-                            Loading...
+                            {t('settings.loading_states.loading')}
                           </SelectItem>
                         )}
                         {rmapiPaired && folders.map((f) => (
@@ -627,7 +627,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                   <div className="flex justify-end">
                     <Button onClick={updateProfile} disabled={saving || !hasChanges()}>
                       <Save className="h-4 w-4 mr-2" />
-                      {saving ? "Saving..." : "Save Changes"}
+                      {saving ? t('settings.loading_states.saving') : t('settings.buttons.save_changes')}
                     </Button>
                   </div>
                 </CardContent>
@@ -685,7 +685,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         }
                       >
                         <Save className="h-4 w-4 mr-2" />
-                        {saving ? "Updating..." : "Update Password"}
+                        {saving ? t('settings.loading_states.updating') : t('settings.buttons.update_password')}
                       </Button>
                     </div>
                   </CardContent>
@@ -722,7 +722,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           onClick={openDeleteAccountDialog}
                         >
                           <UserX className="h-4 w-4 mr-2" />
-                          Delete My Account
+                          {t('settings.buttons.delete_my_account')}
                         </Button>
                       </div>
                     </div>
@@ -745,7 +745,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           id="key-name"
                           value={newKeyName}
                           onChange={(e) => setNewKeyName(e.target.value)}
-                          placeholder="My API Key"
+                          placeholder={t('settings.placeholders.api_key')}
                           className="mt-2"
                         />
                       </div>
@@ -756,10 +756,10 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           onValueChange={setNewKeyExpiry}
                         >
                           <SelectTrigger className="mt-2">
-                            <SelectValue placeholder="Never expires" />
+                            <SelectValue placeholder={t('settings.placeholders.never_expires')} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="never">Never</SelectItem>
+                            <SelectItem value="never">{t('settings.never')}</SelectItem>
                             <SelectItem value="1week">1 week</SelectItem>
                             <SelectItem value="1month">1 month</SelectItem>
                             <SelectItem value="3months">3 months</SelectItem>
@@ -880,12 +880,12 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                 <TableCell>
                                   {key.last_used
                                     ? formatDate(key.last_used)
-                                    : "Never"}
+                                    : t('settings.never')}
                                 </TableCell>
                                 <TableCell>
                                   {key.expires_at
                                     ? formatDate(key.expires_at)
-                                    : "Never"}
+                                    : t('settings.never')}
                                 </TableCell>
                                 <TableCell>
                                   <Button
@@ -938,17 +938,17 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                 type="password"
                 value={deletePassword}
                 onChange={(e) => setDeletePassword(e.target.value)}
-                placeholder="Enter your current password"
+                placeholder={t('settings.placeholders.current_password')}
                 className="mt-1"
               />
             </div>
             <div>
-              <Label htmlFor="delete-confirmation">Type "DELETE MY ACCOUNT" to confirm</Label>
+              <Label htmlFor="delete-confirmation">Type "{t('settings.placeholders.delete_confirm')}" to confirm</Label>
               <Input
                 id="delete-confirmation"
                 value={deleteConfirmation}
                 onChange={(e) => setDeleteConfirmation(e.target.value)}
-                placeholder="DELETE MY ACCOUNT"
+                placeholder={t('settings.placeholders.delete_confirm')}
                 className="mt-1"
               />
             </div>
@@ -962,7 +962,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
               disabled={saving || !canDeleteAccount}
               className="bg-destructive hover:bg-destructive/90 focus:ring-destructive"
             >
-              {saving ? 'Deleting...' : 'Delete My Account'}
+              {saving ? t('settings.loading_states.deleting') : t('settings.buttons.delete_my_account')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

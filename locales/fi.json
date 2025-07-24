@@ -9,7 +9,32 @@
     "signing_in": "Kirjaudutaan sisään...",
     "button": "Kirjaudu sisään",
     "network_error": "Verkkovirhe",
-    "fail": "Kirjautuminen epäonnistui"
+    "fail": "Kirjautuminen epäonnistui",
+    "register": "Create Account"
+  },
+  "register": {
+    "title": "Create Account",
+    "username": "Username",
+    "username_help": "Username must be 3-50 characters long and contain only letters, numbers, underscores, and hyphens",
+    "email": "Email",
+    "password": "Password",
+    "password_help": "Password must be at least 8 characters long",
+    "confirm_password": "Confirm Password",
+    "button": "Create Account",
+    "creating": "Creating account...",
+    "back_to_login": "Back to Login",
+    "success_title": "Account Created!",
+    "success_message": "Your account has been created successfully. You can now log in with your credentials.",
+    "login_now": "Continue to Login",
+    "disabled": "User registration is currently disabled",
+    "disabled_message": "New user registration is currently disabled. Please contact an administrator to create an account.",
+    "missing_fields": "Please fill in all required fields",
+    "password_mismatch": "Passwords do not match",
+    "password_too_short": "Password must be at least 8 characters long",
+    "user_exists": "A user with this username or email already exists",
+    "network_error": "Network error occurred",
+    "fail": "Account creation failed",
+    "already_have_account": "Already have an account? Sign in"
   },
   "logout": "Kirjaudu ulos",
   "home": {
@@ -26,7 +51,13 @@
     "sending": "Lähetetään…",
     "invalid_file": "Virheellinen tiedosto",
     "ok": "OK",
-    "job_queued": "Työ jonossa: {{id}}"
+    "job_queued": "Työ jonossa: {{id}}",
+    "pair": "Pair",
+    "uploading": "Uploading to Aviary",
+    "pair_with_cloud": "Pair with cloud to load folders",
+    "pair_with_remarkable": "Pair with reMarkable cloud",
+    "to_upload_documents": " to upload documents.",
+    "settings_config": " Go to Settings for additional configuration."
   },
   "filedrop": {
     "instruction": "Klikkaa ladataksesi tai raahaa ja pudota",
@@ -42,6 +73,180 @@
     "search": "Hae...",
     "no_results": "Ei tuloksia.",
     "tooltip": "Kieli"
+  },
+  "pairing": {
+    "title": "Yhdistä reMarkable Cloudiin",
+    "description": "Syötä kertakäyttökoodi osoitteesta {{displayHost}}",
+    "code_label": "Kertakäyttökoodi",
+    "code_placeholder": "8 merkin koodi",
+    "cancel": "Peruuta",
+    "pair": "Yhdistä",
+    "pairing": "Yhdistetään...",
+    "code_error": "Koodin on oltava 8 merkkiä pitkä",
+    "pair_error": "Yhdistäminen epäonnistui"
+  },
+  "user_delete": {
+    "title": "Poista tili",
+    "current_user_warning": "Oletko varma, että haluat poistaa tilisi pysyvästi?",
+    "admin_user_warning": "Oletko varma, että haluat poistaa käyttäjän <strong>{{username}}</strong> pysyvästi?",
+    "action_will": "Tämä toiminto:",
+    "current_user": {
+      "data_deletion": "Poistaa kaikki tietosi mukaan lukien ladatut asiakirjat ja API-avaimet",
+      "remove_sessions": "Poistaa kaikki istuntosi ja kirjaa sinut ulos",
+      "remove_history": "Poistaa koko kirjautumishistoriasi",
+      "permanent_removal": "Poistaa tilisi pysyvästi järjestelmästä"
+    },
+    "admin_user": {
+      "data_deletion": "Poistaa kaikki käyttäjätiedot mukaan lukien arkistoidut asiakirjat ja API-avaimet",
+      "remove_sessions": "Poistaa kaikki käyttäjäistunnot",
+      "remove_history": "Poistaa koko kirjautumishistorian"
+    },
+    "note_label": "Huomaa:",
+    "note_current": "ReMarkable Cloud -tilisi ja laitetiedot pysyvät täysin koskemattomina.",
+    "note_admin": "Käyttäjän reMarkable Cloud -tili ja laitetiedot pysyvät täysin koskemattomina.",
+    "cannot_undo_current": "Tätä toimintoa ei voi perua ja menetät pääsyn kaikkiin tietoihisi.",
+    "cannot_undo_admin": "Tätä toimintoa ei voi perua.",
+    "cancel": "Peru",
+    "delete_account": "Poista tilini",
+    "delete_user": "Poista käyttäjä",
+    "deleting": "Poistetaan..."
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "description": "Manage users, system settings, and monitor system health",
+    "status": {
+      "working": "Working",
+      "failed": "Failed",
+      "not_configured": "Not configured",
+      "unknown": "Unknown",
+      "inactive": "Inactive",
+      "paired": "Paired",
+      "unpaired": "Unpaired",
+      "active": "active"
+    },
+    "roles": {
+      "admin": "Admin",
+      "user": "User"
+    },
+    "actions": {
+      "make_admin": "Make Admin",
+      "make_user": "Make User",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "reset_password": "Reset Password",
+      "delete": "Delete",
+      "create_user": "Create User",
+      "test_smtp": "Test SMTP",
+      "create_backup": "Create Backup",
+      "restore_backup": "Restore from Backup...",
+      "cancel": "Cancel",
+      "restore_database": "Restore Database"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "users": "Users",
+      "api_keys": "API Keys",
+      "settings": "Settings",
+      "system": "System"
+    },
+    "cards": {
+      "total_users": "Total Users",
+      "api_keys": "API Keys",
+      "documents": "Documents",
+      "active_sessions": "Active Sessions",
+      "smtp_status": "SMTP Status",
+      "system_mode": "System Mode",
+      "create_new_user": "Create New User",
+      "user_management": "User Management",
+      "api_key_settings": "API Key Settings",
+      "session_settings": "Session Settings",
+      "backup_restore": "Backup & Restore"
+    },
+    "labels": {
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "role": "Role",
+      "status": "Status",
+      "created": "Created",
+      "last_login": "Last Login",
+      "actions": "Actions",
+      "name": "Name",
+      "user": "User",
+      "key_preview": "Key Preview",
+      "last_used": "Last Used",
+      "expires": "Expires",
+      "new_password": "New Password",
+      "enable_registration": "Enable User Registration",
+      "max_api_keys": "Maximum API Keys per User",
+      "session_timeout": "Session Timeout (hours)"
+    },
+    "placeholders": {
+      "username": "username",
+      "email": "user@example.com",
+      "password": "password",
+      "new_password": "Enter new password (minimum 8 characters)"
+    },
+    "descriptions": {
+      "registration_help": "Allow self-service creation of new user accounts",
+      "total_uploaded": "Total uploaded",
+      "current_sessions": "Current unexpired sessions",
+      "backup_description": "Creates a complete backup including database and user files as a .tar.gz archive",
+      "restore_description": "Restores database and user files from backup archive (.tar.gz format)",
+      "restore_warning": "Warning: Restoring will completely overwrite all current data"
+    },
+    "badges": {
+      "multi_user": "Multi-user Mode",
+      "dry_run": "Dry Run Mode",
+      "oidc_enabled": "OIDC Enabled",
+      "proxy_auth": "Proxy Auth Enabled"
+    },
+    "loading_states": {
+      "creating_backup": "Creating Backup...",
+      "analyzing": "Analyzing...",
+      "resetting": "Resetting...",
+      "restoring": "Restoring...",
+      "loading": "Loading..."
+    },
+    "dialogs": {
+      "reset_password_title": "Reset Password",
+      "reset_password_description": "Reset the password for user: ",
+      "confirm_restore_title": "Confirm Data Restore",
+      "confirm_restore_description": "You are about to restore from backup file: ",
+      "backup_contents": "Backup Contents:",
+      "restore_warning_text": "This will permanently overwrite all current data including:",
+      "restore_warning_items": {
+        "accounts": "All user accounts and settings",
+        "api_keys": "All API keys and sessions",
+        "documents": "All user documents and files",
+        "pairing": "All cloud pairing configuration",
+        "folders": "All folder caches",
+        "settings": "All system settings"
+      },
+      "restore_final_warning": "This action cannot be undone. Make sure you have a current backup before proceeding."
+    },
+    "errors": {
+      "create_user": "Failed to create user",
+      "delete_user": "Failed to delete user",
+      "reset_password": "Failed to reset password",
+      "password_length": "Password must be at least 8 characters long",
+      "smtp_test": "SMTP test failed",
+      "smtp_test_network": "Failed to test SMTP",
+      "backup_create": "Failed to create backup",
+      "backup_invalid": "Invalid backup file",
+      "backup_analyze": "Failed to analyze backup file: ",
+      "backup_file_type": "Invalid file type. Please select a backup archive (.tar.gz or .tgz). Selected file: ",
+      "restore_failed": "Failed to restore database",
+      "restore_error": "Failed to restore database: "
+    },
+    "success": {
+      "restore_complete": "Database restored successfully"
+    },
+    "counts": {
+      "users": "Users ({{count}})",
+      "all_api_keys": "All API Keys ({{count}})"
+    },
+    "never": "Never"
   },
   "backend": {
     "auth": {
@@ -83,5 +288,45 @@
       "no_form": "Multipart-lomaketta ei löytynyt",
       "no_file_field": "Ei tiedostoa kentässä {{field}}"
     }
+  },
+  "settings": {
+    "placeholders": {
+      "cloud_default": "Leave empty for reMarkable Cloud",
+      "api_key": "My API Key",
+      "never_expires": "Never expires",
+      "current_password": "Enter your current password",
+      "delete_confirm": "DELETE MY ACCOUNT"
+    },
+    "loading_states": {
+      "saving": "Saving...",
+      "updating": "Updating...",
+      "deleting": "Deleting...",
+      "loading": "Loading..."
+    },
+    "buttons": {
+      "save_changes": "Save Changes",
+      "update_password": "Update Password",
+      "delete_my_account": "Delete My Account"
+    },
+    "never": "Never"
+  },
+  "app": {
+    "settings": "Settings",
+    "admin": "Admin"
+  },
+  "password_reset": {
+    "title": "Reset Password",
+    "new_password_title": "Set New Password",
+    "email_placeholder": "Enter your email address",
+    "password_placeholder": "Enter new password",
+    "confirm_placeholder": "Confirm new password",
+    "sending": "Sending...",
+    "send_email": "Send Reset Email",
+    "resetting": "Resetting...",
+    "reset_button": "Reset Password"
+  },
+  "accessibility": {
+    "logo": "Aviary logo",
+    "select_language": "Select language"
   }
 }

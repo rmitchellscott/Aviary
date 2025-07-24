@@ -37,7 +37,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
     }
     
     if (!email) {
-      setMessage({ type: 'error', text: 'Please enter your email address' });
+      setMessage({ type: 'error', text: t('register.missing_fields') });
       return;
     }
 
@@ -58,13 +58,13 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
       if (response.ok) {
         setMessage({ 
           type: 'success', 
-          text: 'If the email exists, a password reset link has been sent' 
+          text: t('password_reset.email_sent', 'If the email exists, a password reset link has been sent') 
         });
       } else {
-        setMessage({ type: 'error', text: data.error || 'Failed to send reset email' });
+        setMessage({ type: 'error', text: data.error || t('password_reset.send_email_error', 'Failed to send reset email') });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Network error. Please try again.' });
+      setMessage({ type: 'error', text: t('register.network_error') });
     } finally {
       setLoading(false);
     }
@@ -76,17 +76,17 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
     }
     
     if (!token || !newPassword || !confirmPassword) {
-      setMessage({ type: 'error', text: 'Please fill in all fields' });
+      setMessage({ type: 'error', text: t('register.missing_fields') });
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setMessage({ type: 'error', text: 'Passwords do not match' });
+      setMessage({ type: 'error', text: t('register.password_mismatch') });
       return;
     }
 
     if (newPassword.length < 8) {
-      setMessage({ type: 'error', text: 'Password must be at least 8 characters long' });
+      setMessage({ type: 'error', text: t('register.password_too_short') });
       return;
     }
 
@@ -110,7 +110,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
       if (response.ok) {
         setMessage({ 
           type: 'success', 
-          text: 'Password has been reset successfully. You can now log in with your new password.' 
+          text: t('password_reset.success', 'Password has been reset successfully. You can now log in with your new password.') 
         });
         // Clear the form
         setToken('');
@@ -122,10 +122,10 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
           window.location.href = '/';
         }, 3000);
       } else {
-        setMessage({ type: 'error', text: data.error || 'Failed to reset password' });
+        setMessage({ type: 'error', text: data.error || t('password_reset.reset_error', 'Failed to reset password') });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Network error. Please try again.' });
+      setMessage({ type: 'error', text: t('register.network_error') });
     } finally {
       setLoading(false);
     }
@@ -137,7 +137,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-2">
             <Lock className="h-5 w-5" />
-            {step === 'request' ? 'Reset Password' : 'Set New Password'}
+            {step === 'request' ? t('password_reset.title') : t('password_reset.new_password_title')}
           </CardTitle>
         </CardHeader>
         
@@ -160,11 +160,11 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
           {step === 'request' ? (
             <form onSubmit={requestReset}>
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email">{t('register.email')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Enter your email address"
+                  placeholder={t('password_reset.email_placeholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
@@ -179,7 +179,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                   className="w-full"
                 >
                   <Mail className="h-4 w-4 mr-2" />
-                  {loading ? 'Sending...' : 'Send Reset Email'}
+                  {loading ? t('password_reset.sending') : t('password_reset.send_email')}
                 </Button>
                 
                 <div className="text-center">
@@ -191,14 +191,14 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                     className="text-sm text-muted-foreground hover:text-foreground hover:bg-muted"
                     disabled={loading}
                   >
-                    Back to Login
+                    {t('register.back_to_login')}
                   </Button>
                 </div>
               </div>
 
               <div className="text-center mt-4">
                 <p className="text-sm text-muted-foreground">
-                  Enter your email address and we'll send you a link to reset your password.
+                  {t('password_reset.email_instruction', 'Enter your email address and we\'ll send you a link to reset your password.')}
                 </p>
               </div>
             </form>
@@ -208,11 +208,11 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
               <input type="hidden" value={token} />
 
               <div className="space-y-2">
-                <Label htmlFor="new-password">New Password</Label>
+                <Label htmlFor="new-password">{t('admin.labels.new_password')}</Label>
                 <Input
                   id="new-password"
                   type="password"
-                  placeholder="Enter new password"
+                  placeholder={t('password_reset.password_placeholder')}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   disabled={loading}
@@ -221,11 +221,11 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirm New Password</Label>
+                <Label htmlFor="confirm-password">{t('register.confirm_password')}</Label>
                 <Input
                   id="confirm-password"
                   type="password"
-                  placeholder="Confirm new password"
+                  placeholder={t('password_reset.confirm_placeholder')}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   disabled={loading}
@@ -239,7 +239,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                   className="w-full"
                 >
                   <Lock className="h-4 w-4 mr-2" />
-                  {loading ? 'Resetting...' : 'Reset Password'}
+                  {loading ? t('password_reset.resetting') : t('password_reset.reset_button')}
                 </Button>
                 
                 <Button 
@@ -249,13 +249,13 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                   className="w-full"
                   disabled={loading}
                 >
-                  Back to Login
+                  {t('register.back_to_login')}
                 </Button>
               </div>
 
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">
-                  Password must be at least 8 characters long.
+                  {t('register.password_help')}
                 </p>
               </div>
             </form>

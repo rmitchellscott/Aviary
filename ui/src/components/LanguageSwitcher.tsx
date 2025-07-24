@@ -62,7 +62,7 @@ export default function LanguageSwitcher() {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                aria-label="Select language"
+                aria-label={t("accessibility.select_language")}
                 style={{
                   fontSize: 21,
                   lineHeight: 0,

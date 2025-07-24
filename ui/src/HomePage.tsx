@@ -493,7 +493,7 @@ export default function HomePage() {
                 </SelectItem>
                 {!rmapiPaired && (
                   <SelectItem value="not-paired" disabled>
-                    Pair with cloud to load folders
+                    {t("home.pair_with_cloud")}
                   </SelectItem>
                 )}
                 {rmapiPaired && foldersLoading && (
@@ -530,8 +530,8 @@ export default function HomePage() {
           {!rmapiPaired && !userDataLoading && (
             <div className="bg-muted border rounded-md p-3 text-muted-foreground">
               <p className="text-sm">
-                <strong className="text-foreground">Pair with reMarkable cloud</strong> to upload documents.{multiUserMode && (
-                  <> Go to Settings for additional configuration.</>
+                <strong className="text-foreground">{t("home.pair_with_remarkable")}</strong>{t("home.to_upload_documents")}{multiUserMode && (
+                  <>{t("home.settings_config")}</>
                 )}
               </p>
             </div>
@@ -543,7 +543,7 @@ export default function HomePage() {
               onClick={!rmapiPaired ? () => setPairingDialogOpen(true) : handleSubmit}
               disabled={loading || (!url && !selectedFile && rmapiPaired)}
             >
-              {loading ? t("home.sending") : !rmapiPaired ? "Pair" : t("home.send")}
+              {loading ? t("home.sending") : !rmapiPaired ? t("home.pair") : t("home.send")}
             </Button>
           </div>
 
