@@ -4,14 +4,20 @@ import (
 	"crypto/rand"
 	"crypto/subtle"
 	"fmt"
+	"io"
+	"io/fs"
 	"net/http"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/rmitchellscott/aviary/internal/database"
+	"golang.org/x/term"
 	"golang.org/x/time/rate"
 )
 
@@ -252,4 +258,136 @@ func CheckAuthHandler(c *gin.Context) {
 
 	authenticated := err == nil && token.Valid
 	c.JSON(http.StatusOK, gin.H{"authenticated": authenticated})
+}
+
+// AuthRequired checks if API authentication is configured
+func AuthRequired() bool {
+	envApiKey := os.Getenv("API_KEY")
+	return envApiKey != ""
+}
+
+// CheckSingleUserPaired checks if rmapi.conf exists for single-user mode
+func CheckSingleUserPaired() bool {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return false
+	}
+	cfgPath := filepath.Join(home, ".config", "rmapi", "rmapi.conf")
+	info, err := os.Stat(cfgPath)
+	return err == nil && info.Size() > 0
+}
+
+// ServeIndexWithSecret serves index.html with injected secret
+func ServeIndexWithSecret(c *gin.Context, uiFS fs.FS, secret string) {
+	content, err := fs.ReadFile(uiFS, "index.html")
+	if err != nil {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	// Inject secret into HTML
+	html := string(content)
+	// Look for </head> tag and inject script before it
+	scriptTag := fmt.Sprintf(`<script>window.__UI_SECRET__ = "%s";</script></head>`, secret)
+	html = strings.Replace(html, "</head>", scriptTag, 1)
+
+	c.Header("Content-Type", "text/html")
+	c.String(http.StatusOK, html)
+}
+
+// RunPair handles interactive pairing flow
+func RunPair(stdout, stderr io.Writer) error {
+	// 1) Are we interactive?
+	if !term.IsTerminal(int(os.Stdin.Fd())) {
+		return fmt.Errorf("no TTY detected; please run `docker run ... aviary pair` in an interactive shell")
+	}
+
+	if host := os.Getenv("RMAPI_HOST"); host != "" {
+		fmt.Fprintf(stdout, "Welcome to Aviary. Let's pair with %s!\n", host)
+	} else {
+		fmt.Fprintln(stdout, "Welcome to Aviary. Let's pair with the reMarkable Cloud!")
+	}
+
+	// 2) cd into rmapi
+	cmd := exec.Command("rmapi", "cd")
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("`rmapi cd` failed: %w", err)
+	}
+
+	// 3) print the rmapi.conf if it exists
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("could not get home directory: %w", err)
+	}
+	cfgPath := filepath.Join(home, ".config", "rmapi", "rmapi.conf")
+
+	fmt.Fprintf(stdout, "\nPrinting your %s file:\n", cfgPath)
+	data, err := os.ReadFile(cfgPath)
+	if err != nil {
+		return fmt.Errorf("could not read config: %w", err)
+	}
+	stdout.Write(data)
+	stdout.Write([]byte("\n"))
+
+	fmt.Fprintln(stdout, "Done!")
+	return nil
+}
+
+// HandlePairRequest handles pairing for both single-user and multi-user modes
+func HandlePairRequest(c *gin.Context) {
+	if database.IsMultiUserMode() {
+		// In multi-user mode, delegate to the existing handler
+		PairRMAPIHandler(c)
+		return
+	}
+
+	// Single-user mode pairing
+	var req struct {
+		Code string `json:"code" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	// Ensure the rmapi config directory exists
+	home, err := os.UserHomeDir()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to determine home directory"})
+		return
+	}
+
+	cfgDir := filepath.Join(home, ".config", "rmapi")
+	if err := os.MkdirAll(cfgDir, 0755); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create config directory"})
+		return
+	}
+
+	cfgPath := filepath.Join(cfgDir, "rmapi.conf")
+
+	// Run rmapi pairing command
+	cmd := exec.Command("rmapi", "cd")
+	cmd.Stdin = strings.NewReader(req.Code + "\n")
+	env := os.Environ()
+	env = append(env, "RMAPI_CONFIG="+cfgPath)
+	if host := os.Getenv("RMAPI_HOST"); host != "" {
+		env = append(env, "RMAPI_HOST="+host)
+	}
+	cmd.Env = env
+
+	if err := cmd.Run(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Pairing failed"})
+		return
+	}
+
+	// Call post-pairing callback if set (async for folder cache refresh)
+	if GetPostPairingCallback() != nil {
+		go GetPostPairingCallback()("single-user", true) // true = single-user mode
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }

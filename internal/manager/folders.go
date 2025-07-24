@@ -32,15 +32,6 @@ func isConfigFileValid(configPath string) bool {
 	return err == nil && info.Size() > 0
 }
 
-// IsUserPaired checks if a user is paired with rmapi in multi-user mode
-func IsUserPaired(id uuid.UUID) bool {
-	baseDir := os.Getenv("DATA_DIR")
-	if baseDir == "" {
-		baseDir = "/data"
-	}
-	cfgPath := filepath.Join(baseDir, "users", id.String(), "rmapi", "rmapi.conf")
-	return isConfigFileValid(cfgPath)
-}
 
 // IsSingleUserPaired checks if rmapi.conf exists for single-user mode
 func IsSingleUserPaired() bool {

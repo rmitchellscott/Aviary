@@ -4,19 +4,15 @@ import (
 	// standard library
 	"embed"
 	"fmt"
-	"io"
 	"io/fs"
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
-	"path/filepath"
 	"strings"
 
 	// third-party
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"golang.org/x/term"
 
 	// internal
 	"github.com/rmitchellscott/aviary/internal/auth"
@@ -34,94 +30,9 @@ import (
 //go:embed ui/dist/assets
 var embeddedUI embed.FS
 
-// authRequired checks if API authentication is configured
-func authRequired() bool {
-	envApiKey := os.Getenv("API_KEY")
-	return envApiKey != ""
-}
 
-func serveIndexWithSecret(c *gin.Context, uiFS fs.FS, secret string) {
-	content, err := fs.ReadFile(uiFS, "index.html")
-	if err != nil {
-		c.Status(http.StatusNotFound)
-		return
-	}
 
-	// Inject secret into HTML
-	html := string(content)
-	// Look for </head> tag and inject script before it
-	scriptTag := fmt.Sprintf(`<script>window.__UI_SECRET__ = "%s";</script></head>`, secret)
-	html = strings.Replace(html, "</head>", scriptTag, 1)
 
-	c.Header("Content-Type", "text/html")
-	c.String(http.StatusOK, html)
-}
-
-// checkSingleUserPaired checks if rmapi.conf exists for single-user mode
-func checkSingleUserPaired() bool {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return false
-	}
-	cfgPath := filepath.Join(home, ".config", "rmapi", "rmapi.conf")
-	info, err := os.Stat(cfgPath)
-	return err == nil && info.Size() > 0
-}
-
-// handlePairRequest handles pairing for both single-user and multi-user modes
-func handlePairRequest(c *gin.Context) {
-	if database.IsMultiUserMode() {
-		// In multi-user mode, delegate to the existing handler
-		auth.PairRMAPIHandler(c)
-		return
-	}
-
-	// Single-user mode pairing
-	var req struct {
-		Code string `json:"code" binding:"required"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	// Ensure the rmapi config directory exists
-	home, err := os.UserHomeDir()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to determine home directory"})
-		return
-	}
-
-	cfgDir := filepath.Join(home, ".config", "rmapi")
-	if err := os.MkdirAll(cfgDir, 0755); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create config directory"})
-		return
-	}
-
-	cfgPath := filepath.Join(cfgDir, "rmapi.conf")
-
-	// Run rmapi pairing command
-	cmd := exec.Command("rmapi", "cd")
-	cmd.Stdin = strings.NewReader(req.Code + "\n")
-	env := os.Environ()
-	env = append(env, "RMAPI_CONFIG="+cfgPath)
-	if host := os.Getenv("RMAPI_HOST"); host != "" {
-		env = append(env, "RMAPI_HOST="+host)
-	}
-	cmd.Env = env
-
-	if err := cmd.Run(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Pairing failed"})
-		return
-	}
-
-	// Call post-pairing callback if set (async for folder cache refresh)
-	if auth.GetPostPairingCallback() != nil {
-		go auth.GetPostPairingCallback()("single-user", true) // true = single-user mode
-	}
-
-	c.JSON(http.StatusOK, gin.H{"success": true})
-}
 
 func main() {
 	// Load .env if present
@@ -138,7 +49,7 @@ func main() {
 
 	// Interactive pair flow
 	if len(os.Args) > 1 && os.Args[1] == "pair" {
-		if err := runPair(os.Stdout, os.Stderr); err != nil {
+		if err := auth.RunPair(os.Stdout, os.Stderr); err != nil {
 			fmt.Fprintf(os.Stderr, "pair failed: %v\n", err)
 			os.Exit(1)
 		}
@@ -171,7 +82,7 @@ func main() {
 	// Check for rmapi.conf (skip in multi-user mode as each user will have their own config)
 	// In single-user mode, just log a warning if not paired - allow UI pairing
 	if !database.IsMultiUserMode() {
-		if !checkSingleUserPaired() {
+		if !auth.CheckSingleUserPaired() {
 			log.Printf("Warning: No valid rmapi.conf detected. You can pair through the web interface or run 'aviary pair' from the command line.")
 		}
 	}
@@ -227,7 +138,7 @@ func main() {
 
 	// Protected API endpoints (require auth if configured)
 	protected := router.Group("/api")
-	if authRequired() || database.IsMultiUserMode() {
+	if auth.AuthRequired() || database.IsMultiUserMode() {
 		protected.Use(auth.MultiUserAuthMiddleware())
 	}
 
@@ -262,7 +173,7 @@ func main() {
 	}
 
 	// Single-user pairing endpoint (available in both modes, but works differently)
-	protected.POST("/pair", handlePairRequest)
+	protected.POST("/pair", auth.HandlePairRequest)
 
 	// API key management endpoints (multi-user mode only)
 	apiKeys := protected.Group("/api-keys")
@@ -369,7 +280,7 @@ func main() {
 			// We don't include it here as it requires user context
 		} else {
 			// In single-user mode, check the global rmapi.conf file
-			rmapiPaired = checkSingleUserPaired()
+			rmapiPaired = auth.CheckSingleUserPaired()
 		}
 
 		response := gin.H{
@@ -407,7 +318,7 @@ func main() {
 
 				if webAuthDisabled {
 					// Web auth disabled - inject UI secret for auto-authentication
-					serveIndexWithSecret(c, uiFS, auth.GetUISecret())
+					auth.ServeIndexWithSecret(c, uiFS, auth.GetUISecret())
 					return
 				}
 				// Web auth enabled - serve normal index.html (users must login)
@@ -423,7 +334,7 @@ func main() {
 					webAuthDisabled := envUsername == "" || envPassword == ""
 
 					if webAuthDisabled {
-						serveIndexWithSecret(c, uiFS, auth.GetUISecret())
+						auth.ServeIndexWithSecret(c, uiFS, auth.GetUISecret())
 						return
 					}
 				}
@@ -442,43 +353,3 @@ func main() {
 	log.Fatal(http.ListenAndServe(addr, router))
 }
 
-func runPair(stdout, stderr io.Writer) error {
-	// 1) Are we interactive?
-	if !term.IsTerminal(int(os.Stdin.Fd())) {
-		return fmt.Errorf("no TTY detected; please run `docker run ... aviary pair` in an interactive shell")
-	}
-
-	if host := os.Getenv("RMAPI_HOST"); host != "" {
-		fmt.Fprintf(stdout, "Welcome to Aviary. Let's pair with %s!\n", host)
-	} else {
-		fmt.Fprintln(stdout, "Welcome to Aviary. Let's pair with the reMarkable Cloud!")
-	}
-
-	// 2) cd into rmapi
-	cmd := exec.Command("rmapi", "cd")
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = stdout
-	cmd.Stderr = stderr
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("`rmapi cd` failed: %w", err)
-	}
-
-	// 3) print the rmapi.conf if it exists
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return fmt.Errorf("could not get home directory: %w", err)
-	}
-	cfgPath := filepath.Join(home, ".config", "rmapi", "rmapi.conf")
-
-	fmt.Fprintf(stdout, "\nPrinting your %s file:\n", cfgPath)
-	data, err := os.ReadFile(cfgPath)
-	if err != nil {
-		return fmt.Errorf("could not read config: %w", err)
-	}
-	stdout.Write(data)
-	stdout.Write([]byte("\n"))
-
-	fmt.Fprintln(stdout, "Done!")
-	return nil
-}
