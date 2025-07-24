@@ -13,6 +13,7 @@ import { PasswordReset } from '@/components/PasswordReset';
 import { RegisterForm } from '@/components/RegisterForm';
 import { Button } from '@/components/ui/button';
 import { Settings, Shield, RotateCcw } from 'lucide-react';
+import { MobileMenu } from '@/components/MobileMenu';
 
 function AppContent() {
   const { t } = useTranslation();
@@ -65,7 +66,7 @@ function AppContent() {
     <>
       <header className="flex items-center justify-between px-8 py-2 bg-background">
         <Logo className="h-16 w-32 text-foreground dark:text-foreground-dark" />
-        <div className="flex items-center gap-4">
+        <div className="hidden sm:flex items-center gap-4">
           {isAuthenticated && multiUserMode && (
             <>
               <Button
@@ -77,7 +78,7 @@ function AppContent() {
                 <Settings className="h-4 w-4" />
                 {t("app.settings")}
               </Button>
-              
+
               {user?.is_admin && (
                 <Button
                   variant="ghost"
@@ -94,6 +95,14 @@ function AppContent() {
           <LogoutButton />
           <LanguageSwitcher />
           <ThemeSwitcher size={24} />
+        </div>
+        <div className="sm:hidden">
+          <MobileMenu
+            showSettings={isAuthenticated && multiUserMode}
+            showAdmin={isAuthenticated && multiUserMode && !!user?.is_admin}
+            onOpenSettings={() => setShowUserSettings(true)}
+            onOpenAdmin={() => setShowAdminPanel(true)}
+          />
         </div>
       </header>
       <main>
