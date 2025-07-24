@@ -100,6 +100,14 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [defaultRmdir, setDefaultRmdir] = useState("/");
   const [coverpageSetting, setCoverpageSetting] = useState("current");
   
+  // Original values for change tracking
+  const [originalValues, setOriginalValues] = useState({
+    email: "",
+    userRmapiHost: "",
+    defaultRmdir: "/",
+    coverpageSetting: "current"
+  });
+  
   // Folder cache
   const [folders, setFolders] = useState<string[]>([]);
   const [foldersLoading, setFoldersLoading] = useState(false);
@@ -137,11 +145,24 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   // Update form fields when user data changes
   useEffect(() => {
     if (user) {
+      const email = user.email;
+      const userRmapiHost = user.rmapi_host || "";
+      const defaultRmdir = user.default_rmdir || "/";
+      const coverpageSetting = user.coverpage_setting || "current";
+      
       setUsername(user.username);
-      setEmail(user.email);
-      setUserRmapiHost(user.rmapi_host || "");
-      setDefaultRmdir(user.default_rmdir || "/");
-      setCoverpageSetting(user.coverpage_setting || "current");
+      setEmail(email);
+      setUserRmapiHost(userRmapiHost);
+      setDefaultRmdir(defaultRmdir);
+      setCoverpageSetting(coverpageSetting);
+      
+      // Store original values for change tracking
+      setOriginalValues({
+        email,
+        userRmapiHost,
+        defaultRmdir,
+        coverpageSetting
+      });
     }
   }, [user]);
 
@@ -193,6 +214,16 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     } finally {
       setFoldersLoading(false);
     }
+  };
+
+  // Check if there are unsaved changes
+  const hasChanges = () => {
+    return (
+      email !== originalValues.email ||
+      userRmapiHost !== originalValues.userRmapiHost ||
+      defaultRmdir !== originalValues.defaultRmdir ||
+      coverpageSetting !== originalValues.coverpageSetting
+    );
   };
 
   const updateProfile = async () => {
@@ -594,7 +625,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                   </div>
 
                   <div className="flex justify-end">
-                    <Button onClick={updateProfile} disabled={saving}>
+                    <Button onClick={updateProfile} disabled={saving || !hasChanges()}>
                       <Save className="h-4 w-4 mr-2" />
                       {saving ? "Saving..." : "Save Changes"}
                     </Button>
