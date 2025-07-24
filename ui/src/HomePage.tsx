@@ -102,7 +102,7 @@ async function sniffMime(url: string): Promise<string | null> {
 }
 
 export default function HomePage() {
-  const { isAuthenticated, isLoading, login, authConfigured, uiSecret, multiUserMode } =
+  const { isAuthenticated, isLoading, login, authConfigured, uiSecret, multiUserMode, oidcEnabled, proxyAuthEnabled } =
     useAuth();
   const { t } = useTranslation();
   const { rmapiPaired, rmapiHost, loading: userDataLoading, updatePairingStatus } = useUserData();

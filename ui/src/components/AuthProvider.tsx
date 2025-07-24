@@ -20,6 +20,8 @@ interface AuthContextType {
   multiUserMode: boolean
   uiSecret: string | null
   user: User | null
+  oidcEnabled: boolean
+  proxyAuthEnabled: boolean
   login: () => Promise<void>
   logout: () => void
 }
@@ -44,6 +46,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const initialAuthConfigured = storedConf === 'true'
   const [authConfigured, setAuthConfigured] = useState<boolean>(initialAuthConfigured)
   const [multiUserMode, setMultiUserMode] = useState<boolean>(false)
+  const [oidcEnabled, setOidcEnabled] = useState<boolean>(false)
+  const [proxyAuthEnabled, setProxyAuthEnabled] = useState<boolean>(false)
   const [uiSecret, setUiSecret] = useState<string | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -110,8 +114,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const uiSecret = (window as Window & { __UI_SECRET__?: string }).__UI_SECRET__ || null
       setUiSecret(uiSecret)
       
-      // Set multi-user mode
+      // Set multi-user mode and auth methods
       setMultiUserMode(configData.multiUserMode || false)
+      setOidcEnabled(configData.oidcEnabled || false)
+      setProxyAuthEnabled(configData.proxyAuthEnabled || false)
       
       if (configData.authEnabled) {
         // Web authentication is enabled - users need to log in
@@ -234,7 +240,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [isLoading])
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout, authConfigured, multiUserMode, uiSecret, user }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout, authConfigured, multiUserMode, uiSecret, user, oidcEnabled, proxyAuthEnabled }}>
       {children}
     </AuthContext.Provider>
   )

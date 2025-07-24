@@ -84,6 +84,10 @@ func GetSystemStatusHandler(c *gin.Context) {
 	// Check if we're in dry run mode
 	dryRunMode := os.Getenv("DRY_RUN") != ""
 
+	// Check authentication methods
+	oidcEnabled := IsOIDCEnabled()
+	proxyAuthEnabled := IsProxyAuthEnabled()
+
 	c.JSON(http.StatusOK, gin.H{
 		"database": dbStats,
 		"smtp": gin.H{
@@ -94,6 +98,10 @@ func GetSystemStatusHandler(c *gin.Context) {
 			"registration_enabled":  registrationEnabled,
 			"max_api_keys_per_user": maxAPIKeys,
 			"session_timeout_hours": sessionTimeout,
+		},
+		"auth": gin.H{
+			"oidc_enabled":      oidcEnabled,
+			"proxy_auth_enabled": proxyAuthEnabled,
 		},
 		"mode":    "multi_user",
 		"dry_run": dryRunMode,

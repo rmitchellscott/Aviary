@@ -101,6 +101,10 @@ interface SystemStatus {
     configured: boolean;
     status: string;
   };
+  auth: {
+    oidc_enabled: boolean;
+    proxy_auth_enabled: boolean;
+  };
   settings: {
     registration_enabled: string;
     max_api_keys_per_user: string;
@@ -788,9 +792,15 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-col gap-2 items-start">
-                    <Badge variant="success">Multi-user Mode</Badge>
+                    <Badge variant="secondary">Multi-user Mode</Badge>
                     {systemStatus.dry_run && (
                       <Badge variant="destructive">Dry Run Mode</Badge>
+                    )}
+                    {systemStatus.auth?.oidc_enabled && (
+                      <Badge variant="secondary">OIDC Enabled</Badge>
+                    )}
+                    {systemStatus.auth?.proxy_auth_enabled && (
+                      <Badge variant="secondary">Proxy Auth Enabled</Badge>
                     )}
                   </div>
                 </CardContent>
