@@ -621,6 +621,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     );
   };
 
+  const isCurrentUser = (user: User) => {
+    return currentUser && user.id === currentUser.id;
+  };
+
   if (!systemStatus) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -830,6 +834,11 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         type="password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && newUsername && newEmail && newPassword && !saving) {
+                            createUser();
+                          }
+                        }}
                         placeholder="password"
                         className="mt-2"
                       />
@@ -855,18 +864,19 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   <CardTitle>Users ({users.length})</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Username</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Created</TableHead>
-                        <TableHead>Last Login</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Username</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Created</TableHead>
+                          <TableHead>Last Login</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
                     <TableBody>
                       {users.map((user) => (
                         <TableRow key={user.id}>
@@ -892,73 +902,80 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               : "Never"}
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => openResetPasswordDialog(user)}
+                                className="whitespace-nowrap"
                               >
                                 Reset Password
                               </Button>
-                              {currentUser && user.id !== currentUser.id && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() =>
-                                    toggleAdminStatus(user.id, !user.is_admin)
-                                  }
-                                  className="w-24"
-                                >
-                                  {user.is_admin ? "Make User" : "Make Admin"}
-                                </Button>
+                              {!isCurrentUser(user) && (
+                                <>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() =>
+                                      toggleAdminStatus(user.id, !user.is_admin)
+                                    }
+                                    className="whitespace-nowrap"
+                                  >
+                                    {user.is_admin ? "Make User" : "Make Admin"}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() =>
+                                      toggleUserStatus(user.id, !user.is_active)
+                                    }
+                                    className="whitespace-nowrap"
+                                  >
+                                    {user.is_active ? "Deactivate" : "Activate"}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => openDeleteUserDialog(user)}
+                                    className="whitespace-nowrap"
+                                  >
+                                    <Trash2 className="h-3 w-3 mr-1" />
+                                    Delete
+                                  </Button>
+                                </>
                               )}
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() =>
-                                  toggleUserStatus(user.id, !user.is_active)
-                                }
-                                className="w-28"
-                              >
-                                {user.is_active ? "Deactivate" : "Activate"}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => openDeleteUserDialog(user)}
-                              >
-                                <Trash2 className="h-3 w-3 mr-1" />
-                                Delete
-                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
+                  </div>
                 </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+                  </Card>
+                  </div>
+                  </TabsContent>
 
           <TabsContent value="api-keys" className="flex-1 overflow-y-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle>All API Keys ({apiKeys.length})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>User</TableHead>
-                      <TableHead>Key Preview</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>Last Used</TableHead>
-                      <TableHead>Expires</TableHead>
-                    </TableRow>
-                  </TableHeader>
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>All API Keys ({apiKeys.length})</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>User</TableHead>
+                          <TableHead>Key Preview</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Created</TableHead>
+                          <TableHead>Last Used</TableHead>
+                          <TableHead>Expires</TableHead>
+                        </TableRow>
+                      </TableHeader>
                   <TableBody>
                     {apiKeys.map((key) => {
                       const status = getKeyStatus(key);
@@ -1009,8 +1026,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     })}
                   </TableBody>
                 </Table>
-              </CardContent>
-            </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="settings" className="flex-1 overflow-y-auto">
