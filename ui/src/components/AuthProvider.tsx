@@ -92,17 +92,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const proxyData = await proxyResponse.json()
         
         if (proxyData.authenticated) {
+          // Proxy auth successful
           setAuthConfigured(false) // No manual login needed
           setIsAuthenticated(true)
           setUser(proxyData.user || null)
+          // Set the config data too
+          setMultiUserMode(configData.multiUserMode || false)
+          setOidcEnabled(configData.oidcEnabled || false)
+          setProxyAuthEnabled(configData.proxyAuthEnabled || false)
           if (typeof window !== 'undefined') {
             localStorage.setItem('authConfigured', 'false')
             const expiry = Date.now() + 24 * 3600 * 1000
             localStorage.setItem('authExpiry', expiry.toString())
+            localStorage.setItem('lastAuthCheck', Date.now().toString())
           }
           return
+        } else if (proxyData.proxy_available === false) {
+          // Proxy auth is enabled but header not present - fall through to other auth methods
+          // Continue to regular auth flow below
         } else {
-          // Proxy auth is enabled but failed
+          // Proxy auth failed for other reasons (user not found, inactive, etc)
           setAuthConfigured(true) // Show login error
           setIsAuthenticated(false)
           setUser(null)

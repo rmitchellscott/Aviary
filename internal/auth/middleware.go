@@ -20,10 +20,15 @@ func MultiUserAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Check proxy auth first
+		// Check proxy auth first if header is present
 		if IsProxyAuthEnabled() {
-			ProxyAuthMiddleware()(c)
-			return
+			username := c.GetHeader(getProxyHeaderName())
+			if username != "" {
+				// Proxy header present, use proxy auth
+				ProxyAuthMiddleware()(c)
+				return
+			}
+			// Proxy auth is enabled but header not present, fall through to other auth methods
 		}
 
 		// Check API key next (for programmatic access)

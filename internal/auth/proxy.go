@@ -26,6 +26,11 @@ func InitProxyAuth() {
 	proxyHeaderName = headerName
 }
 
+// getProxyHeaderName returns the configured proxy header name
+func getProxyHeaderName() string {
+	return proxyHeaderName
+}
+
 // IsProxyAuthEnabled returns true if proxy authentication is configured
 func IsProxyAuthEnabled() bool {
 	return proxyAuthEnabled
@@ -100,10 +105,12 @@ func ProxyAuthCheckHandler(c *gin.Context) {
 
 	username := c.GetHeader(proxyHeaderName)
 	if username == "" {
+		// Proxy auth is enabled but header is missing - not an error, just not authenticated via proxy
 		c.JSON(http.StatusOK, gin.H{
 			"authenticated": false,
 			"proxy_auth": true,
-			"error": "Proxy authentication header missing",
+			"proxy_available": false,
+			"message": "Proxy authentication header not present",
 		})
 		return
 	}

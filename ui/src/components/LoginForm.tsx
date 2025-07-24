@@ -90,28 +90,8 @@ export function LoginForm({ onLogin }: LoginFormProps) {
     }
   };
 
-  // Check if proxy auth is enabled and show appropriate message (multi-user mode only)
-  if (multiUserMode && proxyAuthEnabled) {
-    return (
-      <div className="bg-background pt-0 pb-8 px-8">
-        <Card className="max-w-md mx-auto bg-card">
-          <CardHeader>
-            <CardTitle className="text-xl">{t("login.title")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center space-y-4">
-              <p className="text-muted-foreground">
-                Authentication is handled by your reverse proxy.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                If you're seeing this page, please contact your administrator.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  // Don't show the proxy auth message anymore since we support fallback
+  // The form should always be available when proxy auth fails/isn't present
 
   return (
     <div className="bg-background pt-0 pb-8 px-8">
