@@ -27,9 +27,6 @@ type User struct {
 	ResetToken        string    `gorm:"index" json:"-"`
 	ResetTokenExpires time.Time `json:"-"`
 	
-	// Email verification
-	EmailVerified     bool   `gorm:"default:false" json:"email_verified"`
-	VerificationToken string `json:"-"`
 	
 	// OIDC integration
 	OIDCSubject *string `gorm:"uniqueIndex" json:"oidc_subject,omitempty"`

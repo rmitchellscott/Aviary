@@ -557,9 +557,7 @@ func mapUserRecord(data map[string]interface{}, user *database.User) error {
 	if isActive, ok := data["is_active"].(bool); ok {
 		user.IsActive = isActive
 	}
-	if emailVerified, ok := data["email_verified"].(bool); ok {
-		user.EmailVerified = emailVerified
-	}
+	// Skip email_verified field (removed from model)
 	
 	// Handle optional string fields
 	if rmapiHost, ok := data["rmapi_host"].(string); ok {
@@ -574,9 +572,7 @@ func mapUserRecord(data map[string]interface{}, user *database.User) error {
 	if resetToken, ok := data["reset_token"].(string); ok {
 		user.ResetToken = resetToken
 	}
-	if verificationToken, ok := data["verification_token"].(string); ok {
-		user.VerificationToken = verificationToken
-	}
+	// Skip verification_token field (removed from model)
 	
 	// Handle integer fields
 	if folderRefreshPercent, ok := data["folder_refresh_percent"].(float64); ok {
