@@ -2,6 +2,7 @@ package manager
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"strconv"
 	"sync"
@@ -70,6 +71,11 @@ func (s *UserFolderCacheService) getUserNextRefresh(user *database.User) time.Ti
 
 // GetUserFolders returns the cached folders for a user, refreshing if necessary
 func (s *UserFolderCacheService) GetUserFolders(userID uuid.UUID, force bool) ([]string, error) {
+	// Check if user is paired before attempting to get folders
+	if !IsUserPaired(userID) {
+		return nil, fmt.Errorf("user %s not paired", userID)
+	}
+	
 	// Get or create user cache
 	s.mu.Lock()
 	userCache, exists := s.caches[userID]
@@ -251,15 +257,21 @@ func (s *UserFolderCacheService) refreshActiveUserCaches() {
 	// Check which users are due for refresh based on their percentage timing
 	for i, userID := range userIDs {
 		go func(uid uuid.UUID, delay int) {
-			// Rate limit: stagger refreshes 
-			time.Sleep(time.Duration(delay) * s.rateLimitDelay)
-			
-			userService := database.NewUserService(s.db)
-			user, err := userService.GetUserByID(uid)
-			if err != nil {
-				Logf("Failed to get user %s for background refresh: %v", uid, err)
-				return
-			}
+		  // Rate limit: stagger refreshes 
+		  time.Sleep(time.Duration(delay) * s.rateLimitDelay)
+		  
+		  // Check if user is paired before attempting refresh
+		  if !IsUserPaired(uid) {
+		  // Skip refresh for unpaired users (will be logged as error)
+		   return
+				}
+		  
+		  userService := database.NewUserService(s.db)
+		user, err := userService.GetUserByID(uid)
+		if err != nil {
+		Logf("Failed to get user %s for background refresh: %v", uid, err)
+		return
+		}
 
 			// Check if user is due for refresh based on percentage timing
 			nextRefresh := s.getUserNextRefresh(user)

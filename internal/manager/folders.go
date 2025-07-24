@@ -3,8 +3,11 @@ package manager
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"net/http"
+	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -17,6 +20,37 @@ import (
 
 // Global instance of user folder cache service
 var userFolderCacheService *UserFolderCacheService
+
+// isConfigFileValid checks if an rmapi config file exists and has content
+func isConfigFileValid(configPath string) bool {
+	// In DRY_RUN mode, always consider config as valid
+	if os.Getenv("DRY_RUN") != "" {
+		return true
+	}
+	
+	info, err := os.Stat(configPath)
+	return err == nil && info.Size() > 0
+}
+
+// IsUserPaired checks if a user is paired with rmapi in multi-user mode
+func IsUserPaired(id uuid.UUID) bool {
+	baseDir := os.Getenv("DATA_DIR")
+	if baseDir == "" {
+		baseDir = "/data"
+	}
+	cfgPath := filepath.Join(baseDir, "users", id.String(), "rmapi", "rmapi.conf")
+	return isConfigFileValid(cfgPath)
+}
+
+// IsSingleUserPaired checks if rmapi.conf exists for single-user mode
+func IsSingleUserPaired() bool {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return false
+	}
+	cfgPath := filepath.Join(home, ".config", "rmapi", "rmapi.conf")
+	return isConfigFileValid(cfgPath)
+}
 
 // InitializeUserFolderCache initializes the user folder cache service
 func InitializeUserFolderCache(db *gorm.DB) {
@@ -37,6 +71,11 @@ func RefreshUserFolderCache(userID string) error {
 		return err
 	}
 	
+	// Check if user is paired before attempting refresh
+	if !IsUserPaired(uuid) {
+		return fmt.Errorf("user %s not paired", userID)
+	}
+	
 	_, err = userFolderCacheService.GetUserFolders(uuid, true) // force refresh
 	return err
 }
@@ -44,6 +83,17 @@ func RefreshUserFolderCache(userID string) error {
 // ListFolders returns a slice of all folder paths on the reMarkable device.
 // Paths are returned with a leading slash, e.g. "/Books/Fiction".
 func ListFolders(user *database.User) ([]string, error) {
+	// Check pairing status based on mode
+	if database.IsMultiUserMode() {
+		if user != nil && !IsUserPaired(user.ID) {
+			return nil, fmt.Errorf("user %s not paired", user.ID)
+		}
+	} else {
+		if !IsSingleUserPaired() {
+			return nil, fmt.Errorf("single user not paired")
+		}
+	}
+	
 	// Include the root directory explicitly so the UI can offer it as an option
 	folders := []string{"/"}
 

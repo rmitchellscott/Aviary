@@ -1,7 +1,9 @@
 package manager
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -19,6 +21,8 @@ var globalFoldersCache = &folderCache{}
 
 // used to ensure only one background refresh runs at a time
 var refreshRunning int32
+
+
 
 // cacheRefreshInterval controls how often the cache is refreshed.
 // It can be overridden via the FOLDER_CACHE_INTERVAL
@@ -59,12 +63,21 @@ func StartFolderCache() {
 
 // RefreshFolderCache manually triggers a folder cache refresh (single-user mode)
 func RefreshFolderCache() error {
+	// Check if single user is paired before attempting refresh
+	if !IsSingleUserPaired() {
+		return fmt.Errorf("single user not paired")
+	}
 	return refreshFolderCache()
 }
 
 // refreshFolderCache fetches folders from the device and stores them
 // in the global cache.
 func refreshFolderCache() error {
+	// Check if single user is paired before attempting refresh
+	if !IsSingleUserPaired() {
+		return fmt.Errorf("single user not paired")
+	}
+	
 	dirs, err := ListFolders(nil)
 	if err != nil {
 		return err
