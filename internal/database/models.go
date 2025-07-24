@@ -31,6 +31,9 @@ type User struct {
 	EmailVerified     bool   `gorm:"default:false" json:"email_verified"`
 	VerificationToken string `json:"-"`
 	
+	// OIDC integration
+	OIDCSubject *string `gorm:"uniqueIndex" json:"oidc_subject,omitempty"`
+	
 	// Timestamps
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at"`

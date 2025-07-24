@@ -18,8 +18,8 @@ import (
 	"github.com/rmitchellscott/aviary/internal/auth"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/downloader"
+	"github.com/rmitchellscott/aviary/internal/handlers"
 	"github.com/rmitchellscott/aviary/internal/manager"
-	"github.com/rmitchellscott/aviary/internal/smtp"
 	"github.com/rmitchellscott/aviary/internal/version"
 	"github.com/rmitchellscott/aviary/internal/webhook"
 )
@@ -71,6 +71,14 @@ func main() {
 		// Initialize user folder cache service
 		manager.InitializeUserFolderCache(database.DB)
 	}
+
+	// Initialize OIDC if configured
+	if err := auth.InitOIDC(); err != nil {
+		log.Fatalf("Failed to initialize OIDC: %v", err)
+	}
+
+	// Initialize proxy authentication
+	auth.InitProxyAuth()
 
 	// Determine port
 	port := os.Getenv("PORT")
@@ -129,6 +137,16 @@ func main() {
 	router.POST("/api/auth/logout", auth.LogoutHandler)
 	router.GET("/api/auth/check", auth.MultiUserCheckAuthHandler)
 	router.GET("/api/auth/registration-status", auth.GetRegistrationStatusHandler) // Check if registration is enabled
+
+	// OIDC endpoints (multi-user mode only)
+	if database.IsMultiUserMode() {
+		router.GET("/api/auth/oidc/login", auth.OIDCAuthHandler)
+		router.GET("/api/auth/oidc/callback", auth.OIDCCallbackHandler)
+		router.POST("/api/auth/oidc/logout", auth.OIDCLogoutHandler)
+
+		// Proxy auth check endpoint
+		router.GET("/api/auth/proxy/check", auth.ProxyAuthCheckHandler)
+	}
 
 	// Multi-user specific auth endpoints
 	router.POST("/api/auth/register", auth.MultiUserAuthMiddleware(), auth.RegisterHandler)
@@ -218,88 +236,7 @@ func main() {
 	protected.GET("/version", func(c *gin.Context) {
 		c.JSON(http.StatusOK, version.Get())
 	})
-	router.GET("/api/config", func(c *gin.Context) {
-		var authEnabled bool
-		var apiKeyEnabled bool
-		var multiUserMode = database.IsMultiUserMode()
-		var defaultRmDir string
-		var rmapiHost string
-
-		if multiUserMode {
-			// In multi-user mode, auth is always enabled
-			authEnabled = true
-			apiKeyEnabled = true
-
-			// Get user-specific settings if authenticated
-			if user, exists := c.Get("user"); exists {
-				if dbUser, ok := user.(*database.User); ok {
-					// Use user-specific defaultrmdir if set, otherwise use global default
-					if dbUser.DefaultRmdir != "" {
-						defaultRmDir = dbUser.DefaultRmdir
-					} else {
-						defaultRmDir = manager.DefaultRmDir()
-					}
-
-					// Use user-specific rmapi host if set, otherwise use global default
-					if dbUser.RmapiHost != "" {
-						rmapiHost = dbUser.RmapiHost
-					} else {
-						rmapiHost = os.Getenv("RMAPI_HOST")
-					}
-				} else {
-					// Fallback to global defaults
-					defaultRmDir = manager.DefaultRmDir()
-					rmapiHost = os.Getenv("RMAPI_HOST")
-				}
-			} else {
-				// Not authenticated, use global defaults
-				defaultRmDir = manager.DefaultRmDir()
-				rmapiHost = os.Getenv("RMAPI_HOST")
-			}
-		} else {
-			// Single-user mode - use environment variables
-			envUsername := os.Getenv("AUTH_USERNAME")
-			envPassword := os.Getenv("AUTH_PASSWORD")
-			envApiKey := os.Getenv("API_KEY")
-			authEnabled = envUsername != "" && envPassword != ""
-			apiKeyEnabled = envApiKey != ""
-			defaultRmDir = manager.DefaultRmDir()
-			rmapiHost = os.Getenv("RMAPI_HOST")
-		}
-
-		// Check SMTP configuration (only in multi-user mode)
-		smtpConfigured := false
-		if multiUserMode {
-			smtpConfigured = smtp.IsSMTPConfigured()
-		}
-
-		// Check rmapi pairing status
-		rmapiPaired := false
-		if multiUserMode {
-			// In multi-user mode, pairing status is per-user and handled by /api/auth/check
-			// We don't include it here as it requires user context
-		} else {
-			// In single-user mode, check the global rmapi.conf file
-			rmapiPaired = auth.CheckSingleUserPaired()
-		}
-
-		response := gin.H{
-			"apiUrl":         "/api/",
-			"authEnabled":    authEnabled,
-			"apiKeyEnabled":  apiKeyEnabled,
-			"multiUserMode":  multiUserMode,
-			"defaultRmDir":   defaultRmDir,
-			"rmapi_host":     rmapiHost,
-			"smtpConfigured": smtpConfigured,
-		}
-
-		// Add rmapi_paired for single-user mode only
-		if !multiUserMode {
-			response["rmapi_paired"] = rmapiPaired
-		}
-
-		c.JSON(http.StatusOK, response)
-	})
+	router.GET("/api/config", handlers.ConfigHandler)
 
 	// File server for all embedded files (gate behind AVIARY_DISABLE_UI)
 	if os.Getenv("DISABLE_UI") == "" {

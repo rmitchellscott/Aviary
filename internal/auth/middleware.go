@@ -15,12 +15,18 @@ import (
 func MultiUserAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if !database.IsMultiUserMode() {
-			// Fallback to single-user auth
+			// Single-user mode - use traditional auth only
 			ApiKeyOrJWTMiddleware()(c)
 			return
 		}
 
-		// Check API key first (for programmatic access)
+		// Check proxy auth first
+		if IsProxyAuthEnabled() {
+			ProxyAuthMiddleware()(c)
+			return
+		}
+
+		// Check API key next (for programmatic access)
 		if user := checkAPIKey(c); user != nil {
 			c.Set("user", user)
 			c.Set("auth_method", "api_key")

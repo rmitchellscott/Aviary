@@ -79,6 +79,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const configResponse = await fetch('/api/config')
       const configData = await configResponse.json()
       
+      // Check for proxy auth first (multi-user mode only)
+      if (configData.multiUserMode && configData.proxyAuthEnabled) {
+        // Try proxy auth endpoint
+        const proxyResponse = await fetch('/api/auth/proxy/check', {
+          credentials: 'include'
+        })
+        const proxyData = await proxyResponse.json()
+        
+        if (proxyData.authenticated) {
+          setAuthConfigured(false) // No manual login needed
+          setIsAuthenticated(true)
+          setUser(proxyData.user || null)
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('authConfigured', 'false')
+            const expiry = Date.now() + 24 * 3600 * 1000
+            localStorage.setItem('authExpiry', expiry.toString())
+          }
+          return
+        } else {
+          // Proxy auth is enabled but failed
+          setAuthConfigured(true) // Show login error
+          setIsAuthenticated(false)
+          setUser(null)
+          return
+        }
+      }
+      
       // Get UI secret from window (injected by server when web auth is disabled)
       const uiSecret = (window as Window & { __UI_SECRET__?: string }).__UI_SECRET__ || null
       setUiSecret(uiSecret)

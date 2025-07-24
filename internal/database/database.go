@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -139,15 +140,61 @@ func initSQLite(config *DatabaseConfig) (*gorm.DB, error) {
 func runMigrations() error {
 	models := GetAllModels()
 	
+	// Force migration of all models
 	for _, model := range models {
 		if err := DB.AutoMigrate(model); err != nil {
 			return fmt.Errorf("failed to migrate %T: %w", model, err)
 		}
 	}
 	
+	// Explicitly ensure OIDC column exists for existing databases
+	if err := ensureOIDCColumn(); err != nil {
+		log.Printf("Warning: failed to ensure OIDC column exists: %v", err)
+	}
+	
 	// Add unique constraint for FolderCache
 	if err := DB.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_user_folder_path ON user_folders_cache (user_id, folder_path)").Error; err != nil {
 		log.Printf("Warning: failed to create unique index for folder cache: %v", err)
+	}
+	
+	return nil
+}
+
+// ensureOIDCColumn explicitly ensures the oidc_subject column exists
+// This is needed because GORM AutoMigrate sometimes doesn't add new columns to existing tables
+func ensureOIDCColumn() error {
+	// Check if column exists by trying to select it
+	var count int64
+	err := DB.Model(&User{}).Where("oidc_subject IS NULL OR oidc_subject IS NOT NULL").Count(&count).Error
+	
+	if err != nil {
+		// Column doesn't exist, try to add it
+		log.Printf("OIDC column not found, attempting to add it...")
+		
+		// Use DB-specific syntax to add the column
+		if DB.Dialector.Name() == "sqlite" {
+			// SQLite syntax
+			if err := DB.Exec("ALTER TABLE users ADD COLUMN oidc_subject VARCHAR(255)").Error; err != nil {
+				// Column might already exist, check for specific error
+				if !strings.Contains(err.Error(), "duplicate column name") && !strings.Contains(err.Error(), "already exists") {
+					return fmt.Errorf("failed to add oidc_subject column: %w", err)
+				}
+			}
+			
+			// Add unique index
+			if err := DB.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oidc_subject ON users(oidc_subject) WHERE oidc_subject IS NOT NULL").Error; err != nil {
+				log.Printf("Warning: failed to create OIDC subject unique index: %v", err)
+			}
+		} else {
+			// PostgreSQL syntax
+			if err := DB.Exec("ALTER TABLE users ADD COLUMN IF NOT EXISTS oidc_subject VARCHAR(255) UNIQUE").Error; err != nil {
+				return fmt.Errorf("failed to add oidc_subject column: %w", err)
+			}
+		}
+		
+		log.Printf("Successfully added oidc_subject column to users table")
+	} else {
+		log.Printf("OIDC column already exists in users table")
 	}
 	
 	return nil

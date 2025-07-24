@@ -21,6 +21,8 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const [error, setError] = useState("");
   const [smtpConfigured, setSmtpConfigured] = useState(false);
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
+  const [oidcEnabled, setOidcEnabled] = useState(false);
+  const [proxyAuthEnabled, setProxyAuthEnabled] = useState(false);
 
   useEffect(() => {
     // Focus the username field when component mounts
@@ -38,6 +40,8 @@ export function LoginForm({ onLogin }: LoginFormProps) {
         if (response.ok) {
           const config = await response.json();
           setSmtpConfigured(config.smtpConfigured || false);
+          setOidcEnabled(config.oidcEnabled || false);
+          setProxyAuthEnabled(config.proxyAuthEnabled || false);
         }
         
         // Check registration settings using public endpoint
@@ -86,6 +90,29 @@ export function LoginForm({ onLogin }: LoginFormProps) {
     }
   };
 
+  // Check if proxy auth is enabled and show appropriate message (multi-user mode only)
+  if (multiUserMode && proxyAuthEnabled) {
+    return (
+      <div className="bg-background pt-0 pb-8 px-8">
+        <Card className="max-w-md mx-auto bg-card">
+          <CardHeader>
+            <CardTitle className="text-xl">{t("login.title")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center space-y-4">
+              <p className="text-muted-foreground">
+                Authentication is handled by your reverse proxy.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                If you're seeing this page, please contact your administrator.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-background pt-0 pb-8 px-8">
       <Card className="max-w-md mx-auto bg-card">
@@ -93,6 +120,31 @@ export function LoginForm({ onLogin }: LoginFormProps) {
           <CardTitle className="text-xl">{t("login.title")}</CardTitle>
         </CardHeader>
         <CardContent>
+          {/* OIDC Login Button (multi-user mode only) */}
+          {multiUserMode && oidcEnabled && (
+            <div className="mb-6">
+              <Button 
+                type="button" 
+                onClick={() => window.location.href = '/api/auth/oidc/login'}
+                className="w-full"
+                variant="outline"
+                disabled={loading}
+              >
+                Sign in with SSO
+              </Button>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="username" className="mb-2 block">
