@@ -110,7 +110,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                 variant="outline"
                 disabled={loading}
               >
-                Sign in with SSO
+                {t("login.sso_button")}
               </Button>
               <div className="relative my-4">
                 <div className="absolute inset-0 flex items-center">
@@ -118,7 +118,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-background px-2 text-muted-foreground">
-                    Or continue with
+                    {t("login.or_continue_with")}
                   </span>
                 </div>
               </div>
@@ -164,7 +164,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                     disabled={loading}
                     className="text-sm text-muted-foreground hover:text-foreground p-0 h-auto justify-start"
                   >
-                    Forgot Password?
+                    {t("login.forgot_password")}
                   </Button>
                 )}
                 {multiUserMode && registrationEnabled && (

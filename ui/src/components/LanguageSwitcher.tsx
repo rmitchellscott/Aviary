@@ -81,11 +81,11 @@ export default function LanguageSwitcher() {
         <Command>
           <CommandInput
             ref={searchRef}
-            placeholder={t("language.search") || "Search languages..."}
+            placeholder={t("language.search_fallback")}
             className="h-8"
           />
           <CommandList>
-            <CommandEmpty>{t("language.no_results") || "No languages found."}</CommandEmpty>
+            <CommandEmpty>{t("language.no_results_fallback")}</CommandEmpty>
             {availableLanguages.map((lang) => (
               <CommandItem
                 key={lang.value}
@@ -105,7 +105,7 @@ export default function LanguageSwitcher() {
       </PopoverContent>
         </Popover>
         <TooltipContent>
-          <p>{t("language.tooltip") || "Language"}</p>
+          <p>{t("language.tooltip_fallback")}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

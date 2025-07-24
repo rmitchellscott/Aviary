@@ -10,7 +10,10 @@
     "button": "Login",
     "network_error": "Network error",
     "fail": "Login failed",
-    "register": "Create Account"
+    "register": "Create Account",
+    "sso_button": "Sign in with SSO",
+    "or_continue_with": "Or continue with",
+    "forgot_password": "Forgot Password?"
   },
   "register": {
     "title": "Create Account",
@@ -71,8 +74,11 @@
   },
   "language": {
     "search": "Search...",
+    "search_fallback": "Search languages...",
     "no_results": "No results.",
-    "tooltip": "Language"
+    "no_results_fallback": "No languages found.",
+    "tooltip": "Language",
+    "tooltip_fallback": "Language"
   },
   "pairing": {
     "title": "Pair with reMarkable Cloud",
@@ -249,6 +255,91 @@
     "never": "Never"
   },
   "settings": {
+    "title": "User Settings",
+    "description": "Manage your profile, API keys, and account preferences",
+    "tabs": {
+      "profile": "Profile",
+      "account": "Account",
+      "api_keys": "API Keys"
+    },
+    "cards": {
+      "profile_information": "Profile Information",
+      "change_password": "Change Password",
+      "danger_zone": "Danger Zone",
+      "create_api_key": "Create New API Key",
+      "your_api_keys": "Your API Keys"
+    },
+    "labels": {
+      "username": "Username",
+      "email": "Email",
+      "rmapi_host": "reMarkable Host (optional)",
+      "default_directory": "Default Directory",
+      "cover_page": "Cover Page",
+      "current_password": "Current Password",
+      "new_password": "New Password",
+      "confirm_new_password": "Confirm New Password",
+      "delete_account": "Delete Account",
+      "api_key_name": "Name",
+      "api_key_expiry": "Expiry (optional)",
+      "key_preview": "Key Preview",
+      "status": "Status",
+      "created": "Created",
+      "last_used": "Last Used",
+      "expires": "Expires"
+    },
+    "actions": {
+      "unpair": "Unpair",
+      "pair": "Pair",
+      "create_api_key": "Create API Key",
+      "got_it": "Got it",
+      "cancel": "Cancel",
+      "delete_api_key": "Delete API Key"
+    },
+    "options": {
+      "cover_current": "Current page",
+      "cover_first": "First page"
+    },
+    "expiry_options": {
+      "one_week": "1 week",
+      "one_month": "1 month",
+      "three_months": "3 months",
+      "one_year": "1 year"
+    },
+    "messages": {
+      "pair_to_load_folders": "Pair to load folders",
+      "pair_help": "Pair with reMarkable cloud to select from existing folders",
+      "delete_warning_intro": "Once you delete your account, there is no going back. This action is permanent and will remove all your data including:",
+      "remarkable_unaffected": "Your reMarkable Cloud account and device data will remain completely unaffected.",
+      "api_key_created_title": "New API Key Created",
+      "api_key_created_message": "Copy this key now - it won't be shown again:",
+      "no_api_keys": "No API keys created yet"
+    },
+    "help": {
+      "cover_page": "Controls whether the first page or current page is used as the cover when uploading PDFs"
+    },
+    "status": {
+      "active": "active",
+      "expired": "expired",
+      "inactive": "inactive"
+    },
+    "delete_warnings": {
+      "documents": "All archived documents and files",
+      "api_keys": "All API keys and their access",
+      "profile": "Your profile and account settings"
+    },
+    "dialogs": {
+      "delete_api_key_title": "Delete API Key",
+      "delete_api_key_message": "Are you sure you want to delete the API key",
+      "delete_api_key_consequences_title": "This action will:",
+      "delete_api_key_consequences": {
+        "revoke": "Permanently revoke the API key",
+        "stop_apps": "Stop all applications using this key from working",
+        "remove": "Remove the key from your account"
+      },
+      "cannot_undo": "This action cannot be undone.",
+      "delete_account_confirmation": "Are you sure you want to permanently delete your account? This action cannot be undone.",
+      "delete_account_type_confirm": "Type \"{{confirmText}}\" to confirm"
+    },
     "placeholders": {
       "cloud_default": "Leave empty for reMarkable Cloud",
       "api_key": "My API Key",
@@ -282,7 +373,12 @@
     "sending": "Sending...",
     "send_email": "Send Reset Email",
     "resetting": "Resetting...",
-    "reset_button": "Reset Password"
+    "reset_button": "Reset Password",
+    "email_sent": "If the email exists, a password reset link has been sent",
+    "send_email_error": "Failed to send reset email",
+    "success": "Password has been reset successfully. You can now log in with your new password.",
+    "reset_error": "Failed to reset password",
+    "email_instruction": "Enter your email address and we'll send you a link to reset your password."
   },
   "accessibility": {
     "logo": "Aviary logo",

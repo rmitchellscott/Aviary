@@ -699,7 +699,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Total Users
+                    {t("admin.cards.total_users")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -707,7 +707,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     {systemStatus.database.total_users}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {systemStatus.database.active_users} active
+                    {systemStatus.database.active_users} {t("admin.status.active")}
                   </p>
                 </CardContent>
               </Card>
@@ -715,7 +715,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium">
-                    API Keys
+                    {t("admin.cards.api_keys")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -723,7 +723,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     {systemStatus.database.api_keys.total}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {systemStatus.database.api_keys.active} active
+                    {systemStatus.database.api_keys.active} {t("admin.status.active")}
                   </p>
                 </CardContent>
               </Card>
@@ -731,7 +731,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Documents
+                    {t("admin.cards.documents")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -739,7 +739,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     {systemStatus.database.documents}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Total uploaded
+                    {t("admin.descriptions.total_uploaded")}
                   </p>
                 </CardContent>
               </Card>
@@ -747,7 +747,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Active Sessions
+                    {t("admin.cards.active_sessions")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -755,7 +755,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     {systemStatus.database.active_sessions}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Current unexpired sessions
+                    {t("admin.descriptions.current_sessions")}
                   </p>
                 </CardContent>
               </Card>
@@ -766,7 +766,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Mail className="h-5 w-5" />
-                    SMTP Status
+                    {t("admin.cards.smtp_status")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -777,7 +777,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       {getSMTPStatusText(systemStatus.smtp.status)}
                     </Badge>
                     <Button size="sm" onClick={testSMTP} disabled={saving || !systemStatus.smtp.configured}>
-                      Test SMTP
+                      {t("admin.actions.test_smtp")}
                     </Button>
                   </div>
                 </CardContent>
@@ -787,20 +787,20 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Server className="h-5 w-5" />
-                    System Mode
+                    {t("admin.cards.system_mode")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-col gap-2 items-start">
-                    <Badge variant="secondary">Multi-user Mode</Badge>
+                    <Badge variant="secondary">{t("admin.badges.multi_user")}</Badge>
                     {systemStatus.dry_run && (
-                      <Badge variant="destructive">Dry Run Mode</Badge>
+                      <Badge variant="destructive">{t("admin.badges.dry_run")}</Badge>
                     )}
                     {systemStatus.auth?.oidc_enabled && (
-                      <Badge variant="secondary">OIDC Enabled</Badge>
+                      <Badge variant="secondary">{t("admin.badges.oidc_enabled")}</Badge>
                     )}
                     {systemStatus.auth?.proxy_auth_enabled && (
-                      <Badge variant="secondary">Proxy Auth Enabled</Badge>
+                      <Badge variant="secondary">{t("admin.badges.proxy_auth")}</Badge>
                     )}
                   </div>
                 </CardContent>
@@ -812,33 +812,33 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             <div className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Create New User</CardTitle>
+                  <CardTitle>{t("admin.cards.create_new_user")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <Label htmlFor="new-username">Username</Label>
+                      <Label htmlFor="new-username">{t("admin.labels.username")}</Label>
                       <Input
                         id="new-username"
                         value={newUsername}
                         onChange={(e) => setNewUsername(e.target.value)}
-                        placeholder="username"
+                        placeholder={t("admin.placeholders.username")}
                         className="mt-2"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="new-email">Email</Label>
+                      <Label htmlFor="new-email">{t("admin.labels.email")}</Label>
                       <Input
                         id="new-email"
                         type="email"
                         value={newEmail}
                         onChange={(e) => setNewEmail(e.target.value)}
-                        placeholder="user@example.com"
+                        placeholder={t("admin.placeholders.email")}
                         className="mt-2"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="new-password">Password</Label>
+                      <Label htmlFor="new-password">{t("admin.labels.password")}</Label>
                       <Input
                         id="new-password"
                         type="password"
@@ -849,7 +849,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                             createUser();
                           }
                         }}
-                        placeholder="password"
+                        placeholder={t("admin.placeholders.password")}
                         className="mt-2"
                       />
                     </div>
@@ -863,7 +863,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       }
                     >
                       <Plus className="h-4 w-4 mr-2" />
-                      Create User
+                      {t("admin.actions.create_user")}
                     </Button>
                   </div>
                 </CardContent>
@@ -871,20 +871,20 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Users ({users.length})</CardTitle>
+                  <CardTitle>{t("admin.counts.users", {count: users.length})}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Username</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Role</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Created</TableHead>
-                          <TableHead>Last Login</TableHead>
-                          <TableHead>Actions</TableHead>
+                          <TableHead>{t("admin.labels.username")}</TableHead>
+                          <TableHead>{t("admin.labels.email")}</TableHead>
+                          <TableHead>{t("admin.labels.role")}</TableHead>
+                          <TableHead>{t("admin.labels.status")}</TableHead>
+                          <TableHead>{t("admin.labels.created")}</TableHead>
+                          <TableHead>{t("admin.labels.last_login")}</TableHead>
+                          <TableHead>{t("admin.labels.actions")}</TableHead>
                         </TableRow>
                       </TableHeader>
                     <TableBody>
@@ -899,7 +899,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               variant={user.is_admin ? "default" : "secondary"}
                               className="w-14 justify-center"
                             >
-                              {user.is_admin ? "Admin" : "User"}
+                              {user.is_admin ? t("admin.roles.admin") : t("admin.roles.user")}
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -909,7 +909,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           <TableCell>
                             {user.last_login
                               ? formatDate(user.last_login)
-                              : "Never"}
+                              : t("admin.never")}
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2 flex-wrap">
@@ -919,7 +919,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                                 onClick={() => openResetPasswordDialog(user)}
                                 className="whitespace-nowrap"
                               >
-                                Reset Password
+                                {t("admin.actions.reset_password")}
                               </Button>
                               {!isCurrentUser(user) && (
                                 <>
@@ -931,7 +931,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                                     }
                                     className="whitespace-nowrap"
                                   >
-                                    {user.is_admin ? "Make User" : "Make Admin"}
+                                    {user.is_admin ? t("admin.actions.make_user") : t("admin.actions.make_admin")}
                                   </Button>
                                   <Button
                                     size="sm"
@@ -941,7 +941,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                                     }
                                     className="whitespace-nowrap"
                                   >
-                                    {user.is_active ? "Deactivate" : "Activate"}
+                                    {user.is_active ? t("admin.actions.deactivate") : t("admin.actions.activate")}
                                   </Button>
                                   <Button
                                     size="sm"
@@ -950,7 +950,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                                     className="whitespace-nowrap"
                                   >
                                     <Trash2 className="h-3 w-3 mr-1" />
-                                    Delete
+                                    {t("admin.actions.delete")}
                                   </Button>
                                 </>
                               )}
@@ -970,20 +970,20 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             <div className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>All API Keys ({apiKeys.length})</CardTitle>
+                  <CardTitle>{t("admin.counts.all_api_keys", {count: apiKeys.length})}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Name</TableHead>
-                          <TableHead>User</TableHead>
-                          <TableHead>Key Preview</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Created</TableHead>
-                          <TableHead>Last Used</TableHead>
-                          <TableHead>Expires</TableHead>
+                          <TableHead>{t("admin.labels.name")}</TableHead>
+                          <TableHead>{t("admin.labels.user")}</TableHead>
+                          <TableHead>{t("admin.labels.key_preview")}</TableHead>
+                          <TableHead>{t("admin.labels.status")}</TableHead>
+                          <TableHead>{t("admin.labels.created")}</TableHead>
+                          <TableHead>{t("admin.labels.last_used")}</TableHead>
+                          <TableHead>{t("admin.labels.expires")}</TableHead>
                         </TableRow>
                       </TableHeader>
                   <TableBody>
@@ -1024,12 +1024,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           <TableCell>
                             {key.last_used
                               ? formatDate(key.last_used)
-                              : "Never"}
+                              : t("admin.never")}
                           </TableCell>
                           <TableCell>
                             {key.expires_at
                               ? formatDate(key.expires_at)
-                              : "Never"}
+                              : t("admin.never")}
                           </TableCell>
                         </TableRow>
                       );
@@ -1046,16 +1046,16 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             <div className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>User Management</CardTitle>
+                  <CardTitle>{t("admin.cards.user_management")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
                       <Label htmlFor="registration-enabled">
-                        Enable User Registration
+                        {t("admin.labels.enable_registration")}
                       </Label>
                       <p className="text-sm text-muted-foreground">
-                        Allow self-service creation of new user accounts
+                        {t("admin.descriptions.registration_help")}
                       </p>
                     </div>
                     <Switch
@@ -1075,12 +1075,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>API Key Settings</CardTitle>
+                  <CardTitle>{t("admin.cards.api_key_settings")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
                     <Label htmlFor="max-api-keys">
-                      Maximum API Keys per User
+                      {t("admin.labels.max_api_keys")}
                     </Label>
                     <Input
                       id="max-api-keys"
@@ -1098,12 +1098,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Session Settings</CardTitle>
+                  <CardTitle>{t("admin.cards.session_settings")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
                     <Label htmlFor="session-timeout">
-                      Session Timeout (hours)
+                      {t("admin.labels.session_timeout")}
                     </Label>
                     <Input
                       id="session-timeout"
@@ -1128,7 +1128,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             <div className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Backup & Restore</CardTitle>
+                  <CardTitle>{t("admin.cards.backup_restore")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -1139,7 +1139,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       className="w-full"
                     >
                       <Database className="h-4 w-4 mr-2" />
-                      {saving ? "Creating Backup..." : "Create Backup"}
+                      {saving ? t("admin.loading_states.creating_backup") : t("admin.actions.create_backup")}
                     </Button>
                     <div className="w-full">
                       <input
@@ -1156,20 +1156,20 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         className="w-full"
                       >
                         <Database className="h-4 w-4 mr-2" />
-                        {saving ? "Analyzing..." : "Restore from Backup..."}
+                        {saving ? t("admin.loading_states.analyzing") : t("admin.actions.restore_backup")}
                       </Button>
                     </div>
                   </div>
                   <div className="text-sm text-muted-foreground space-y-2">
                     <p>
-                      <strong>Backup:</strong> Creates a complete backup including database and user files as a .tar.gz archive
+                      <strong>{t("admin.actions.create_backup")}:</strong> {t("admin.descriptions.backup_description")}
                     </p>
                     <p>
-                      <strong>Restore:</strong> Restores database and user files from backup archive (.tar.gz format)
+                      <strong>{t("admin.actions.restore_backup")}:</strong> {t("admin.descriptions.restore_description")}
                     </p>
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <AlertTriangle className="h-4 w-4" />
-                      <span>Warning: Restoring will completely overwrite all current data</span>
+                      <span>{t("admin.descriptions.restore_warning")}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -1201,17 +1201,17 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Key className="h-5 w-5" />
-              Reset Password
+              {t("admin.dialogs.reset_password_title")}
             </DialogTitle>
             <DialogDescription>
-              Reset the password for user:{" "}
+              {t("admin.dialogs.reset_password_description")}
               <strong>{resetPasswordDialog.user?.username}</strong>
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="new-password">New Password</Label>
+              <Label htmlFor="new-password">{t("admin.labels.new_password")}</Label>
               <Input
                 id="new-password"
                 type="password"
@@ -1222,7 +1222,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     confirmResetPassword();
                   }
                 }}
-                placeholder="Enter new password (minimum 8 characters)"
+                placeholder={t("admin.placeholders.new_password")}
                 className="mt-2"
               />
             </div>
@@ -1230,13 +1230,13 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
           <DialogFooter>
             <Button variant="outline" onClick={closeResetPasswordDialog}>
-              Cancel
+              {t("admin.actions.cancel")}
             </Button>
             <Button
               onClick={confirmResetPassword}
               disabled={saving || newPasswordValue.length < 8}
             >
-              {saving ? "Resetting..." : "Reset Password"}
+              {saving ? t("admin.loading_states.resetting") : t("admin.actions.reset_password")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1261,59 +1261,58 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-muted-foreground" />
-              Confirm Data Restore
+              {t("admin.dialogs.confirm_restore_title")}
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-3">
               <p>
-                You are about to restore from backup file:{" "}
+                {t("admin.dialogs.confirm_restore_description")}
                 <strong>{restoreConfirmDialog.file?.name}</strong>
               </p>
               
               {backupCounts && (
                 <div className="bg-muted p-3 rounded-md">
-                  <p className="font-medium text-sm mb-2">Backup Contents:</p>
+                  <p className="font-medium text-sm mb-2">{t("admin.dialogs.backup_contents")}</p>
                   <div className="grid grid-cols-3 gap-4 text-sm">
                     <div className="text-center">
                       <div className="font-semibold text-lg">{backupCounts.users}</div>
-                      <div className="text-muted-foreground">Users</div>
+                      <div className="text-muted-foreground">{t("admin.labels.users")}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-semibold text-lg">{backupCounts.api_keys}</div>
-                      <div className="text-muted-foreground">API Keys</div>
+                      <div className="text-muted-foreground">{t("admin.labels.api_keys")}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-semibold text-lg">{backupCounts.documents}</div>
-                      <div className="text-muted-foreground">Documents</div>
+                      <div className="text-muted-foreground">{t("admin.labels.documents")}</div>
                     </div>
                   </div>
                 </div>
               )}
               
               <p className="text-destructive font-medium">
-                This will permanently overwrite all current data including:
+                {t("admin.dialogs.restore_warning_text")}
               </p>
               <ul className="list-disc list-inside text-sm space-y-1 ml-4">
-                <li>All user accounts and settings</li>
-                <li>All API keys and sessions</li>
-                <li>All user documents and files</li>
-                <li>All cloud pairing configuration</li>
-                <li>All folder caches</li>
-                <li>All system settings</li>
+                <li>{t("admin.dialogs.restore_warning_items.accounts")}</li>
+                <li>{t("admin.dialogs.restore_warning_items.api_keys")}</li>
+                <li>{t("admin.dialogs.restore_warning_items.documents")}</li>
+                <li>{t("admin.dialogs.restore_warning_items.pairing")}</li>
+                <li>{t("admin.dialogs.restore_warning_items.folders")}</li>
+                <li>{t("admin.dialogs.restore_warning_items.settings")}</li>
               </ul>
               <p className="text-destructive font-medium">
-                This action cannot be undone. Make sure you have a current
-                backup before proceeding.
+                {t("admin.dialogs.restore_final_warning")}
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={saving}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={saving}>{t("admin.actions.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDatabaseRestore}
               disabled={saving}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {saving ? "Restoring..." : "Restore Database"}
+              {saving ? t("admin.loading_states.restoring") : t("admin.actions.restore_database")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

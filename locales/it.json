@@ -10,31 +10,31 @@
     "button": "Accedi",
     "network_error": "Errore di rete",
     "fail": "Accesso fallito",
-    "register": "Create Account"
+    "register": "Crea account"
   },
   "register": {
-    "title": "Create Account",
-    "username": "Username",
-    "username_help": "Username must be 3-50 characters long and contain only letters, numbers, underscores, and hyphens",
+    "title": "Crea account",
+    "username": "Nome utente",
+    "username_help": "Il nome utente deve essere lungo tra 3 e 50 caratteri e contenere solo lettere, numeri, trattini bassi e trattini",
     "email": "Email",
     "password": "Password",
-    "password_help": "Password must be at least 8 characters long",
-    "confirm_password": "Confirm Password",
-    "button": "Create Account",
-    "creating": "Creating account...",
-    "back_to_login": "Back to Login",
-    "success_title": "Account Created!",
-    "success_message": "Your account has been created successfully. You can now log in with your credentials.",
-    "login_now": "Continue to Login",
-    "disabled": "User registration is currently disabled",
-    "disabled_message": "New user registration is currently disabled. Please contact an administrator to create an account.",
-    "missing_fields": "Please fill in all required fields",
-    "password_mismatch": "Passwords do not match",
-    "password_too_short": "Password must be at least 8 characters long",
-    "user_exists": "A user with this username or email already exists",
-    "network_error": "Network error occurred",
-    "fail": "Account creation failed",
-    "already_have_account": "Already have an account? Sign in"
+    "password_help": "La password deve essere lunga almeno 8 caratteri",
+    "confirm_password": "Conferma Password",
+    "button": "Crea account",
+    "creating": "Creazione account...",
+    "back_to_login": "Torna al Login",
+    "success_title": "Account Creato!",
+    "success_message": "Il tuo account è stato creato con successo. Ora puoi accedere con le tue credenziali.",
+    "login_now": "Continua al Login",
+    "disabled": "La registrazione utente è attualmente disabilitata",
+    "disabled_message": "La registrazione di nuovi utenti è attualmente disabilitata. Contatta un amministratore per creare un account.",
+    "missing_fields": "Compila tutti i campi obbligatori",
+    "password_mismatch": "Le password non corrispondono",
+    "password_too_short": "La password deve essere lunga almeno 8 caratteri",
+    "user_exists": "Esiste già un utente con questo nome utente o email",
+    "network_error": "Si è verificato un errore di rete",
+    "fail": "Creazione account fallita",
+    "already_have_account": "Hai già un account? Accedi"
   },
   "logout": "Disconnetti",
   "home": {
@@ -52,12 +52,12 @@
     "invalid_file": "File non valido",
     "ok": "OK",
     "job_queued": "Lavoro in coda: {{id}}",
-    "pair": "Pair",
-    "uploading": "Uploading to Aviary",
-    "pair_with_cloud": "Pair with cloud to load folders",
-    "pair_with_remarkable": "Pair with reMarkable cloud",
-    "to_upload_documents": " to upload documents.",
-    "settings_config": " Go to Settings for additional configuration."
+    "pair": "Collega",
+    "uploading": "Caricamento su Aviary",
+    "pair_with_cloud": "Collega con il cloud per caricare le cartelle",
+    "pair_with_remarkable": "Collega con reMarkable cloud",
+    "to_upload_documents": " per caricare documenti.",
+    "settings_config": " Vai su Impostazioni per configurazioni aggiuntive."
   },
   "filedrop": {
     "instruction": "Clicca per caricare o trascina e rilascia",
@@ -112,141 +112,141 @@
     "deleting": "Eliminazione..."
   },
   "admin": {
-    "title": "Admin Panel",
-    "description": "Manage users, system settings, and monitor system health",
+    "title": "Pannello Amministratore",
+    "description": "Gestisci utenti, impostazioni di sistema e monitora lo stato del sistema",
     "status": {
-      "working": "Working",
-      "failed": "Failed",
-      "not_configured": "Not configured",
-      "unknown": "Unknown",
-      "inactive": "Inactive",
-      "paired": "Paired",
-      "unpaired": "Unpaired",
-      "active": "active"
+      "working": "Funzionante",
+      "failed": "Fallito",
+      "not_configured": "Non configurato",
+      "unknown": "Sconosciuto",
+      "inactive": "Inattivo",
+      "paired": "Collegato",
+      "unpaired": "Scollegato",
+      "active": "attivo"
     },
     "roles": {
-      "admin": "Admin",
-      "user": "User"
+      "admin": "Amministratore",
+      "user": "Utente"
     },
     "actions": {
-      "make_admin": "Make Admin",
-      "make_user": "Make User",
-      "activate": "Activate",
-      "deactivate": "Deactivate",
-      "reset_password": "Reset Password",
-      "delete": "Delete",
-      "create_user": "Create User",
-      "test_smtp": "Test SMTP",
-      "create_backup": "Create Backup",
-      "restore_backup": "Restore from Backup...",
-      "cancel": "Cancel",
-      "restore_database": "Restore Database"
+      "make_admin": "Rendi Amministratore",
+      "make_user": "Rendi Utente",
+      "activate": "Attiva",
+      "deactivate": "Disattiva",
+      "reset_password": "Reimposta Password",
+      "delete": "Elimina",
+      "create_user": "Crea Utente",
+      "test_smtp": "Testa SMTP",
+      "create_backup": "Crea Backup",
+      "restore_backup": "Ripristina da Backup...",
+      "cancel": "Annulla",
+      "restore_database": "Ripristina Database"
     },
     "tabs": {
-      "overview": "Overview",
-      "users": "Users",
-      "api_keys": "API Keys",
-      "settings": "Settings",
-      "system": "System"
+      "overview": "Panoramica",
+      "users": "Utenti",
+      "api_keys": "Chiavi API",
+      "settings": "Impostazioni",
+      "system": "Sistema"
     },
     "cards": {
-      "total_users": "Total Users",
-      "api_keys": "API Keys",
-      "documents": "Documents",
-      "active_sessions": "Active Sessions",
-      "smtp_status": "SMTP Status",
-      "system_mode": "System Mode",
-      "create_new_user": "Create New User",
-      "user_management": "User Management",
-      "api_key_settings": "API Key Settings",
-      "session_settings": "Session Settings",
-      "backup_restore": "Backup & Restore"
+      "total_users": "Utenti Totali",
+      "api_keys": "Chiavi API",
+      "documents": "Documenti",
+      "active_sessions": "Sessioni Attive",
+      "smtp_status": "Stato SMTP",
+      "system_mode": "Modalità Sistema",
+      "create_new_user": "Crea Nuovo Utente",
+      "user_management": "Gestione Utenti",
+      "api_key_settings": "Impostazioni Chiavi API",
+      "session_settings": "Impostazioni Sessione",
+      "backup_restore": "Backup e Ripristino"
     },
     "labels": {
-      "username": "Username",
+      "username": "Nome utente",
       "email": "Email",
       "password": "Password",
-      "role": "Role",
-      "status": "Status",
-      "created": "Created",
-      "last_login": "Last Login",
-      "actions": "Actions",
-      "name": "Name",
-      "user": "User",
-      "key_preview": "Key Preview",
-      "last_used": "Last Used",
-      "expires": "Expires",
-      "new_password": "New Password",
-      "enable_registration": "Enable User Registration",
-      "max_api_keys": "Maximum API Keys per User",
-      "session_timeout": "Session Timeout (hours)"
+      "role": "Ruolo",
+      "status": "Stato",
+      "created": "Creato",
+      "last_login": "Ultimo accesso",
+      "actions": "Azioni",
+      "name": "Nome",
+      "user": "Utente",
+      "key_preview": "Anteprima chiave",
+      "last_used": "Ultimo utilizzo",
+      "expires": "Scade",
+      "new_password": "Nuova password",
+      "enable_registration": "Abilita registrazione utente",
+      "max_api_keys": "Massimo chiavi API per utente",
+      "session_timeout": "Timeout sessione (ore)"
     },
     "placeholders": {
-      "username": "username",
-      "email": "user@example.com",
+      "username": "nomeutente",
+      "email": "utente@esempio.it",
       "password": "password",
-      "new_password": "Enter new password (minimum 8 characters)"
+      "new_password": "Inserisci nuova password (minimo 8 caratteri)"
     },
     "descriptions": {
-      "registration_help": "Allow self-service creation of new user accounts",
-      "total_uploaded": "Total uploaded",
-      "current_sessions": "Current unexpired sessions",
-      "backup_description": "Creates a complete backup including database and user files as a .tar.gz archive",
-      "restore_description": "Restores database and user files from backup archive (.tar.gz format)",
-      "restore_warning": "Warning: Restoring will completely overwrite all current data"
+      "registration_help": "Consenti la creazione autonoma di nuovi account utente",
+      "total_uploaded": "Totale caricati",
+      "current_sessions": "Sessioni correnti non scadute",
+      "backup_description": "Crea un backup completo inclusi database e file utente come archivio .tar.gz",
+      "restore_description": "Ripristina database e file utente da archivio backup (formato .tar.gz)",
+      "restore_warning": "Attenzione: Il ripristino sovrascriverà completamente tutti i dati correnti"
     },
     "badges": {
-      "multi_user": "Multi-user Mode",
-      "dry_run": "Dry Run Mode",
-      "oidc_enabled": "OIDC Enabled",
-      "proxy_auth": "Proxy Auth Enabled"
+      "multi_user": "Modalità multiutente",
+      "dry_run": "Modalità test",
+      "oidc_enabled": "OIDC attivato",
+      "proxy_auth": "Proxy Auth attivato"
     },
     "loading_states": {
-      "creating_backup": "Creating Backup...",
-      "analyzing": "Analyzing...",
-      "resetting": "Resetting...",
-      "restoring": "Restoring...",
-      "loading": "Loading..."
+      "creating_backup": "Creazione backup...",
+      "analyzing": "Analisi...",
+      "resetting": "Reimpostazione...",
+      "restoring": "Ripristino...",
+      "loading": "Caricamento..."
     },
     "dialogs": {
-      "reset_password_title": "Reset Password",
-      "reset_password_description": "Reset the password for user: ",
-      "confirm_restore_title": "Confirm Data Restore",
-      "confirm_restore_description": "You are about to restore from backup file: ",
-      "backup_contents": "Backup Contents:",
-      "restore_warning_text": "This will permanently overwrite all current data including:",
+      "reset_password_title": "Reimposta password",
+      "reset_password_description": "Reimposta la password per l'utente: ",
+      "confirm_restore_title": "Conferma ripristino dati",
+      "confirm_restore_description": "Stai per ripristinare dal file di backup: ",
+      "backup_contents": "Contenuti backup:",
+      "restore_warning_text": "Questo sovrascriverà permanentemente tutti i dati correnti inclusi:",
       "restore_warning_items": {
-        "accounts": "All user accounts and settings",
-        "api_keys": "All API keys and sessions",
-        "documents": "All user documents and files",
-        "pairing": "All cloud pairing configuration",
-        "folders": "All folder caches",
-        "settings": "All system settings"
+        "accounts": "Tutti gli account utente e impostazioni",
+        "api_keys": "Tutte le chiavi API e sessioni",
+        "documents": "Tutti i documenti e file utente",
+        "pairing": "Tutta la configurazione di collegamento cloud",
+        "folders": "Tutte le cache delle cartelle",
+        "settings": "Tutte le impostazioni di sistema"
       },
-      "restore_final_warning": "This action cannot be undone. Make sure you have a current backup before proceeding."
+      "restore_final_warning": "Questa azione non può essere annullata. Assicurati di avere un backup corrente prima di procedere."
     },
     "errors": {
-      "create_user": "Failed to create user",
-      "delete_user": "Failed to delete user",
-      "reset_password": "Failed to reset password",
-      "password_length": "Password must be at least 8 characters long",
-      "smtp_test": "SMTP test failed",
-      "smtp_test_network": "Failed to test SMTP",
-      "backup_create": "Failed to create backup",
-      "backup_invalid": "Invalid backup file",
-      "backup_analyze": "Failed to analyze backup file: ",
-      "backup_file_type": "Invalid file type. Please select a backup archive (.tar.gz or .tgz). Selected file: ",
-      "restore_failed": "Failed to restore database",
-      "restore_error": "Failed to restore database: "
+      "create_user": "Impossibile creare l'utente",
+      "delete_user": "Impossibile eliminare l'utente",
+      "reset_password": "Impossibile reimpostare la password",
+      "password_length": "La password deve essere lunga almeno 8 caratteri",
+      "smtp_test": "Test SMTP fallito",
+      "smtp_test_network": "Impossibile testare SMTP",
+      "backup_create": "Impossibile creare il backup",
+      "backup_invalid": "File di backup non valido",
+      "backup_analyze": "Impossibile analizzare il file di backup: ",
+      "backup_file_type": "Tipo di file non valido. Seleziona un archivio di backup (.tar.gz o .tgz). File selezionato: ",
+      "restore_failed": "Impossibile ripristinare il database",
+      "restore_error": "Impossibile ripristinare il database: "
     },
     "success": {
-      "restore_complete": "Database restored successfully"
+      "restore_complete": "Database ripristinato con successo"
     },
     "counts": {
-      "users": "Users ({{count}})",
-      "all_api_keys": "All API Keys ({{count}})"
+      "users": "Utenti ({{count}})",
+      "all_api_keys": "Tutte le chiavi API ({{count}})"
     },
-    "never": "Never"
+    "never": "Mai"
   },
   "backend": {
     "auth": {
@@ -291,42 +291,42 @@
   },
   "settings": {
     "placeholders": {
-      "cloud_default": "Leave empty for reMarkable Cloud",
-      "api_key": "My API Key",
-      "never_expires": "Never expires",
-      "current_password": "Enter your current password",
-      "delete_confirm": "DELETE MY ACCOUNT"
+      "cloud_default": "Lascia vuoto per reMarkable Cloud",
+      "api_key": "La Mia Chiave API",
+      "never_expires": "Non scade mai",
+      "current_password": "Inserisci la tua password attuale",
+      "delete_confirm": "ELIMINA IL MIO ACCOUNT"
     },
     "loading_states": {
-      "saving": "Saving...",
-      "updating": "Updating...",
-      "deleting": "Deleting...",
-      "loading": "Loading..."
+      "saving": "Salvataggio...",
+      "updating": "Aggiornamento...",
+      "deleting": "Eliminazione...",
+      "loading": "Caricamento..."
     },
     "buttons": {
-      "save_changes": "Save Changes",
-      "update_password": "Update Password",
-      "delete_my_account": "Delete My Account"
+      "save_changes": "Salva Modifiche",
+      "update_password": "Aggiorna Password",
+      "delete_my_account": "Elimina Il Mio Account"
     },
-    "never": "Never"
+    "never": "Mai"
   },
   "app": {
-    "settings": "Settings",
-    "admin": "Admin"
+    "settings": "Impostazioni",
+    "admin": "Amministrazione"
   },
   "password_reset": {
-    "title": "Reset Password",
-    "new_password_title": "Set New Password",
-    "email_placeholder": "Enter your email address",
-    "password_placeholder": "Enter new password",
-    "confirm_placeholder": "Confirm new password",
-    "sending": "Sending...",
-    "send_email": "Send Reset Email",
-    "resetting": "Resetting...",
-    "reset_button": "Reset Password"
+    "title": "Reimposta Password",
+    "new_password_title": "Imposta Nuova Password",
+    "email_placeholder": "Inserisci il tuo indirizzo email",
+    "password_placeholder": "Inserisci nuova password",
+    "confirm_placeholder": "Conferma nuova password",
+    "sending": "Invio...",
+    "send_email": "Invia Email di Reset",
+    "resetting": "Reimpostazione...",
+    "reset_button": "Reimposta Password"
   },
   "accessibility": {
-    "logo": "Aviary logo",
-    "select_language": "Select language"
+    "logo": "Logo Aviary",
+    "select_language": "Seleziona lingua"
   }
 }

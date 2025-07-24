@@ -10,31 +10,31 @@
     "button": "Logg inn",
     "network_error": "Nettverksfeil",
     "fail": "Innlogging mislyktes",
-    "register": "Create Account"
+    "register": "Opprett konto"
   },
   "register": {
-    "title": "Create Account",
-    "username": "Username",
-    "username_help": "Username must be 3-50 characters long and contain only letters, numbers, underscores, and hyphens",
-    "email": "Email",
-    "password": "Password",
-    "password_help": "Password must be at least 8 characters long",
-    "confirm_password": "Confirm Password",
-    "button": "Create Account",
-    "creating": "Creating account...",
-    "back_to_login": "Back to Login",
-    "success_title": "Account Created!",
-    "success_message": "Your account has been created successfully. You can now log in with your credentials.",
-    "login_now": "Continue to Login",
-    "disabled": "User registration is currently disabled",
-    "disabled_message": "New user registration is currently disabled. Please contact an administrator to create an account.",
-    "missing_fields": "Please fill in all required fields",
-    "password_mismatch": "Passwords do not match",
-    "password_too_short": "Password must be at least 8 characters long",
-    "user_exists": "A user with this username or email already exists",
-    "network_error": "Network error occurred",
-    "fail": "Account creation failed",
-    "already_have_account": "Already have an account? Sign in"
+    "title": "Opprett konto",
+    "username": "Brukernavn",
+    "username_help": "Brukernavn må være 3-50 tegn langt og kun inneholde bokstaver, tall, understreker og bindestreker",
+    "email": "E-post",
+    "password": "Passord",
+    "password_help": "Passord må være minst 8 tegn langt",
+    "confirm_password": "Bekreft passord",
+    "button": "Opprett konto",
+    "creating": "Oppretter konto...",
+    "back_to_login": "Tilbake til innlogging",
+    "success_title": "Konto opprettet!",
+    "success_message": "Kontoen din har blitt opprettet. Du kan nå logge inn med dine legitimasjoner.",
+    "login_now": "Fortsett til innlogging",
+    "disabled": "Brukerregistrering er for øyeblikket deaktivert",
+    "disabled_message": "Ny brukerregistrering er for øyeblikket deaktivert. Kontakt en administrator for å opprette en konto.",
+    "missing_fields": "Fyll ut alle obligatoriske felt",
+    "password_mismatch": "Passordene stemmer ikke overens",
+    "password_too_short": "Passord må være minst 8 tegn langt",
+    "user_exists": "En bruker med dette brukernavnet eller e-posten eksisterer allerede",
+    "network_error": "Nettverksfeil oppstod",
+    "fail": "Kontoopprettelse mislyktes",
+    "already_have_account": "Har du allerede en konto? Logg inn"
   },
   "logout": "Logg ut",
   "home": {
@@ -291,42 +291,42 @@
   },
   "settings": {
     "placeholders": {
-      "cloud_default": "Leave empty for reMarkable Cloud",
-      "api_key": "My API Key",
-      "never_expires": "Never expires",
-      "current_password": "Enter your current password",
-      "delete_confirm": "DELETE MY ACCOUNT"
+      "cloud_default": "La stå tom for reMarkable Cloud",
+      "api_key": "Min API-nøkkel",
+      "never_expires": "Utløper aldri",
+      "current_password": "Skriv inn ditt gjeldende passord",
+      "delete_confirm": "SLETT KONTOEN MIN"
     },
     "loading_states": {
-      "saving": "Saving...",
-      "updating": "Updating...",
-      "deleting": "Deleting...",
-      "loading": "Loading..."
+      "saving": "Lagrer...",
+      "updating": "Oppdaterer...",
+      "deleting": "Sletter...",
+      "loading": "Laster..."
     },
     "buttons": {
-      "save_changes": "Save Changes",
-      "update_password": "Update Password",
-      "delete_my_account": "Delete My Account"
+      "save_changes": "Lagre endringer",
+      "update_password": "Oppdater passord",
+      "delete_my_account": "Slett kontoen min"
     },
-    "never": "Never"
+    "never": "Aldri"
   },
   "app": {
-    "settings": "Settings",
-    "admin": "Admin"
+    "settings": "Innstillinger",
+    "admin": "Administrasjon"
   },
   "password_reset": {
-    "title": "Reset Password",
-    "new_password_title": "Set New Password",
-    "email_placeholder": "Enter your email address",
-    "password_placeholder": "Enter new password",
-    "confirm_placeholder": "Confirm new password",
-    "sending": "Sending...",
-    "send_email": "Send Reset Email",
-    "resetting": "Resetting...",
-    "reset_button": "Reset Password"
+    "title": "Tilbakestill passord",
+    "new_password_title": "Angi nytt passord",
+    "email_placeholder": "Skriv inn din e-postadresse",
+    "password_placeholder": "Skriv inn nytt passord",
+    "confirm_placeholder": "Bekreft nytt passord",
+    "sending": "Sender...",
+    "send_email": "Send tilbakestillings-e-post",
+    "resetting": "Tilbakestiller...",
+    "reset_button": "Tilbakestill passord"
   },
   "accessibility": {
-    "logo": "Aviary logo",
-    "select_language": "Select language"
+    "logo": "Aviary-logo",
+    "select_language": "Velg språk"
   }
 }

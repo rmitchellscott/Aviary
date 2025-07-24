@@ -58,10 +58,10 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
       if (response.ok) {
         setMessage({ 
           type: 'success', 
-          text: t('password_reset.email_sent', 'If the email exists, a password reset link has been sent') 
+          text: t('password_reset.email_sent') 
         });
       } else {
-        setMessage({ type: 'error', text: data.error || t('password_reset.send_email_error', 'Failed to send reset email') });
+        setMessage({ type: 'error', text: data.error || t('password_reset.send_email_error') });
       }
     } catch (error) {
       setMessage({ type: 'error', text: t('register.network_error') });
@@ -110,7 +110,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
       if (response.ok) {
         setMessage({ 
           type: 'success', 
-          text: t('password_reset.success', 'Password has been reset successfully. You can now log in with your new password.') 
+          text: t('password_reset.success') 
         });
         // Clear the form
         setToken('');
@@ -122,7 +122,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
           window.location.href = '/';
         }, 3000);
       } else {
-        setMessage({ type: 'error', text: data.error || t('password_reset.reset_error', 'Failed to reset password') });
+        setMessage({ type: 'error', text: data.error || t('password_reset.reset_error') });
       }
     } catch (error) {
       setMessage({ type: 'error', text: t('register.network_error') });
@@ -198,7 +198,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
 
               <div className="text-center mt-4">
                 <p className="text-sm text-muted-foreground">
-                  {t('password_reset.email_instruction', 'Enter your email address and we\'ll send you a link to reset your password.')}
+                  {t('password_reset.email_instruction')}
                 </p>
               </div>
             </form>

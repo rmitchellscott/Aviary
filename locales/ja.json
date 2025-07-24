@@ -10,31 +10,31 @@
     "button": "ログイン",
     "network_error": "ネットワークエラー",
     "fail": "ログインに失敗しました",
-    "register": "Create Account"
+    "register": "アカウントを作成"
   },
   "register": {
-    "title": "Create Account",
-    "username": "Username",
-    "username_help": "Username must be 3-50 characters long and contain only letters, numbers, underscores, and hyphens",
-    "email": "Email",
-    "password": "Password",
-    "password_help": "Password must be at least 8 characters long",
-    "confirm_password": "Confirm Password",
-    "button": "Create Account",
-    "creating": "Creating account...",
-    "back_to_login": "Back to Login",
-    "success_title": "Account Created!",
-    "success_message": "Your account has been created successfully. You can now log in with your credentials.",
-    "login_now": "Continue to Login",
-    "disabled": "User registration is currently disabled",
-    "disabled_message": "New user registration is currently disabled. Please contact an administrator to create an account.",
-    "missing_fields": "Please fill in all required fields",
-    "password_mismatch": "Passwords do not match",
-    "password_too_short": "Password must be at least 8 characters long",
-    "user_exists": "A user with this username or email already exists",
-    "network_error": "Network error occurred",
-    "fail": "Account creation failed",
-    "already_have_account": "Already have an account? Sign in"
+    "title": "アカウントを作成",
+    "username": "ユーザー名",
+    "username_help": "ユーザー名は3～50文字で、英数字、アンダースコア、ハイフンのみ使用できます",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "password_help": "パスワードは8文字以上で入力してください",
+    "confirm_password": "パスワードを確認",
+    "button": "アカウントを作成",
+    "creating": "アカウント作成中...",
+    "back_to_login": "ログインに戻る",
+    "success_title": "アカウントが作成されました！",
+    "success_message": "アカウントが正常に作成されました。ログイン情報でログインできます。",
+    "login_now": "ログインへ続行",
+    "disabled": "ユーザー登録は現在無効です",
+    "disabled_message": "新しいユーザーの登録は現在無効です。アカウント作成には管理者にお問い合わせください。",
+    "missing_fields": "必須項目をすべて入力してください",
+    "password_mismatch": "パスワードが一致しません",
+    "password_too_short": "パスワードは8文字以上で入力してください",
+    "user_exists": "このユーザー名またはメールアドレスのユーザーはすでに存在します",
+    "network_error": "ネットワークエラーが発生しました",
+    "fail": "アカウント作成に失敗しました",
+    "already_have_account": "すでにアカウントをお持ちですか？サインイン"
   },
   "logout": "ログアウト",
   "home": {
@@ -52,12 +52,12 @@
     "invalid_file": "無効なファイル",
     "ok": "はい",
     "job_queued": "ジョブがキューに追加されました: {{id}}",
-    "pair": "Pair",
-    "uploading": "Uploading to Aviary",
-    "pair_with_cloud": "Pair with cloud to load folders",
-    "pair_with_remarkable": "Pair with reMarkable cloud",
-    "to_upload_documents": " to upload documents.",
-    "settings_config": " Go to Settings for additional configuration."
+    "pair": "ペアリング",
+    "uploading": "Aviaryにアップロード中",
+    "pair_with_cloud": "フォルダを読み込むためにクラウドとペアリング",
+    "pair_with_remarkable": "reMarkableクラウドとペアリング",
+    "to_upload_documents": "ドキュメントをアップロードするために。",
+    "settings_config": "追加設定のために設定に移動してください。"
   },
   "filedrop": {
     "instruction": "クリックしてアップロードするか、ドラッグ&ドロップしてください",
@@ -291,42 +291,42 @@
   },
   "settings": {
     "placeholders": {
-      "cloud_default": "Leave empty for reMarkable Cloud",
-      "api_key": "My API Key",
-      "never_expires": "Never expires",
-      "current_password": "Enter your current password",
-      "delete_confirm": "DELETE MY ACCOUNT"
+      "cloud_default": "reMarkable Cloudの場合は空で留める",
+      "api_key": "私のAPIキー",
+      "never_expires": "有効期限なし",
+      "current_password": "現在のパスワードを入力してください",
+      "delete_confirm": "アカウントを削除"
     },
     "loading_states": {
-      "saving": "Saving...",
-      "updating": "Updating...",
-      "deleting": "Deleting...",
-      "loading": "Loading..."
+      "saving": "保存中...",
+      "updating": "更新中...",
+      "deleting": "削除中...",
+      "loading": "読み込み中..."
     },
     "buttons": {
-      "save_changes": "Save Changes",
-      "update_password": "Update Password",
-      "delete_my_account": "Delete My Account"
+      "save_changes": "変更を保存",
+      "update_password": "パスワードを更新",
+      "delete_my_account": "アカウントを削除"
     },
-    "never": "Never"
+    "never": "なし"
   },
   "app": {
-    "settings": "Settings",
-    "admin": "Admin"
+    "settings": "設定",
+    "admin": "管理者"
   },
   "password_reset": {
-    "title": "Reset Password",
-    "new_password_title": "Set New Password",
-    "email_placeholder": "Enter your email address",
-    "password_placeholder": "Enter new password",
-    "confirm_placeholder": "Confirm new password",
-    "sending": "Sending...",
-    "send_email": "Send Reset Email",
-    "resetting": "Resetting...",
-    "reset_button": "Reset Password"
+    "title": "パスワードリセット",
+    "new_password_title": "新しいパスワードを設定",
+    "email_placeholder": "メールアドレスを入力してください",
+    "password_placeholder": "新しいパスワードを入力",
+    "confirm_placeholder": "新しいパスワードを確認",
+    "sending": "送信中...",
+    "send_email": "リセットメールを送信",
+    "resetting": "リセット中...",
+    "reset_button": "パスワードリセット"
   },
   "accessibility": {
-    "logo": "Aviary logo",
-    "select_language": "Select language"
+    "logo": "Aviaryロゴ",
+    "select_language": "言語を選択"
   }
 }

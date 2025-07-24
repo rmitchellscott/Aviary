@@ -10,31 +10,31 @@
     "button": "Inloggen",
     "network_error": "Netwerkfout",
     "fail": "Inloggen mislukt",
-    "register": "Create Account"
+    "register": "Account maken"
   },
   "register": {
-    "title": "Create Account",
-    "username": "Username",
-    "username_help": "Username must be 3-50 characters long and contain only letters, numbers, underscores, and hyphens",
-    "email": "Email",
-    "password": "Password",
-    "password_help": "Password must be at least 8 characters long",
-    "confirm_password": "Confirm Password",
-    "button": "Create Account",
-    "creating": "Creating account...",
-    "back_to_login": "Back to Login",
-    "success_title": "Account Created!",
-    "success_message": "Your account has been created successfully. You can now log in with your credentials.",
-    "login_now": "Continue to Login",
-    "disabled": "User registration is currently disabled",
-    "disabled_message": "New user registration is currently disabled. Please contact an administrator to create an account.",
-    "missing_fields": "Please fill in all required fields",
-    "password_mismatch": "Passwords do not match",
-    "password_too_short": "Password must be at least 8 characters long",
-    "user_exists": "A user with this username or email already exists",
-    "network_error": "Network error occurred",
-    "fail": "Account creation failed",
-    "already_have_account": "Already have an account? Sign in"
+    "title": "Account maken",
+    "username": "Gebruikersnaam",
+    "username_help": "Gebruikersnaam moet 3-50 tekens lang zijn en alleen letters, cijfers, underscores en koppeltekens bevatten",
+    "email": "E-mail",
+    "password": "Wachtwoord",
+    "password_help": "Wachtwoord moet minimaal 8 tekens lang zijn",
+    "confirm_password": "Wachtwoord bevestigen",
+    "button": "Account maken",
+    "creating": "Account maken...",
+    "back_to_login": "Terug naar inloggen",
+    "success_title": "Account gemaakt!",
+    "success_message": "Je account is succesvol aangemaakt. Je kunt nu inloggen met je gegevens.",
+    "login_now": "Doorgaan naar inloggen",
+    "disabled": "Gebruikersregistratie is momenteel uitgeschakeld",
+    "disabled_message": "Nieuwe gebruikersregistratie is momenteel uitgeschakeld. Neem contact op met een beheerder om een account aan te maken.",
+    "missing_fields": "Vul alle verplichte velden in",
+    "password_mismatch": "Wachtwoorden komen niet overeen",
+    "password_too_short": "Wachtwoord moet minimaal 8 tekens lang zijn",
+    "user_exists": "Er bestaat al een gebruiker met deze gebruikersnaam of e-mail",
+    "network_error": "Netwerkfout opgetreden",
+    "fail": "Account maken mislukt",
+    "already_have_account": "Heb je al een account? Inloggen"
   },
   "logout": "Uitloggen",
   "home": {
@@ -291,42 +291,42 @@
   },
   "settings": {
     "placeholders": {
-      "cloud_default": "Leave empty for reMarkable Cloud",
-      "api_key": "My API Key",
-      "never_expires": "Never expires",
-      "current_password": "Enter your current password",
-      "delete_confirm": "DELETE MY ACCOUNT"
+      "cloud_default": "Laat leeg voor reMarkable Cloud",
+      "api_key": "Mijn API-sleutel",
+      "never_expires": "Verloopt nooit",
+      "current_password": "Voer je huidige wachtwoord in",
+      "delete_confirm": "VERWIJDER MIJN ACCOUNT"
     },
     "loading_states": {
-      "saving": "Saving...",
-      "updating": "Updating...",
-      "deleting": "Deleting...",
-      "loading": "Loading..."
+      "saving": "Opslaan...",
+      "updating": "Bijwerken...",
+      "deleting": "Verwijderen...",
+      "loading": "Laden..."
     },
     "buttons": {
-      "save_changes": "Save Changes",
-      "update_password": "Update Password",
-      "delete_my_account": "Delete My Account"
+      "save_changes": "Wijzigingen opslaan",
+      "update_password": "Wachtwoord bijwerken",
+      "delete_my_account": "Mijn account verwijderen"
     },
-    "never": "Never"
+    "never": "Nooit"
   },
   "app": {
-    "settings": "Settings",
-    "admin": "Admin"
+    "settings": "Instellingen",
+    "admin": "Beheer"
   },
   "password_reset": {
-    "title": "Reset Password",
-    "new_password_title": "Set New Password",
-    "email_placeholder": "Enter your email address",
-    "password_placeholder": "Enter new password",
-    "confirm_placeholder": "Confirm new password",
-    "sending": "Sending...",
-    "send_email": "Send Reset Email",
-    "resetting": "Resetting...",
-    "reset_button": "Reset Password"
+    "title": "Wachtwoord resetten",
+    "new_password_title": "Nieuw wachtwoord instellen",
+    "email_placeholder": "Voer je e-mailadres in",
+    "password_placeholder": "Voer nieuw wachtwoord in",
+    "confirm_placeholder": "Bevestig nieuw wachtwoord",
+    "sending": "Verzenden...",
+    "send_email": "Reset-e-mail verzenden",
+    "resetting": "Resetten...",
+    "reset_button": "Wachtwoord resetten"
   },
   "accessibility": {
-    "logo": "Aviary logo",
-    "select_language": "Select language"
+    "logo": "Aviary-logo",
+    "select_language": "Taal selecteren"
   }
 }

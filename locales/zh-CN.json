@@ -10,31 +10,31 @@
     "button": "登录",
     "network_error": "网络错误",
     "fail": "登录失败",
-    "register": "Create Account"
+    "register": "创建账户"
   },
   "register": {
-    "title": "Create Account",
-    "username": "Username",
-    "username_help": "Username must be 3-50 characters long and contain only letters, numbers, underscores, and hyphens",
-    "email": "Email",
-    "password": "Password",
-    "password_help": "Password must be at least 8 characters long",
-    "confirm_password": "Confirm Password",
-    "button": "Create Account",
-    "creating": "Creating account...",
-    "back_to_login": "Back to Login",
-    "success_title": "Account Created!",
-    "success_message": "Your account has been created successfully. You can now log in with your credentials.",
-    "login_now": "Continue to Login",
-    "disabled": "User registration is currently disabled",
-    "disabled_message": "New user registration is currently disabled. Please contact an administrator to create an account.",
-    "missing_fields": "Please fill in all required fields",
-    "password_mismatch": "Passwords do not match",
-    "password_too_short": "Password must be at least 8 characters long",
-    "user_exists": "A user with this username or email already exists",
-    "network_error": "Network error occurred",
-    "fail": "Account creation failed",
-    "already_have_account": "Already have an account? Sign in"
+    "title": "创建账户",
+    "username": "用户名",
+    "username_help": "用户名必须为3-50个字符，只能包含字母、数字、下划线和连字符",
+    "email": "邮箱",
+    "password": "密码",
+    "password_help": "密码必须至少8个字符",
+    "confirm_password": "确认密码",
+    "button": "创建账户",
+    "creating": "正在创建账户...",
+    "back_to_login": "返回登录",
+    "success_title": "账户创建成功！",
+    "success_message": "您的账户已成功创建。您现在可以使用登录信息登录。",
+    "login_now": "继续登录",
+    "disabled": "用户注册当前已禁用",
+    "disabled_message": "新用户注册当前已禁用。请联系管理员创建账户。",
+    "missing_fields": "请填写所有必填字段",
+    "password_mismatch": "密码不匹配",
+    "password_too_short": "密码必须至少8个字符",
+    "user_exists": "使用此用户名或邮箱的用户已存在",
+    "network_error": "发生网络错误",
+    "fail": "账户创建失败",
+    "already_have_account": "已有账户？登录"
   },
   "logout": "退出登录",
   "home": {
@@ -52,12 +52,12 @@
     "invalid_file": "无效文件",
     "ok": "确定",
     "job_queued": "任务已排队: {{id}}",
-    "pair": "Pair",
-    "uploading": "Uploading to Aviary",
-    "pair_with_cloud": "Pair with cloud to load folders",
-    "pair_with_remarkable": "Pair with reMarkable cloud",
-    "to_upload_documents": " to upload documents.",
-    "settings_config": " Go to Settings for additional configuration."
+    "pair": "配对",
+    "uploading": "上传到Aviary",
+    "pair_with_cloud": "与云端配对以加载文件夹",
+    "pair_with_remarkable": "与reMarkable云端配对",
+    "to_upload_documents": "上传文档。",
+    "settings_config": "转到设置进行其他配置。"
   },
   "filedrop": {
     "instruction": "点击上传或拖拽文件到此处",
@@ -291,42 +291,42 @@
   },
   "settings": {
     "placeholders": {
-      "cloud_default": "Leave empty for reMarkable Cloud",
-      "api_key": "My API Key",
-      "never_expires": "Never expires",
-      "current_password": "Enter your current password",
-      "delete_confirm": "DELETE MY ACCOUNT"
+      "cloud_default": "reMarkable Cloud留空",
+      "api_key": "我的API密钥",
+      "never_expires": "永不过期",
+      "current_password": "输入您的当前密码",
+      "delete_confirm": "删除我的账户"
     },
     "loading_states": {
-      "saving": "Saving...",
-      "updating": "Updating...",
-      "deleting": "Deleting...",
-      "loading": "Loading..."
+      "saving": "保存中...",
+      "updating": "更新中...",
+      "deleting": "删除中...",
+      "loading": "加载中..."
     },
     "buttons": {
-      "save_changes": "Save Changes",
-      "update_password": "Update Password",
-      "delete_my_account": "Delete My Account"
+      "save_changes": "保存更改",
+      "update_password": "更新密码",
+      "delete_my_account": "删除我的账户"
     },
-    "never": "Never"
+    "never": "从不"
   },
   "app": {
-    "settings": "Settings",
-    "admin": "Admin"
+    "settings": "设置",
+    "admin": "管理员"
   },
   "password_reset": {
-    "title": "Reset Password",
-    "new_password_title": "Set New Password",
-    "email_placeholder": "Enter your email address",
-    "password_placeholder": "Enter new password",
-    "confirm_placeholder": "Confirm new password",
-    "sending": "Sending...",
-    "send_email": "Send Reset Email",
-    "resetting": "Resetting...",
-    "reset_button": "Reset Password"
+    "title": "重置密码",
+    "new_password_title": "设置新密码",
+    "email_placeholder": "输入您的邮箱地址",
+    "password_placeholder": "输入新密码",
+    "confirm_placeholder": "确认新密码",
+    "sending": "发送中...",
+    "send_email": "发送重置邮件",
+    "resetting": "重置中...",
+    "reset_button": "重置密码"
   },
   "accessibility": {
-    "logo": "Aviary logo",
-    "select_language": "Select language"
+    "logo": "Aviary标志",
+    "select_language": "选择语言"
   }
 }

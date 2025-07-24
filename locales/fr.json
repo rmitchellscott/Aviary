@@ -9,7 +9,32 @@
     "signing_in": "Connexion en cours...",
     "button": "Se connecter",
     "network_error": "Erreur réseau",
-    "fail": "Échec de la connexion"
+    "fail": "Échec de la connexion",
+    "register": "Créer un compte"
+  },
+  "register": {
+    "title": "Créer un compte",
+    "username": "Nom d'utilisateur",
+    "username_help": "Le nom d'utilisateur doit contenir entre 3 et 50 caractères et ne peut contenir que des lettres, des chiffres, des traits de soulignement et des tirets",
+    "email": "Email",
+    "password": "Mot de passe",
+    "password_help": "Le mot de passe doit contenir au moins 8 caractères",
+    "confirm_password": "Confirmer le mot de passe",
+    "button": "Créer un compte",
+    "creating": "Création du compte...",
+    "back_to_login": "Retour à la connexion",
+    "success_title": "Compte créé !",
+    "success_message": "Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter avec vos identifiants.",
+    "login_now": "Continuer vers la connexion",
+    "disabled": "L'inscription utilisateur est actuellement désactivée",
+    "disabled_message": "La création de nouveaux comptes utilisateur est actuellement désactivée. Veuillez contacter un administrateur pour créer un compte.",
+    "missing_fields": "Veuillez remplir tous les champs obligatoires",
+    "password_mismatch": "Les mots de passe ne correspondent pas",
+    "password_too_short": "Le mot de passe doit contenir au moins 8 caractères",
+    "user_exists": "Un utilisateur avec ce nom d'utilisateur ou cette adresse email existe déjà",
+    "network_error": "Erreur réseau",
+    "fail": "Échec de la création du compte",
+    "already_have_account": "Vous avez déjà un compte ? Connectez-vous"
   },
   "logout": "Se déconnecter",
   "home": {
@@ -23,16 +48,16 @@
     "loading": "Chargement...",
     "compress_pdf": "Compresser PDF",
     "send": "Envoyer",
-    "pair": "Pair",
+    "pair": "Coupler",
     "sending": "Envoi en cours…",
-    "uploading": "Uploading to Aviary",
+    "uploading": "Téléchargement vers Aviary",
     "invalid_file": "Fichier invalide",
     "ok": "OK",
     "job_queued": "Tâche en file d'attente: {{id}}",
-    "pair_with_cloud": "Pair with cloud to load folders",
-    "pair_with_remarkable": "Pair with reMarkable cloud",
-    "to_upload_documents": " to upload documents.",
-    "settings_config": " Go to Settings for additional configuration."
+    "pair_with_cloud": "Coupler avec le cloud pour charger les dossiers",
+    "pair_with_remarkable": "Coupler avec reMarkable cloud",
+    "to_upload_documents": " pour télécharger des documents.",
+    "settings_config": " Allez dans Paramètres pour une configuration supplémentaire."
   },
   "filedrop": {
     "instruction": "Cliquez pour télécharger ou glissez-déposez",
@@ -87,160 +112,160 @@
     "deleting": "Suppression..."
   },
   "admin": {
-    "title": "Admin Panel",
-    "description": "Manage users, system settings, and monitor system health",
+    "title": "Panneau d'administration",
+    "description": "Gérer les utilisateurs, les paramètres système et surveiller l'état du système",
     "status": {
-      "working": "Working",
-      "failed": "Failed",
-      "not_configured": "Not configured",
-      "unknown": "Unknown",
-      "inactive": "Inactive",
-      "paired": "Paired",
-      "unpaired": "Unpaired",
-      "active": "active"
+      "working": "Fonctionnel",
+      "failed": "Échoué",
+      "not_configured": "Non configuré",
+      "unknown": "Inconnu",
+      "inactive": "Inactif",
+      "paired": "Couplé",
+      "unpaired": "Découplé",
+      "active": "actif"
     },
     "roles": {
-      "admin": "Admin",
-      "user": "User"
+      "admin": "Administrateur",
+      "user": "Utilisateur"
     },
     "actions": {
-      "make_admin": "Make Admin",
-      "make_user": "Make User",
-      "activate": "Activate",
-      "deactivate": "Deactivate",
-      "reset_password": "Reset Password",
-      "delete": "Delete",
-      "create_user": "Create User",
-      "test_smtp": "Test SMTP",
-      "create_backup": "Create Backup",
-      "restore_backup": "Restore from Backup...",
-      "cancel": "Cancel",
-      "restore_database": "Restore Database"
+      "make_admin": "Promouvoir administrateur",
+      "make_user": "Rétrograder utilisateur",
+      "activate": "Activer",
+      "deactivate": "Désactiver",
+      "reset_password": "Réinitialiser le mot de passe",
+      "delete": "Supprimer",
+      "create_user": "Créer un utilisateur",
+      "test_smtp": "Tester SMTP",
+      "create_backup": "Créer une sauvegarde",
+      "restore_backup": "Restaurer à partir d'une sauvegarde...",
+      "cancel": "Annuler",
+      "restore_database": "Restaurer la base de données"
     },
     "tabs": {
-      "overview": "Overview",
-      "users": "Users",
-      "api_keys": "API Keys",
-      "settings": "Settings",
-      "system": "System"
+      "overview": "Aperçu",
+      "users": "Utilisateurs",
+      "api_keys": "Clés API",
+      "settings": "Paramètres",
+      "system": "Système"
     },
     "cards": {
-      "total_users": "Total Users",
-      "api_keys": "API Keys",
+      "total_users": "Total des utilisateurs",
+      "api_keys": "Clés API",
       "documents": "Documents",
-      "active_sessions": "Active Sessions",
-      "smtp_status": "SMTP Status",
-      "system_mode": "System Mode",
-      "create_new_user": "Create New User",
-      "user_management": "User Management",
-      "api_key_settings": "API Key Settings",
-      "session_settings": "Session Settings",
-      "backup_restore": "Backup & Restore"
+      "active_sessions": "Sessions actives",
+      "smtp_status": "Statut SMTP",
+      "system_mode": "Mode système",
+      "create_new_user": "Créer un nouvel utilisateur",
+      "user_management": "Gestion des utilisateurs",
+      "api_key_settings": "Paramètres des clés API",
+      "session_settings": "Paramètres de session",
+      "backup_restore": "Sauvegarde et restauration"
     },
     "labels": {
-      "username": "Username",
+      "username": "Nom d'utilisateur",
       "email": "Email",
-      "password": "Password",
-      "role": "Role",
-      "status": "Status",
-      "created": "Created",
-      "last_login": "Last Login",
+      "password": "Mot de passe",
+      "role": "Rôle",
+      "status": "Statut",
+      "created": "Créé",
+      "last_login": "Dernière connexion",
       "actions": "Actions",
-      "name": "Name",
-      "user": "User",
-      "key_preview": "Key Preview",
-      "last_used": "Last Used",
-      "expires": "Expires",
-      "new_password": "New Password",
-      "enable_registration": "Enable User Registration",
-      "max_api_keys": "Maximum API Keys per User",
-      "session_timeout": "Session Timeout (hours)"
+      "name": "Nom",
+      "user": "Utilisateur",
+      "key_preview": "Aperçu de la clé",
+      "last_used": "Dernière utilisation",
+      "expires": "Expire",
+      "new_password": "Nouveau mot de passe",
+      "enable_registration": "Activer l'inscription des utilisateurs",
+      "max_api_keys": "Maximum de clés API par utilisateur",
+      "session_timeout": "Délai d'expiration de session (heures)"
     },
     "placeholders": {
-      "username": "username",
-      "email": "user@example.com",
-      "password": "password",
-      "new_password": "Enter new password (minimum 8 characters)"
+      "username": "nom_utilisateur",
+      "email": "utilisateur@exemple.com",
+      "password": "mot_de_passe",
+      "new_password": "Entrez un nouveau mot de passe (minimum 8 caractères)"
     },
     "descriptions": {
-      "registration_help": "Allow self-service creation of new user accounts",
-      "total_uploaded": "Total uploaded",
-      "current_sessions": "Current unexpired sessions",
-      "backup_description": "Creates a complete backup including database and user files as a .tar.gz archive",
-      "restore_description": "Restores database and user files from backup archive (.tar.gz format)",
-      "restore_warning": "Warning: Restoring will completely overwrite all current data"
+      "registration_help": "Permettre la création de comptes utilisateur en libre-service",
+      "total_uploaded": "Total téléchargé",
+      "current_sessions": "Sessions actuelles non expirées",
+      "backup_description": "Crée une sauvegarde complète incluant la base de données et les fichiers utilisateur sous forme d'archive .tar.gz",
+      "restore_description": "Restaure la base de données et les fichiers utilisateur à partir d'une archive de sauvegarde (format .tar.gz)",
+      "restore_warning": "Attention : La restauration écrasera complètement toutes les données actuelles"
     },
     "badges": {
-      "multi_user": "Multi-user Mode",
-      "dry_run": "Dry Run Mode",
-      "oidc_enabled": "OIDC Enabled",
-      "proxy_auth": "Proxy Auth Enabled"
+      "multi_user": "Mode multi-utilisateur",
+      "dry_run": "Mode test",
+      "oidc_enabled": "OIDC activé",
+      "proxy_auth": "Auth proxy activée"
     },
     "loading_states": {
-      "creating_backup": "Creating Backup...",
-      "analyzing": "Analyzing...",
-      "resetting": "Resetting...",
-      "restoring": "Restoring...",
-      "loading": "Loading..."
+      "creating_backup": "Création de la sauvegarde...",
+      "analyzing": "Analyse...",
+      "resetting": "Réinitialisation...",
+      "restoring": "Restauration...",
+      "loading": "Chargement..."
     },
     "dialogs": {
-      "reset_password_title": "Reset Password",
-      "reset_password_description": "Reset the password for user: ",
-      "confirm_restore_title": "Confirm Data Restore",
-      "confirm_restore_description": "You are about to restore from backup file: ",
-      "backup_contents": "Backup Contents:",
-      "restore_warning_text": "This will permanently overwrite all current data including:",
+      "reset_password_title": "Réinitialiser le mot de passe",
+      "reset_password_description": "Réinitialiser le mot de passe pour l'utilisateur : ",
+      "confirm_restore_title": "Confirmer la restauration des données",
+      "confirm_restore_description": "Vous êtes sur le point de restaurer à partir du fichier de sauvegarde : ",
+      "backup_contents": "Contenu de la sauvegarde :",
+      "restore_warning_text": "Cela écrasera définitivement toutes les données actuelles, y compris :",
       "restore_warning_items": {
-        "accounts": "All user accounts and settings",
-        "api_keys": "All API keys and sessions", 
-        "documents": "All user documents and files",
-        "pairing": "All cloud pairing configuration",
-        "folders": "All folder caches",
-        "settings": "All system settings"
+        "accounts": "Tous les comptes utilisateur et paramètres",
+        "api_keys": "Toutes les clés API et sessions",
+        "documents": "Tous les documents utilisateur et fichiers",
+        "pairing": "Toute la configuration de couplage cloud",
+        "folders": "Tous les caches de dossiers",
+        "settings": "Tous les paramètres système"
       },
-      "restore_final_warning": "This action cannot be undone. Make sure you have a current backup before proceeding."
+      "restore_final_warning": "Cette action ne peut pas être annulée. Assurez-vous d'avoir une sauvegarde actuelle avant de continuer."
     },
     "errors": {
-      "create_user": "Failed to create user",
-      "delete_user": "Failed to delete user",
-      "reset_password": "Failed to reset password",
-      "password_length": "Password must be at least 8 characters long",
-      "smtp_test": "SMTP test failed",
-      "smtp_test_network": "Failed to test SMTP",
-      "backup_create": "Failed to create backup",
-      "backup_invalid": "Invalid backup file",
-      "backup_analyze": "Failed to analyze backup file: ",
-      "backup_file_type": "Invalid file type. Please select a backup archive (.tar.gz or .tgz). Selected file: ",
-      "restore_failed": "Failed to restore database",
-      "restore_error": "Failed to restore database: "
+      "create_user": "Échec de la création de l'utilisateur",
+      "delete_user": "Échec de la suppression de l'utilisateur",
+      "reset_password": "Échec de la réinitialisation du mot de passe",
+      "password_length": "Le mot de passe doit contenir au moins 8 caractères",
+      "smtp_test": "Échec du test SMTP",
+      "smtp_test_network": "Échec du test SMTP",
+      "backup_create": "Échec de la création de la sauvegarde",
+      "backup_invalid": "Fichier de sauvegarde invalide",
+      "backup_analyze": "Échec de l'analyse du fichier de sauvegarde : ",
+      "backup_file_type": "Type de fichier invalide. Veuillez sélectionner une archive de sauvegarde (.tar.gz ou .tgz). Fichier sélectionné : ",
+      "restore_failed": "Échec de la restauration de la base de données",
+      "restore_error": "Échec de la restauration de la base de données : "
     },
     "success": {
-      "restore_complete": "Database restored successfully"
+      "restore_complete": "Base de données restaurée avec succès"
     },
     "counts": {
-      "users": "Users ({{count}})",
-      "all_api_keys": "All API Keys ({{count}})"
+      "users": "Utilisateurs ({{count}})",
+      "all_api_keys": "Toutes les clés API ({{count}})"
     },
-    "never": "Never"
+    "never": "Jamais"
   },
   "app": {
-    "settings": "Settings",
-    "admin": "Admin"
+    "settings": "Paramètres",
+    "admin": "Administration"
   },
   "password_reset": {
-    "title": "Reset Password",
-    "new_password_title": "Set New Password",
-    "email_placeholder": "Enter your email address",
-    "password_placeholder": "Enter new password",
-    "confirm_placeholder": "Confirm new password",
-    "sending": "Sending...",
-    "send_email": "Send Reset Email",
-    "resetting": "Resetting...",
-    "reset_button": "Reset Password"
+    "title": "Réinitialiser le mot de passe",
+    "new_password_title": "Définir un nouveau mot de passe",
+    "email_placeholder": "Entrez votre adresse email",
+    "password_placeholder": "Entrez un nouveau mot de passe",
+    "confirm_placeholder": "Confirmez le nouveau mot de passe",
+    "sending": "Envoi...",
+    "send_email": "Envoyer l'email de réinitialisation",
+    "resetting": "Réinitialisation...",
+    "reset_button": "Réinitialiser le mot de passe"
   },
   "accessibility": {
-    "logo": "Aviary logo",
-    "select_language": "Select language"
+    "logo": "Logo Aviary",
+    "select_language": "Sélectionner la langue"
   },
   "backend": {
     "auth": {
@@ -285,23 +310,23 @@
   },
   "settings": {
     "placeholders": {
-      "cloud_default": "Leave empty for reMarkable Cloud",
-      "api_key": "My API Key",
-      "never_expires": "Never expires",
-      "current_password": "Enter your current password",
-      "delete_confirm": "DELETE MY ACCOUNT"
+      "cloud_default": "Laisser vide pour reMarkable Cloud",
+      "api_key": "Ma clé API",
+      "never_expires": "N'expire jamais",
+      "current_password": "Entrez votre mot de passe actuel",
+      "delete_confirm": "SUPPRIMER MON COMPTE"
     },
     "loading_states": {
-      "saving": "Saving...",
-      "updating": "Updating...",
-      "deleting": "Deleting...",
-      "loading": "Loading..."
+      "saving": "Enregistrement...",
+      "updating": "Mise à jour...",
+      "deleting": "Suppression...",
+      "loading": "Chargement..."
     },
     "buttons": {
-      "save_changes": "Save Changes",
-      "update_password": "Update Password",
-      "delete_my_account": "Delete My Account"
+      "save_changes": "Enregistrer les modifications",
+      "update_password": "Mettre à jour le mot de passe",
+      "delete_my_account": "Supprimer mon compte"
     },
-    "never": "Never"
+    "never": "Jamais"
   }
 }

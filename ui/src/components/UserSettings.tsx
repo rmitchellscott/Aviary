@@ -476,11 +476,11 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto sm:max-w-7xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              User Settings
+            <Settings className="h-5 w-5" />
+            {t("settings.title")}
             </DialogTitle>
             <DialogDescription>
-              Manage your profile, API keys, and account preferences
+            {t("settings.description")}
             </DialogDescription>
           </DialogHeader>
 
@@ -494,27 +494,27 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
-                Profile
+                {t("settings.tabs.profile")}
               </TabsTrigger>
               <TabsTrigger value="account" className="flex items-center gap-2">
                 <UserCog className="h-4 w-4" />
-                Account
+                {t("settings.tabs.account")}
               </TabsTrigger>
               <TabsTrigger value="api-keys" className="flex items-center gap-2">
                 <Key className="h-4 w-4" />
-                API Keys
+                {t("settings.tabs.api_keys")}
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="profile" className="flex-1 overflow-y-auto">
               <Card>
                 <CardHeader>
-                  <CardTitle>Profile Information</CardTitle>
+                  <CardTitle>{t("settings.cards.profile_information")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="username">Username</Label>
+                      <Label htmlFor="username">{t("settings.labels.username")}</Label>
                       <Input
                         id="username"
                         value={username}
@@ -523,7 +523,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email">{t("settings.labels.email")}</Label>
                       <Input
                         id="email"
                         type="email"
@@ -535,7 +535,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                   </div>
 
                   <div>
-                    <Label htmlFor="rmapi-host">reMarkable Host (optional)</Label>
+                    <Label htmlFor="rmapi-host">{t("settings.labels.rmapi_host")}</Label>
                     <Input
                       id="rmapi-host"
                       value={userRmapiHost}
@@ -550,21 +550,21 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           onClick={disconnectRmapi}
                           disabled={saving}
                         >
-                          Unpair
+                          {t("settings.actions.unpair")}
                         </Button>
                       ) : (
                         <Button
                           onClick={() => setPairingDialogOpen(true)}
                           disabled={saving}
                         >
-                          Pair
+                          {t("settings.actions.pair")}
                         </Button>
                       )}
                     </div>
                   </div>
 
                   <div>
-                    <Label htmlFor="default-rmdir">Default Directory</Label>
+                    <Label htmlFor="default-rmdir">{t("settings.labels.default_directory")}</Label>
                     <Select 
                       value={defaultRmdir} 
                       onValueChange={setDefaultRmdir}
@@ -579,7 +579,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         </SelectItem>
                         {!rmapiPaired && (
                           <SelectItem value="not-paired" disabled>
-                            Pair to load folders
+                            {t("settings.messages.pair_to_load_folders")}
                           </SelectItem>
                         )}
                         {rmapiPaired && foldersLoading && (
@@ -596,13 +596,13 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                     </Select>
                     {!rmapiPaired && (
                       <p className="text-sm text-muted-foreground mt-1">
-                        Pair with reMarkable cloud to select from existing folders
+                        {t("settings.messages.pair_help")}
                       </p>
                     )}
                   </div>
 
                   <div>
-                    <Label htmlFor="coverpage-setting">Cover Page</Label>
+                    <Label htmlFor="coverpage-setting">{t("settings.labels.cover_page")}</Label>
                     <Select 
                       value={coverpageSetting} 
                       onValueChange={setCoverpageSetting}
@@ -612,15 +612,15 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="current">
-                          Current page
+                          {t("settings.options.cover_current")}
                         </SelectItem>
                         <SelectItem value="first">
-                          First page
+                          {t("settings.options.cover_first")}
                         </SelectItem>
                       </SelectContent>
                     </Select>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Controls whether the first page or current page is used as the cover when uploading PDFs
+                      {t("settings.help.cover_page")}
                     </p>
                   </div>
 
@@ -638,11 +638,11 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Change Password</CardTitle>
+                    <CardTitle>{t("settings.cards.change_password")}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label htmlFor="current-password">Current Password</Label>
+                      <Label htmlFor="current-password">{t("settings.labels.current_password")}</Label>
                       <Input
                         id="current-password"
                         type="password"
@@ -653,7 +653,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                     </div>
 
                     <div>
-                      <Label htmlFor="new-password">New Password</Label>
+                      <Label htmlFor="new-password">{t("settings.labels.new_password")}</Label>
                       <Input
                         id="new-password"
                         type="password"
@@ -664,7 +664,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                     </div>
 
                     <div>
-                      <Label htmlFor="confirm-password">Confirm New Password</Label>
+                      <Label htmlFor="confirm-password">{t("settings.labels.confirm_new_password")}</Label>
                       <Input
                         id="confirm-password"
                         type="password"
@@ -695,25 +695,25 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                   <CardHeader>
                     <CardTitle className="text-destructive flex items-center gap-2">
                       <AlertTriangle className="h-5 w-5" />
-                      Danger Zone
+                      {t("settings.cards.danger_zone")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="bg-card p-4 rounded border">
                       <h3 className="font-medium text-destructive mb-2">
-                        Delete Account
+                        {t("settings.labels.delete_account")}
                       </h3>
                       <p className="text-sm text-destructive/80 mb-4">
-                        Once you delete your account, there is no going back. This action is permanent and will remove all your data including:
+                        {t("settings.messages.delete_warning_intro")}
                       </p>
                       <ul className="text-sm text-destructive/80 list-disc list-inside space-y-1 mb-4">
-                        <li>All archived documents and files</li>
-                        <li>All API keys and their access</li>
-                        <li>Your profile and account settings</li>
+                        <li>{t("settings.delete_warnings.documents")}</li>
+                        <li>{t("settings.delete_warnings.api_keys")}</li>
+                        <li>{t("settings.delete_warnings.profile")}</li>
                       </ul>
                       <div className="bg-muted/50 p-3 rounded-md border mb-4">
                         <p className="text-sm text-muted-foreground">
-                          <strong>Note:</strong> Your reMarkable Cloud account and device data will remain completely unaffected.
+                          <strong>{t("user_delete.note_label")}</strong> {t("settings.messages.remarkable_unaffected")}
                         </p>
                       </div>
                       <div className="flex justify-end">
@@ -735,12 +735,12 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
               <div className="space-y-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Create New API Key</CardTitle>
+                    <CardTitle>{t("settings.cards.create_api_key")}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="key-name">Name</Label>
+                        <Label htmlFor="key-name">{t("settings.labels.api_key_name")}</Label>
                         <Input
                           id="key-name"
                           value={newKeyName}
@@ -750,7 +750,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="key-expiry">Expiry (optional)</Label>
+                        <Label htmlFor="key-expiry">{t("settings.labels.api_key_expiry")}</Label>
                         <Select
                           value={newKeyExpiry}
                           onValueChange={setNewKeyExpiry}
@@ -760,10 +760,10 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="never">{t('settings.never')}</SelectItem>
-                            <SelectItem value="1week">1 week</SelectItem>
-                            <SelectItem value="1month">1 month</SelectItem>
-                            <SelectItem value="3months">3 months</SelectItem>
-                            <SelectItem value="1year">1 year</SelectItem>
+                            <SelectItem value="1week">{t("settings.expiry_options.one_week")}</SelectItem>
+                            <SelectItem value="1month">{t("settings.expiry_options.one_month")}</SelectItem>
+                            <SelectItem value="3months">{t("settings.expiry_options.three_months")}</SelectItem>
+                            <SelectItem value="1year">{t("settings.expiry_options.one_year")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -775,7 +775,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         disabled={saving || !newKeyName}
                       >
                         <Plus className="h-4 w-4 mr-2" />
-                        Create API Key
+                        {t("settings.actions.create_api_key")}
                       </Button>
                     </div>
                   </CardContent>
@@ -785,12 +785,12 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                   <Card className="border-primary/20 bg-primary/10">
                     <CardHeader>
                       <CardTitle className="text-primary">
-                        New API Key Created
+                        {t("settings.messages.api_key_created_title")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-primary/80 mb-2">
-                        Copy this key now - it won't be shown again:
+                        {t("settings.messages.api_key_created_message")}
                       </p>
                       <div className="flex items-center gap-2 p-2 bg-card rounded border">
                         <code className="flex-1 font-mono text-sm">
@@ -810,7 +810,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           variant="outline"
                           onClick={() => setShowNewKey(null)}
                         >
-                          Got it
+                          {t("settings.actions.got_it")}
                         </Button>
                       </div>
                     </CardContent>
@@ -819,23 +819,23 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Your API Keys</CardTitle>
+                    <CardTitle>{t("settings.cards.your_api_keys")}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     {apiKeys.length === 0 ? (
                       <p className="text-center text-muted-foreground py-4">
-                        No API keys created yet
+                        {t("settings.messages.no_api_keys")}
                       </p>
                     ) : (
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Key Preview</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Created</TableHead>
-                            <TableHead>Last Used</TableHead>
-                            <TableHead>Expires</TableHead>
+                            <TableHead>{t("settings.labels.api_key_name")}</TableHead>
+                            <TableHead>{t("settings.labels.key_preview")}</TableHead>
+                            <TableHead>{t("settings.labels.status")}</TableHead>
+                            <TableHead>{t("settings.labels.created")}</TableHead>
+                            <TableHead>{t("settings.labels.last_used")}</TableHead>
+                            <TableHead>{t("settings.labels.expires")}</TableHead>
                             <TableHead></TableHead>
                           </TableRow>
                         </TableHeader>
@@ -871,7 +871,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                     {status === "inactive" && (
                                       <Clock className="h-3 w-3 mr-1" />
                                     )}
-                                    {status}
+                                    {t(`settings.status.${status}`)}
                                   </Badge>
                                 </TableCell>
                                 <TableCell>
@@ -927,7 +927,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
               Delete Account
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to permanently delete your account? This action cannot be undone.
+              {t("settings.dialogs.delete_account_confirmation")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="space-y-4">
@@ -943,7 +943,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
               />
             </div>
             <div>
-              <Label htmlFor="delete-confirmation">Type "{t('settings.placeholders.delete_confirm')}" to confirm</Label>
+              <Label htmlFor="delete-confirmation">{t("settings.dialogs.delete_account_type_confirm", {confirmText: t('settings.placeholders.delete_confirm')})}</Label>
               <Input
                 id="delete-confirmation"
                 value={deleteConfirmation}
@@ -955,7 +955,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={closeDeleteAccountDialog} disabled={saving}>
-              Cancel
+              {t("settings.actions.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDeleteAccount}
@@ -977,32 +977,35 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              Delete API Key
+              {t("settings.dialogs.delete_api_key_title")}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the API key{" "}
+              {t("settings.dialogs.delete_api_key_message")}{" "}
               <strong>"{deleteKeyDialog.key?.name}"</strong>?
               <br />
               <br />
-              This action will:
+              {t("settings.dialogs.delete_api_key_consequences_title")}
               <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>Permanently revoke the API key</li>
-                <li>Stop all applications using this key from working</li>
-                <li>Remove the key from your account</li>
+                <li>{t("settings.dialogs.delete_api_key_consequences.revoke")}</li>
+                <li>{t("settings.dialogs.delete_api_key_consequences.stop_apps")}</li>
+                <li>{t("settings.dialogs.delete_api_key_consequences.remove")}</li>
               </ul>
               <br />
               <strong className="text-destructive">
-                This action cannot be undone.
+                {t("settings.dialogs.cannot_undo")}
               </strong>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={closeDeleteKeyDialog}>
-              Cancel
+              {t("settings.actions.cancel")}
             </AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeleteAPIKey}>
+            <AlertDialogAction 
+              onClick={confirmDeleteAPIKey}
+              className="bg-destructive hover:bg-destructive/90 focus:ring-destructive"
+            >
               <Trash2 className="h-4 w-4 mr-2" />
-              Delete API Key
+              {t("settings.actions.delete_api_key")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

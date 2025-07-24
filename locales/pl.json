@@ -10,31 +10,31 @@
     "button": "Zaloguj się",
     "network_error": "Błąd sieci",
     "fail": "Logowanie nieudane",
-    "register": "Create Account"
+    "register": "Utwórz konto"
   },
   "register": {
-    "title": "Create Account",
-    "username": "Username",
-    "username_help": "Username must be 3-50 characters long and contain only letters, numbers, underscores, and hyphens",
-    "email": "Email",
-    "password": "Password",
-    "password_help": "Password must be at least 8 characters long",
-    "confirm_password": "Confirm Password",
-    "button": "Create Account",
-    "creating": "Creating account...",
-    "back_to_login": "Back to Login",
-    "success_title": "Account Created!",
-    "success_message": "Your account has been created successfully. You can now log in with your credentials.",
-    "login_now": "Continue to Login",
-    "disabled": "User registration is currently disabled",
-    "disabled_message": "New user registration is currently disabled. Please contact an administrator to create an account.",
-    "missing_fields": "Please fill in all required fields",
-    "password_mismatch": "Passwords do not match",
-    "password_too_short": "Password must be at least 8 characters long",
-    "user_exists": "A user with this username or email already exists",
-    "network_error": "Network error occurred",
-    "fail": "Account creation failed",
-    "already_have_account": "Already have an account? Sign in"
+    "title": "Utwórz konto",
+    "username": "Nazwa użytkownika",
+    "username_help": "Nazwa użytkownika musi mieć 3-50 znaków i zawierać tylko litery, cyfry, podkreślenia i myślniki",
+    "email": "E-mail",
+    "password": "Hasło",
+    "password_help": "Hasło musi mieć co najmniej 8 znaków",
+    "confirm_password": "Potwierdź hasło",
+    "button": "Utwórz konto",
+    "creating": "Tworzenie konta...",
+    "back_to_login": "Powrót do logowania",
+    "success_title": "Konto utworzone!",
+    "success_message": "Twoje konto zostało pomyślnie utworzone. Możesz teraz zalogować się swoimi danymi.",
+    "login_now": "Przejdź do logowania",
+    "disabled": "Rejestracja użytkowników jest obecnie wyłączona",
+    "disabled_message": "Rejestracja nowych użytkowników jest obecnie wyłączona. Skontaktuj się z administratorem, aby utworzyć konto.",
+    "missing_fields": "Wypełnij wszystkie wymagane pola",
+    "password_mismatch": "Hasła nie pasują do siebie",
+    "password_too_short": "Hasło musi mieć co najmniej 8 znaków",
+    "user_exists": "Użytkownik z tą nazwą użytkownika lub e-mailem już istnieje",
+    "network_error": "Wystąpił błąd sieci",
+    "fail": "Tworzenie konta nie powiodło się",
+    "already_have_account": "Masz już konto? Zaloguj się"
   },
   "logout": "Wyloguj się",
   "home": {
@@ -291,42 +291,42 @@
   },
   "settings": {
     "placeholders": {
-      "cloud_default": "Leave empty for reMarkable Cloud",
-      "api_key": "My API Key",
-      "never_expires": "Never expires",
-      "current_password": "Enter your current password",
-      "delete_confirm": "DELETE MY ACCOUNT"
+      "cloud_default": "Zostaw puste dla reMarkable Cloud",
+      "api_key": "Mój klucz API",
+      "never_expires": "Nigdy nie wygaśnie",
+      "current_password": "Wprowadź swoje obecne hasło",
+      "delete_confirm": "USUŃ MOJE KONTO"
     },
     "loading_states": {
-      "saving": "Saving...",
-      "updating": "Updating...",
-      "deleting": "Deleting...",
-      "loading": "Loading..."
+      "saving": "Zapisywanie...",
+      "updating": "Aktualizowanie...",
+      "deleting": "Usuwanie...",
+      "loading": "Ładowanie..."
     },
     "buttons": {
-      "save_changes": "Save Changes",
-      "update_password": "Update Password",
-      "delete_my_account": "Delete My Account"
+      "save_changes": "Zapisz zmiany",
+      "update_password": "Zaktualizuj hasło",
+      "delete_my_account": "Usuń moje konto"
     },
-    "never": "Never"
+    "never": "Nigdy"
   },
   "app": {
-    "settings": "Settings",
-    "admin": "Admin"
+    "settings": "Ustawienia",
+    "admin": "Administracja"
   },
   "password_reset": {
-    "title": "Reset Password",
-    "new_password_title": "Set New Password",
-    "email_placeholder": "Enter your email address",
-    "password_placeholder": "Enter new password",
-    "confirm_placeholder": "Confirm new password",
-    "sending": "Sending...",
-    "send_email": "Send Reset Email",
-    "resetting": "Resetting...",
-    "reset_button": "Reset Password"
+    "title": "Resetuj hasło",
+    "new_password_title": "Ustaw nowe hasło",
+    "email_placeholder": "Wprowadź swój adres e-mail",
+    "password_placeholder": "Wprowadź nowe hasło",
+    "confirm_placeholder": "Potwierdź nowe hasło",
+    "sending": "Wysyłanie...",
+    "send_email": "Wyślij e-mail resetujący",
+    "resetting": "Resetowanie...",
+    "reset_button": "Resetuj hasło"
   },
   "accessibility": {
-    "logo": "Aviary logo",
-    "select_language": "Select language"
+    "logo": "Logo Aviary",
+    "select_language": "Wybierz język"
   }
 }

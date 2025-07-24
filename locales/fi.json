@@ -10,31 +10,31 @@
     "button": "Kirjaudu sisään",
     "network_error": "Verkkovirhe",
     "fail": "Kirjautuminen epäonnistui",
-    "register": "Create Account"
+    "register": "Luo tili"
   },
   "register": {
-    "title": "Create Account",
-    "username": "Username",
-    "username_help": "Username must be 3-50 characters long and contain only letters, numbers, underscores, and hyphens",
-    "email": "Email",
-    "password": "Password",
-    "password_help": "Password must be at least 8 characters long",
-    "confirm_password": "Confirm Password",
-    "button": "Create Account",
-    "creating": "Creating account...",
-    "back_to_login": "Back to Login",
-    "success_title": "Account Created!",
-    "success_message": "Your account has been created successfully. You can now log in with your credentials.",
-    "login_now": "Continue to Login",
-    "disabled": "User registration is currently disabled",
-    "disabled_message": "New user registration is currently disabled. Please contact an administrator to create an account.",
-    "missing_fields": "Please fill in all required fields",
-    "password_mismatch": "Passwords do not match",
-    "password_too_short": "Password must be at least 8 characters long",
-    "user_exists": "A user with this username or email already exists",
-    "network_error": "Network error occurred",
-    "fail": "Account creation failed",
-    "already_have_account": "Already have an account? Sign in"
+    "title": "Luo tili",
+    "username": "Käyttäjänimi",
+    "username_help": "Käyttäjänimen tulee olla 3-50 merkkiä pitkä ja sisältää vain kirjaimia, numeroita, alaviivoja ja väliviivoja",
+    "email": "Sähköposti",
+    "password": "Salasana",
+    "password_help": "Salasanan tulee olla vähintään 8 merkkiä pitkä",
+    "confirm_password": "Vahvista salasana",
+    "button": "Luo tili",
+    "creating": "Luodaan tiliä...",
+    "back_to_login": "Takaisin kirjautumiseen",
+    "success_title": "Tili luotu!",
+    "success_message": "Tilisi on luotu onnistuneesti. Voit nyt kirjautua sisään tunnuksillasi.",
+    "login_now": "Jatka kirjautumiseen",
+    "disabled": "Käyttäjärekisteröinti on tällä hetkellä poistettu käytöstä",
+    "disabled_message": "Uusien käyttäjien rekisteröinti on tällä hetkellä poistettu käytöstä. Ota yhteyttä ylläpitäjään tilin luomiseksi.",
+    "missing_fields": "Täytä kaikki pakolliset kentät",
+    "password_mismatch": "Salasanat eivät täsmää",
+    "password_too_short": "Salasanan tulee olla vähintään 8 merkkiä pitkä",
+    "user_exists": "Käyttäjä tällä käyttäjänimellä tai sähköpostiosoitteella on jo olemassa",
+    "network_error": "Verkkovirhe tapahtui",
+    "fail": "Tilin luominen epäonnistui",
+    "already_have_account": "Onko sinulla jo tili? Kirjaudu sisään"
   },
   "logout": "Kirjaudu ulos",
   "home": {
@@ -291,42 +291,42 @@
   },
   "settings": {
     "placeholders": {
-      "cloud_default": "Leave empty for reMarkable Cloud",
-      "api_key": "My API Key",
-      "never_expires": "Never expires",
-      "current_password": "Enter your current password",
-      "delete_confirm": "DELETE MY ACCOUNT"
+      "cloud_default": "Jätä tyhjäksi reMarkable Cloudia varten",
+      "api_key": "Minun API-avaimeni",
+      "never_expires": "Ei vanhene koskaan",
+      "current_password": "Syötä nykyinen salasanasi",
+      "delete_confirm": "POISTA TILINI"
     },
     "loading_states": {
-      "saving": "Saving...",
-      "updating": "Updating...",
-      "deleting": "Deleting...",
-      "loading": "Loading..."
+      "saving": "Tallennetaan...",
+      "updating": "Päivitetään...",
+      "deleting": "Poistetaan...",
+      "loading": "Ladataan..."
     },
     "buttons": {
-      "save_changes": "Save Changes",
-      "update_password": "Update Password",
-      "delete_my_account": "Delete My Account"
+      "save_changes": "Tallenna muutokset",
+      "update_password": "Päivitä salasana",
+      "delete_my_account": "Poista tilini"
     },
-    "never": "Never"
+    "never": "Ei koskaan"
   },
   "app": {
-    "settings": "Settings",
-    "admin": "Admin"
+    "settings": "Asetukset",
+    "admin": "Hallinta"
   },
   "password_reset": {
-    "title": "Reset Password",
-    "new_password_title": "Set New Password",
-    "email_placeholder": "Enter your email address",
-    "password_placeholder": "Enter new password",
-    "confirm_placeholder": "Confirm new password",
-    "sending": "Sending...",
-    "send_email": "Send Reset Email",
-    "resetting": "Resetting...",
-    "reset_button": "Reset Password"
+    "title": "Nollaa salasana",
+    "new_password_title": "Aseta uusi salasana",
+    "email_placeholder": "Syötä sähköpostiosoitteesi",
+    "password_placeholder": "Syötä uusi salasana",
+    "confirm_placeholder": "Vahvista uusi salasana",
+    "sending": "Lähetetään...",
+    "send_email": "Lähetä nollausvies­ti",
+    "resetting": "Nollataan...",
+    "reset_button": "Nollaa salasana"
   },
   "accessibility": {
-    "logo": "Aviary logo",
-    "select_language": "Select language"
+    "logo": "Aviary-logo",
+    "select_language": "Valitse kieli"
   }
 }
