@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"html/template"
 	"net/smtp"
-	"os"
 	"strconv"
 	"strings"
 
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 )
 
@@ -35,12 +35,12 @@ type EmailData struct {
 
 // GetSMTPConfig reads SMTP configuration from environment variables
 func GetSMTPConfig() (*SMTPConfig, error) {
-	host := os.Getenv("SMTP_HOST")
+	host := config.Get("SMTP_HOST", "")
 	if host == "" {
 		return nil, fmt.Errorf("SMTP_HOST not configured")
 	}
 
-	portStr := os.Getenv("SMTP_PORT")
+	portStr := config.Get("SMTP_PORT", "")
 	if portStr == "" {
 		portStr = "587"
 	}
@@ -49,16 +49,16 @@ func GetSMTPConfig() (*SMTPConfig, error) {
 		return nil, fmt.Errorf("invalid SMTP_PORT: %w", err)
 	}
 
-	username := os.Getenv("SMTP_USERNAME")
-	password := os.Getenv("SMTP_PASSWORD")
-	from := os.Getenv("SMTP_FROM")
+	username := config.Get("SMTP_USERNAME", "")
+	password := config.Get("SMTP_PASSWORD", "")
+	from := config.Get("SMTP_FROM", "")
 
 	if from == "" {
 		return nil, fmt.Errorf("SMTP_FROM not configured")
 	}
 
 	useTLS := true
-	if tlsStr := os.Getenv("SMTP_TLS"); tlsStr != "" {
+	if tlsStr := config.Get("SMTP_TLS", ""); tlsStr != "" {
 		useTLS = strings.ToLower(tlsStr) == "true"
 	}
 
@@ -80,13 +80,13 @@ func IsSMTPConfigured() bool {
 
 // SendPasswordResetEmail sends a password reset email
 func SendPasswordResetEmail(email, username, resetToken string) error {
-	config, err := GetSMTPConfig()
+	cfg, err := GetSMTPConfig()
 	if err != nil {
 		return fmt.Errorf("SMTP not configured: %w", err)
 	}
 
 	// Get site URL from environment or use default
-	siteURL := os.Getenv("SITE_URL")
+	siteURL := config.Get("SITE_URL", "")
 	if siteURL == "" {
 		siteURL = "http://localhost:8000"
 	}
@@ -120,17 +120,17 @@ func SendPasswordResetEmail(email, username, resetToken string) error {
 	textBody := generatePasswordResetText(emailData)
 
 	// Send email
-	return sendEmail(config, email, subject, textBody, htmlBody)
+	return sendEmail(cfg, email, subject, textBody, htmlBody)
 }
 
 // SendWelcomeEmail sends a welcome email to new users
 func SendWelcomeEmail(email, username string) error {
-	config, err := GetSMTPConfig()
+	cfg, err := GetSMTPConfig()
 	if err != nil {
 		return fmt.Errorf("SMTP not configured: %w", err)
 	}
 
-	siteURL := os.Getenv("SITE_URL")
+	siteURL := config.Get("SITE_URL", "")
 	if siteURL == "" {
 		siteURL = "http://localhost:8000"
 	}
@@ -149,7 +149,7 @@ func SendWelcomeEmail(email, username string) error {
 
 	textBody := generateWelcomeText(emailData)
 
-	return sendEmail(config, email, subject, textBody, htmlBody)
+	return sendEmail(cfg, email, subject, textBody, htmlBody)
 }
 
 // sendEmail sends an email using SMTP

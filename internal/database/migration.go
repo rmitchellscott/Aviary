@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/rmitchellscott/aviary/internal/config"
 )
 
 // MigrateToMultiUser handles the migration from single-user to multi-user mode
@@ -16,42 +17,42 @@ func MigrateToMultiUser() error {
 	if !IsMultiUserMode() {
 		return nil // Nothing to do
 	}
-	
+
 	userService := NewUserService(DB)
-	
+
 	// Check if any users exist
 	var userCount int64
 	if err := DB.Model(&User{}).Count(&userCount).Error; err != nil {
 		return fmt.Errorf("failed to count users: %w", err)
 	}
-	
+
 	if userCount > 0 {
 		log.Printf("Users already exist, skipping migration")
 		return nil
 	}
-	
+
 	// Create admin user from environment variables
-	username := os.Getenv("AUTH_USERNAME")
-	password := os.Getenv("AUTH_PASSWORD")
-	email := os.Getenv("ADMIN_EMAIL")
-	
+	username := config.Get("AUTH_USERNAME", "")
+	password := config.Get("AUTH_PASSWORD", "")
+	email := config.Get("ADMIN_EMAIL", "")
+
 	if username == "" || password == "" {
 		return fmt.Errorf("AUTH_USERNAME and AUTH_PASSWORD must be set when enabling multi-user mode")
 	}
-	
+
 	if email == "" {
 		email = username + "@localhost" // Default email if not provided
 	}
-	
+
 	adminUser, err := userService.CreateUser(username, email, password, true)
 	if err != nil {
 		return fmt.Errorf("failed to create admin user: %w", err)
 	}
-	
+
 	log.Printf("Admin user created: %s (ID: %s)", adminUser.Username, adminUser.ID)
-	
+
 	// Set default rmapi settings if available
-	if rmapiHost := os.Getenv("RMAPI_HOST"); rmapiHost != "" {
+	if rmapiHost := config.Get("RMAPI_HOST", ""); rmapiHost != "" {
 		err = userService.UpdateUserSettings(adminUser.ID, map[string]interface{}{
 			"rmapi_host": rmapiHost,
 		})
@@ -59,8 +60,8 @@ func MigrateToMultiUser() error {
 			log.Printf("Warning: failed to set RMAPI_HOST for admin user: %v", err)
 		}
 	}
-	
-	if rmTargetDir := os.Getenv("RM_TARGET_DIR"); rmTargetDir != "" {
+
+	if rmTargetDir := config.Get("RM_TARGET_DIR", ""); rmTargetDir != "" {
 		err = userService.UpdateUserSettings(adminUser.ID, map[string]interface{}{
 			"default_rmdir": rmTargetDir,
 		})
@@ -71,7 +72,7 @@ func MigrateToMultiUser() error {
 
 	// Set coverpage setting based on RMAPI_COVERPAGE environment variable
 	coverpageSetting := "current" // default value
-	if os.Getenv("RMAPI_COVERPAGE") == "first" {
+	if config.Get("RMAPI_COVERPAGE", "") == "first" {
 		coverpageSetting = "first"
 	}
 	err = userService.UpdateUserSettings(adminUser.ID, map[string]interface{}{
@@ -82,7 +83,7 @@ func MigrateToMultiUser() error {
 	}
 
 	// Migrate API key from environment to database
-	if envApiKey := os.Getenv("API_KEY"); envApiKey != "" {
+	if envApiKey := config.Get("API_KEY", ""); envApiKey != "" {
 		log.Printf("Migrating API_KEY environment variable to database for admin user")
 		apiKeyService := NewAPIKeyService(DB)
 		_, err := apiKeyService.CreateAPIKeyFromValue(adminUser.ID, "Migrated from API_KEY env var", envApiKey, nil)
@@ -107,24 +108,24 @@ func MigrateToMultiUser() error {
 	if err := ensureUsersHaveCoverpageSetting(); err != nil {
 		log.Printf("Warning: failed to set coverpage setting for existing users: %v", err)
 	}
-	
+
 	return nil
 }
 
 // CreateDefaultAdminUser creates a default admin user if none exists
 func CreateDefaultAdminUser(username, email, password string) (*User, error) {
 	userService := NewUserService(DB)
-	
+
 	// Check if any admin users exist
 	var adminCount int64
 	if err := DB.Model(&User{}).Where("is_admin = ?", true).Count(&adminCount).Error; err != nil {
 		return nil, fmt.Errorf("failed to count admin users: %w", err)
 	}
-	
+
 	if adminCount > 0 {
 		return nil, fmt.Errorf("admin user already exists")
 	}
-	
+
 	return userService.CreateUser(username, email, password, true)
 }
 
@@ -132,15 +133,15 @@ func CreateDefaultAdminUser(username, email, password string) (*User, error) {
 func MigrateUserDocuments(userID uuid.UUID) error {
 	// This would scan the existing PDF directory and create document records
 	// for files that already exist on disk
-	
-	pdfDir := os.Getenv("PDF_DIR")
+
+	pdfDir := config.Get("PDF_DIR", "")
 	if pdfDir == "" {
 		pdfDir = "/app/pdfs"
 	}
-	
+
 	// For now, just log that this would need to be implemented
 	log.Printf("TODO: Implement document migration for user %s from directory %s", userID, pdfDir)
-	
+
 	return nil
 }
 
@@ -160,51 +161,51 @@ func RestoreDatabase(backupPath string) error {
 func CleanupOldData() error {
 	userService := NewUserService(DB)
 	apiKeyService := NewAPIKeyService(DB)
-	
+
 	// Clean up expired sessions
 	if err := userService.CleanupExpiredSessions(); err != nil {
 		log.Printf("Warning: failed to cleanup expired sessions: %v", err)
 	}
-	
+
 	// Clean up expired reset tokens
 	if err := userService.CleanupExpiredResetTokens(); err != nil {
 		log.Printf("Warning: failed to cleanup expired reset tokens: %v", err)
 	}
-	
+
 	// Clean up expired API keys
 	if err := apiKeyService.CleanupExpiredAPIKeys(); err != nil {
 		log.Printf("Warning: failed to cleanup expired API keys: %v", err)
 	}
-	
+
 	// Clean up old login attempts (older than 30 days)
 	if err := DB.Where("attempted_at < ?", time.Now().AddDate(0, 0, -30)).Delete(&LoginAttempt{}).Error; err != nil {
 		log.Printf("Warning: failed to cleanup old login attempts: %v", err)
 	}
-	
+
 	return nil
 }
 
 // GetDatabaseStats returns database statistics
 func GetDatabaseStats() (map[string]interface{}, error) {
 	stats := make(map[string]interface{})
-	
+
 	// User counts
 	var userCount, activeUserCount, adminCount int64
 	if err := DB.Model(&User{}).Count(&userCount).Error; err != nil {
 		return nil, err
 	}
 	stats["total_users"] = userCount
-	
+
 	if err := DB.Model(&User{}).Where("is_active = ?", true).Count(&activeUserCount).Error; err != nil {
 		return nil, err
 	}
 	stats["active_users"] = activeUserCount
-	
+
 	if err := DB.Model(&User{}).Where("is_admin = ?", true).Count(&adminCount).Error; err != nil {
 		return nil, err
 	}
 	stats["admin_users"] = adminCount
-	
+
 	// API key stats
 	apiKeyService := NewAPIKeyService(DB)
 	apiKeyStats, err := apiKeyService.GetAPIKeyStats()
@@ -212,21 +213,21 @@ func GetDatabaseStats() (map[string]interface{}, error) {
 		return nil, err
 	}
 	stats["api_keys"] = apiKeyStats
-	
+
 	// Document counts
 	var documentCount int64
 	if err := DB.Model(&Document{}).Count(&documentCount).Error; err != nil {
 		return nil, err
 	}
 	stats["documents"] = documentCount
-	
+
 	// Session counts
 	var sessionCount int64
 	if err := DB.Model(&UserSession{}).Where("expires_at > ?", time.Now()).Count(&sessionCount).Error; err != nil {
 		return nil, err
 	}
 	stats["active_sessions"] = sessionCount
-	
+
 	return stats, nil
 }
 
@@ -240,11 +241,11 @@ func migrateRmapiConfig(adminUserID uuid.UUID) error {
 	}
 
 	// Get the user's rmapi config path using local logic to avoid import cycle
-	baseDir := os.Getenv("DATA_DIR")
+	baseDir := config.Get("DATA_DIR", "")
 	if baseDir == "" {
 		baseDir = "/data"
 	}
-	
+
 	userDir := filepath.Join(baseDir, "users", adminUserID.String())
 	cfgDir := filepath.Join(userDir, "rmapi")
 	userRmapiPath := filepath.Join(cfgDir, "rmapi.conf")
@@ -272,7 +273,7 @@ func migrateRmapiConfig(adminUserID uuid.UUID) error {
 // migrateArchivedFiles copies archived files from root pdfs directory to admin user's pdfs directory
 func migrateArchivedFiles(adminUserID uuid.UUID) error {
 	// Determine source directory - either PDF_DIR env var or default pdfs/
-	sourceDir := os.Getenv("PDF_DIR")
+	sourceDir := config.Get("PDF_DIR", "")
 	if sourceDir == "" {
 		sourceDir = "pdfs"
 	}
@@ -284,11 +285,11 @@ func migrateArchivedFiles(adminUserID uuid.UUID) error {
 	}
 
 	// Get the user's PDF directory using local logic to avoid import cycle
-	baseDir := os.Getenv("DATA_DIR")
+	baseDir := config.Get("DATA_DIR", "")
 	if baseDir == "" {
 		baseDir = "/data"
 	}
-	
+
 	userDir := filepath.Join(baseDir, "users", adminUserID.String())
 	destDir := filepath.Join(userDir, "pdfs")
 
@@ -370,7 +371,7 @@ func copyFile(src, dst string) error {
 func ensureUsersHaveCoverpageSetting() error {
 	// Set coverpage setting based on server's RMAPI_COVERPAGE environment variable
 	coverpageSetting := "current" // default value
-	if os.Getenv("RMAPI_COVERPAGE") == "first" {
+	if config.Get("RMAPI_COVERPAGE", "") == "first" {
 		coverpageSetting = "first"
 	}
 

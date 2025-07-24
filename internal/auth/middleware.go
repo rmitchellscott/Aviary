@@ -2,12 +2,12 @@ package auth
 
 import (
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 )
 
@@ -84,11 +84,11 @@ func OptionalAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if !database.IsMultiUserMode() {
 			// In single-user mode, skip auth if not configured
-			envApiKey := os.Getenv("API_KEY")
-			envUsername := os.Getenv("AUTH_USERNAME")
-			envPassword := os.Getenv("AUTH_PASSWORD")
+			envApiKey := config.Get("API_KEY", "")
+			envUsername := config.Get("AUTH_USERNAME", "")
+			envPassword := config.Get("AUTH_PASSWORD", "")
 			authConfigured := envApiKey != "" || (envUsername != "" && envPassword != "")
-			
+
 			if !authConfigured {
 				c.Next()
 				return

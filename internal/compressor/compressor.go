@@ -3,10 +3,11 @@ package compressor
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/rmitchellscott/aviary/internal/config"
 )
 
 // ExecCommand is exec.Command by default, but can be overridden in tests.
@@ -24,8 +25,8 @@ func CompressPDFWithProgress(path string, progress func(page, total int)) (strin
 	ext := filepath.Ext(path)
 	base := path[:len(path)-len(ext)]
 	out := fmt.Sprintf("%s_compressed%s", base, ext)
-	compat := getEnv("GS_COMPAT", "1.7")
-	settings := getEnv("GS_SETTINGS", "/ebook")
+	compat := config.Get("GS_COMPAT", "1.7")
+	settings := config.Get("GS_SETTINGS", "/ebook")
 	args := []string{
 		"gs", "-sDEVICE=pdfwrite",
 		fmt.Sprintf("-dCompatibilityLevel=%s", compat),
@@ -72,11 +73,4 @@ func CompressPDFWithProgress(path string, progress func(page, total int)) (strin
 		progress(total, total)
 	}
 	return out, nil
-}
-
-func getEnv(key, def string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return def
 }

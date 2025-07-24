@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/manager"
 )
@@ -108,7 +109,7 @@ func DownloadPDFForUser(urlStr string, tmp bool, prefix string, userID uuid.UUID
 			destDir, err = manager.GetUserPDFDir(userID, prefix)
 		} else {
 			// Single-user mode - use existing logic
-			d := os.Getenv("PDF_DIR")
+			d := config.Get("PDF_DIR", "")
 			if d == "" {
 				d = "/app/pdfs"
 			}
@@ -121,7 +122,7 @@ func DownloadPDFForUser(urlStr string, tmp bool, prefix string, userID uuid.UUID
 			destDir = d
 		}
 	}
-	
+
 	if err != nil {
 		return "", err
 	}

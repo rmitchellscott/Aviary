@@ -6,11 +6,12 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/rmitchellscott/aviary/internal/config"
 )
 
 // defaultRemarkable2Resolution and defaultRemarkable2DPI are Remarkable 2’s
@@ -24,7 +25,7 @@ const (
 // If unset or malformed, it falls back to defaultRemarkable2Resolution.
 // Returns (widthPx, heightPx, error).
 func parseEnvResolution() (widthPx int, heightPx int, err error) {
-	raw := os.Getenv("PAGE_RESOLUTION")
+	raw := config.Get("PAGE_RESOLUTION", "")
 	if raw == "" {
 		raw = defaultRemarkable2Resolution
 	}
@@ -47,7 +48,7 @@ func parseEnvResolution() (widthPx int, heightPx int, err error) {
 // If unset or malformed, it falls back to defaultRemarkable2DPI.
 // Returns (dpi, error).
 func parseEnvDPI() (float64, error) {
-	raw := os.Getenv("PAGE_DPI")
+	raw := config.Get("PAGE_DPI", "")
 	if raw == "" {
 		return defaultRemarkable2DPI, nil
 	}

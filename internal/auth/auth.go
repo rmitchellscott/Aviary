@@ -16,6 +16,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"golang.org/x/term"
 	"golang.org/x/time/rate"
@@ -39,13 +40,13 @@ func getLoginLimiter(ip string) *rate.Limiter {
 }
 
 func allowInsecure() bool {
-	v := strings.ToLower(os.Getenv("ALLOW_INSECURE"))
+	v := strings.ToLower(config.Get("ALLOW_INSECURE", ""))
 	return v == "1" || v == "true" || v == "yes"
 }
 
 func init() {
 	// Generate a random JWT secret if not provided
-	if secret := os.Getenv("JWT_SECRET"); secret != "" {
+	if secret := config.Get("JWT_SECRET", ""); secret != "" {
 		jwtSecret = []byte(secret)
 	} else {
 		jwtSecret = make([]byte, 32)
@@ -78,8 +79,8 @@ func LoginHandler(c *gin.Context) {
 	}
 
 	// Check credentials against environment variables
-	envUsername := os.Getenv("AUTH_USERNAME")
-	envPassword := os.Getenv("AUTH_PASSWORD")
+	envUsername := config.Get("AUTH_USERNAME", "")
+	envPassword := config.Get("AUTH_PASSWORD", "")
 
 	if envUsername == "" || envPassword == "" {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "backend.auth.not_configured"})
@@ -121,7 +122,7 @@ func LogoutHandler(c *gin.Context) {
 
 // isValidApiKey checks if the request has a valid API key
 func isValidApiKey(c *gin.Context) bool {
-	envApiKey := os.Getenv("API_KEY")
+	envApiKey := config.Get("API_KEY", "")
 	if envApiKey == "" {
 		return false // No API key configured
 	}
@@ -193,8 +194,8 @@ func CheckAuthHandler(c *gin.Context) {
 	}
 
 	// Check if web authentication is configured
-	envUsername := os.Getenv("AUTH_USERNAME")
-	envPassword := os.Getenv("AUTH_PASSWORD")
+	envUsername := config.Get("AUTH_USERNAME", "")
+	envPassword := config.Get("AUTH_PASSWORD", "")
 	webAuthEnabled := envUsername != "" && envPassword != ""
 
 	if !webAuthEnabled {
@@ -262,7 +263,7 @@ func CheckAuthHandler(c *gin.Context) {
 
 // AuthRequired checks if API authentication is configured
 func AuthRequired() bool {
-	envApiKey := os.Getenv("API_KEY")
+	envApiKey := config.Get("API_KEY", "")
 	return envApiKey != ""
 }
 
@@ -302,7 +303,7 @@ func RunPair(stdout, stderr io.Writer) error {
 		return fmt.Errorf("no TTY detected; please run `docker run ... aviary pair` in an interactive shell")
 	}
 
-	if host := os.Getenv("RMAPI_HOST"); host != "" {
+	if host := config.Get("RMAPI_HOST", ""); host != "" {
 		fmt.Fprintf(stdout, "Welcome to Aviary. Let's pair with %s!\n", host)
 	} else {
 		fmt.Fprintln(stdout, "Welcome to Aviary. Let's pair with the reMarkable Cloud!")
@@ -374,7 +375,7 @@ func HandlePairRequest(c *gin.Context) {
 	cmd.Stdin = strings.NewReader(req.Code + "\n")
 	env := os.Environ()
 	env = append(env, "RMAPI_CONFIG="+cfgPath)
-	if host := os.Getenv("RMAPI_HOST"); host != "" {
+	if host := config.Get("RMAPI_HOST", ""); host != "" {
 		env = append(env, "RMAPI_HOST="+host)
 	}
 	cmd.Env = env

@@ -7,15 +7,15 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
+	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"golang.org/x/oauth2"
-	"github.com/coreos/go-oidc/v3/oidc"
 )
 
 var (
@@ -35,10 +35,10 @@ type OIDCConfig struct {
 
 // InitOIDC initializes OIDC configuration from environment variables
 func InitOIDC() error {
-	issuer := os.Getenv("OIDC_ISSUER")
-	clientID := os.Getenv("OIDC_CLIENT_ID")
-	clientSecret := os.Getenv("OIDC_CLIENT_SECRET")
-	redirectURL := os.Getenv("OIDC_REDIRECT_URL")
+	issuer := config.Get("OIDC_ISSUER", "")
+	clientID := config.Get("OIDC_CLIENT_ID", "")
+	clientSecret := config.Get("OIDC_CLIENT_SECRET", "")
+	redirectURL := config.Get("OIDC_REDIRECT_URL", "")
 
 	if issuer == "" || clientID == "" || clientSecret == "" {
 		oidcEnabled = false
@@ -50,7 +50,7 @@ func InitOIDC() error {
 	}
 
 	// Parse scopes from environment
-	scopesEnv := os.Getenv("OIDC_SCOPES")
+	scopesEnv := config.Get("OIDC_SCOPES", "")
 	scopes := []string{"openid", "profile", "email"}
 	if scopesEnv != "" {
 		scopes = strings.Split(scopesEnv, ",")
@@ -60,28 +60,28 @@ func InitOIDC() error {
 	}
 
 	ctx := context.Background()
-	
+
 	// Retry logic for OIDC provider initialization
 	var provider *oidc.Provider
 	var err error
 	maxRetries := 30
 	retryDelay := 2 * time.Second
-	
+
 	for i := 0; i < maxRetries; i++ {
 		provider, err = oidc.NewProvider(ctx, issuer)
 		if err == nil {
 			break
 		}
-		
+
 		if i == 0 {
 			fmt.Printf("OIDC provider not ready, retrying in %v (attempt %d/%d)...\n", retryDelay, i+1, maxRetries)
 		} else if i%5 == 0 {
 			fmt.Printf("Still waiting for OIDC provider (attempt %d/%d)...\n", i+1, maxRetries)
 		}
-		
+
 		time.Sleep(retryDelay)
 	}
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to create OIDC provider after %d attempts: %w", maxRetries, err)
 	}
@@ -140,7 +140,7 @@ func OIDCAuthHandler(c *gin.Context) {
 	c.SetCookie("oidc_nonce", nonce, 600, "/", "", secure, true)
 
 	// Build auth URL with state and nonce
-	authURL := oauth2Config.AuthCodeURL(state, 
+	authURL := oauth2Config.AuthCodeURL(state,
 		oauth2.SetAuthURLParam("nonce", nonce),
 		oauth2.SetAuthURLParam("prompt", "select_account"),
 	)
@@ -163,20 +163,20 @@ func OIDCCallbackHandler(c *gin.Context) {
 	state := c.Query("state")
 	storedState, err := c.Cookie("oidc_state")
 	fmt.Printf("OIDC Callback - State from query: %s, State from cookie: %s, Cookie error: %v\n", state, storedState, err)
-	
+
 	if err != nil || state != storedState {
 		// More detailed error for debugging
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Invalid state parameter",
+				"error":   "Invalid state parameter",
 				"details": fmt.Sprintf("Cookie error: %v", err),
-				"debug": "State cookie not found or unreadable",
+				"debug":   "State cookie not found or unreadable",
 			})
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Invalid state parameter",
+				"error":   "Invalid state parameter",
 				"details": fmt.Sprintf("Expected: %s, Got: %s", storedState, state),
-				"debug": "State mismatch - possible CSRF attack or cookie issue",
+				"debug":   "State mismatch - possible CSRF attack or cookie issue",
 			})
 		}
 		return
@@ -198,7 +198,7 @@ func OIDCCallbackHandler(c *gin.Context) {
 	// Handle error from provider
 	if errMsg := c.Query("error"); errMsg != "" {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "OIDC authentication failed",
+			"error":   "OIDC authentication failed",
 			"details": errMsg,
 		})
 		return
@@ -240,11 +240,11 @@ func OIDCCallbackHandler(c *gin.Context) {
 
 	// Extract claims
 	var claims struct {
-		Email         string `json:"email"`
-		Name          string `json:"name"`
+		Email             string `json:"email"`
+		Name              string `json:"name"`
 		PreferredUsername string `json:"preferred_username"`
-		Subject       string `json:"sub"`
-		EmailVerified bool   `json:"email_verified"`
+		Subject           string `json:"sub"`
+		EmailVerified     bool   `json:"email_verified"`
 	}
 
 	if err := idToken.Claims(&claims); err != nil {
@@ -286,7 +286,7 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 	user, err := database.GetUserByUsername(username)
 	if err != nil {
 		// User doesn't exist - check if we should auto-create
-		autoCreateUsers := os.Getenv("OIDC_AUTO_CREATE_USERS")
+		autoCreateUsers := config.Get("OIDC_AUTO_CREATE_USERS", "")
 		if autoCreateUsers != "true" && autoCreateUsers != "1" {
 			return fmt.Errorf("user not found and auto-creation disabled")
 		}
@@ -304,7 +304,7 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 		if err != nil {
 			return fmt.Errorf("failed to create user: %w", err)
 		}
-		
+
 		// Update OIDC subject after creation
 		if err := database.DB.Model(user).Update("oidc_subject", subject).Error; err != nil {
 			return fmt.Errorf("failed to update OIDC subject: %w", err)
@@ -312,16 +312,16 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 	} else {
 		// Update existing user's OIDC subject and profile info if not set
 		updates := make(map[string]interface{})
-		
+
 		if user.OIDCSubject == nil || *user.OIDCSubject != subject {
 			updates["oidc_subject"] = subject
 		}
-		
+
 		// Update profile information from OIDC claims if not already set
 		if email != "" && user.Email == "" {
 			updates["email"] = email
 		}
-		
+
 		if len(updates) > 0 {
 			updates["updated_at"] = time.Now()
 			if err := database.DB.Model(user).Updates(updates).Error; err != nil {
@@ -337,14 +337,14 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 
 	// Generate JWT token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id":  user.ID.String(),
-		"username": user.Username,
-		"email":    user.Email,
-		"is_admin": user.IsAdmin,
-		"exp":      time.Now().Add(24 * time.Hour).Unix(),
-		"iat":      time.Now().Unix(),
-		"iss":      "aviary",
-		"aud":      "aviary-web",
+		"user_id":     user.ID.String(),
+		"username":    user.Username,
+		"email":       user.Email,
+		"is_admin":    user.IsAdmin,
+		"exp":         time.Now().Add(24 * time.Hour).Unix(),
+		"iat":         time.Now().Unix(),
+		"iss":         "aviary",
+		"aud":         "aviary-web",
 		"auth_method": "oidc",
 	})
 
@@ -359,7 +359,7 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 	c.SetCookie("auth_token", tokenString, 24*3600, "/", "", secure, true)
 
 	// Redirect to frontend
-	redirectURL := os.Getenv("OIDC_SUCCESS_REDIRECT_URL")
+	redirectURL := config.Get("OIDC_SUCCESS_REDIRECT_URL", "")
 	if redirectURL == "" {
 		redirectURL = "/" // Default to home page
 	}
@@ -371,11 +371,11 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 func handleOIDCSingleUserAuth(c *gin.Context, username string) error {
 	// In single-user mode, we create a JWT token for the authenticated user
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": username,
-		"exp":      time.Now().Add(24 * time.Hour).Unix(),
-		"iat":      time.Now().Unix(),
-		"iss":      "aviary",
-		"aud":      "aviary-web",
+		"username":    username,
+		"exp":         time.Now().Add(24 * time.Hour).Unix(),
+		"iat":         time.Now().Unix(),
+		"iss":         "aviary",
+		"aud":         "aviary-web",
 		"auth_method": "oidc",
 	})
 
@@ -395,7 +395,7 @@ func handleOIDCSingleUserAuth(c *gin.Context, username string) error {
 	}
 
 	// Redirect to frontend
-	redirectURL := os.Getenv("OIDC_SUCCESS_REDIRECT_URL")
+	redirectURL := config.Get("OIDC_SUCCESS_REDIRECT_URL", "")
 	if redirectURL == "" {
 		redirectURL = "/" // Default to home page
 	}
@@ -433,16 +433,16 @@ func OIDCLogoutHandler(c *gin.Context) {
 		var providerClaims struct {
 			EndSessionEndpoint string `json:"end_session_endpoint"`
 		}
-		
+
 		if err := oidcProvider.Claims(&providerClaims); err == nil && providerClaims.EndSessionEndpoint != "" {
 			// Redirect to OIDC provider logout
 			logoutURL := providerClaims.EndSessionEndpoint
-			
+
 			// Add post logout redirect URI if configured
-			if postLogoutRedirect := os.Getenv("OIDC_POST_LOGOUT_REDIRECT_URL"); postLogoutRedirect != "" {
+			if postLogoutRedirect := config.Get("OIDC_POST_LOGOUT_REDIRECT_URL", ""); postLogoutRedirect != "" {
 				logoutURL += "?post_logout_redirect_uri=" + url.QueryEscape(postLogoutRedirect)
 			}
-			
+
 			c.Redirect(http.StatusFound, logoutURL)
 			return
 		}

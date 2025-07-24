@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rmitchellscott/aviary/internal/auth"
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/manager"
 	"github.com/rmitchellscott/aviary/internal/smtp"
@@ -38,30 +38,30 @@ func ConfigHandler(c *gin.Context) {
 				if dbUser.RmapiHost != "" {
 					rmapiHost = dbUser.RmapiHost
 				} else {
-					rmapiHost = os.Getenv("RMAPI_HOST")
+					rmapiHost = config.Get("RMAPI_HOST", "")
 				}
 			} else {
 				// Fallback to global defaults
 				defaultRmDir = manager.DefaultRmDir()
-				rmapiHost = os.Getenv("RMAPI_HOST")
+				rmapiHost = config.Get("RMAPI_HOST", "")
 			}
 		} else {
 			// Not authenticated, use global defaults
 			defaultRmDir = manager.DefaultRmDir()
-			rmapiHost = os.Getenv("RMAPI_HOST")
+			rmapiHost = config.Get("RMAPI_HOST", "")
 		}
 	} else {
 		// Single-user mode - check traditional auth methods only
-		envUsername := os.Getenv("AUTH_USERNAME")
-		envPassword := os.Getenv("AUTH_PASSWORD")
-		envApiKey := os.Getenv("API_KEY")
-		
+		envUsername := config.Get("AUTH_USERNAME", "")
+		envPassword := config.Get("AUTH_PASSWORD", "")
+		envApiKey := config.Get("API_KEY", "")
+
 		// Auth is enabled if traditional methods are configured
 		authEnabled = (envUsername != "" && envPassword != "")
-		
+
 		apiKeyEnabled = envApiKey != ""
 		defaultRmDir = manager.DefaultRmDir()
-		rmapiHost = os.Getenv("RMAPI_HOST")
+		rmapiHost = config.Get("RMAPI_HOST", "")
 	}
 
 	// Check SMTP configuration (only in multi-user mode)

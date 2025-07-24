@@ -3,12 +3,12 @@ package manager
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strconv"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"gorm.io/gorm"
 )
@@ -37,7 +37,7 @@ func NewUserFolderCacheService(db *gorm.DB) *UserFolderCacheService {
 
 	// Get rate limit from environment variable (refreshes per second)
 	rateLimitDelay := 5 * time.Second // Default: 0.2 refreshes per second (one every 5 seconds)
-	if rpsStr := os.Getenv("FOLDER_REFRESH_RATE"); rpsStr != "" {
+	if rpsStr := config.Get("FOLDER_REFRESH_RATE", ""); rpsStr != "" {
 		if rps, err := strconv.ParseFloat(rpsStr, 64); err == nil && rps > 0 {
 			rateLimitDelay = time.Duration(float64(time.Second) / rps)
 		}
@@ -55,17 +55,17 @@ func NewUserFolderCacheService(db *gorm.DB) *UserFolderCacheService {
 func (s *UserFolderCacheService) getUserNextRefresh(user *database.User) time.Time {
 	now := time.Now()
 	intervalStart := now.Truncate(s.refreshInterval)
-	
+
 	// Calculate offset within interval based on user's percentage
 	offsetDuration := time.Duration(float64(s.refreshInterval) * float64(user.FolderRefreshPercent) / 100.0)
-	
+
 	nextRefresh := intervalStart.Add(offsetDuration)
-	
+
 	// If we've passed this interval's refresh time, schedule for next interval
 	if nextRefresh.Before(now) {
 		nextRefresh = nextRefresh.Add(s.refreshInterval)
 	}
-	
+
 	return nextRefresh
 }
 
@@ -75,7 +75,7 @@ func (s *UserFolderCacheService) GetUserFolders(userID uuid.UUID, force bool) ([
 	if !IsUserPaired(userID) {
 		return nil, fmt.Errorf("user %s not paired", userID)
 	}
-	
+
 	// Get or create user cache
 	s.mu.Lock()
 	userCache, exists := s.caches[userID]
@@ -186,7 +186,7 @@ func (s *UserFolderCacheService) saveFolderCacheToDatabase(userID uuid.UUID, fol
 			folder_data = EXCLUDED.folder_data,
 			last_updated = EXCLUDED.last_updated
 	`
-	
+
 	return s.db.Exec(query, uuid.New(), userID, "/", string(foldersJSON), time.Now()).Error
 }
 
@@ -257,26 +257,26 @@ func (s *UserFolderCacheService) refreshActiveUserCaches() {
 	// Check which users are due for refresh based on their percentage timing
 	for i, userID := range userIDs {
 		go func(uid uuid.UUID, delay int) {
-		  // Rate limit: stagger refreshes 
-		  time.Sleep(time.Duration(delay) * s.rateLimitDelay)
-		  
-		  // Check if user is paired before attempting refresh
-		  if !IsUserPaired(uid) {
-		  // Skip refresh for unpaired users (will be logged as error)
-		   return
-				}
-		  
-		  userService := database.NewUserService(s.db)
-		user, err := userService.GetUserByID(uid)
-		if err != nil {
-		Logf("Failed to get user %s for background refresh: %v", uid, err)
-		return
-		}
+			// Rate limit: stagger refreshes
+			time.Sleep(time.Duration(delay) * s.rateLimitDelay)
+
+			// Check if user is paired before attempting refresh
+			if !IsUserPaired(uid) {
+				// Skip refresh for unpaired users (will be logged as error)
+				return
+			}
+
+			userService := database.NewUserService(s.db)
+			user, err := userService.GetUserByID(uid)
+			if err != nil {
+				Logf("Failed to get user %s for background refresh: %v", uid, err)
+				return
+			}
 
 			// Check if user is due for refresh based on percentage timing
 			nextRefresh := s.getUserNextRefresh(user)
 			now := time.Now()
-			
+
 			if now.After(nextRefresh.Add(-time.Minute)) && now.Before(nextRefresh.Add(time.Minute)) {
 				// User is due for refresh (within 1 minute window)
 				s.mu.Lock()
@@ -285,7 +285,7 @@ func (s *UserFolderCacheService) refreshActiveUserCaches() {
 					// Create cache entry for this user
 					userCache = &userFolderCache{}
 					s.caches[uid] = userCache
-					
+
 					// Try to load existing data from database
 					if folders, err := s.LoadFolderCacheFromDatabase(uid); err == nil && folders != nil {
 						userCache.folders = folders
@@ -293,7 +293,7 @@ func (s *UserFolderCacheService) refreshActiveUserCaches() {
 					}
 				}
 				s.mu.Unlock()
-				
+
 				_, err := s.refreshUserFolders(uid, userCache, true) // Background refresh - rate limited
 				if err != nil {
 					Logf("Background refresh failed for user %s: %v", uid, err)

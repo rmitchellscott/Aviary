@@ -11,10 +11,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/export"
 	"github.com/rmitchellscott/aviary/internal/smtp"
-
 )
 
 // TestSMTPHandler tests SMTP configuration (admin only)
@@ -82,7 +82,7 @@ func GetSystemStatusHandler(c *gin.Context) {
 	sessionTimeout, _ := database.GetSystemSetting("session_timeout_hours")
 
 	// Check if we're in dry run mode
-	dryRunMode := os.Getenv("DRY_RUN") != ""
+	dryRunMode := config.Get("DRY_RUN", "") != ""
 
 	// Check authentication methods
 	oidcEnabled := IsOIDCEnabled()
@@ -100,7 +100,7 @@ func GetSystemStatusHandler(c *gin.Context) {
 			"session_timeout_hours": sessionTimeout,
 		},
 		"auth": gin.H{
-			"oidc_enabled":      oidcEnabled,
+			"oidc_enabled":       oidcEnabled,
 			"proxy_auth_enabled": proxyAuthEnabled,
 		},
 		"mode":    "multi_user",
@@ -247,7 +247,7 @@ func BackupDatabaseHandler(c *gin.Context) {
 	backupPath := filepath.Join(tempDir, filename)
 
 	// Create exporter
-	dataDir := os.Getenv("DATA_DIR")
+	dataDir := config.Get("DATA_DIR", "")
 	if dataDir == "" {
 		dataDir = "/data"
 	}
@@ -337,7 +337,7 @@ func AnalyzeBackupHandler(c *gin.Context) {
 	tempFile.Close()
 
 	// Create analyzer
-	dataDir := os.Getenv("DATA_DIR")
+	dataDir := config.Get("DATA_DIR", "")
 	if dataDir == "" {
 		dataDir = "/data"
 	}
@@ -429,7 +429,7 @@ func RestoreDatabaseHandler(c *gin.Context) {
 	tempFile.Close()
 
 	// Create importer
-	dataDir := os.Getenv("DATA_DIR")
+	dataDir := config.Get("DATA_DIR", "")
 	if dataDir == "" {
 		dataDir = "/data"
 	}
@@ -462,5 +462,3 @@ func RestoreDatabaseHandler(c *gin.Context) {
 		},
 	})
 }
-
-

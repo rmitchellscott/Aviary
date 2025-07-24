@@ -2,8 +2,9 @@ package downloader
 
 import (
 	"net/http"
-	"os"
 	"time"
+
+	"github.com/rmitchellscott/aviary/internal/config"
 )
 
 // Clients used for HTTP requests. Timeouts are configured via environment
@@ -19,13 +20,13 @@ var (
 )
 
 func init() {
-	if v := os.Getenv("SNIFF_TIMEOUT"); v != "" {
+	if v := config.Get("SNIFF_TIMEOUT", ""); v != "" {
 		if d, err := time.ParseDuration(v); err == nil {
 			sniffTimeout = d
 		}
 	}
 
-	if v := os.Getenv("DOWNLOAD_TIMEOUT"); v != "" {
+	if v := config.Get("DOWNLOAD_TIMEOUT", ""); v != "" {
 		if d, err := time.ParseDuration(v); err == nil {
 			downloadTimeout = d
 		}

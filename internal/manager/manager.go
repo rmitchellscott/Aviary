@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 )
 
@@ -18,7 +19,7 @@ import (
 var ExecCommand = exec.Command
 
 func init() {
-	if os.Getenv("DRY_RUN") != "" {
+	if config.Get("DRY_RUN", "") != "" {
 		ExecCommand = func(name string, args ...string) *exec.Cmd {
 			cmdStr := name
 			if len(args) > 0 {
@@ -31,7 +32,7 @@ func init() {
 }
 
 func DefaultRmDir() string {
-	d := os.Getenv("RM_TARGET_DIR")
+	d := config.Get("RM_TARGET_DIR", "")
 	if d == "" {
 		d = "/"
 	}
@@ -46,7 +47,7 @@ func rmapiCmd(user *database.User, args ...string) *exec.Cmd {
 	if user != nil {
 		if user.RmapiHost != "" {
 			env = append(env, "RMAPI_HOST="+user.RmapiHost)
-		} else if host := os.Getenv("RMAPI_HOST"); host != "" {
+		} else if host := config.Get("RMAPI_HOST", ""); host != "" {
 			env = append(env, "RMAPI_HOST="+host)
 		}
 		if cfg, err := GetUserRmapiConfigPath(user.ID); err == nil {
@@ -149,7 +150,7 @@ func SimpleUpload(path, rmDir string, user *database.User) (string, error) {
 		coverpageSetting = user.CoverpageSetting
 	}
 	if coverpageSetting == "" {
-		if os.Getenv("RMAPI_COVERPAGE") == "first" {
+		if config.Get("RMAPI_COVERPAGE", "") == "first" {
 			coverpageSetting = "first"
 		} else {
 			coverpageSetting = "current"
@@ -219,7 +220,7 @@ func RenameAndUpload(path, prefix, rmDir string, user *database.User) (string, e
 		}
 	} else {
 		// Single-user mode - use existing logic
-		pdfDir = os.Getenv("PDF_DIR")
+		pdfDir = config.Get("PDF_DIR", "")
 		if pdfDir == "" {
 			pdfDir = "/app/pdfs"
 		}
@@ -253,7 +254,7 @@ func RenameAndUpload(path, prefix, rmDir string, user *database.User) (string, e
 		coverpageSetting = user.CoverpageSetting
 	}
 	if coverpageSetting == "" {
-		if os.Getenv("RMAPI_COVERPAGE") == "first" {
+		if config.Get("RMAPI_COVERPAGE", "") == "first" {
 			coverpageSetting = "first"
 		} else {
 			coverpageSetting = "current"

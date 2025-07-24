@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/google/uuid"
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 )
 
@@ -12,7 +13,7 @@ import (
 // In multi-user mode, creates /data/users/{user_id}/
 // In single-user mode, returns /data/
 func GetUserDataDir(userID uuid.UUID) (string, error) {
-	baseDir := os.Getenv("DATA_DIR")
+	baseDir := config.Get("DATA_DIR", "")
 	if baseDir == "" {
 		baseDir = "/data"
 	}
@@ -46,7 +47,7 @@ func GetUserPDFDir(userID uuid.UUID, prefix string) (string, error) {
 		baseDir = filepath.Join(userDataDir, "pdfs")
 	} else {
 		// Single-user mode - use PDF_DIR environment variable
-		baseDir = os.Getenv("PDF_DIR")
+		baseDir = config.Get("PDF_DIR", "")
 		if baseDir == "" {
 			baseDir = "/data/pdfs"
 		}

@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/auth"
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"gorm.io/gorm"
 )
@@ -24,14 +25,13 @@ var userFolderCacheService *UserFolderCacheService
 // isConfigFileValid checks if an rmapi config file exists and has content
 func isConfigFileValid(configPath string) bool {
 	// In DRY_RUN mode, always consider config as valid
-	if os.Getenv("DRY_RUN") != "" {
+	if config.Get("DRY_RUN", "") != "" {
 		return true
 	}
-	
+
 	info, err := os.Stat(configPath)
 	return err == nil && info.Size() > 0
 }
-
 
 // IsSingleUserPaired checks if rmapi.conf exists for single-user mode
 func IsSingleUserPaired() bool {
@@ -56,17 +56,17 @@ func RefreshUserFolderCache(userID string) error {
 	if userFolderCacheService == nil {
 		return nil // Not in multi-user mode or not initialized
 	}
-	
+
 	uuid, err := uuid.Parse(userID)
 	if err != nil {
 		return err
 	}
-	
+
 	// Check if user is paired before attempting refresh
 	if !IsUserPaired(uuid) {
 		return fmt.Errorf("user %s not paired", userID)
 	}
-	
+
 	_, err = userFolderCacheService.GetUserFolders(uuid, true) // force refresh
 	return err
 }
@@ -84,7 +84,7 @@ func ListFolders(user *database.User) ([]string, error) {
 			return nil, fmt.Errorf("single user not paired")
 		}
 	}
-	
+
 	// Include the root directory explicitly so the UI can offer it as an option
 	folders := []string{"/"}
 

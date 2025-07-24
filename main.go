@@ -16,6 +16,7 @@ import (
 
 	// internal
 	"github.com/rmitchellscott/aviary/internal/auth"
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/downloader"
 	"github.com/rmitchellscott/aviary/internal/handlers"
@@ -29,10 +30,6 @@ import (
 //go:embed ui/dist
 //go:embed ui/dist/assets
 var embeddedUI embed.FS
-
-
-
-
 
 func main() {
 	// Load .env if present
@@ -81,7 +78,7 @@ func main() {
 	auth.InitProxyAuth()
 
 	// Determine port
-	port := os.Getenv("PORT")
+	port := config.Get("PORT", "")
 	if port == "" {
 		port = "8000"
 	}
@@ -122,7 +119,7 @@ func main() {
 		log.Fatalf("embed error: %v", err)
 	}
 
-	if mode, ok := os.LookupEnv("GIN_MODE"); ok {
+	if mode := config.Get("GIN_MODE", ""); mode != "" {
 		gin.SetMode(mode)
 	} else {
 		gin.SetMode(gin.ReleaseMode)
@@ -217,14 +214,14 @@ func main() {
 	admin := protected.Group("/admin")
 	admin.Use(auth.AdminRequiredMiddleware())
 	{
-		admin.GET("/status", auth.GetSystemStatusHandler)          // GET /api/admin/status - get system status
-		admin.GET("/settings", auth.GetSystemSettingsHandler)      // GET /api/admin/settings - get system settings
-		admin.PUT("/settings", auth.UpdateSystemSettingHandler)    // PUT /api/admin/settings - update system setting
-		admin.POST("/test-smtp", auth.TestSMTPHandler)             // POST /api/admin/test-smtp - test SMTP config
-		admin.POST("/cleanup", auth.CleanupDataHandler)            // POST /api/admin/cleanup - cleanup old data
-		admin.POST("/backup", auth.BackupDatabaseHandler)    // POST /api/admin/backup - backup database
+		admin.GET("/status", auth.GetSystemStatusHandler)        // GET /api/admin/status - get system status
+		admin.GET("/settings", auth.GetSystemSettingsHandler)    // GET /api/admin/settings - get system settings
+		admin.PUT("/settings", auth.UpdateSystemSettingHandler)  // PUT /api/admin/settings - update system setting
+		admin.POST("/test-smtp", auth.TestSMTPHandler)           // POST /api/admin/test-smtp - test SMTP config
+		admin.POST("/cleanup", auth.CleanupDataHandler)          // POST /api/admin/cleanup - cleanup old data
+		admin.POST("/backup", auth.BackupDatabaseHandler)        // POST /api/admin/backup - backup database
 		admin.POST("/backup/analyze", auth.AnalyzeBackupHandler) // POST /api/admin/backup/analyze - analyze backup file
-		admin.POST("/restore", auth.RestoreDatabaseHandler)  // POST /api/admin/restore - restore database
+		admin.POST("/restore", auth.RestoreDatabaseHandler)      // POST /api/admin/restore - restore database
 	}
 
 	protected.POST("/webhook", webhook.EnqueueHandler)
@@ -239,7 +236,7 @@ func main() {
 	router.GET("/api/config", handlers.ConfigHandler)
 
 	// File server for all embedded files (gate behind AVIARY_DISABLE_UI)
-	if os.Getenv("DISABLE_UI") == "" {
+	if config.Get("DISABLE_UI", "") == "" {
 		router.NoRoute(func(c *gin.Context) {
 			// strip leading slash
 			p := strings.TrimPrefix(c.Request.URL.Path, "/")
@@ -249,8 +246,8 @@ func main() {
 
 			// Check if this is index.html and if we should inject UI secret
 			if p == "index.html" {
-				envUsername := os.Getenv("AUTH_USERNAME")
-				envPassword := os.Getenv("AUTH_PASSWORD")
+				envUsername := config.Get("AUTH_USERNAME", "")
+				envPassword := config.Get("AUTH_PASSWORD", "")
 				webAuthDisabled := envUsername == "" || envPassword == ""
 
 				if webAuthDisabled {
@@ -266,8 +263,8 @@ func main() {
 				p = "index.html"
 				// If we're falling back to index.html, check auth again
 				if p == "index.html" {
-					envUsername := os.Getenv("AUTH_USERNAME")
-					envPassword := os.Getenv("AUTH_PASSWORD")
+					envUsername := config.Get("AUTH_USERNAME", "")
+					envPassword := config.Get("AUTH_PASSWORD", "")
 					webAuthDisabled := envUsername == "" || envPassword == ""
 
 					if webAuthDisabled {
@@ -289,4 +286,3 @@ func main() {
 	log.Printf("Listening on %s…", addr)
 	log.Fatal(http.ListenAndServe(addr, router))
 }
-

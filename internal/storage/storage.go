@@ -6,11 +6,13 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/rmitchellscott/aviary/internal/config"
 )
 
 // getDataDir returns DATA_DIR env var or /data by default
 func getDataDir() string {
-	if dir := os.Getenv("DATA_DIR"); dir != "" {
+	if dir := config.Get("DATA_DIR", ""); dir != "" {
 		return dir
 	}
 	return "/data"

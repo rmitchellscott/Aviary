@@ -5,12 +5,12 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strconv"
 	"time"
 
-	"github.com/google/uuid"
-	"gorm.io/driver/postgres"
 	"github.com/glebarez/sqlite"
+	"github.com/google/uuid"
+	"github.com/rmitchellscott/aviary/internal/config"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -31,24 +31,24 @@ type DatabaseConfig struct {
 
 // GetDatabaseConfig reads database configuration from environment variables
 func GetDatabaseConfig() *DatabaseConfig {
-	config := &DatabaseConfig{
-		Type:    getEnv("DB_TYPE", "sqlite"),
-		Host:    getEnv("DB_HOST", "localhost"),
-		Port:    getEnvInt("DB_PORT", 5432),
-		User:    getEnv("DB_USER", "aviary"),
-		Password: getEnv("DB_PASSWORD", ""),
-		DBName:  getEnv("DB_NAME", "aviary"),
-		SSLMode: getEnv("DB_SSLMODE", "disable"),
-		DataDir: getEnv("DATA_DIR", "/data"),
+	cfg := &DatabaseConfig{
+		Type:     config.Get("DB_TYPE", "sqlite"),
+		Host:     config.Get("DB_HOST", "localhost"),
+		Port:     config.GetInt("DB_PORT", 5432),
+		User:     config.Get("DB_USER", "aviary"),
+		Password: config.Get("DB_PASSWORD", ""),
+		DBName:   config.Get("DB_NAME", "aviary"),
+		SSLMode:  config.Get("DB_SSLMODE", "disable"),
+		DataDir:  config.Get("DATA_DIR", "/data"),
 	}
-	
-	return config
+
+	return cfg
 }
 
 // Initialize sets up the database connection and runs migrations
 func Initialize() error {
 	config := GetDatabaseConfig()
-	
+
 	var err error
 	switch config.Type {
 	case "postgres":
@@ -58,21 +58,21 @@ func Initialize() error {
 	default:
 		return fmt.Errorf("unsupported database type: %s", config.Type)
 	}
-	
+
 	if err != nil {
 		return fmt.Errorf("failed to initialize database: %w", err)
 	}
-	
+
 	// Run auto-migration
 	if err := runMigrations(); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
-	
+
 	// Initialize default system settings
 	if err := initializeSystemSettings(); err != nil {
 		return fmt.Errorf("failed to initialize system settings: %w", err)
 	}
-	
+
 	log.Printf("Database initialized successfully (type: %s)", config.Type)
 	return nil
 }
@@ -81,24 +81,24 @@ func Initialize() error {
 func initPostgres(config *DatabaseConfig) (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s",
 		config.Host, config.User, config.Password, config.DBName, config.Port, config.SSLMode)
-	
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: getGormLogger(),
 	})
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Configure connection pool
 	sqlDB, err := db.DB()
 	if err != nil {
 		return nil, err
 	}
-	
+
 	sqlDB.SetMaxOpenConns(25)
 	sqlDB.SetMaxIdleConns(5)
 	sqlDB.SetConnMaxLifetime(5 * time.Minute)
-	
+
 	return db, nil
 }
 
@@ -108,49 +108,49 @@ func initSQLite(config *DatabaseConfig) (*gorm.DB, error) {
 	if err := os.MkdirAll(config.DataDir, 0755); err != nil {
 		return nil, fmt.Errorf("failed to create data directory: %w", err)
 	}
-	
+
 	dbPath := filepath.Join(config.DataDir, "aviary.db")
-	
+
 	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{
 		Logger: getGormLogger(),
 	})
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Configure SQLite settings
 	sqlDB, err := db.DB()
 	if err != nil {
 		return nil, err
 	}
-	
+
 	sqlDB.SetMaxOpenConns(1) // SQLite doesn't support concurrent writes
 	sqlDB.SetMaxIdleConns(1)
-	
+
 	// Enable foreign keys for SQLite
 	if err := db.Exec("PRAGMA foreign_keys = ON").Error; err != nil {
 		return nil, err
 	}
-	
+
 	return db, nil
 }
 
 // runMigrations runs GORM auto-migration for all models
 func runMigrations() error {
 	models := GetAllModels()
-	
+
 	// Force migration of all models
 	for _, model := range models {
 		if err := DB.AutoMigrate(model); err != nil {
 			return fmt.Errorf("failed to migrate %T: %w", model, err)
 		}
 	}
-	
+
 	// Add unique constraint for FolderCache
 	if err := DB.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_user_folder_path ON user_folders_cache (user_id, folder_path)").Error; err != nil {
 		log.Printf("Warning: failed to create unique index for folder cache: %v", err)
 	}
-	
+
 	return nil
 }
 
@@ -213,7 +213,7 @@ func initializeSystemSettings() error {
 			Description: "Password reset token timeout in hours",
 		},
 	}
-	
+
 	for _, setting := range defaultSettings {
 		var existing SystemSetting
 		if err := DB.First(&existing, "key = ?", setting.Key).Error; err == gorm.ErrRecordNotFound {
@@ -222,40 +222,24 @@ func initializeSystemSettings() error {
 			}
 		}
 	}
-	
+
 	return nil
 }
 
 // getGormLogger returns appropriate GORM logger based on environment
 func getGormLogger() logger.Interface {
 	logLevel := logger.Warn
-	if os.Getenv("GIN_MODE") == "debug" {
+	if config.Get("GIN_MODE", "") == "debug" {
 		logLevel = logger.Info
 	}
-	
+
 	return logger.Default.LogMode(logLevel)
 }
 
 // Helper functions
-func getEnv(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return defaultValue
-}
-
-func getEnvInt(key string, defaultValue int) int {
-	if value := os.Getenv(key); value != "" {
-		if parsed, err := strconv.Atoi(value); err == nil {
-			return parsed
-		}
-	}
-	return defaultValue
-}
-
 // IsMultiUserMode checks if multi-user mode is enabled
 func IsMultiUserMode() bool {
-	return getEnv("MULTI_USER", "false") == "true"
+	return config.Get("MULTI_USER", "false") == "true"
 }
 
 // GetCurrentUser gets the current user from the database by ID
@@ -302,7 +286,7 @@ func SetSystemSetting(key, value string, updatedBy *uuid.UUID) error {
 		UpdatedBy: updatedBy,
 		UpdatedAt: time.Now(),
 	}
-	
+
 	return DB.Save(&setting).Error
 }
 

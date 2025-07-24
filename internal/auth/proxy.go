@@ -2,10 +2,10 @@ package auth
 
 import (
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 )
 
@@ -16,7 +16,7 @@ var (
 
 // InitProxyAuth initializes proxy authentication configuration
 func InitProxyAuth() {
-	headerName := os.Getenv("PROXY_AUTH_HEADER")
+	headerName := config.Get("PROXY_AUTH_HEADER", "")
 	if headerName == "" {
 		proxyAuthEnabled = false
 		return
@@ -98,7 +98,7 @@ func ProxyAuthCheckHandler(c *gin.Context) {
 	if !proxyAuthEnabled {
 		c.JSON(http.StatusOK, gin.H{
 			"authenticated": false,
-			"proxy_auth": false,
+			"proxy_auth":    false,
 		})
 		return
 	}
@@ -107,10 +107,10 @@ func ProxyAuthCheckHandler(c *gin.Context) {
 	if username == "" {
 		// Proxy auth is enabled but header is missing - not an error, just not authenticated via proxy
 		c.JSON(http.StatusOK, gin.H{
-			"authenticated": false,
-			"proxy_auth": true,
+			"authenticated":   false,
+			"proxy_auth":      true,
 			"proxy_available": false,
-			"message": "Proxy authentication header not present",
+			"message":         "Proxy authentication header not present",
 		})
 		return
 	}
@@ -119,8 +119,8 @@ func ProxyAuthCheckHandler(c *gin.Context) {
 	if username == "" {
 		c.JSON(http.StatusOK, gin.H{
 			"authenticated": false,
-			"proxy_auth": true,
-			"error": "Empty username in proxy header",
+			"proxy_auth":    true,
+			"error":         "Empty username in proxy header",
 		})
 		return
 	}
@@ -131,8 +131,8 @@ func ProxyAuthCheckHandler(c *gin.Context) {
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{
 				"authenticated": false,
-				"proxy_auth": true,
-				"error": "User not found in database",
+				"proxy_auth":    true,
+				"error":         "User not found in database",
 			})
 			return
 		}
@@ -140,15 +140,15 @@ func ProxyAuthCheckHandler(c *gin.Context) {
 		if !user.IsActive {
 			c.JSON(http.StatusOK, gin.H{
 				"authenticated": false,
-				"proxy_auth": true,
-				"error": "User account is deactivated",
+				"proxy_auth":    true,
+				"error":         "User account is deactivated",
 			})
 			return
 		}
 
 		c.JSON(http.StatusOK, gin.H{
 			"authenticated": true,
-			"proxy_auth": true,
+			"proxy_auth":    true,
 			"user": gin.H{
 				"id":       user.ID,
 				"username": user.Username,

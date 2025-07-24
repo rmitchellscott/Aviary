@@ -2,10 +2,11 @@ package manager
 
 import (
 	"fmt"
-	"os"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/rmitchellscott/aviary/internal/config"
 )
 
 // folderCache stores the cached folder listing
@@ -21,15 +22,13 @@ var globalFoldersCache = &folderCache{}
 // used to ensure only one background refresh runs at a time
 var refreshRunning int32
 
-
-
 // cacheRefreshInterval controls how often the cache is refreshed.
 // It can be overridden via the FOLDER_CACHE_INTERVAL
 // environment variable. Set to 0 to disable caching entirely.
 var cacheRefreshInterval = 60 * time.Minute
 
 func init() {
-	if v := os.Getenv("FOLDER_CACHE_INTERVAL"); v != "" {
+	if v := config.Get("FOLDER_CACHE_INTERVAL", ""); v != "" {
 		if d, err := time.ParseDuration(v); err == nil {
 			cacheRefreshInterval = d
 		}
@@ -76,7 +75,7 @@ func refreshFolderCache() error {
 	if !IsSingleUserPaired() {
 		return fmt.Errorf("single user not paired")
 	}
-	
+
 	dirs, err := ListFolders(nil)
 	if err != nil {
 		return err

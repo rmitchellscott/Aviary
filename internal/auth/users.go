@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 )
 
@@ -63,11 +64,11 @@ type SelfDeleteRequest struct {
 
 func isUserPaired(id uuid.UUID) bool {
 	// In DRY_RUN mode, always consider users as paired
-	if os.Getenv("DRY_RUN") != "" {
+	if config.Get("DRY_RUN", "") != "" {
 		return true
 	}
-	
-	baseDir := os.Getenv("DATA_DIR")
+
+	baseDir := config.Get("DATA_DIR", "")
 	if baseDir == "" {
 		baseDir = "/data"
 	}
@@ -338,20 +339,20 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 
 	// Build update map (non-admin users can't change admin/active status)
 	updates := make(map[string]interface{})
-	
+
 	// Update fields only if they were provided in the request (pointers allow us to detect this)
 	if req.Email != nil && *req.Email != "" {
 		updates["email"] = *req.Email
 	}
-	
+
 	if req.RmapiHost != nil {
 		updates["rmapi_host"] = *req.RmapiHost // Allow clearing by setting to empty string
 	}
-	
+
 	if req.DefaultRmdir != nil && *req.DefaultRmdir != "" {
 		updates["default_rmdir"] = *req.DefaultRmdir
 	}
-	
+
 	if req.CoverpageSetting != nil && *req.CoverpageSetting != "" {
 		updates["coverpage_setting"] = *req.CoverpageSetting
 	}
@@ -417,7 +418,7 @@ func PairRMAPIHandler(c *gin.Context) {
 	}
 
 	// Mock successful pairing in DRY_RUN mode
-	if os.Getenv("DRY_RUN") != "" {
+	if config.Get("DRY_RUN", "") != "" {
 		c.JSON(http.StatusOK, gin.H{"success": true})
 		return
 	}
@@ -436,7 +437,7 @@ func PairRMAPIHandler(c *gin.Context) {
 	}
 
 	var cfgPath string
-	baseDir := os.Getenv("DATA_DIR")
+	baseDir := config.Get("DATA_DIR", "")
 	if baseDir == "" {
 		baseDir = "/data"
 	}
@@ -453,7 +454,7 @@ func PairRMAPIHandler(c *gin.Context) {
 	env = append(env, "RMAPI_CONFIG="+cfgPath)
 	if user.RmapiHost != "" {
 		env = append(env, "RMAPI_HOST="+user.RmapiHost)
-	} else if host := os.Getenv("RMAPI_HOST"); host != "" {
+	} else if host := config.Get("RMAPI_HOST", ""); host != "" {
 		env = append(env, "RMAPI_HOST="+host)
 	}
 	cmd.Env = env
@@ -482,7 +483,7 @@ func UnpairRMAPIHandler(c *gin.Context) {
 		return
 	}
 
-	baseDir := os.Getenv("DATA_DIR")
+	baseDir := config.Get("DATA_DIR", "")
 	if baseDir == "" {
 		baseDir = "/data"
 	}
@@ -722,7 +723,7 @@ func PromoteUserHandler(c *gin.Context) {
 	updates := map[string]interface{}{
 		"is_admin": true,
 	}
-	
+
 	if err := userService.UpdateUserSettings(userID, updates); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to promote user"})
 		return
@@ -760,7 +761,7 @@ func DemoteUserHandler(c *gin.Context) {
 	updates := map[string]interface{}{
 		"is_admin": false,
 	}
-	
+
 	if err := userService.UpdateUserSettings(userID, updates); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to demote user"})
 		return
