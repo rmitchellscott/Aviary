@@ -31,7 +31,11 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
     }
   }, []);
 
-  const requestReset = async () => {
+  const requestReset = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+    
     if (!email) {
       setMessage({ type: 'error', text: 'Please enter your email address' });
       return;
@@ -66,7 +70,11 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
     }
   };
 
-  const confirmReset = async () => {
+  const confirmReset = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+    
     if (!token || !newPassword || !confirmPassword) {
       setMessage({ type: 'error', text: 'Please fill in all fields' });
       return;
@@ -135,14 +143,14 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
         
         <CardContent className="space-y-4">
           {message && (
-            <Alert className={message.type === 'error' ? 'border-destructive' : 'border-green-500'}>
-              <div className="flex items-center gap-2">
+            <Alert variant={message.type === 'error' ? 'destructive' : 'default'}>
+              <div className="flex items-center gap-3">
                 {message.type === 'success' ? (
-                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <CheckCircle className="h-4 w-4 flex-shrink-0" />
                 ) : (
-                  <XCircle className="h-4 w-4 text-destructive" />
+                  <XCircle className="h-4 w-4 flex-shrink-0" />
                 )}
-                <AlertDescription className={message.type === 'error' ? 'text-destructive' : 'text-green-700'}>
+                <AlertDescription className="flex-1">
                   {message.text}
                 </AlertDescription>
               </div>
@@ -150,7 +158,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
           )}
 
           {step === 'request' ? (
-            <>
+            <form onSubmit={requestReset}>
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
                 <Input
@@ -160,12 +168,13 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
+                  autoFocus
                 />
               </div>
 
-              <div className="flex flex-col space-y-4">
+              <div className="flex flex-col space-y-4 mt-4">
                 <Button 
-                  onClick={requestReset} 
+                  type="submit"
                   disabled={loading || !email}
                   className="w-full"
                 >
@@ -175,6 +184,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                 
                 <div className="text-center">
                   <Button 
+                    type="button"
                     variant="ghost" 
                     size="sm"
                     onClick={onBack}
@@ -186,25 +196,16 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                 </div>
               </div>
 
-              <div className="text-center">
+              <div className="text-center mt-4">
                 <p className="text-sm text-muted-foreground">
                   Enter your email address and we'll send you a link to reset your password.
                 </p>
               </div>
-            </>
+            </form>
           ) : (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="token">Reset Token</Label>
-                <Input
-                  id="token"
-                  type="text"
-                  placeholder="Enter reset token from email"
-                  value={token}
-                  onChange={(e) => setToken(e.target.value)}
-                  disabled={loading}
-                />
-              </div>
+            <form onSubmit={confirmReset} className="space-y-4">
+              {/* Hidden token field - token is automatically populated from URL */}
+              <input type="hidden" value={token} />
 
               <div className="space-y-2">
                 <Label htmlFor="new-password">New Password</Label>
@@ -215,6 +216,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   disabled={loading}
+                  autoFocus
                 />
               </div>
 
@@ -232,7 +234,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
 
               <div className="space-y-2">
                 <Button 
-                  onClick={confirmReset} 
+                  type="submit"
                   disabled={loading || !token || !newPassword || !confirmPassword}
                   className="w-full"
                 >
@@ -241,12 +243,13 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                 </Button>
                 
                 <Button 
+                  type="button"
                   variant="outline" 
-                  onClick={() => setStep('request')}
+                  onClick={onBack}
                   className="w-full"
                   disabled={loading}
                 >
-                  Back to Email Entry
+                  Back to Login
                 </Button>
               </div>
 
@@ -255,7 +258,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                   Password must be at least 8 characters long.
                 </p>
               </div>
-            </>
+            </form>
           )}
         </CardContent>
       </Card>
