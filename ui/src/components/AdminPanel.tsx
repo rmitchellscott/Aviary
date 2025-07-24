@@ -776,7 +776,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     >
                       {getSMTPStatusText(systemStatus.smtp.status)}
                     </Badge>
-                    <Button size="sm" onClick={testSMTP} disabled={saving}>
+                    <Button size="sm" onClick={testSMTP} disabled={saving || !systemStatus.smtp.configured}>
                       Test SMTP
                     </Button>
                   </div>
@@ -1217,6 +1217,11 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 type="password"
                 value={newPasswordValue}
                 onChange={(e) => setNewPasswordValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && newPasswordValue.length >= 8 && !saving) {
+                    confirmResetPassword();
+                  }
+                }}
                 placeholder="Enter new password (minimum 8 characters)"
                 className="mt-2"
               />
