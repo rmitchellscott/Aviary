@@ -10,7 +10,10 @@
     "button": "ログイン",
     "network_error": "ネットワークエラー",
     "fail": "ログインに失敗しました",
-    "register": "アカウントを作成"
+    "register": "アカウントを作成",
+    "sso_button": "SSOでサインイン",
+    "or_continue_with": "または続行",
+    "forgot_password": "パスワードを忘れた場合"
   },
   "register": {
     "title": "アカウントを作成",
@@ -48,12 +51,12 @@
     "loading": "読み込み中...",
     "compress_pdf": "PDF圧縮",
     "send": "送信",
+    "pair": "ペアリング",
     "sending": "送信中…",
+    "uploading": "Aviaryにアップロード中",
     "invalid_file": "無効なファイル",
     "ok": "はい",
     "job_queued": "ジョブがキューに追加されました: {{id}}",
-    "pair": "ペアリング",
-    "uploading": "Aviaryにアップロード中",
     "pair_with_cloud": "フォルダを読み込むためにクラウドとペアリング",
     "pair_with_remarkable": "reMarkableクラウドとペアリング",
     "to_upload_documents": "ドキュメントをアップロードするために。",
@@ -71,8 +74,11 @@
   },
   "language": {
     "search": "検索...",
+    "search_fallback": "言語を検索...",
     "no_results": "結果がありません。",
-    "tooltip": "言語"
+    "no_results_fallback": "言語が見つかりません。",
+    "tooltip": "言語",
+    "tooltip_fallback": "言語"
   },
   "pairing": {
     "title": "reMarkable Cloudとペアリング",
@@ -112,184 +118,228 @@
     "deleting": "削除中..."
   },
   "admin": {
-    "title": "Admin Panel",
-    "description": "Manage users, system settings, and monitor system health",
+    "title": "管理パネル",
+    "description": "ユーザー、システム設定を管理し、システムの健全性を監視",
     "status": {
-      "working": "Working",
-      "failed": "Failed",
-      "not_configured": "Not configured",
-      "unknown": "Unknown",
-      "inactive": "Inactive",
-      "paired": "Paired",
-      "unpaired": "Unpaired",
-      "active": "active"
+      "working": "動作中",
+      "failed": "失敗",
+      "not_configured": "未設定",
+      "unknown": "不明",
+      "inactive": "非アクティブ",
+      "paired": "ペアリング済み",
+      "unpaired": "未ペアリング",
+      "active": "アクティブ"
     },
     "roles": {
-      "admin": "Admin",
-      "user": "User"
+      "admin": "管理者",
+      "user": "ユーザー"
     },
     "actions": {
-      "make_admin": "Make Admin",
-      "make_user": "Make User",
-      "activate": "Activate",
-      "deactivate": "Deactivate",
-      "reset_password": "Reset Password",
-      "delete": "Delete",
-      "create_user": "Create User",
-      "test_smtp": "Test SMTP",
-      "create_backup": "Create Backup",
-      "restore_backup": "Restore from Backup...",
-      "cancel": "Cancel",
-      "restore_database": "Restore Database"
+      "make_admin": "管理者にする",
+      "make_user": "ユーザーにする",
+      "activate": "アクティブ化",
+      "deactivate": "非アクティブ化",
+      "reset_password": "パスワードリセット",
+      "delete": "削除",
+      "create_user": "ユーザー作成",
+      "test_smtp": "SMTPテスト",
+      "create_backup": "バックアップ作成",
+      "restore_backup": "バックアップから復元...",
+      "cancel": "キャンセル",
+      "restore_database": "データベース復元"
     },
     "tabs": {
-      "overview": "Overview",
-      "users": "Users",
-      "api_keys": "API Keys",
-      "settings": "Settings",
-      "system": "System"
+      "overview": "概要",
+      "users": "ユーザー",
+      "api_keys": "APIキー",
+      "settings": "設定",
+      "system": "システム"
     },
     "cards": {
-      "total_users": "Total Users",
-      "api_keys": "API Keys",
-      "documents": "Documents",
-      "active_sessions": "Active Sessions",
-      "smtp_status": "SMTP Status",
-      "system_mode": "System Mode",
-      "create_new_user": "Create New User",
-      "user_management": "User Management",
-      "api_key_settings": "API Key Settings",
-      "session_settings": "Session Settings",
-      "backup_restore": "Backup & Restore"
+      "total_users": "総ユーザー数",
+      "api_keys": "APIキー",
+      "documents": "ドキュメント",
+      "active_sessions": "アクティブセッション",
+      "smtp_status": "SMTP状態",
+      "system_mode": "システムモード",
+      "create_new_user": "新規ユーザー作成",
+      "user_management": "ユーザー管理",
+      "api_key_settings": "APIキー設定",
+      "session_settings": "セッション設定",
+      "backup_restore": "バックアップと復元"
     },
     "labels": {
-      "username": "Username",
-      "email": "Email",
-      "password": "Password",
-      "role": "Role",
-      "status": "Status",
-      "created": "Created",
-      "last_login": "Last Login",
-      "actions": "Actions",
-      "name": "Name",
-      "user": "User",
-      "key_preview": "Key Preview",
-      "last_used": "Last Used",
-      "expires": "Expires",
-      "new_password": "New Password",
-      "enable_registration": "Enable User Registration",
-      "max_api_keys": "Maximum API Keys per User",
-      "session_timeout": "Session Timeout (hours)"
+      "username": "ユーザー名",
+      "email": "メール",
+      "password": "パスワード",
+      "role": "役割",
+      "status": "状態",
+      "created": "作成日",
+      "last_login": "最終ログイン",
+      "actions": "操作",
+      "name": "名前",
+      "user": "ユーザー",
+      "key_preview": "キープレビュー",
+      "last_used": "最終使用",
+      "expires": "有効期限",
+      "new_password": "新しいパスワード",
+      "enable_registration": "ユーザー登録を有効にする",
+      "max_api_keys": "ユーザーあたりの最大APIキー数",
+      "session_timeout": "セッションタイムアウト（時間）"
     },
     "placeholders": {
-      "username": "username",
+      "username": "ユーザー名",
       "email": "user@example.com",
-      "password": "password",
-      "new_password": "Enter new password (minimum 8 characters)"
+      "password": "パスワード",
+      "new_password": "新しいパスワードを入力（最低8文字）"
     },
     "descriptions": {
-      "registration_help": "Allow self-service creation of new user accounts",
-      "total_uploaded": "Total uploaded",
-      "current_sessions": "Current unexpired sessions",
-      "backup_description": "Creates a complete backup including database and user files as a .tar.gz archive",
-      "restore_description": "Restores database and user files from backup archive (.tar.gz format)",
-      "restore_warning": "Warning: Restoring will completely overwrite all current data"
+      "registration_help": "新しいユーザーアカウントのセルフサービス作成を許可",
+      "total_uploaded": "アップロード総数",
+      "current_sessions": "現在の有効なセッション",
+      "backup_description": "データベースとユーザーファイルを含む完全なバックアップを.tar.gzアーカイブとして作成",
+      "restore_description": "バックアップアーカイブ（.tar.gz形式）からデータベースとユーザーファイルを復元",
+      "restore_warning": "警告：復元により現在のデータがすべて完全に上書きされます"
     },
     "badges": {
-      "multi_user": "Multi-user Mode",
-      "dry_run": "Dry Run Mode",
-      "oidc_enabled": "OIDC Enabled",
-      "proxy_auth": "Proxy Auth Enabled"
+      "multi_user": "マルチユーザーモード",
+      "dry_run": "ドライランモード",
+      "oidc_enabled": "OIDC有効",
+      "proxy_auth": "プロキシ認証有効"
     },
     "loading_states": {
-      "creating_backup": "Creating Backup...",
-      "analyzing": "Analyzing...",
-      "resetting": "Resetting...",
-      "restoring": "Restoring...",
-      "loading": "Loading..."
+      "creating_backup": "バックアップ作成中...",
+      "analyzing": "分析中...",
+      "resetting": "リセット中...",
+      "restoring": "復元中...",
+      "loading": "読み込み中..."
     },
     "dialogs": {
-      "reset_password_title": "Reset Password",
-      "reset_password_description": "Reset the password for user: ",
-      "confirm_restore_title": "Confirm Data Restore",
-      "confirm_restore_description": "You are about to restore from backup file: ",
-      "backup_contents": "Backup Contents:",
-      "restore_warning_text": "This will permanently overwrite all current data including:",
+      "reset_password_title": "パスワードリセット",
+      "reset_password_description": "ユーザーのパスワードをリセット: ",
+      "confirm_restore_title": "データ復元の確認",
+      "confirm_restore_description": "以下のバックアップファイルから復元しようとしています: ",
+      "backup_contents": "バックアップ内容:",
+      "restore_warning_text": "これにより以下を含むすべての現在のデータが永久に上書きされます:",
       "restore_warning_items": {
-        "accounts": "All user accounts and settings",
-        "api_keys": "All API keys and sessions",
-        "documents": "All user documents and files",
-        "pairing": "All cloud pairing configuration",
-        "folders": "All folder caches",
-        "settings": "All system settings"
+        "accounts": "すべてのユーザーアカウントと設定",
+        "api_keys": "すべてのAPIキーとセッション",
+        "documents": "すべてのユーザードキュメントとファイル",
+        "pairing": "すべてのクラウドペアリング設定",
+        "folders": "すべてのフォルダキャッシュ",
+        "settings": "すべてのシステム設定"
       },
-      "restore_final_warning": "This action cannot be undone. Make sure you have a current backup before proceeding."
+      "restore_final_warning": "この操作は元に戻すことができません。続行する前に最新のバックアップがあることを確認してください。"
     },
     "errors": {
-      "create_user": "Failed to create user",
-      "delete_user": "Failed to delete user",
-      "reset_password": "Failed to reset password",
-      "password_length": "Password must be at least 8 characters long",
-      "smtp_test": "SMTP test failed",
-      "smtp_test_network": "Failed to test SMTP",
-      "backup_create": "Failed to create backup",
-      "backup_invalid": "Invalid backup file",
-      "backup_analyze": "Failed to analyze backup file: ",
-      "backup_file_type": "Invalid file type. Please select a backup archive (.tar.gz or .tgz). Selected file: ",
-      "restore_failed": "Failed to restore database",
-      "restore_error": "Failed to restore database: "
+      "create_user": "ユーザーの作成に失敗しました",
+      "delete_user": "ユーザーの削除に失敗しました",
+      "reset_password": "パスワードのリセットに失敗しました",
+      "password_length": "パスワードは8文字以上である必要があります",
+      "smtp_test": "SMTPテストが失敗しました",
+      "smtp_test_network": "SMTPテストに失敗しました",
+      "backup_create": "バックアップの作成に失敗しました",
+      "backup_invalid": "無効なバックアップファイル",
+      "backup_analyze": "バックアップファイルの分析に失敗しました: ",
+      "backup_file_type": "無効なファイルタイプ。バックアップアーカイブ（.tar.gzまたは.tgz）を選択してください。選択されたファイル: ",
+      "restore_failed": "データベースの復元に失敗しました",
+      "restore_error": "データベースの復元に失敗しました: "
     },
     "success": {
-      "restore_complete": "Database restored successfully"
+      "restore_complete": "データベースが正常に復元されました"
     },
     "counts": {
-      "users": "Users ({{count}})",
-      "all_api_keys": "All API Keys ({{count}})"
+      "users": "ユーザー（{{count}}）",
+      "all_api_keys": "すべてのAPIキー（{{count}}）"
     },
-    "never": "Never"
-  },
-  "backend": {
-    "auth": {
-      "too_many_attempts": "ログイン試行回数が多すぎます",
-      "invalid_request": "無効なリクエスト",
-      "not_configured": "認証が設定されていません",
-      "invalid_credentials": "認証情報が無効です",
-      "token_error": "トークンを生成できませんでした",
-      "no_token": "認証トークンまたはAPIキーがありません",
-      "invalid_token": "無効なトークン",
-      "required": "認証が必要です",
-      "session_error": "セッションを生成できませんでした"
-    },
-    "status": {
-      "job_not_found": "ジョブが見つかりません",
-      "internal_error": "内部エラー",
-      "done": "完了",
-      "invalid_prefix": "無効なプレフィックス",
-      "using_uploaded_file": "アップロードされたファイルを使用中",
-      "no_url": "リクエストボディにURLが見つかりません",
-      "downloading": "ダウンロード中",
-      "download_error": "ダウンロードエラー",
-      "converting_pdf": "PDFに変換中",
-      "conversion_error": "画像→PDF変換エラー",
-      "compressing_pdf": "PDF圧縮中",
-      "compress_error": "圧縮エラー",
-      "rename_error": "名前変更エラー",
-      "uploading": "アップロード中",
-      "upload_success": "ドキュメントはreMarkableの{{path}}で利用可能です"
-    },
-    "errors": {
-      "missing_url": "URLパラメータが不足しています",
-      "parse_form": "マルチパートフォームを解析できませんでした",
-      "get_file": "ファイルを取得できませんでした",
-      "open_file": "アップロードされたファイルを開けませんでした",
-      "create_dir": "アップロードディレクトリを作成できませんでした",
-      "create_file": "ディスクにファイルを作成できませんでした",
-      "save_file": "ファイルを保存できませんでした",
-      "no_form": "マルチパートフォームが見つかりません",
-      "no_file_field": "フィールド名{{field}}のファイルがありません"
-    }
+    "never": "なし"
   },
   "settings": {
+    "title": "ユーザー設定",
+    "description": "プロフィール、APIキー、アカウント設定を管理",
+    "tabs": {
+      "profile": "プロフィール",
+      "account": "アカウント",
+      "api_keys": "APIキー"
+    },
+    "cards": {
+      "profile_information": "プロフィール情報",
+      "change_password": "パスワード変更",
+      "danger_zone": "危険ゾーン",
+      "create_api_key": "新しいAPIキーを作成",
+      "your_api_keys": "あなたのAPIキー"
+    },
+    "labels": {
+      "username": "ユーザー名",
+      "email": "メール",
+      "rmapi_host": "reMarkableホスト（オプション）",
+      "default_directory": "デフォルトディレクトリ",
+      "cover_page": "カバーページ",
+      "current_password": "現在のパスワード",
+      "new_password": "新しいパスワード",
+      "confirm_new_password": "新しいパスワードを確認",
+      "delete_account": "アカウント削除",
+      "api_key_name": "名前",
+      "api_key_expiry": "有効期限（オプション）",
+      "key_preview": "キープレビュー",
+      "status": "状態",
+      "created": "作成日",
+      "last_used": "最終使用",
+      "expires": "有効期限"
+    },
+    "actions": {
+      "unpair": "ペアリング解除",
+      "pair": "ペアリング",
+      "create_api_key": "APIキー作成",
+      "got_it": "了解",
+      "cancel": "キャンセル",
+      "delete_api_key": "APIキー削除"
+    },
+    "options": {
+      "cover_current": "現在のページ",
+      "cover_first": "最初のページ"
+    },
+    "expiry_options": {
+      "one_week": "1週間",
+      "one_month": "1ヶ月",
+      "three_months": "3ヶ月",
+      "one_year": "1年"
+    },
+    "messages": {
+      "pair_to_load_folders": "フォルダを読み込むためにペアリング",
+      "pair_help": "既存のフォルダから選択するためにreMarkableクラウドとペアリング",
+      "delete_warning_intro": "アカウントを削除すると、元に戻すことはできません。この操作は永続的で、以下を含むすべてのデータが削除されます：",
+      "remarkable_unaffected": "reMarkable Cloudアカウントとデバイスデータは完全に影響を受けません。",
+      "api_key_created_title": "新しいAPIキーが作成されました",
+      "api_key_created_message": "このキーを今すぐコピーしてください - 再表示されません：",
+      "no_api_keys": "APIキーはまだ作成されていません"
+    },
+    "help": {
+      "cover_page": "PDFアップロード時に最初のページまたは現在のページをカバーとして使用するかを制御"
+    },
+    "status": {
+      "active": "アクティブ",
+      "expired": "期限切れ",
+      "inactive": "非アクティブ"
+    },
+    "delete_warnings": {
+      "documents": "すべてのアーカイブされたドキュメントとファイル",
+      "api_keys": "すべてのAPIキーとそのアクセス",
+      "profile": "プロフィールとアカウント設定"
+    },
+    "dialogs": {
+      "delete_api_key_title": "APIキー削除",
+      "delete_api_key_message": "APIキーを削除してもよろしいですか",
+      "delete_api_key_consequences_title": "この操作により：",
+      "delete_api_key_consequences": {
+        "revoke": "APIキーを永久に取り消し",
+        "stop_apps": "このキーを使用するすべてのアプリケーションを停止",
+        "remove": "アカウントからキーを削除"
+      },
+      "cannot_undo": "この操作は元に戻すことができません。",
+      "delete_account_confirmation": "アカウントを永久に削除してもよろしいですか？この操作は元に戻すことができません。",
+      "delete_account_type_confirm": "確認のため「{{confirmText}}」と入力してください"
+    },
     "placeholders": {
       "cloud_default": "reMarkable Cloudの場合は空で留める",
       "api_key": "私のAPIキー",
@@ -323,10 +373,56 @@
     "sending": "送信中...",
     "send_email": "リセットメールを送信",
     "resetting": "リセット中...",
-    "reset_button": "パスワードリセット"
+    "reset_button": "パスワードリセット",
+    "email_sent": "メールが存在する場合、パスワードリセットリンクが送信されました",
+    "send_email_error": "リセットメールの送信に失敗しました",
+    "success": "パスワードが正常にリセットされました。新しいパスワードでログインできます。",
+    "reset_error": "パスワードリセットに失敗しました",
+    "email_instruction": "メールアドレスを入力すると、パスワードをリセットするためのリンクをお送りします。"
   },
   "accessibility": {
     "logo": "Aviaryロゴ",
     "select_language": "言語を選択"
+  },
+  "backend": {
+    "auth": {
+      "too_many_attempts": "ログイン試行回数が多すぎます",
+      "invalid_request": "無効なリクエスト",
+      "not_configured": "認証が設定されていません",
+      "invalid_credentials": "認証情報が無効です",
+      "token_error": "トークンを生成できませんでした",
+      "no_token": "認証トークンまたはAPIキーがありません",
+      "invalid_token": "無効なトークン",
+      "required": "認証が必要です",
+      "session_error": "セッションを生成できませんでした"
+    },
+    "status": {
+      "job_not_found": "ジョブが見つかりません",
+      "internal_error": "内部エラー",
+      "done": "完了",
+      "invalid_prefix": "無効なプレフィックス",
+      "using_uploaded_file": "アップロードされたファイルを使用中",
+      "no_url": "リクエストボディにURLが見つかりません",
+      "downloading": "ダウンロード中",
+      "download_error": "ダウンロードエラー",
+      "converting_pdf": "PDFに変換中",
+      "conversion_error": "画像→PDF変換エラー",
+      "compressing_pdf": "PDF圧縮中",
+      "compress_error": "圧縮エラー",
+      "rename_error": "名前変更エラー",
+      "uploading": "クラウドにアップロード中",
+      "upload_success": "ドキュメントはreMarkableの{{path}}で利用可能です"
+    },
+    "errors": {
+      "missing_url": "URLパラメータが不足しています",
+      "parse_form": "マルチパートフォームを解析できませんでした",
+      "get_file": "ファイルを取得できませんでした",
+      "open_file": "アップロードされたファイルを開けませんでした",
+      "create_dir": "アップロードディレクトリを作成できませんでした",
+      "create_file": "ディスクにファイルを作成できませんでした",
+      "save_file": "ファイルを保存できませんでした",
+      "no_form": "マルチパートフォームが見つかりません",
+      "no_file_field": "フィールド名{{field}}のファイルがありません"
+    }
   }
 }

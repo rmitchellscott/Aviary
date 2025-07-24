@@ -10,7 +10,10 @@
     "button": "Anmelden",
     "network_error": "Netzwerkfehler",
     "fail": "Anmeldung fehlgeschlagen",
-    "register": "Konto erstellen"
+    "register": "Konto erstellen",
+    "sso_button": "Mit SSO anmelden",
+    "or_continue_with": "Oder fortfahren mit",
+    "forgot_password": "Passwort vergessen?"
   },
   "register": {
     "title": "Konto erstellen",
@@ -71,8 +74,11 @@
   },
   "language": {
     "search": "Suchen...",
+    "search_fallback": "Sprachen suchen...",
     "no_results": "Keine Ergebnisse.",
-    "tooltip": "Sprache"
+    "no_results_fallback": "Keine Sprachen gefunden.",
+    "tooltip": "Sprache",
+    "tooltip_fallback": "Sprache"
   },
   "pairing": {
     "title": "Mit reMarkable Cloud koppeln",
@@ -248,6 +254,136 @@
     },
     "never": "Nie"
   },
+  "settings": {
+    "title": "Benutzereinstellungen",
+    "description": "Verwalten Sie Ihr Profil, API-Schlüssel und Kontoeinstellungen",
+    "tabs": {
+      "profile": "Profil",
+      "account": "Konto",
+      "api_keys": "API-Schlüssel"
+    },
+    "cards": {
+      "profile_information": "Profilinformationen",
+      "change_password": "Passwort ändern",
+      "danger_zone": "Gefahrenbereich",
+      "create_api_key": "Neuen API-Schlüssel erstellen",
+      "your_api_keys": "Ihre API-Schlüssel"
+    },
+    "labels": {
+      "username": "Benutzername",
+      "email": "E-Mail",
+      "rmapi_host": "reMarkable Host (optional)",
+      "default_directory": "Standardverzeichnis",
+      "cover_page": "Deckblatt",
+      "current_password": "Aktuelles Passwort",
+      "new_password": "Neues Passwort",
+      "confirm_new_password": "Neues Passwort bestätigen",
+      "delete_account": "Konto löschen",
+      "api_key_name": "Name",
+      "api_key_expiry": "Ablauf (optional)",
+      "key_preview": "Schlüssel-Vorschau",
+      "status": "Status",
+      "created": "Erstellt",
+      "last_used": "Zuletzt verwendet",
+      "expires": "Läuft ab"
+    },
+    "actions": {
+      "unpair": "Entkoppeln",
+      "pair": "Koppeln",
+      "create_api_key": "API-Schlüssel erstellen",
+      "got_it": "Verstanden",
+      "cancel": "Abbrechen",
+      "delete_api_key": "API-Schlüssel löschen"
+    },
+    "options": {
+      "cover_current": "Aktuelle Seite",
+      "cover_first": "Erste Seite"
+    },
+    "expiry_options": {
+      "one_week": "1 Woche",
+      "one_month": "1 Monat",
+      "three_months": "3 Monate",
+      "one_year": "1 Jahr"
+    },
+    "messages": {
+      "pair_to_load_folders": "Koppeln, um Ordner zu laden",
+      "pair_help": "Mit reMarkable Cloud koppeln, um aus vorhandenen Ordnern auszuwählen",
+      "delete_warning_intro": "Sobald Sie Ihr Konto löschen, gibt es kein Zurück mehr. Diese Aktion ist dauerhaft und entfernt alle Ihre Daten einschließlich:",
+      "remarkable_unaffected": "Ihr reMarkable Cloud-Konto und die Gerätedaten bleiben vollständig unberührt.",
+      "api_key_created_title": "Neuer API-Schlüssel erstellt",
+      "api_key_created_message": "Kopieren Sie diesen Schlüssel jetzt - er wird nicht erneut angezeigt:",
+      "no_api_keys": "Noch keine API-Schlüssel erstellt"
+    },
+    "help": {
+      "cover_page": "Steuert, ob die erste Seite oder die aktuelle Seite als Deckblatt beim Hochladen von PDFs verwendet wird"
+    },
+    "status": {
+      "active": "aktiv",
+      "expired": "abgelaufen",
+      "inactive": "inaktiv"
+    },
+    "delete_warnings": {
+      "documents": "Alle archivierten Dokumente und Dateien",
+      "api_keys": "Alle API-Schlüssel und deren Zugriff",
+      "profile": "Ihr Profil und Kontoeinstellungen"
+    },
+    "dialogs": {
+      "delete_api_key_title": "API-Schlüssel löschen",
+      "delete_api_key_message": "Sind Sie sicher, dass Sie den API-Schlüssel löschen möchten",
+      "delete_api_key_consequences_title": "Diese Aktion wird:",
+      "delete_api_key_consequences": {
+        "revoke": "Den API-Schlüssel dauerhaft widerrufen",
+        "stop_apps": "Alle Anwendungen stoppen, die diesen Schlüssel verwenden",
+        "remove": "Den Schlüssel aus Ihrem Konto entfernen"
+      },
+      "cannot_undo": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "delete_account_confirmation": "Sind Sie sicher, dass Sie Ihr Konto dauerhaft löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "delete_account_type_confirm": "Geben Sie \"{{confirmText}}\" ein, um zu bestätigen"
+    },
+    "placeholders": {
+      "cloud_default": "Leer lassen für reMarkable Cloud",
+      "api_key": "Mein API-Schlüssel",
+      "never_expires": "Läuft nie ab",
+      "current_password": "Geben Sie Ihr aktuelles Passwort ein",
+      "delete_confirm": "MEIN KONTO LÖSCHEN"
+    },
+    "loading_states": {
+      "saving": "Speichern...",
+      "updating": "Aktualisieren...",
+      "deleting": "Löschen...",
+      "loading": "Laden..."
+    },
+    "buttons": {
+      "save_changes": "Änderungen speichern",
+      "update_password": "Passwort aktualisieren",
+      "delete_my_account": "Mein Konto löschen"
+    },
+    "never": "Nie"
+  },
+  "app": {
+    "settings": "Einstellungen",
+    "admin": "Administration"
+  },
+  "password_reset": {
+    "title": "Passwort zurücksetzen",
+    "new_password_title": "Neues Passwort festlegen",
+    "email_placeholder": "Geben Sie Ihre E-Mail-Adresse ein",
+    "password_placeholder": "Neues Passwort eingeben",
+    "confirm_placeholder": "Neues Passwort bestätigen",
+    "sending": "Senden...",
+    "send_email": "Reset-E-Mail senden",
+    "resetting": "Zurücksetzen...",
+    "reset_button": "Passwort zurücksetzen",
+    "email_sent": "Falls die E-Mail existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet",
+    "send_email_error": "Fehler beim Senden der Passwort-Reset-E-Mail",
+    "success": "Das Passwort wurde erfolgreich zurückgesetzt. Sie können sich jetzt mit Ihrem neuen Passwort anmelden.",
+    "reset_error": "Fehler beim Zurücksetzen des Passworts",
+    "email_instruction": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts."
+  },
+  "accessibility": {
+    "logo": "Aviary-Logo",
+    "select_language": "Sprache auswählen"
+  },
   "backend": {
     "auth": {
       "too_many_attempts": "Zu viele fehlgeschlagene Anmeldeversuche",
@@ -288,45 +424,5 @@
       "no_form": "Kein Multipart-Formular gefunden",
       "no_file_field": "Keine Datei mit Feldname {{field}}"
     }
-  },
-  "settings": {
-    "placeholders": {
-      "cloud_default": "Leer lassen für reMarkable Cloud",
-      "api_key": "Mein API-Schlüssel",
-      "never_expires": "Läuft nie ab",
-      "current_password": "Geben Sie Ihr aktuelles Passwort ein",
-      "delete_confirm": "MEIN KONTO LÖSCHEN"
-    },
-    "loading_states": {
-      "saving": "Speichern...",
-      "updating": "Aktualisieren...",
-      "deleting": "Löschen...",
-      "loading": "Laden..."
-    },
-    "buttons": {
-      "save_changes": "Änderungen speichern",
-      "update_password": "Passwort aktualisieren",
-      "delete_my_account": "Mein Konto löschen"
-    },
-    "never": "Nie"
-  },
-  "app": {
-    "settings": "Einstellungen",
-    "admin": "Administration"
-  },
-  "password_reset": {
-    "title": "Passwort zurücksetzen",
-    "new_password_title": "Neues Passwort festlegen",
-    "email_placeholder": "Geben Sie Ihre E-Mail-Adresse ein",
-    "password_placeholder": "Neues Passwort eingeben",
-    "confirm_placeholder": "Neues Passwort bestätigen",
-    "sending": "Senden...",
-    "send_email": "Reset-E-Mail senden",
-    "resetting": "Zurücksetzen...",
-    "reset_button": "Passwort zurücksetzen"
-  },
-  "accessibility": {
-    "logo": "Aviary-Logo",
-    "select_language": "Sprache auswählen"
   }
 }

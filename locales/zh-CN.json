@@ -10,7 +10,10 @@
     "button": "登录",
     "network_error": "网络错误",
     "fail": "登录失败",
-    "register": "创建账户"
+    "register": "创建账户",
+    "sso_button": "使用SSO登录",
+    "or_continue_with": "或继续使用",
+    "forgot_password": "忘记密码？"
   },
   "register": {
     "title": "创建账户",
@@ -31,36 +34,36 @@
     "missing_fields": "请填写所有必填字段",
     "password_mismatch": "密码不匹配",
     "password_too_short": "密码必须至少8个字符",
-    "user_exists": "使用此用户名或邮箱的用户已存在",
+    "user_exists": "该用户名或邮箱的用户已存在",
     "network_error": "发生网络错误",
     "fail": "账户创建失败",
     "already_have_account": "已有账户？登录"
   },
-  "logout": "退出登录",
+  "logout": "登出",
   "home": {
     "send_document": "发送文档",
     "url_placeholder": "https://example.com/file.pdf",
-    "or": "— 或者 —",
-    "selected_file": "选择的文件:",
-    "remove": "删除",
+    "or": "— 或 —",
+    "selected_file": "已选择文件：",
+    "remove": "移除",
     "destination_folder": "目标文件夹",
     "default": "默认",
     "loading": "加载中...",
     "compress_pdf": "压缩PDF",
     "send": "发送",
+    "pair": "配对",
     "sending": "发送中…",
+    "uploading": "上传到Aviary",
     "invalid_file": "无效文件",
     "ok": "确定",
-    "job_queued": "任务已排队: {{id}}",
-    "pair": "配对",
-    "uploading": "上传到Aviary",
-    "pair_with_cloud": "与云端配对以加载文件夹",
-    "pair_with_remarkable": "与reMarkable云端配对",
-    "to_upload_documents": "上传文档。",
-    "settings_config": "转到设置进行其他配置。"
+    "job_queued": "任务已排队：{{id}}",
+    "pair_with_cloud": "与云配对以加载文件夹",
+    "pair_with_remarkable": "与reMarkable云配对",
+    "to_upload_documents": " 以上传文档。",
+    "settings_config": " 转到设置进行其他配置。"
   },
   "filedrop": {
-    "instruction": "点击上传或拖拽文件到此处",
+    "instruction": "点击上传或拖拽文件",
     "invalid_type": "请选择PDF、EPUB、JPEG或PNG文件。"
   },
   "theme": {
@@ -71,18 +74,21 @@
   },
   "language": {
     "search": "搜索...",
+    "search_fallback": "搜索语言...",
     "no_results": "无结果。",
-    "tooltip": "语言"
+    "no_results_fallback": "未找到语言。",
+    "tooltip": "语言",
+    "tooltip_fallback": "语言"
   },
   "pairing": {
     "title": "与reMarkable Cloud配对",
-    "description": "请输入来自{{displayHost}}的一次性代码",
+    "description": "输入来自{{displayHost}}的一次性代码",
     "code_label": "一次性代码",
-    "code_placeholder": "8位字符代码",
+    "code_placeholder": "8位代码",
     "cancel": "取消",
     "pair": "配对",
     "pairing": "配对中...",
-    "code_error": "代码必须是8个字符",
+    "code_error": "代码必须为8个字符",
     "pair_error": "配对失败"
   },
   "user_delete": {
@@ -92,19 +98,19 @@
     "action_will": "此操作将：",
     "current_user": {
       "data_deletion": "删除您的所有数据，包括上传的文档和API密钥",
-      "remove_sessions": "移除您的所有会话并注销您的登录",
-      "remove_history": "移除您的所有登录历史",
+      "remove_sessions": "移除您的所有会话并使您登出",
+      "remove_history": "移除您的整个登录历史",
       "permanent_removal": "从系统中永久移除您的账户"
     },
     "admin_user": {
       "data_deletion": "删除所有用户数据，包括已归档的文档和API密钥",
       "remove_sessions": "移除所有用户会话",
-      "remove_history": "移除所有登录历史"
+      "remove_history": "移除整个登录历史"
     },
     "note_label": "注意：",
-    "note_current": "您的reMarkable Cloud账户和设备数据将保持完全不受影响。",
-    "note_admin": "用户的reMarkable Cloud账户和设备数据将保持完全不受影响。",
-    "cannot_undo_current": "此操作无法撤销，您将失去对所有数据的访问权。",
+    "note_current": "您的reMarkable Cloud账户和设备数据将完全不受影响。",
+    "note_admin": "用户的reMarkable Cloud账户和设备数据将完全不受影响。",
+    "cannot_undo_current": "此操作无法撤销，您将失去对所有数据的访问权限。",
     "cannot_undo_admin": "此操作无法撤销。",
     "cancel": "取消",
     "delete_account": "删除我的账户",
@@ -112,186 +118,230 @@
     "deleting": "删除中..."
   },
   "admin": {
-    "title": "Admin Panel",
-    "description": "Manage users, system settings, and monitor system health",
+    "title": "管理面板",
+    "description": "管理用户、系统设置并监控系统健康状况",
     "status": {
-      "working": "Working",
-      "failed": "Failed",
-      "not_configured": "Not configured",
-      "unknown": "Unknown",
-      "inactive": "Inactive",
-      "paired": "Paired",
-      "unpaired": "Unpaired",
-      "active": "active"
+      "working": "工作中",
+      "failed": "失败",
+      "not_configured": "未配置",
+      "unknown": "未知",
+      "inactive": "非活动",
+      "paired": "已配对",
+      "unpaired": "未配对",
+      "active": "活动"
     },
     "roles": {
-      "admin": "Admin",
-      "user": "User"
+      "admin": "管理员",
+      "user": "用户"
     },
     "actions": {
-      "make_admin": "Make Admin",
-      "make_user": "Make User",
-      "activate": "Activate",
-      "deactivate": "Deactivate",
-      "reset_password": "Reset Password",
-      "delete": "Delete",
-      "create_user": "Create User",
-      "test_smtp": "Test SMTP",
-      "create_backup": "Create Backup",
-      "restore_backup": "Restore from Backup...",
-      "cancel": "Cancel",
-      "restore_database": "Restore Database"
+      "make_admin": "设为管理员",
+      "make_user": "设为用户",
+      "activate": "激活",
+      "deactivate": "停用",
+      "reset_password": "重置密码",
+      "delete": "删除",
+      "create_user": "创建用户",
+      "test_smtp": "测试SMTP",
+      "create_backup": "创建备份",
+      "restore_backup": "从备份还原...",
+      "cancel": "取消",
+      "restore_database": "还原数据库"
     },
     "tabs": {
-      "overview": "Overview",
-      "users": "Users",
-      "api_keys": "API Keys",
-      "settings": "Settings",
-      "system": "System"
+      "overview": "概览",
+      "users": "用户",
+      "api_keys": "API密钥",
+      "settings": "设置",
+      "system": "系统"
     },
     "cards": {
-      "total_users": "Total Users",
-      "api_keys": "API Keys",
-      "documents": "Documents",
-      "active_sessions": "Active Sessions",
-      "smtp_status": "SMTP Status",
-      "system_mode": "System Mode",
-      "create_new_user": "Create New User",
-      "user_management": "User Management",
-      "api_key_settings": "API Key Settings",
-      "session_settings": "Session Settings",
-      "backup_restore": "Backup & Restore"
+      "total_users": "用户总数",
+      "api_keys": "API密钥",
+      "documents": "文档",
+      "active_sessions": "活动会话",
+      "smtp_status": "SMTP状态",
+      "system_mode": "系统模式",
+      "create_new_user": "创建新用户",
+      "user_management": "用户管理",
+      "api_key_settings": "API密钥设置",
+      "session_settings": "会话设置",
+      "backup_restore": "备份与还原"
     },
     "labels": {
-      "username": "Username",
-      "email": "Email",
-      "password": "Password",
-      "role": "Role",
-      "status": "Status",
-      "created": "Created",
-      "last_login": "Last Login",
-      "actions": "Actions",
-      "name": "Name",
-      "user": "User",
-      "key_preview": "Key Preview",
-      "last_used": "Last Used",
-      "expires": "Expires",
-      "new_password": "New Password",
-      "enable_registration": "Enable User Registration",
-      "max_api_keys": "Maximum API Keys per User",
-      "session_timeout": "Session Timeout (hours)"
+      "username": "用户名",
+      "email": "邮箱",
+      "password": "密码",
+      "role": "角色",
+      "status": "状态",
+      "created": "创建时间",
+      "last_login": "最后登录",
+      "actions": "操作",
+      "name": "名称",
+      "user": "用户",
+      "key_preview": "密钥预览",
+      "last_used": "最后使用",
+      "expires": "过期时间",
+      "new_password": "新密码",
+      "enable_registration": "启用用户注册",
+      "max_api_keys": "每用户最大API密钥数",
+      "session_timeout": "会话超时（小时）"
     },
     "placeholders": {
-      "username": "username",
+      "username": "用户名",
       "email": "user@example.com",
-      "password": "password",
-      "new_password": "Enter new password (minimum 8 characters)"
+      "password": "密码",
+      "new_password": "输入新密码（最少8个字符）"
     },
     "descriptions": {
-      "registration_help": "Allow self-service creation of new user accounts",
-      "total_uploaded": "Total uploaded",
-      "current_sessions": "Current unexpired sessions",
-      "backup_description": "Creates a complete backup including database and user files as a .tar.gz archive",
-      "restore_description": "Restores database and user files from backup archive (.tar.gz format)",
-      "restore_warning": "Warning: Restoring will completely overwrite all current data"
+      "registration_help": "允许自助创建新用户账户",
+      "total_uploaded": "总上传量",
+      "current_sessions": "当前未过期会话",
+      "backup_description": "创建包含数据库和用户文件的完整备份，格式为.tar.gz档案",
+      "restore_description": "从备份档案（.tar.gz格式）还原数据库和用户文件",
+      "restore_warning": "警告：还原将完全覆盖所有当前数据"
     },
     "badges": {
-      "multi_user": "Multi-user Mode",
-      "dry_run": "Dry Run Mode",
-      "oidc_enabled": "OIDC Enabled",
-      "proxy_auth": "Proxy Auth Enabled"
+      "multi_user": "多用户模式",
+      "dry_run": "试运行模式",
+      "oidc_enabled": "OIDC已启用",
+      "proxy_auth": "代理认证已启用"
     },
     "loading_states": {
-      "creating_backup": "Creating Backup...",
-      "analyzing": "Analyzing...",
-      "resetting": "Resetting...",
-      "restoring": "Restoring...",
-      "loading": "Loading..."
+      "creating_backup": "创建备份中...",
+      "analyzing": "分析中...",
+      "resetting": "重置中...",
+      "restoring": "还原中...",
+      "loading": "加载中..."
     },
     "dialogs": {
-      "reset_password_title": "Reset Password",
-      "reset_password_description": "Reset the password for user: ",
-      "confirm_restore_title": "Confirm Data Restore",
-      "confirm_restore_description": "You are about to restore from backup file: ",
-      "backup_contents": "Backup Contents:",
-      "restore_warning_text": "This will permanently overwrite all current data including:",
+      "reset_password_title": "重置密码",
+      "reset_password_description": "重置用户密码：",
+      "confirm_restore_title": "确认数据还原",
+      "confirm_restore_description": "您即将从备份文件还原：",
+      "backup_contents": "备份内容：",
+      "restore_warning_text": "这将永久覆盖所有当前数据，包括：",
       "restore_warning_items": {
-        "accounts": "All user accounts and settings",
-        "api_keys": "All API keys and sessions",
-        "documents": "All user documents and files",
-        "pairing": "All cloud pairing configuration",
-        "folders": "All folder caches",
-        "settings": "All system settings"
+        "accounts": "所有用户账户和设置",
+        "api_keys": "所有API密钥和会话",
+        "documents": "所有用户文档和文件",
+        "pairing": "所有云配对配置",
+        "folders": "所有文件夹缓存",
+        "settings": "所有系统设置"
       },
-      "restore_final_warning": "This action cannot be undone. Make sure you have a current backup before proceeding."
+      "restore_final_warning": "此操作无法撤销。请确保在继续之前有当前备份。"
     },
     "errors": {
-      "create_user": "Failed to create user",
-      "delete_user": "Failed to delete user",
-      "reset_password": "Failed to reset password",
-      "password_length": "Password must be at least 8 characters long",
-      "smtp_test": "SMTP test failed",
-      "smtp_test_network": "Failed to test SMTP",
-      "backup_create": "Failed to create backup",
-      "backup_invalid": "Invalid backup file",
-      "backup_analyze": "Failed to analyze backup file: ",
-      "backup_file_type": "Invalid file type. Please select a backup archive (.tar.gz or .tgz). Selected file: ",
-      "restore_failed": "Failed to restore database",
-      "restore_error": "Failed to restore database: "
+      "create_user": "创建用户失败",
+      "delete_user": "删除用户失败",
+      "reset_password": "重置密码失败",
+      "password_length": "密码必须至少8个字符",
+      "smtp_test": "SMTP测试失败",
+      "smtp_test_network": "SMTP测试失败",
+      "backup_create": "创建备份失败",
+      "backup_invalid": "无效的备份文件",
+      "backup_analyze": "分析备份文件失败：",
+      "backup_file_type": "无效的文件类型。请选择备份档案（.tar.gz或.tgz）。选择的文件：",
+      "restore_failed": "还原数据库失败",
+      "restore_error": "还原数据库失败："
     },
     "success": {
-      "restore_complete": "Database restored successfully"
+      "restore_complete": "数据库还原成功"
     },
     "counts": {
-      "users": "Users ({{count}})",
-      "all_api_keys": "All API Keys ({{count}})"
+      "users": "用户（{{count}}）",
+      "all_api_keys": "所有API密钥（{{count}}）"
     },
-    "never": "Never"
-  },
-  "backend": {
-    "auth": {
-      "too_many_attempts": "登录尝试次数过多",
-      "invalid_request": "无效请求",
-      "not_configured": "未配置身份验证",
-      "invalid_credentials": "无效凭据",
-      "token_error": "无法生成令牌",
-      "no_token": "没有身份验证令牌或API密钥",
-      "invalid_token": "无效令牌",
-      "required": "需要身份验证",
-      "session_error": "无法生成会话"
-    },
-    "status": {
-      "job_not_found": "未找到任务",
-      "internal_error": "内部错误",
-      "done": "完成",
-      "invalid_prefix": "无效前缀",
-      "using_uploaded_file": "使用上传的文件",
-      "no_url": "请求正文中未找到URL",
-      "downloading": "下载中",
-      "download_error": "下载错误",
-      "converting_pdf": "转换为PDF",
-      "conversion_error": "图片→PDF转换错误",
-      "compressing_pdf": "压缩PDF中",
-      "compress_error": "压缩错误",
-      "rename_error": "重命名错误",
-      "uploading": "上传中",
-      "upload_success": "您的文档已在reMarkable的{{path}}中可用"
-    },
-    "errors": {
-      "missing_url": "缺少URL参数",
-      "parse_form": "无法解析多部分表单",
-      "get_file": "无法获取文件",
-      "open_file": "无法打开上传的文件",
-      "create_dir": "无法创建上传目录",
-      "create_file": "无法在磁盘上创建文件",
-      "save_file": "无法保存文件",
-      "no_form": "未找到多部分表单",
-      "no_file_field": "没有字段名为{{field}}的文件"
-    }
+    "never": "从不"
   },
   "settings": {
+    "title": "用户设置",
+    "description": "管理您的个人资料、API密钥和账户偏好",
+    "tabs": {
+      "profile": "个人资料",
+      "account": "账户",
+      "api_keys": "API密钥"
+    },
+    "cards": {
+      "profile_information": "个人资料信息",
+      "change_password": "更改密码",
+      "danger_zone": "危险区域",
+      "create_api_key": "创建新API密钥",
+      "your_api_keys": "您的API密钥"
+    },
+    "labels": {
+      "username": "用户名",
+      "email": "邮箱",
+      "rmapi_host": "reMarkable主机（可选）",
+      "default_directory": "默认目录",
+      "cover_page": "封面页",
+      "current_password": "当前密码",
+      "new_password": "新密码",
+      "confirm_new_password": "确认新密码",
+      "delete_account": "删除账户",
+      "api_key_name": "名称",
+      "api_key_expiry": "过期时间（可选）",
+      "key_preview": "密钥预览",
+      "status": "状态",
+      "created": "创建时间",
+      "last_used": "最后使用",
+      "expires": "过期时间"
+    },
+    "actions": {
+      "unpair": "取消配对",
+      "pair": "配对",
+      "create_api_key": "创建API密钥",
+      "got_it": "知道了",
+      "cancel": "取消",
+      "delete_api_key": "删除API密钥"
+    },
+    "options": {
+      "cover_current": "当前页面",
+      "cover_first": "第一页"
+    },
+    "expiry_options": {
+      "one_week": "1周",
+      "one_month": "1个月",
+      "three_months": "3个月",
+      "one_year": "1年"
+    },
+    "messages": {
+      "pair_to_load_folders": "配对以加载文件夹",
+      "pair_help": "与reMarkable云配对以从现有文件夹中选择",
+      "delete_warning_intro": "一旦删除您的账户，就无法挽回。此操作是永久性的，将删除您的所有数据，包括：",
+      "remarkable_unaffected": "您的reMarkable Cloud账户和设备数据将完全不受影响。",
+      "api_key_created_title": "新API密钥已创建",
+      "api_key_created_message": "现在复制此密钥 - 它不会再次显示：",
+      "no_api_keys": "尚未创建API密钥"
+    },
+    "help": {
+      "cover_page": "控制上传PDF时是使用第一页还是当前页作为封面"
+    },
+    "status": {
+      "active": "活动",
+      "expired": "已过期",
+      "inactive": "非活动"
+    },
+    "delete_warnings": {
+      "documents": "所有已归档的文档和文件",
+      "api_keys": "所有API密钥及其访问权限",
+      "profile": "您的个人资料和账户设置"
+    },
+    "dialogs": {
+      "delete_api_key_title": "删除API密钥",
+      "delete_api_key_message": "您确定要删除API密钥吗",
+      "delete_api_key_consequences_title": "此操作将：",
+      "delete_api_key_consequences": {
+        "revoke": "永久撤销API密钥",
+        "stop_apps": "停止所有使用此密钥的应用程序",
+        "remove": "从您的账户中移除密钥"
+      },
+      "cannot_undo": "此操作无法撤销。",
+      "delete_account_confirmation": "您确定要永久删除您的账户吗？此操作无法撤销。",
+      "delete_account_type_confirm": "输入\"{{confirmText}}\"以确认"
+    },
     "placeholders": {
-      "cloud_default": "reMarkable Cloud留空",
+      "cloud_default": "留空使用reMarkable Cloud",
       "api_key": "我的API密钥",
       "never_expires": "永不过期",
       "current_password": "输入您的当前密码",
@@ -312,7 +362,7 @@
   },
   "app": {
     "settings": "设置",
-    "admin": "管理员"
+    "admin": "管理"
   },
   "password_reset": {
     "title": "重置密码",
@@ -323,10 +373,56 @@
     "sending": "发送中...",
     "send_email": "发送重置邮件",
     "resetting": "重置中...",
-    "reset_button": "重置密码"
+    "reset_button": "重置密码",
+    "email_sent": "如果邮箱存在，密码重置链接已发送",
+    "send_email_error": "发送重置邮件失败",
+    "success": "密码已成功重置。您现在可以使用新密码登录。",
+    "reset_error": "重置密码失败",
+    "email_instruction": "输入您的邮箱地址，我们将发送重置密码的链接。"
   },
   "accessibility": {
-    "logo": "Aviary标志",
+    "logo": "Aviary徽标",
     "select_language": "选择语言"
+  },
+  "backend": {
+    "auth": {
+      "too_many_attempts": "登录失败次数过多",
+      "invalid_request": "无效请求",
+      "not_configured": "认证未配置",
+      "invalid_credentials": "无效凭据",
+      "token_error": "无法生成令牌",
+      "no_token": "无认证令牌或API密钥",
+      "invalid_token": "无效令牌",
+      "required": "需要认证",
+      "session_error": "无法生成会话"
+    },
+    "status": {
+      "job_not_found": "未找到任务",
+      "internal_error": "内部错误",
+      "done": "完成",
+      "invalid_prefix": "无效前缀",
+      "using_uploaded_file": "使用上传的文件",
+      "no_url": "在请求体中未找到URL",
+      "downloading": "下载中",
+      "download_error": "下载错误",
+      "converting_pdf": "转换为PDF",
+      "conversion_error": "图像→PDF转换错误",
+      "compressing_pdf": "压缩PDF",
+      "compress_error": "压缩错误",
+      "rename_error": "重命名错误",
+      "uploading": "上传到云端",
+      "upload_success": "您的文档在您的reMarkable上的{{path}}可用"
+    },
+    "errors": {
+      "missing_url": "缺少URL参数",
+      "parse_form": "无法解析multipart表单",
+      "get_file": "无法获取文件",
+      "open_file": "无法打开上传的文件",
+      "create_dir": "无法创建上传目录",
+      "create_file": "无法在磁盘上创建文件",
+      "save_file": "无法保存文件",
+      "no_form": "未找到multipart表单",
+      "no_file_field": "没有字段名为{{field}}的文件"
+    }
   }
 }

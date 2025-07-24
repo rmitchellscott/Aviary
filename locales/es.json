@@ -10,7 +10,10 @@
     "button": "Entrar",
     "network_error": "Error de red",
     "fail": "Error de inicio",
-    "register": "Crear cuenta"
+    "register": "Crear cuenta",
+    "sso_button": "Iniciar sesión con SSO",
+    "or_continue_with": "O continuar con",
+    "forgot_password": "¿Olvidaste tu contraseña?"
   },
   "register": {
     "title": "Crear cuenta",
@@ -71,8 +74,11 @@
   },
   "language": {
     "search": "Buscar...",
+    "search_fallback": "Buscar idiomas...",
     "no_results": "Sin resultados.",
-    "tooltip": "Idioma"
+    "no_results_fallback": "No se encontraron idiomas.",
+    "tooltip": "Idioma",
+    "tooltip_fallback": "Idioma"
   },
   "pairing": {
     "title": "Vincular con reMarkable Cloud",
@@ -290,6 +296,91 @@
     }
   },
   "settings": {
+    "title": "Configuración de Usuario",
+    "description": "Gestiona tu perfil, claves API y preferencias de cuenta",
+    "tabs": {
+      "profile": "Perfil",
+      "account": "Cuenta",
+      "api_keys": "Claves API"
+    },
+    "cards": {
+      "profile_information": "Información del Perfil",
+      "change_password": "Cambiar Contraseña",
+      "danger_zone": "Zona de Peligro",
+      "create_api_key": "Crear Nueva Clave API",
+      "your_api_keys": "Tus Claves API"
+    },
+    "labels": {
+      "username": "Usuario",
+      "email": "Email",
+      "rmapi_host": "Host de reMarkable (opcional)",
+      "default_directory": "Directorio Predeterminado",
+      "cover_page": "Página de Portada",
+      "current_password": "Contraseña Actual",
+      "new_password": "Nueva Contraseña",
+      "confirm_new_password": "Confirmar Nueva Contraseña",
+      "delete_account": "Eliminar Cuenta",
+      "api_key_name": "Nombre",
+      "api_key_expiry": "Expiración (opcional)",
+      "key_preview": "Vista Previa de Clave",
+      "status": "Estado",
+      "created": "Creado",
+      "last_used": "Último Uso",
+      "expires": "Expira"
+    },
+    "actions": {
+      "unpair": "Desvincular",
+      "pair": "Vincular",
+      "create_api_key": "Crear Clave API",
+      "got_it": "Entendido",
+      "cancel": "Cancelar",
+      "delete_api_key": "Eliminar Clave API"
+    },
+    "options": {
+      "cover_current": "Página actual",
+      "cover_first": "Primera página"
+    },
+    "expiry_options": {
+      "one_week": "1 semana",
+      "one_month": "1 mes",
+      "three_months": "3 meses",
+      "one_year": "1 año"
+    },
+    "messages": {
+      "pair_to_load_folders": "Vincular para cargar carpetas",
+      "pair_help": "Vincula con reMarkable cloud para seleccionar de carpetas existentes",
+      "delete_warning_intro": "Una vez que elimines tu cuenta, no hay vuelta atrás. Esta acción es permanente y eliminará todos tus datos incluyendo:",
+      "remarkable_unaffected": "Tu cuenta de reMarkable Cloud y datos del dispositivo permanecerán completamente intactos.",
+      "api_key_created_title": "Nueva Clave API Creada",
+      "api_key_created_message": "Copia esta clave ahora - no se mostrará de nuevo:",
+      "no_api_keys": "Aún no se han creado claves API"
+    },
+    "help": {
+      "cover_page": "Controla si la primera página o página actual se usa como portada al subir PDFs"
+    },
+    "status": {
+      "active": "activo",
+      "expired": "expirado",
+      "inactive": "inactivo"
+    },
+    "delete_warnings": {
+      "documents": "Todos los documentos y archivos archivados",
+      "api_keys": "Todas las claves API y su acceso",
+      "profile": "Tu perfil y configuración de cuenta"
+    },
+    "dialogs": {
+      "delete_api_key_title": "Eliminar Clave API",
+      "delete_api_key_message": "¿Estás seguro de que quieres eliminar la clave API",
+      "delete_api_key_consequences_title": "Esta acción:",
+      "delete_api_key_consequences": {
+        "revoke": "Revocará permanentemente la clave API",
+        "stop_apps": "Detendrá todas las aplicaciones que usen esta clave",
+        "remove": "Eliminará la clave de tu cuenta"
+      },
+      "cannot_undo": "Esta acción no se puede deshacer.",
+      "delete_account_confirmation": "¿Estás seguro de que quieres eliminar permanentemente tu cuenta? Esta acción no se puede deshacer.",
+      "delete_account_type_confirm": "Escribe \"{{confirmText}}\" para confirmar"
+    },
     "placeholders": {
       "cloud_default": "Dejar vacío para reMarkable Cloud",
       "api_key": "Mi Clave API",
@@ -323,7 +414,12 @@
     "sending": "Enviando...",
     "send_email": "Enviar Email de Restablecimiento",
     "resetting": "Restableciendo...",
-    "reset_button": "Restablecer Contraseña"
+    "reset_button": "Restablecer Contraseña",
+    "email_sent": "Si el email existe, se ha enviado un enlace de restablecimiento de contraseña",
+    "send_email_error": "Error al enviar email de restablecimiento",
+    "success": "La contraseña ha sido restablecida exitosamente. Ahora puedes iniciar sesión con tu nueva contraseña.",
+    "reset_error": "Error al restablecer contraseña",
+    "email_instruction": "Ingresa tu dirección de email y te enviaremos un enlace para restablecer tu contraseña."
   },
   "accessibility": {
     "logo": "Logo de Aviary",

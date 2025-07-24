@@ -10,7 +10,10 @@
     "button": "Kirjaudu sisään",
     "network_error": "Verkkovirhe",
     "fail": "Kirjautuminen epäonnistui",
-    "register": "Luo tili"
+    "register": "Luo tili",
+    "sso_button": "Kirjaudu SSO:lla",
+    "or_continue_with": "Tai jatka",
+    "forgot_password": "Unohditko salasanan?"
   },
   "register": {
     "title": "Luo tili",
@@ -48,16 +51,16 @@
     "loading": "Ladataan...",
     "compress_pdf": "Pakkaa PDF",
     "send": "Lähetä",
+    "pair": "Yhdistä",
     "sending": "Lähetetään…",
+    "uploading": "Ladataan Aviaryyn",
     "invalid_file": "Virheellinen tiedosto",
     "ok": "OK",
     "job_queued": "Työ jonossa: {{id}}",
-    "pair": "Pair",
-    "uploading": "Uploading to Aviary",
-    "pair_with_cloud": "Pair with cloud to load folders",
-    "pair_with_remarkable": "Pair with reMarkable cloud",
-    "to_upload_documents": " to upload documents.",
-    "settings_config": " Go to Settings for additional configuration."
+    "pair_with_cloud": "Yhdistä pilveen kansioiden lataamiseksi",
+    "pair_with_remarkable": "Yhdistä reMarkable-pilveen",
+    "to_upload_documents": " asiakirjojen lataamiseksi.",
+    "settings_config": " Siirry Asetuksiin lisämäärityksiä varten."
   },
   "filedrop": {
     "instruction": "Klikkaa ladataksesi tai raahaa ja pudota",
@@ -71,8 +74,11 @@
   },
   "language": {
     "search": "Hae...",
+    "search_fallback": "Hae kieliä...",
     "no_results": "Ei tuloksia.",
-    "tooltip": "Kieli"
+    "no_results_fallback": "Kieliä ei löytynyt.",
+    "tooltip": "Kieli",
+    "tooltip_fallback": "Kieli"
   },
   "pairing": {
     "title": "Yhdistä reMarkable Cloudiin",
@@ -112,184 +118,228 @@
     "deleting": "Poistetaan..."
   },
   "admin": {
-    "title": "Admin Panel",
-    "description": "Manage users, system settings, and monitor system health",
+    "title": "Hallintapaneeli",
+    "description": "Hallitse käyttäjiä, järjestelmäasetuksia ja seuraa järjestelmän terveyttä",
     "status": {
-      "working": "Working",
-      "failed": "Failed",
-      "not_configured": "Not configured",
-      "unknown": "Unknown",
-      "inactive": "Inactive",
-      "paired": "Paired",
-      "unpaired": "Unpaired",
-      "active": "active"
+      "working": "Toimii",
+      "failed": "Epäonnistui",
+      "not_configured": "Ei määritetty",
+      "unknown": "Tuntematon",
+      "inactive": "Ei-aktiivinen",
+      "paired": "Yhdistetty",
+      "unpaired": "Ei yhdistetty",
+      "active": "aktiivinen"
     },
     "roles": {
-      "admin": "Admin",
-      "user": "User"
+      "admin": "Ylläpitäjä",
+      "user": "Käyttäjä"
     },
     "actions": {
-      "make_admin": "Make Admin",
-      "make_user": "Make User",
-      "activate": "Activate",
-      "deactivate": "Deactivate",
-      "reset_password": "Reset Password",
-      "delete": "Delete",
-      "create_user": "Create User",
-      "test_smtp": "Test SMTP",
-      "create_backup": "Create Backup",
-      "restore_backup": "Restore from Backup...",
-      "cancel": "Cancel",
-      "restore_database": "Restore Database"
+      "make_admin": "Tee ylläpitäjäksi",
+      "make_user": "Tee käyttäjäksi",
+      "activate": "Aktivoi",
+      "deactivate": "Deaktivoi",
+      "reset_password": "Nollaa salasana",
+      "delete": "Poista",
+      "create_user": "Luo käyttäjä",
+      "test_smtp": "Testaa SMTP",
+      "create_backup": "Luo varmuuskopio",
+      "restore_backup": "Palauta varmuuskopiosta...",
+      "cancel": "Peruuta",
+      "restore_database": "Palauta tietokanta"
     },
     "tabs": {
-      "overview": "Overview",
-      "users": "Users",
-      "api_keys": "API Keys",
-      "settings": "Settings",
-      "system": "System"
+      "overview": "Yleiskatsaus",
+      "users": "Käyttäjät",
+      "api_keys": "API-avaimet",
+      "settings": "Asetukset",
+      "system": "Järjestelmä"
     },
     "cards": {
-      "total_users": "Total Users",
-      "api_keys": "API Keys",
-      "documents": "Documents",
-      "active_sessions": "Active Sessions",
-      "smtp_status": "SMTP Status",
-      "system_mode": "System Mode",
-      "create_new_user": "Create New User",
-      "user_management": "User Management",
-      "api_key_settings": "API Key Settings",
-      "session_settings": "Session Settings",
-      "backup_restore": "Backup & Restore"
+      "total_users": "Käyttäjiä yhteensä",
+      "api_keys": "API-avaimet",
+      "documents": "Asiakirjat",
+      "active_sessions": "Aktiiviset istunnot",
+      "smtp_status": "SMTP-tila",
+      "system_mode": "Järjestelmätila",
+      "create_new_user": "Luo uusi käyttäjä",
+      "user_management": "Käyttäjähallinta",
+      "api_key_settings": "API-avainten asetukset",
+      "session_settings": "Istuntoasetukset",
+      "backup_restore": "Varmuuskopiointi ja palautus"
     },
     "labels": {
-      "username": "Username",
-      "email": "Email",
-      "password": "Password",
-      "role": "Role",
-      "status": "Status",
-      "created": "Created",
-      "last_login": "Last Login",
-      "actions": "Actions",
-      "name": "Name",
-      "user": "User",
-      "key_preview": "Key Preview",
-      "last_used": "Last Used",
-      "expires": "Expires",
-      "new_password": "New Password",
-      "enable_registration": "Enable User Registration",
-      "max_api_keys": "Maximum API Keys per User",
-      "session_timeout": "Session Timeout (hours)"
+      "username": "Käyttäjänimi",
+      "email": "Sähköposti",
+      "password": "Salasana",
+      "role": "Rooli",
+      "status": "Tila",
+      "created": "Luotu",
+      "last_login": "Viimeisin kirjautuminen",
+      "actions": "Toiminnot",
+      "name": "Nimi",
+      "user": "Käyttäjä",
+      "key_preview": "Avaimen esikatselu",
+      "last_used": "Viimeksi käytetty",
+      "expires": "Vanhenee",
+      "new_password": "Uusi salasana",
+      "enable_registration": "Ota käyttöön käyttäjärekisteröinti",
+      "max_api_keys": "Maksimi API-avaimia per käyttäjä",
+      "session_timeout": "Istunnon aikakatkaisu (tunnit)"
     },
     "placeholders": {
-      "username": "username",
-      "email": "user@example.com",
-      "password": "password",
-      "new_password": "Enter new password (minimum 8 characters)"
+      "username": "käyttäjänimi",
+      "email": "käyttäjä@esimerkki.fi",
+      "password": "salasana",
+      "new_password": "Syötä uusi salasana (vähintään 8 merkkiä)"
     },
     "descriptions": {
-      "registration_help": "Allow self-service creation of new user accounts",
-      "total_uploaded": "Total uploaded",
-      "current_sessions": "Current unexpired sessions",
-      "backup_description": "Creates a complete backup including database and user files as a .tar.gz archive",
-      "restore_description": "Restores database and user files from backup archive (.tar.gz format)",
-      "restore_warning": "Warning: Restoring will completely overwrite all current data"
+      "registration_help": "Salli itsepalveluna uusien käyttäjätilien luominen",
+      "total_uploaded": "Yhteensä ladattu",
+      "current_sessions": "Nykyiset voimassa olevat istunnot",
+      "backup_description": "Luo täydellinen varmuuskopio mukaan lukien tietokanta ja käyttäjätiedostot .tar.gz-arkistona",
+      "restore_description": "Palauttaa tietokannan ja käyttäjätiedostot varmuuskopioarkistosta (.tar.gz-muoto)",
+      "restore_warning": "Varoitus: Palautus korvaa täysin kaikki nykyiset tiedot"
     },
     "badges": {
-      "multi_user": "Multi-user Mode",
-      "dry_run": "Dry Run Mode",
-      "oidc_enabled": "OIDC Enabled",
-      "proxy_auth": "Proxy Auth Enabled"
+      "multi_user": "Monikäyttäjätila",
+      "dry_run": "Testiajon tila",
+      "oidc_enabled": "OIDC käytössä",
+      "proxy_auth": "Proxy-todennus käytössä"
     },
     "loading_states": {
-      "creating_backup": "Creating Backup...",
-      "analyzing": "Analyzing...",
-      "resetting": "Resetting...",
-      "restoring": "Restoring...",
-      "loading": "Loading..."
+      "creating_backup": "Luodaan varmuuskopiota...",
+      "analyzing": "Analysoidaan...",
+      "resetting": "Nollataan...",
+      "restoring": "Palautetaan...",
+      "loading": "Ladataan..."
     },
     "dialogs": {
-      "reset_password_title": "Reset Password",
-      "reset_password_description": "Reset the password for user: ",
-      "confirm_restore_title": "Confirm Data Restore",
-      "confirm_restore_description": "You are about to restore from backup file: ",
-      "backup_contents": "Backup Contents:",
-      "restore_warning_text": "This will permanently overwrite all current data including:",
+      "reset_password_title": "Nollaa salasana",
+      "reset_password_description": "Nollaa salasana käyttäjälle: ",
+      "confirm_restore_title": "Vahvista tietojen palautus",
+      "confirm_restore_description": "Olet palauttamassa varmuuskopiotiedostosta: ",
+      "backup_contents": "Varmuuskopion sisältö:",
+      "restore_warning_text": "Tämä korvaa pysyvästi kaikki nykyiset tiedot mukaan lukien:",
       "restore_warning_items": {
-        "accounts": "All user accounts and settings",
-        "api_keys": "All API keys and sessions",
-        "documents": "All user documents and files",
-        "pairing": "All cloud pairing configuration",
-        "folders": "All folder caches",
-        "settings": "All system settings"
+        "accounts": "Kaikki käyttäjätilit ja asetukset",
+        "api_keys": "Kaikki API-avaimet ja istunnot",
+        "documents": "Kaikki käyttäjäasiakirjat ja -tiedostot",
+        "pairing": "Kaikki pilvikytkentämääritykset",
+        "folders": "Kaikki kansiovälimuistit",
+        "settings": "Kaikki järjestelmäasetukset"
       },
-      "restore_final_warning": "This action cannot be undone. Make sure you have a current backup before proceeding."
+      "restore_final_warning": "Tätä toimintoa ei voi perua. Varmista, että sinulla on ajankohtainen varmuuskopio ennen jatkamista."
     },
     "errors": {
-      "create_user": "Failed to create user",
-      "delete_user": "Failed to delete user",
-      "reset_password": "Failed to reset password",
-      "password_length": "Password must be at least 8 characters long",
-      "smtp_test": "SMTP test failed",
-      "smtp_test_network": "Failed to test SMTP",
-      "backup_create": "Failed to create backup",
-      "backup_invalid": "Invalid backup file",
-      "backup_analyze": "Failed to analyze backup file: ",
-      "backup_file_type": "Invalid file type. Please select a backup archive (.tar.gz or .tgz). Selected file: ",
-      "restore_failed": "Failed to restore database",
-      "restore_error": "Failed to restore database: "
+      "create_user": "Käyttäjän luominen epäonnistui",
+      "delete_user": "Käyttäjän poistaminen epäonnistui",
+      "reset_password": "Salasanan nollaus epäonnistui",
+      "password_length": "Salasanan tulee olla vähintään 8 merkkiä pitkä",
+      "smtp_test": "SMTP-testi epäonnistui",
+      "smtp_test_network": "SMTP:n testaus epäonnistui",
+      "backup_create": "Varmuuskopion luominen epäonnistui",
+      "backup_invalid": "Virheellinen varmuuskopiotiedosto",
+      "backup_analyze": "Varmuuskopiotiedoston analysointi epäonnistui: ",
+      "backup_file_type": "Virheellinen tiedostotyyppi. Valitse varmuuskopioarkisto (.tar.gz tai .tgz). Valittu tiedosto: ",
+      "restore_failed": "Tietokannan palautus epäonnistui",
+      "restore_error": "Tietokannan palautus epäonnistui: "
     },
     "success": {
-      "restore_complete": "Database restored successfully"
+      "restore_complete": "Tietokanta palautettu onnistuneesti"
     },
     "counts": {
-      "users": "Users ({{count}})",
-      "all_api_keys": "All API Keys ({{count}})"
+      "users": "Käyttäjät ({{count}})",
+      "all_api_keys": "Kaikki API-avaimet ({{count}})"
     },
-    "never": "Never"
-  },
-  "backend": {
-    "auth": {
-      "too_many_attempts": "Liian monta epäonnistunutta kirjautumisyritystä",
-      "invalid_request": "Virheellinen pyyntö",
-      "not_configured": "Todennusta ei ole määritetty",
-      "invalid_credentials": "Virheelliset tunnistetiedot",
-      "token_error": "Token-tunnuksen luominen epäonnistui",
-      "no_token": "Ei auth token -tunnusta tai API-avainta",
-      "invalid_token": "Virheellinen token",
-      "required": "Todennus vaaditaan",
-      "session_error": "Istunnon luominen epäonnistui"
-    },
-    "status": {
-      "job_not_found": "Työtä ei löytynyt",
-      "internal_error": "Sisäinen virhe",
-      "done": "Valmis",
-      "invalid_prefix": "Virheellinen etuliite",
-      "using_uploaded_file": "Käytetään ladattua tiedostoa",
-      "no_url": "URL:ää ei löytynyt pyynnön rungosta",
-      "downloading": "Ladataan",
-      "download_error": "Latausvirhe",
-      "converting_pdf": "Muunnetaan PDF:ksi",
-      "conversion_error": "Kuva→PDF muunnosvirhe",
-      "compressing_pdf": "Pakataan PDF:ää",
-      "compress_error": "Pakkausvirhe",
-      "rename_error": "Uudelleennimeämisvirhe",
-      "uploading": "Lähetetään",
-      "upload_success": "Asiakirjasi on saatavilla reMarkablessa polussa {{path}}"
-    },
-    "errors": {
-      "missing_url": "Puuttuva URL-parametri",
-      "parse_form": "Multipart-lomakkeen jäsentäminen epäonnistui",
-      "get_file": "Tiedoston hakeminen epäonnistui",
-      "open_file": "Ladatun tiedoston avaaminen epäonnistui",
-      "create_dir": "Latauskansiota ei voitu luoda",
-      "create_file": "Tiedostoa ei voitu luoda levylle",
-      "save_file": "Tiedoston tallentaminen epäonnistui",
-      "no_form": "Multipart-lomaketta ei löytynyt",
-      "no_file_field": "Ei tiedostoa kentässä {{field}}"
-    }
+    "never": "Ei koskaan"
   },
   "settings": {
+    "title": "Käyttäjäasetukset",
+    "description": "Hallitse profiiliasi, API-avaimia ja tilin asetuksia",
+    "tabs": {
+      "profile": "Profiili",
+      "account": "Tili",
+      "api_keys": "API-avaimet"
+    },
+    "cards": {
+      "profile_information": "Profiilin tiedot",
+      "change_password": "Vaihda salasana",
+      "danger_zone": "Vaaravyöhyke",
+      "create_api_key": "Luo uusi API-avain",
+      "your_api_keys": "Sinun API-avaimesi"
+    },
+    "labels": {
+      "username": "Käyttäjänimi",
+      "email": "Sähköposti",
+      "rmapi_host": "reMarkable-isäntä (valinnainen)",
+      "default_directory": "Oletuskansio",
+      "cover_page": "Kansilehti",
+      "current_password": "Nykyinen salasana",
+      "new_password": "Uusi salasana",
+      "confirm_new_password": "Vahvista uusi salasana",
+      "delete_account": "Poista tili",
+      "api_key_name": "Nimi",
+      "api_key_expiry": "Vanhentuminen (valinnainen)",
+      "key_preview": "Avaimen esikatselu",
+      "status": "Tila",
+      "created": "Luotu",
+      "last_used": "Viimeksi käytetty",
+      "expires": "Vanhenee"
+    },
+    "actions": {
+      "unpair": "Katkaise yhteys",
+      "pair": "Yhdistä",
+      "create_api_key": "Luo API-avain",
+      "got_it": "Selvä",
+      "cancel": "Peruuta",
+      "delete_api_key": "Poista API-avain"
+    },
+    "options": {
+      "cover_current": "Nykyinen sivu",
+      "cover_first": "Ensimmäinen sivu"
+    },
+    "expiry_options": {
+      "one_week": "1 viikko",
+      "one_month": "1 kuukausi",
+      "three_months": "3 kuukautta",
+      "one_year": "1 vuosi"
+    },
+    "messages": {
+      "pair_to_load_folders": "Yhdistä ladataksesi kansiot",
+      "pair_help": "Yhdistä reMarkable-pilveen valitaksesi olemassa olevista kansioista",
+      "delete_warning_intro": "Kun poistat tilisi, paluuta ei ole. Tämä toiminto on pysyvä ja poistaa kaikki tietosi mukaan lukien:",
+      "remarkable_unaffected": "ReMarkable Cloud -tilisi ja laitetiedot pysyvät täysin koskemattomina.",
+      "api_key_created_title": "Uusi API-avain luotu",
+      "api_key_created_message": "Kopioi tämä avain nyt - sitä ei näytetä uudelleen:",
+      "no_api_keys": "API-avaimia ei ole vielä luotu"
+    },
+    "help": {
+      "cover_page": "Ohjaa käytetäänkö ensimmäistä sivua vai nykyistä sivua kansikuvana PDF-tiedostoja ladattaessa"
+    },
+    "status": {
+      "active": "aktiivinen",
+      "expired": "vanhentunut",
+      "inactive": "ei-aktiivinen"
+    },
+    "delete_warnings": {
+      "documents": "Kaikki arkistoidut asiakirjat ja tiedostot",
+      "api_keys": "Kaikki API-avaimet ja niiden käyttöoikeudet",
+      "profile": "Profiilisi ja tilin asetukset"
+    },
+    "dialogs": {
+      "delete_api_key_title": "Poista API-avain",
+      "delete_api_key_message": "Oletko varma, että haluat poistaa API-avaimen",
+      "delete_api_key_consequences_title": "Tämä toiminto:",
+      "delete_api_key_consequences": {
+        "revoke": "Peruuttaa API-avaimen pysyvästi",
+        "stop_apps": "Pysäyttää kaikki tätä avainta käyttävät sovellukset",
+        "remove": "Poistaa avaimen tililtäsi"
+      },
+      "cannot_undo": "Tätä toimintoa ei voi perua.",
+      "delete_account_confirmation": "Oletko varma, että haluat poistaa tilisi pysyvästi? Tätä toimintoa ei voi perua.",
+      "delete_account_type_confirm": "Kirjoita \"{{confirmText}}\" vahvistaaksesi"
+    },
     "placeholders": {
       "cloud_default": "Jätä tyhjäksi reMarkable Cloudia varten",
       "api_key": "Minun API-avaimeni",
@@ -321,12 +371,58 @@
     "password_placeholder": "Syötä uusi salasana",
     "confirm_placeholder": "Vahvista uusi salasana",
     "sending": "Lähetetään...",
-    "send_email": "Lähetä nollausvies­ti",
+    "send_email": "Lähetä nollaussähköposti",
     "resetting": "Nollataan...",
-    "reset_button": "Nollaa salasana"
+    "reset_button": "Nollaa salasana",
+    "email_sent": "Jos sähköposti on olemassa, salasanan nollaustunnuksinen linkki on lähetetty",
+    "send_email_error": "Nollaussähköpostin lähettäminen epäonnistui",
+    "success": "Salasana on nollattu onnistuneesti. Voit nyt kirjautua sisään uudella salasanallasi.",
+    "reset_error": "Salasanan nollaus epäonnistui",
+    "email_instruction": "Syötä sähköpostiosoitteesi ja lähetämme sinulle linkin salasanan nollaamiseksi."
   },
   "accessibility": {
     "logo": "Aviary-logo",
     "select_language": "Valitse kieli"
+  },
+  "backend": {
+    "auth": {
+      "too_many_attempts": "Liian monta epäonnistunutta kirjautumisyritystä",
+      "invalid_request": "Virheellinen pyyntö",
+      "not_configured": "Todennusta ei ole määritetty",
+      "invalid_credentials": "Virheelliset tunnistetiedot",
+      "token_error": "Token-tunnuksen luominen epäonnistui",
+      "no_token": "Ei auth token -tunnusta tai API-avainta",
+      "invalid_token": "Virheellinen token",
+      "required": "Todennus vaaditaan",
+      "session_error": "Istunnon luominen epäonnistui"
+    },
+    "status": {
+      "job_not_found": "Työtä ei löytynyt",
+      "internal_error": "Sisäinen virhe",
+      "done": "Valmis",
+      "invalid_prefix": "Virheellinen etuliite",
+      "using_uploaded_file": "Käytetään ladattua tiedostoa",
+      "no_url": "URL:ää ei löytynyt pyynnön rungosta",
+      "downloading": "Ladataan",
+      "download_error": "Latausvirhe",
+      "converting_pdf": "Muunnetaan PDF:ksi",
+      "conversion_error": "Kuva→PDF muunnosvirhe",
+      "compressing_pdf": "Pakataan PDF:ää",
+      "compress_error": "Pakkausvirhe",
+      "rename_error": "Uudelleennimeämisvirhe",
+      "uploading": "Ladataan pilveen",
+      "upload_success": "Asiakirjasi on saatavilla reMarkablessa polussa {{path}}"
+    },
+    "errors": {
+      "missing_url": "Puuttuva URL-parametri",
+      "parse_form": "Multipart-lomakkeen jäsentäminen epäonnistui",
+      "get_file": "Tiedoston hakeminen epäonnistui",
+      "open_file": "Ladatun tiedoston avaaminen epäonnistui",
+      "create_dir": "Latauskansiota ei voitu luoda",
+      "create_file": "Tiedostoa ei voitu luoda levylle",
+      "save_file": "Tiedoston tallentaminen epäonnistui",
+      "no_form": "Multipart-lomaketta ei löytynyt",
+      "no_file_field": "Ei tiedostoa kentässä {{field}}"
+    }
   }
 }

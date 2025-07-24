@@ -10,7 +10,10 @@
     "button": "Inloggen",
     "network_error": "Netwerkfout",
     "fail": "Inloggen mislukt",
-    "register": "Account maken"
+    "register": "Account maken",
+    "sso_button": "Inloggen met SSO",
+    "or_continue_with": "Of doorgaan met",
+    "forgot_password": "Wachtwoord vergeten?"
   },
   "register": {
     "title": "Account maken",
@@ -48,20 +51,20 @@
     "loading": "Laden...",
     "compress_pdf": "PDF Comprimeren",
     "send": "Verzenden",
+    "pair": "Koppelen",
     "sending": "Verzenden…",
-    "invalid_file": "Ongeldig Bestand",
+    "uploading": "Uploaden naar Aviary",
+    "invalid_file": "Ongeldig bestand",
     "ok": "OK",
     "job_queued": "Taak in wachtrij: {{id}}",
-    "pair": "Pair",
-    "uploading": "Uploading to Aviary",
-    "pair_with_cloud": "Pair with cloud to load folders",
-    "pair_with_remarkable": "Pair with reMarkable cloud",
-    "to_upload_documents": " to upload documents.",
-    "settings_config": " Go to Settings for additional configuration."
+    "pair_with_cloud": "Koppel met cloud om mappen te laden",
+    "pair_with_remarkable": "Koppel met reMarkable cloud",
+    "to_upload_documents": " om documenten te uploaden.",
+    "settings_config": " Ga naar Instellingen voor aanvullende configuratie."
   },
   "filedrop": {
-    "instruction": "Klik om te uploaden of sleep en zet neer",
-    "invalid_type": "Selecteer alstublieft een PDF-, EPUB-, JPEG- of PNG-bestand."
+    "instruction": "Klik om te uploaden of sleep en drop",
+    "invalid_type": "Selecteer een PDF-, EPUB-, JPEG- of PNG-bestand."
   },
   "theme": {
     "switch": "Schakel naar {{mode}} modus",
@@ -71,19 +74,22 @@
   },
   "language": {
     "search": "Zoeken...",
+    "search_fallback": "Talen zoeken...",
     "no_results": "Geen resultaten.",
-    "tooltip": "Taal"
+    "no_results_fallback": "Geen talen gevonden.",
+    "tooltip": "Taal",
+    "tooltip_fallback": "Taal"
   },
   "pairing": {
-    "title": "Koppelen met reMarkable Cloud",
+    "title": "Koppel met reMarkable Cloud",
     "description": "Voer eenmalige code in van {{displayHost}}",
     "code_label": "Eenmalige code",
-    "code_placeholder": "8 tekens code",
+    "code_placeholder": "8-tekens code",
     "cancel": "Annuleren",
     "pair": "Koppelen",
-    "pairing": "Koppeling...",
+    "pairing": "Koppelen...",
     "code_error": "Code moet 8 tekens lang zijn",
-    "pair_error": "Koppeling mislukt"
+    "pair_error": "Koppelen mislukt"
   },
   "user_delete": {
     "title": "Account verwijderen",
@@ -91,20 +97,20 @@
     "admin_user_warning": "Weet je zeker dat je gebruiker <strong>{{username}}</strong> permanent wilt verwijderen?",
     "action_will": "Deze actie zal:",
     "current_user": {
-      "data_deletion": "Al je gegevens verwijderen inclusief geüploade documenten en API-sleutels",
+      "data_deletion": "Al je data verwijderen inclusief geüploade documenten en API-sleutels",
       "remove_sessions": "Al je sessies verwijderen en je uitloggen",
-      "remove_history": "Al je logingeschiedenis verwijderen",
+      "remove_history": "Je volledige inloggeschiedenis verwijderen",
       "permanent_removal": "Je account permanent uit het systeem verwijderen"
     },
     "admin_user": {
-      "data_deletion": "Alle gebruikersgegevens verwijderen inclusief gearchiveerde documenten en API-sleutels",
+      "data_deletion": "Alle gebruikersdata verwijderen inclusief gearchiveerde documenten en API-sleutels",
       "remove_sessions": "Alle gebruikerssessies verwijderen",
-      "remove_history": "Alle logingeschiedenis verwijderen"
+      "remove_history": "Alle inloggeschiedenis verwijderen"
     },
-    "note_label": "Let op:",
-    "note_current": "Je reMarkable Cloud-account en apparaatgegevens blijven volledig onaangetast.",
-    "note_admin": "Het reMarkable Cloud-account van de gebruiker en apparaatgegevens blijven volledig onaangetast.",
-    "cannot_undo_current": "Deze actie kan niet ongedaan worden gemaakt en je verliest toegang tot al je gegevens.",
+    "note_label": "Opmerking:",
+    "note_current": "Je reMarkable Cloud-account en apparaatdata blijven volledig onaangetast.",
+    "note_admin": "De reMarkable Cloud-account en apparaatdata van de gebruiker blijven volledig onaangetast.",
+    "cannot_undo_current": "Deze actie kan niet ongedaan worden gemaakt en je verliest toegang tot al je data.",
     "cannot_undo_admin": "Deze actie kan niet ongedaan worden gemaakt.",
     "cancel": "Annuleren",
     "delete_account": "Mijn account verwijderen",
@@ -112,184 +118,228 @@
     "deleting": "Verwijderen..."
   },
   "admin": {
-    "title": "Admin Panel",
-    "description": "Manage users, system settings, and monitor system health",
+    "title": "Beheerpaneel",
+    "description": "Beheer gebruikers, systeeminstellingen en monitor systeemgezondheid",
     "status": {
-      "working": "Working",
-      "failed": "Failed",
-      "not_configured": "Not configured",
-      "unknown": "Unknown",
-      "inactive": "Inactive",
-      "paired": "Paired",
-      "unpaired": "Unpaired",
-      "active": "active"
+      "working": "Werkend",
+      "failed": "Mislukt",
+      "not_configured": "Niet geconfigureerd",
+      "unknown": "Onbekend",
+      "inactive": "Inactief",
+      "paired": "Gekoppeld",
+      "unpaired": "Niet gekoppeld",
+      "active": "actief"
     },
     "roles": {
-      "admin": "Admin",
-      "user": "User"
+      "admin": "Beheerder",
+      "user": "Gebruiker"
     },
     "actions": {
-      "make_admin": "Make Admin",
-      "make_user": "Make User",
-      "activate": "Activate",
-      "deactivate": "Deactivate",
-      "reset_password": "Reset Password",
-      "delete": "Delete",
-      "create_user": "Create User",
-      "test_smtp": "Test SMTP",
-      "create_backup": "Create Backup",
-      "restore_backup": "Restore from Backup...",
-      "cancel": "Cancel",
-      "restore_database": "Restore Database"
+      "make_admin": "Maak beheerder",
+      "make_user": "Maak gebruiker",
+      "activate": "Activeren",
+      "deactivate": "Deactiveren",
+      "reset_password": "Wachtwoord resetten",
+      "delete": "Verwijderen",
+      "create_user": "Gebruiker aanmaken",
+      "test_smtp": "SMTP testen",
+      "create_backup": "Backup maken",
+      "restore_backup": "Herstellen van backup...",
+      "cancel": "Annuleren",
+      "restore_database": "Database herstellen"
     },
     "tabs": {
-      "overview": "Overview",
-      "users": "Users",
-      "api_keys": "API Keys",
-      "settings": "Settings",
-      "system": "System"
+      "overview": "Overzicht",
+      "users": "Gebruikers",
+      "api_keys": "API-sleutels",
+      "settings": "Instellingen",
+      "system": "Systeem"
     },
     "cards": {
-      "total_users": "Total Users",
-      "api_keys": "API Keys",
-      "documents": "Documents",
-      "active_sessions": "Active Sessions",
-      "smtp_status": "SMTP Status",
-      "system_mode": "System Mode",
-      "create_new_user": "Create New User",
-      "user_management": "User Management",
-      "api_key_settings": "API Key Settings",
-      "session_settings": "Session Settings",
-      "backup_restore": "Backup & Restore"
+      "total_users": "Totaal gebruikers",
+      "api_keys": "API-sleutels",
+      "documents": "Documenten",
+      "active_sessions": "Actieve sessies",
+      "smtp_status": "SMTP-status",
+      "system_mode": "Systeemmodus",
+      "create_new_user": "Nieuwe gebruiker aanmaken",
+      "user_management": "Gebruikersbeheer",
+      "api_key_settings": "API-sleutel instellingen",
+      "session_settings": "Sessie-instellingen",
+      "backup_restore": "Backup & Herstel"
     },
     "labels": {
-      "username": "Username",
-      "email": "Email",
-      "password": "Password",
-      "role": "Role",
+      "username": "Gebruikersnaam",
+      "email": "E-mail",
+      "password": "Wachtwoord",
+      "role": "Rol",
       "status": "Status",
-      "created": "Created",
-      "last_login": "Last Login",
-      "actions": "Actions",
-      "name": "Name",
-      "user": "User",
-      "key_preview": "Key Preview",
-      "last_used": "Last Used",
-      "expires": "Expires",
-      "new_password": "New Password",
-      "enable_registration": "Enable User Registration",
-      "max_api_keys": "Maximum API Keys per User",
-      "session_timeout": "Session Timeout (hours)"
+      "created": "Aangemaakt",
+      "last_login": "Laatste login",
+      "actions": "Acties",
+      "name": "Naam",
+      "user": "Gebruiker",
+      "key_preview": "Sleutel voorbeeld",
+      "last_used": "Laatst gebruikt",
+      "expires": "Verloopt",
+      "new_password": "Nieuw wachtwoord",
+      "enable_registration": "Gebruikersregistratie inschakelen",
+      "max_api_keys": "Maximum API-sleutels per gebruiker",
+      "session_timeout": "Sessie timeout (uren)"
     },
     "placeholders": {
-      "username": "username",
-      "email": "user@example.com",
-      "password": "password",
-      "new_password": "Enter new password (minimum 8 characters)"
+      "username": "gebruikersnaam",
+      "email": "gebruiker@voorbeeld.nl",
+      "password": "wachtwoord",
+      "new_password": "Voer nieuw wachtwoord in (minimaal 8 tekens)"
     },
     "descriptions": {
-      "registration_help": "Allow self-service creation of new user accounts",
-      "total_uploaded": "Total uploaded",
-      "current_sessions": "Current unexpired sessions",
-      "backup_description": "Creates a complete backup including database and user files as a .tar.gz archive",
-      "restore_description": "Restores database and user files from backup archive (.tar.gz format)",
-      "restore_warning": "Warning: Restoring will completely overwrite all current data"
+      "registration_help": "Sta zelfservice aanmaken van nieuwe gebruikersaccounts toe",
+      "total_uploaded": "Totaal geüpload",
+      "current_sessions": "Huidige niet-verlopen sessies",
+      "backup_description": "Maakt een complete backup inclusief database en gebruikersbestanden als .tar.gz archief",
+      "restore_description": "Herstelt database en gebruikersbestanden van backup archief (.tar.gz formaat)",
+      "restore_warning": "Waarschuwing: Herstellen zal alle huidige data volledig overschrijven"
     },
     "badges": {
-      "multi_user": "Multi-user Mode",
-      "dry_run": "Dry Run Mode",
-      "oidc_enabled": "OIDC Enabled",
-      "proxy_auth": "Proxy Auth Enabled"
+      "multi_user": "Multi-gebruiker modus",
+      "dry_run": "Testrun modus",
+      "oidc_enabled": "OIDC ingeschakeld",
+      "proxy_auth": "Proxy Auth ingeschakeld"
     },
     "loading_states": {
-      "creating_backup": "Creating Backup...",
-      "analyzing": "Analyzing...",
-      "resetting": "Resetting...",
-      "restoring": "Restoring...",
-      "loading": "Loading..."
+      "creating_backup": "Backup maken...",
+      "analyzing": "Analyseren...",
+      "resetting": "Resetten...",
+      "restoring": "Herstellen...",
+      "loading": "Laden..."
     },
     "dialogs": {
-      "reset_password_title": "Reset Password",
-      "reset_password_description": "Reset the password for user: ",
-      "confirm_restore_title": "Confirm Data Restore",
-      "confirm_restore_description": "You are about to restore from backup file: ",
-      "backup_contents": "Backup Contents:",
-      "restore_warning_text": "This will permanently overwrite all current data including:",
+      "reset_password_title": "Wachtwoord resetten",
+      "reset_password_description": "Reset het wachtwoord voor gebruiker: ",
+      "confirm_restore_title": "Bevestig data herstel",
+      "confirm_restore_description": "Je gaat herstellen van backup bestand: ",
+      "backup_contents": "Backup inhoud:",
+      "restore_warning_text": "Dit zal permanent alle huidige data overschrijven inclusief:",
       "restore_warning_items": {
-        "accounts": "All user accounts and settings",
-        "api_keys": "All API keys and sessions",
-        "documents": "All user documents and files",
-        "pairing": "All cloud pairing configuration",
-        "folders": "All folder caches",
-        "settings": "All system settings"
+        "accounts": "Alle gebruikersaccounts en instellingen",
+        "api_keys": "Alle API-sleutels en sessies",
+        "documents": "Alle gebruikersdocumenten en bestanden",
+        "pairing": "Alle cloud koppeling configuratie",
+        "folders": "Alle map caches",
+        "settings": "Alle systeeminstellingen"
       },
-      "restore_final_warning": "This action cannot be undone. Make sure you have a current backup before proceeding."
+      "restore_final_warning": "Deze actie kan niet ongedaan worden gemaakt. Zorg ervoor dat je een huidige backup hebt voordat je doorgaat."
     },
     "errors": {
-      "create_user": "Failed to create user",
-      "delete_user": "Failed to delete user",
-      "reset_password": "Failed to reset password",
-      "password_length": "Password must be at least 8 characters long",
-      "smtp_test": "SMTP test failed",
-      "smtp_test_network": "Failed to test SMTP",
-      "backup_create": "Failed to create backup",
-      "backup_invalid": "Invalid backup file",
-      "backup_analyze": "Failed to analyze backup file: ",
-      "backup_file_type": "Invalid file type. Please select a backup archive (.tar.gz or .tgz). Selected file: ",
-      "restore_failed": "Failed to restore database",
-      "restore_error": "Failed to restore database: "
+      "create_user": "Kon gebruiker niet aanmaken",
+      "delete_user": "Kon gebruiker niet verwijderen",
+      "reset_password": "Kon wachtwoord niet resetten",
+      "password_length": "Wachtwoord moet minimaal 8 tekens lang zijn",
+      "smtp_test": "SMTP-test mislukt",
+      "smtp_test_network": "Kon SMTP niet testen",
+      "backup_create": "Kon backup niet maken",
+      "backup_invalid": "Ongeldig backup bestand",
+      "backup_analyze": "Kon backup bestand niet analyseren: ",
+      "backup_file_type": "Ongeldig bestandstype. Selecteer een backup archief (.tar.gz of .tgz). Geselecteerd bestand: ",
+      "restore_failed": "Kon database niet herstellen",
+      "restore_error": "Kon database niet herstellen: "
     },
     "success": {
-      "restore_complete": "Database restored successfully"
+      "restore_complete": "Database succesvol hersteld"
     },
     "counts": {
-      "users": "Users ({{count}})",
-      "all_api_keys": "All API Keys ({{count}})"
+      "users": "Gebruikers ({{count}})",
+      "all_api_keys": "Alle API-sleutels ({{count}})"
     },
-    "never": "Never"
-  },
-  "backend": {
-    "auth": {
-      "too_many_attempts": "Te veel mislukte inlogpogingen",
-      "invalid_request": "Ongeldig verzoek",
-      "not_configured": "Authenticatie niet geconfigureerd",
-      "invalid_credentials": "Ongeldige inloggegevens",
-      "token_error": "Kon token niet genereren",
-      "no_token": "Geen auth token of API-sleutel",
-      "invalid_token": "Ongeldig token",
-      "required": "Authenticatie vereist",
-      "session_error": "Kon sessie niet genereren"
-    },
-    "status": {
-      "job_not_found": "Taak niet gevonden",
-      "internal_error": "Interne fout",
-      "done": "Klaar",
-      "invalid_prefix": "Ongeldig voorvoegsel",
-      "using_uploaded_file": "Geüpload bestand gebruiken",
-      "no_url": "Geen URL gevonden in verzoekbody",
-      "downloading": "Downloaden",
-      "download_error": "Downloadfout",
-      "converting_pdf": "Converteren naar PDF",
-      "conversion_error": "Afbeelding→PDF conversie fout",
-      "compressing_pdf": "PDF comprimeren",
-      "compress_error": "Compressiefout",
-      "rename_error": "Hernoem fout",
-      "uploading": "Uploaden",
-      "upload_success": "Uw document is beschikbaar op uw reMarkable op {{path}}"
-    },
-    "errors": {
-      "missing_url": "Ontbrekende URL parameter",
-      "parse_form": "Kon multipart formulier niet parseren",
-      "get_file": "Kon bestand niet ophalen",
-      "open_file": "Kon geüpload bestand niet openen",
-      "create_dir": "Kon upload directory niet aanmaken",
-      "create_file": "Kon bestand niet aanmaken op schijf",
-      "save_file": "Kon bestand niet opslaan",
-      "no_form": "Geen multipart formulier gevonden",
-      "no_file_field": "Geen bestand met veldnaam {{field}}"
-    }
+    "never": "Nooit"
   },
   "settings": {
+    "title": "Gebruikersinstellingen",
+    "description": "Beheer je profiel, API-sleutels en accountvoorkeuren",
+    "tabs": {
+      "profile": "Profiel",
+      "account": "Account",
+      "api_keys": "API-sleutels"
+    },
+    "cards": {
+      "profile_information": "Profielinformatie",
+      "change_password": "Wachtwoord wijzigen",
+      "danger_zone": "Gevarenzone",
+      "create_api_key": "Nieuwe API-sleutel maken",
+      "your_api_keys": "Jouw API-sleutels"
+    },
+    "labels": {
+      "username": "Gebruikersnaam",
+      "email": "E-mail",
+      "rmapi_host": "reMarkable host (optioneel)",
+      "default_directory": "Standaardmap",
+      "cover_page": "Omslagpagina",
+      "current_password": "Huidige wachtwoord",
+      "new_password": "Nieuw wachtwoord",
+      "confirm_new_password": "Bevestig nieuw wachtwoord",
+      "delete_account": "Account verwijderen",
+      "api_key_name": "Naam",
+      "api_key_expiry": "Vervaldatum (optioneel)",
+      "key_preview": "Sleutel voorbeeld",
+      "status": "Status",
+      "created": "Aangemaakt",
+      "last_used": "Laatst gebruikt",
+      "expires": "Verloopt"
+    },
+    "actions": {
+      "unpair": "Ontkoppelen",
+      "pair": "Koppelen",
+      "create_api_key": "API-sleutel maken",
+      "got_it": "Begrepen",
+      "cancel": "Annuleren",
+      "delete_api_key": "API-sleutel verwijderen"
+    },
+    "options": {
+      "cover_current": "Huidige pagina",
+      "cover_first": "Eerste pagina"
+    },
+    "expiry_options": {
+      "one_week": "1 week",
+      "one_month": "1 maand",
+      "three_months": "3 maanden",
+      "one_year": "1 jaar"
+    },
+    "messages": {
+      "pair_to_load_folders": "Koppel om mappen te laden",
+      "pair_help": "Koppel met reMarkable cloud om te selecteren uit bestaande mappen",
+      "delete_warning_intro": "Zodra je je account verwijdert, is er geen weg terug. Deze actie is permanent en zal al je data verwijderen inclusief:",
+      "remarkable_unaffected": "Je reMarkable Cloud-account en apparaatdata blijven volledig onaangetast.",
+      "api_key_created_title": "Nieuwe API-sleutel aangemaakt",
+      "api_key_created_message": "Kopieer deze sleutel nu - deze wordt niet opnieuw getoond:",
+      "no_api_keys": "Nog geen API-sleutels aangemaakt"
+    },
+    "help": {
+      "cover_page": "Bepaalt of de eerste pagina of huidige pagina wordt gebruikt als omslag bij het uploaden van PDF's"
+    },
+    "status": {
+      "active": "actief",
+      "expired": "verlopen",
+      "inactive": "inactief"
+    },
+    "delete_warnings": {
+      "documents": "Alle gearchiveerde documenten en bestanden",
+      "api_keys": "Alle API-sleutels en hun toegang",
+      "profile": "Je profiel en accountinstellingen"
+    },
+    "dialogs": {
+      "delete_api_key_title": "API-sleutel verwijderen",
+      "delete_api_key_message": "Weet je zeker dat je de API-sleutel wilt verwijderen",
+      "delete_api_key_consequences_title": "Deze actie zal:",
+      "delete_api_key_consequences": {
+        "revoke": "De API-sleutel permanent intrekken",
+        "stop_apps": "Alle applicaties die deze sleutel gebruiken stoppen",
+        "remove": "De sleutel van je account verwijderen"
+      },
+      "cannot_undo": "Deze actie kan niet ongedaan worden gemaakt.",
+      "delete_account_confirmation": "Weet je zeker dat je je account permanent wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+      "delete_account_type_confirm": "Type \"{{confirmText}}\" om te bevestigen"
+    },
     "placeholders": {
       "cloud_default": "Laat leeg voor reMarkable Cloud",
       "api_key": "Mijn API-sleutel",
@@ -321,12 +371,58 @@
     "password_placeholder": "Voer nieuw wachtwoord in",
     "confirm_placeholder": "Bevestig nieuw wachtwoord",
     "sending": "Verzenden...",
-    "send_email": "Reset-e-mail verzenden",
+    "send_email": "Reset e-mail verzenden",
     "resetting": "Resetten...",
-    "reset_button": "Wachtwoord resetten"
+    "reset_button": "Wachtwoord resetten",
+    "email_sent": "Als het e-mailadres bestaat, is er een wachtwoord reset link verzonden",
+    "send_email_error": "Kon reset e-mail niet verzenden",
+    "success": "Wachtwoord is succesvol gereset. Je kunt nu inloggen met je nieuwe wachtwoord.",
+    "reset_error": "Kon wachtwoord niet resetten",
+    "email_instruction": "Voer je e-mailadres in en we sturen je een link om je wachtwoord te resetten."
   },
   "accessibility": {
-    "logo": "Aviary-logo",
+    "logo": "Aviary logo",
     "select_language": "Taal selecteren"
+  },
+  "backend": {
+    "auth": {
+      "too_many_attempts": "Te veel mislukte inlogpogingen",
+      "invalid_request": "Ongeldig verzoek",
+      "not_configured": "Authenticatie niet geconfigureerd",
+      "invalid_credentials": "Ongeldige inloggegevens",
+      "token_error": "Kon token niet genereren",
+      "no_token": "Geen auth token of API-sleutel",
+      "invalid_token": "Ongeldige token",
+      "required": "Authenticatie vereist",
+      "session_error": "Kon sessie niet genereren"
+    },
+    "status": {
+      "job_not_found": "Taak niet gevonden",
+      "internal_error": "Interne fout",
+      "done": "Klaar",
+      "invalid_prefix": "Ongeldige prefix",
+      "using_uploaded_file": "Geüpload bestand gebruiken",
+      "no_url": "Geen URL gevonden in verzoek body",
+      "downloading": "Downloaden",
+      "download_error": "Download fout",
+      "converting_pdf": "Converteren naar PDF",
+      "conversion_error": "Afbeelding→PDF conversie fout",
+      "compressing_pdf": "PDF comprimeren",
+      "compress_error": "Compressie fout",
+      "rename_error": "Hernoem fout",
+      "uploading": "Uploaden naar cloud",
+      "upload_success": "Je document is beschikbaar op je reMarkable op {{path}}"
+    },
+    "errors": {
+      "missing_url": "Ontbrekende URL parameter",
+      "parse_form": "Kon multipart formulier niet parsen",
+      "get_file": "Kon bestand niet ophalen",
+      "open_file": "Kon geüpload bestand niet openen",
+      "create_dir": "Kon upload map niet maken",
+      "create_file": "Kon bestand niet maken op schijf",
+      "save_file": "Kon bestand niet opslaan",
+      "no_form": "Geen multipart formulier gevonden",
+      "no_file_field": "Geen bestand met veldnaam {{field}}"
+    }
   }
 }

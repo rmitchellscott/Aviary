@@ -10,7 +10,10 @@
     "button": "로그인",
     "network_error": "네트워크 오류",
     "fail": "로그인 실패",
-    "register": "계정 생성"
+    "register": "계정 생성",
+    "sso_button": "SSO로 로그인",
+    "or_continue_with": "또는 계속하기",
+    "forgot_password": "비밀번호를 잊으셨나요?"
   },
   "register": {
     "title": "계정 생성",
@@ -48,12 +51,12 @@
     "loading": "로딩 중...",
     "compress_pdf": "PDF 압축",
     "send": "전송",
+    "pair": "연결",
     "sending": "전송 중…",
+    "uploading": "Aviary에 업로드 중",
     "invalid_file": "유효하지 않은 파일",
     "ok": "확인",
     "job_queued": "작업이 대기열에 추가됨: {{id}}",
-    "pair": "연결",
-    "uploading": "Aviary에 업로드 중",
     "pair_with_cloud": "폴더를 로드하기 위해 클라우드와 연결",
     "pair_with_remarkable": "reMarkable 클라우드와 연결",
     "to_upload_documents": " 문서를 업로드하기 위해.",
@@ -71,8 +74,11 @@
   },
   "language": {
     "search": "검색...",
+    "search_fallback": "언어 검색...",
     "no_results": "결과가 없습니다.",
-    "tooltip": "언어"
+    "no_results_fallback": "언어를 찾을 수 없습니다.",
+    "tooltip": "언어",
+    "tooltip_fallback": "언어"
   },
   "pairing": {
     "title": "reMarkable Cloud와 연결",
@@ -112,184 +118,228 @@
     "deleting": "삭제 중..."
   },
   "admin": {
-    "title": "Admin Panel",
-    "description": "Manage users, system settings, and monitor system health",
+    "title": "관리 패널",
+    "description": "사용자, 시스템 설정 관리 및 시스템 상태 모니터링",
     "status": {
-      "working": "Working",
-      "failed": "Failed",
-      "not_configured": "Not configured",
-      "unknown": "Unknown",
-      "inactive": "Inactive",
-      "paired": "Paired",
-      "unpaired": "Unpaired",
-      "active": "active"
+      "working": "작동 중",
+      "failed": "실패",
+      "not_configured": "구성되지 않음",
+      "unknown": "알 수 없음",
+      "inactive": "비활성",
+      "paired": "연결됨",
+      "unpaired": "연결 해제됨",
+      "active": "활성"
     },
     "roles": {
-      "admin": "Admin",
-      "user": "User"
+      "admin": "관리자",
+      "user": "사용자"
     },
     "actions": {
-      "make_admin": "Make Admin",
-      "make_user": "Make User",
-      "activate": "Activate",
-      "deactivate": "Deactivate",
-      "reset_password": "Reset Password",
-      "delete": "Delete",
-      "create_user": "Create User",
-      "test_smtp": "Test SMTP",
-      "create_backup": "Create Backup",
-      "restore_backup": "Restore from Backup...",
-      "cancel": "Cancel",
-      "restore_database": "Restore Database"
+      "make_admin": "관리자로 만들기",
+      "make_user": "사용자로 만들기",
+      "activate": "활성화",
+      "deactivate": "비활성화",
+      "reset_password": "비밀번호 재설정",
+      "delete": "삭제",
+      "create_user": "사용자 생성",
+      "test_smtp": "SMTP 테스트",
+      "create_backup": "백업 생성",
+      "restore_backup": "백업에서 복원...",
+      "cancel": "취소",
+      "restore_database": "데이터베이스 복원"
     },
     "tabs": {
-      "overview": "Overview",
-      "users": "Users",
-      "api_keys": "API Keys",
-      "settings": "Settings",
-      "system": "System"
+      "overview": "개요",
+      "users": "사용자",
+      "api_keys": "API 키",
+      "settings": "설정",
+      "system": "시스템"
     },
     "cards": {
-      "total_users": "Total Users",
-      "api_keys": "API Keys",
-      "documents": "Documents",
-      "active_sessions": "Active Sessions",
-      "smtp_status": "SMTP Status",
-      "system_mode": "System Mode",
-      "create_new_user": "Create New User",
-      "user_management": "User Management",
-      "api_key_settings": "API Key Settings",
-      "session_settings": "Session Settings",
-      "backup_restore": "Backup & Restore"
+      "total_users": "총 사용자",
+      "api_keys": "API 키",
+      "documents": "문서",
+      "active_sessions": "활성 세션",
+      "smtp_status": "SMTP 상태",
+      "system_mode": "시스템 모드",
+      "create_new_user": "새 사용자 생성",
+      "user_management": "사용자 관리",
+      "api_key_settings": "API 키 설정",
+      "session_settings": "세션 설정",
+      "backup_restore": "백업 및 복원"
     },
     "labels": {
-      "username": "Username",
-      "email": "Email",
-      "password": "Password",
-      "role": "Role",
-      "status": "Status",
-      "created": "Created",
-      "last_login": "Last Login",
-      "actions": "Actions",
-      "name": "Name",
-      "user": "User",
-      "key_preview": "Key Preview",
-      "last_used": "Last Used",
-      "expires": "Expires",
-      "new_password": "New Password",
-      "enable_registration": "Enable User Registration",
-      "max_api_keys": "Maximum API Keys per User",
-      "session_timeout": "Session Timeout (hours)"
+      "username": "사용자명",
+      "email": "이메일",
+      "password": "비밀번호",
+      "role": "역할",
+      "status": "상태",
+      "created": "생성일",
+      "last_login": "마지막 로그인",
+      "actions": "작업",
+      "name": "이름",
+      "user": "사용자",
+      "key_preview": "키 미리보기",
+      "last_used": "마지막 사용",
+      "expires": "만료",
+      "new_password": "새 비밀번호",
+      "enable_registration": "사용자 등록 활성화",
+      "max_api_keys": "사용자당 최대 API 키",
+      "session_timeout": "세션 타임아웃 (시간)"
     },
     "placeholders": {
-      "username": "username",
+      "username": "사용자명",
       "email": "user@example.com",
-      "password": "password",
-      "new_password": "Enter new password (minimum 8 characters)"
+      "password": "비밀번호",
+      "new_password": "새 비밀번호 입력 (최소 8자)"
     },
     "descriptions": {
-      "registration_help": "Allow self-service creation of new user accounts",
-      "total_uploaded": "Total uploaded",
-      "current_sessions": "Current unexpired sessions",
-      "backup_description": "Creates a complete backup including database and user files as a .tar.gz archive",
-      "restore_description": "Restores database and user files from backup archive (.tar.gz format)",
-      "restore_warning": "Warning: Restoring will completely overwrite all current data"
+      "registration_help": "새 사용자 계정의 셀프 서비스 생성 허용",
+      "total_uploaded": "총 업로드",
+      "current_sessions": "현재 만료되지 않은 세션",
+      "backup_description": "데이터베이스와 사용자 파일을 포함한 완전한 백업을 .tar.gz 아카이브로 생성",
+      "restore_description": "백업 아카이브 (.tar.gz 형식)에서 데이터베이스와 사용자 파일 복원",
+      "restore_warning": "경고: 복원하면 모든 현재 데이터가 완전히 덮어쓰기됩니다"
     },
     "badges": {
-      "multi_user": "Multi-user Mode",
-      "dry_run": "Dry Run Mode",
-      "oidc_enabled": "OIDC Enabled",
-      "proxy_auth": "Proxy Auth Enabled"
+      "multi_user": "다중 사용자 모드",
+      "dry_run": "테스트 실행 모드",
+      "oidc_enabled": "OIDC 활성화",
+      "proxy_auth": "프록시 인증 활성화"
     },
     "loading_states": {
-      "creating_backup": "Creating Backup...",
-      "analyzing": "Analyzing...",
-      "resetting": "Resetting...",
-      "restoring": "Restoring...",
-      "loading": "Loading..."
+      "creating_backup": "백업 생성 중...",
+      "analyzing": "분석 중...",
+      "resetting": "재설정 중...",
+      "restoring": "복원 중...",
+      "loading": "로딩 중..."
     },
     "dialogs": {
-      "reset_password_title": "Reset Password",
-      "reset_password_description": "Reset the password for user: ",
-      "confirm_restore_title": "Confirm Data Restore",
-      "confirm_restore_description": "You are about to restore from backup file: ",
-      "backup_contents": "Backup Contents:",
-      "restore_warning_text": "This will permanently overwrite all current data including:",
+      "reset_password_title": "비밀번호 재설정",
+      "reset_password_description": "사용자의 비밀번호 재설정: ",
+      "confirm_restore_title": "데이터 복원 확인",
+      "confirm_restore_description": "백업 파일에서 복원하려고 합니다: ",
+      "backup_contents": "백업 내용:",
+      "restore_warning_text": "다음을 포함한 모든 현재 데이터가 영구적으로 덮어쓰기됩니다:",
       "restore_warning_items": {
-        "accounts": "All user accounts and settings",
-        "api_keys": "All API keys and sessions",
-        "documents": "All user documents and files",
-        "pairing": "All cloud pairing configuration",
-        "folders": "All folder caches",
-        "settings": "All system settings"
+        "accounts": "모든 사용자 계정 및 설정",
+        "api_keys": "모든 API 키 및 세션",
+        "documents": "모든 사용자 문서 및 파일",
+        "pairing": "모든 클라우드 페어링 구성",
+        "folders": "모든 폴더 캐시",
+        "settings": "모든 시스템 설정"
       },
-      "restore_final_warning": "This action cannot be undone. Make sure you have a current backup before proceeding."
+      "restore_final_warning": "이 작업은 되돌릴 수 없습니다. 계속하기 전에 최신 백업이 있는지 확인하세요."
     },
     "errors": {
-      "create_user": "Failed to create user",
-      "delete_user": "Failed to delete user",
-      "reset_password": "Failed to reset password",
-      "password_length": "Password must be at least 8 characters long",
-      "smtp_test": "SMTP test failed",
-      "smtp_test_network": "Failed to test SMTP",
-      "backup_create": "Failed to create backup",
-      "backup_invalid": "Invalid backup file",
-      "backup_analyze": "Failed to analyze backup file: ",
-      "backup_file_type": "Invalid file type. Please select a backup archive (.tar.gz or .tgz). Selected file: ",
-      "restore_failed": "Failed to restore database",
-      "restore_error": "Failed to restore database: "
+      "create_user": "사용자 생성 실패",
+      "delete_user": "사용자 삭제 실패",
+      "reset_password": "비밀번호 재설정 실패",
+      "password_length": "비밀번호는 최소 8자 이상이어야 합니다",
+      "smtp_test": "SMTP 테스트 실패",
+      "smtp_test_network": "SMTP 테스트 실패",
+      "backup_create": "백업 생성 실패",
+      "backup_invalid": "유효하지 않은 백업 파일",
+      "backup_analyze": "백업 파일 분석 실패: ",
+      "backup_file_type": "유효하지 않은 파일 유형. 백업 아카이브 (.tar.gz 또는 .tgz)를 선택하세요. 선택된 파일: ",
+      "restore_failed": "데이터베이스 복원 실패",
+      "restore_error": "데이터베이스 복원 실패: "
     },
     "success": {
-      "restore_complete": "Database restored successfully"
+      "restore_complete": "데이터베이스가 성공적으로 복원되었습니다"
     },
     "counts": {
-      "users": "Users ({{count}})",
-      "all_api_keys": "All API Keys ({{count}})"
+      "users": "사용자 ({{count}})",
+      "all_api_keys": "모든 API 키 ({{count}})"
     },
-    "never": "Never"
-  },
-  "backend": {
-    "auth": {
-      "too_many_attempts": "로그인 시도 횟수가 너무 많습니다",
-      "invalid_request": "유효하지 않은 요청",
-      "not_configured": "인증이 구성되지 않음",
-      "invalid_credentials": "유효하지 않은 자격 증명",
-      "token_error": "토큰을 생성할 수 없습니다",
-      "no_token": "인증 토큰이나 API 키가 없습니다",
-      "invalid_token": "유효하지 않은 토큰",
-      "required": "인증이 필요합니다",
-      "session_error": "세션을 생성할 수 없습니다"
-    },
-    "status": {
-      "job_not_found": "작업을 찾을 수 없습니다",
-      "internal_error": "내부 오류",
-      "done": "완료",
-      "invalid_prefix": "유효하지 않은 접두사",
-      "using_uploaded_file": "업로드된 파일 사용 중",
-      "no_url": "요청 본문에서 URL을 찾을 수 없습니다",
-      "downloading": "다운로드 중",
-      "download_error": "다운로드 오류",
-      "converting_pdf": "PDF로 변환 중",
-      "conversion_error": "이미지→PDF 변환 오류",
-      "compressing_pdf": "PDF 압축 중",
-      "compress_error": "압축 오류",
-      "rename_error": "이름 변경 오류",
-      "uploading": "업로드 중",
-      "upload_success": "문서가 reMarkable의 {{path}}에서 사용 가능합니다"
-    },
-    "errors": {
-      "missing_url": "URL 매개변수 누락",
-      "parse_form": "멀티파트 폼을 파싱할 수 없습니다",
-      "get_file": "파일을 가져올 수 없습니다",
-      "open_file": "업로드된 파일을 열 수 없습니다",
-      "create_dir": "업로드 디렉토리를 생성할 수 없습니다",
-      "create_file": "디스크에 파일을 생성할 수 없습니다",
-      "save_file": "파일을 저장할 수 없습니다",
-      "no_form": "멀티파트 폼을 찾을 수 없습니다",
-      "no_file_field": "필드명 {{field}}의 파일이 없습니다"
-    }
+    "never": "없음"
   },
   "settings": {
+    "title": "사용자 설정",
+    "description": "프로필, API 키 및 계정 설정 관리",
+    "tabs": {
+      "profile": "프로필",
+      "account": "계정",
+      "api_keys": "API 키"
+    },
+    "cards": {
+      "profile_information": "프로필 정보",
+      "change_password": "비밀번호 변경",
+      "danger_zone": "위험 구역",
+      "create_api_key": "새 API 키 생성",
+      "your_api_keys": "내 API 키"
+    },
+    "labels": {
+      "username": "사용자명",
+      "email": "이메일",
+      "rmapi_host": "reMarkable 호스트 (선택사항)",
+      "default_directory": "기본 디렉토리",
+      "cover_page": "표지 페이지",
+      "current_password": "현재 비밀번호",
+      "new_password": "새 비밀번호",
+      "confirm_new_password": "새 비밀번호 확인",
+      "delete_account": "계정 삭제",
+      "api_key_name": "이름",
+      "api_key_expiry": "만료 (선택사항)",
+      "key_preview": "키 미리보기",
+      "status": "상태",
+      "created": "생성일",
+      "last_used": "마지막 사용",
+      "expires": "만료"
+    },
+    "actions": {
+      "unpair": "연결 해제",
+      "pair": "연결",
+      "create_api_key": "API 키 생성",
+      "got_it": "알겠습니다",
+      "cancel": "취소",
+      "delete_api_key": "API 키 삭제"
+    },
+    "options": {
+      "cover_current": "현재 페이지",
+      "cover_first": "첫 번째 페이지"
+    },
+    "expiry_options": {
+      "one_week": "1주",
+      "one_month": "1개월",
+      "three_months": "3개월",
+      "one_year": "1년"
+    },
+    "messages": {
+      "pair_to_load_folders": "폴더를 로드하기 위해 연결",
+      "pair_help": "기존 폴더에서 선택하기 위해 reMarkable 클라우드와 연결",
+      "delete_warning_intro": "계정을 삭제하면 되돌릴 수 없습니다. 이 작업은 영구적이며 다음을 포함한 모든 데이터를 제거합니다:",
+      "remarkable_unaffected": "reMarkable Cloud 계정과 기기 데이터는 전혀 영향을 받지 않습니다.",
+      "api_key_created_title": "새 API 키 생성됨",
+      "api_key_created_message": "지금 이 키를 복사하세요 - 다시 표시되지 않습니다:",
+      "no_api_keys": "아직 생성된 API 키가 없습니다"
+    },
+    "help": {
+      "cover_page": "PDF 업로드 시 첫 번째 페이지 또는 현재 페이지를 표지로 사용할지 제어"
+    },
+    "status": {
+      "active": "활성",
+      "expired": "만료",
+      "inactive": "비활성"
+    },
+    "delete_warnings": {
+      "documents": "모든 보관된 문서 및 파일",
+      "api_keys": "모든 API 키 및 해당 액세스",
+      "profile": "프로필 및 계정 설정"
+    },
+    "dialogs": {
+      "delete_api_key_title": "API 키 삭제",
+      "delete_api_key_message": "API 키를 삭제하시겠습니까",
+      "delete_api_key_consequences_title": "이 작업은:",
+      "delete_api_key_consequences": {
+        "revoke": "API 키를 영구적으로 취소",
+        "stop_apps": "이 키를 사용하는 모든 애플리케이션 중지",
+        "remove": "계정에서 키 제거"
+      },
+      "cannot_undo": "이 작업은 되돌릴 수 없습니다.",
+      "delete_account_confirmation": "계정을 영구적으로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+      "delete_account_type_confirm": "확인하려면 \"{{confirmText}}\"를 입력하세요"
+    },
     "placeholders": {
       "cloud_default": "reMarkable Cloud의 경우 비워두세요",
       "api_key": "내 API 키",
@@ -321,12 +371,58 @@
     "password_placeholder": "새 비밀번호 입력",
     "confirm_placeholder": "새 비밀번호 확인",
     "sending": "전송 중...",
-    "send_email": "재설정 이메일 전송",
+    "send_email": "재설정 이메일 보내기",
     "resetting": "재설정 중...",
-    "reset_button": "비밀번호 재설정"
+    "reset_button": "비밀번호 재설정",
+    "email_sent": "이메일이 존재하는 경우 비밀번호 재설정 링크가 전송되었습니다",
+    "send_email_error": "재설정 이메일 전송 실패",
+    "success": "비밀번호가 성공적으로 재설정되었습니다. 이제 새 비밀번호로 로그인할 수 있습니다.",
+    "reset_error": "비밀번호 재설정 실패",
+    "email_instruction": "이메일 주소를 입력하시면 비밀번호를 재설정할 수 있는 링크를 보내드립니다."
   },
   "accessibility": {
     "logo": "Aviary 로고",
     "select_language": "언어 선택"
+  },
+  "backend": {
+    "auth": {
+      "too_many_attempts": "로그인 시도 횟수가 너무 많습니다",
+      "invalid_request": "잘못된 요청",
+      "not_configured": "인증이 구성되지 않음",
+      "invalid_credentials": "잘못된 자격 증명",
+      "token_error": "토큰을 생성할 수 없습니다",
+      "no_token": "인증 토큰 또는 API 키 없음",
+      "invalid_token": "잘못된 토큰",
+      "required": "인증 필요",
+      "session_error": "세션을 생성할 수 없습니다"
+    },
+    "status": {
+      "job_not_found": "작업을 찾을 수 없음",
+      "internal_error": "내부 오류",
+      "done": "완료",
+      "invalid_prefix": "잘못된 접두사",
+      "using_uploaded_file": "업로드된 파일 사용 중",
+      "no_url": "요청 본문에서 URL을 찾을 수 없음",
+      "downloading": "다운로드 중",
+      "download_error": "다운로드 오류",
+      "converting_pdf": "PDF로 변환 중",
+      "conversion_error": "이미지→PDF 변환 오류",
+      "compressing_pdf": "PDF 압축 중",
+      "compress_error": "압축 오류",
+      "rename_error": "이름 변경 오류",
+      "uploading": "클라우드에 업로드 중",
+      "upload_success": "문서가 reMarkable의 {{path}}에서 사용 가능합니다"
+    },
+    "errors": {
+      "missing_url": "URL 매개변수 누락",
+      "parse_form": "멀티파트 폼을 파싱할 수 없습니다",
+      "get_file": "파일을 가져올 수 없습니다",
+      "open_file": "업로드된 파일을 열 수 없습니다",
+      "create_dir": "업로드 디렉토리를 생성할 수 없습니다",
+      "create_file": "디스크에 파일을 생성할 수 없습니다",
+      "save_file": "파일을 저장할 수 없습니다",
+      "no_form": "멀티파트 폼을 찾을 수 없습니다",
+      "no_file_field": "필드 이름 {{field}}의 파일이 없습니다"
+    }
   }
 }

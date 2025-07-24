@@ -10,7 +10,10 @@
     "button": "Se connecter",
     "network_error": "Erreur réseau",
     "fail": "Échec de la connexion",
-    "register": "Créer un compte"
+    "register": "Créer un compte",
+    "sso_button": "Se connecter avec SSO",
+    "or_continue_with": "Ou continuer avec",
+    "forgot_password": "Mot de passe oublié ?"
   },
   "register": {
     "title": "Créer un compte",
@@ -71,8 +74,11 @@
   },
   "language": {
     "search": "Rechercher...",
+    "search_fallback": "Rechercher les langues...",
     "no_results": "Aucun résultat.",
-    "tooltip": "Langue"
+    "no_results_fallback": "Aucune langue trouvée.",
+    "tooltip": "Langue",
+    "tooltip_fallback": "Langue"
   },
   "pairing": {
     "title": "Coupler avec reMarkable Cloud",
@@ -261,7 +267,12 @@
     "sending": "Envoi...",
     "send_email": "Envoyer l'email de réinitialisation",
     "resetting": "Réinitialisation...",
-    "reset_button": "Réinitialiser le mot de passe"
+    "reset_button": "Réinitialiser le mot de passe",
+    "email_sent": "Si l'email existe, un lien de réinitialisation du mot de passe a été envoyé",
+    "send_email_error": "Échec de l'envoi de l'email de réinitialisation",
+    "success": "Le mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+    "reset_error": "Échec de la réinitialisation du mot de passe",
+    "email_instruction": "Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe."
   },
   "accessibility": {
     "logo": "Logo Aviary",
@@ -309,6 +320,91 @@
     }
   },
   "settings": {
+    "title": "Paramètres utilisateur",
+    "description": "Gérez votre profil, clés API et préférences de compte",
+    "tabs": {
+      "profile": "Profil",
+      "account": "Compte",
+      "api_keys": "Clés API"
+    },
+    "cards": {
+      "profile_information": "Informations du profil",
+      "change_password": "Changer le mot de passe",
+      "danger_zone": "Zone dangereuse",
+      "create_api_key": "Créer une nouvelle clé API",
+      "your_api_keys": "Vos clés API"
+    },
+    "labels": {
+      "username": "Nom d'utilisateur",
+      "email": "Email",
+      "rmapi_host": "Hôte reMarkable (optionnel)",
+      "default_directory": "Répertoire par défaut",
+      "cover_page": "Page de couverture",
+      "current_password": "Mot de passe actuel",
+      "new_password": "Nouveau mot de passe",
+      "confirm_new_password": "Confirmer le nouveau mot de passe",
+      "delete_account": "Supprimer le compte",
+      "api_key_name": "Nom",
+      "api_key_expiry": "Expiration (optionnel)",
+      "key_preview": "Aperçu de la clé",
+      "status": "Statut",
+      "created": "Créé",
+      "last_used": "Dernière utilisation",
+      "expires": "Expire"
+    },
+    "actions": {
+      "unpair": "Découpler",
+      "pair": "Coupler",
+      "create_api_key": "Créer une clé API",
+      "got_it": "Compris",
+      "cancel": "Annuler",
+      "delete_api_key": "Supprimer la clé API"
+    },
+    "options": {
+      "cover_current": "Page actuelle",
+      "cover_first": "Première page"
+    },
+    "expiry_options": {
+      "one_week": "1 semaine",
+      "one_month": "1 mois",
+      "three_months": "3 mois",
+      "one_year": "1 an"
+    },
+    "messages": {
+      "pair_to_load_folders": "Couplez pour charger les dossiers",
+      "pair_help": "Couplez avec le cloud reMarkable pour sélectionner parmi les dossiers existants",
+      "delete_warning_intro": "Une fois que vous supprimez votre compte, il n'y a pas de retour en arrière. Cette action est permanente et supprimera toutes vos données, y compris :",
+      "remarkable_unaffected": "Votre compte reMarkable Cloud et les données de l'appareil resteront complètement intacts.",
+      "api_key_created_title": "Nouvelle clé API créée",
+      "api_key_created_message": "Copiez cette clé maintenant - elle ne sera plus affichée :",
+      "no_api_keys": "Aucune clé API créée pour le moment"
+    },
+    "help": {
+      "cover_page": "Contrôle si la première page ou la page actuelle est utilisée comme couverture lors du téléchargement de PDF"
+    },
+    "status": {
+      "active": "actif",
+      "expired": "expiré",
+      "inactive": "inactif"
+    },
+    "delete_warnings": {
+      "documents": "Tous les documents et fichiers archivés",
+      "api_keys": "Toutes les clés API et leur accès",
+      "profile": "Votre profil et paramètres de compte"
+    },
+    "dialogs": {
+      "delete_api_key_title": "Supprimer la clé API",
+      "delete_api_key_message": "Êtes-vous sûr de vouloir supprimer la clé API",
+      "delete_api_key_consequences_title": "Cette action va :",
+      "delete_api_key_consequences": {
+        "revoke": "Révoquer définitivement la clé API",
+        "stop_apps": "Arrêter toutes les applications utilisant cette clé",
+        "remove": "Supprimer la clé de votre compte"
+      },
+      "cannot_undo": "Cette action ne peut pas être annulée.",
+      "delete_account_confirmation": "Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action ne peut pas être annulée.",
+      "delete_account_type_confirm": "Tapez \"{{confirmText}}\" pour confirmer"
+    },
     "placeholders": {
       "cloud_default": "Laisser vide pour reMarkable Cloud",
       "api_key": "Ma clé API",
