@@ -293,10 +293,9 @@ func main() {
 		admin.PUT("/settings", auth.UpdateSystemSettingHandler)    // PUT /api/admin/settings - update system setting
 		admin.POST("/test-smtp", auth.TestSMTPHandler)             // POST /api/admin/test-smtp - test SMTP config
 		admin.POST("/cleanup", auth.CleanupDataHandler)            // POST /api/admin/cleanup - cleanup old data
-		admin.POST("/backup", auth.BackupDatabaseHandler)          // POST /api/admin/backup - backup database
-		admin.POST("/restore", auth.RestoreDatabaseHandler)        // POST /api/admin/restore - restore database
-		admin.POST("/storage/backup", auth.BackupStorageHandler)   // POST /api/admin/storage/backup - backup storage
-		admin.POST("/storage/restore", auth.RestoreStorageHandler) // POST /api/admin/storage/restore - restore storage
+		admin.POST("/backup", auth.BackupDatabaseHandler)    // POST /api/admin/backup - backup database
+		admin.POST("/backup/analyze", auth.AnalyzeBackupHandler) // POST /api/admin/backup/analyze - analyze backup file
+		admin.POST("/restore", auth.RestoreDatabaseHandler)  // POST /api/admin/restore - restore database
 	}
 
 	protected.POST("/webhook", webhook.EnqueueHandler)

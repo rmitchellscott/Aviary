@@ -14,7 +14,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/export"
 	"github.com/rmitchellscott/aviary/internal/smtp"
-	"github.com/rmitchellscott/aviary/internal/storage"
+
 )
 
 // TestSMTPHandler tests SMTP configuration (admin only)
@@ -273,6 +273,84 @@ func BackupDatabaseHandler(c *gin.Context) {
 	c.File(backupPath)
 }
 
+// AnalyzeBackupHandler analyzes a backup file and returns metadata without restoring (admin only)
+func AnalyzeBackupHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Backup analysis not available in single-user mode"})
+		return
+	}
+
+	_, ok := RequireAdmin(c)
+	if !ok {
+		return
+	}
+
+	// Parse multipart form
+	if err := c.Request.ParseMultipartForm(32 << 20); err != nil { // 32MB max
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse multipart form: " + err.Error()})
+		return
+	}
+
+	// Get uploaded file
+	file, header, err := c.Request.FormFile("backup_file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No backup file provided"})
+		return
+	}
+	defer file.Close()
+
+	// Validate file type
+	filename := header.Filename
+	if !strings.HasSuffix(filename, ".tar.gz") && !strings.HasSuffix(filename, ".tgz") {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid file type. Expected .tar.gz or .tgz file",
+			"valid": false,
+		})
+		return
+	}
+
+	// Create temporary file for upload
+	tempDir := os.TempDir()
+	tempFilePath := filepath.Join(tempDir, "analyze_"+filename)
+
+	tempFile, err := os.Create(tempFilePath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create temporary file"})
+		return
+	}
+	defer os.Remove(tempFilePath)
+	defer tempFile.Close()
+
+	// Copy uploaded file to temp location
+	if _, err := io.Copy(tempFile, file); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save uploaded file"})
+		return
+	}
+	tempFile.Close()
+
+	// Create analyzer
+	dataDir := os.Getenv("DATA_DIR")
+	if dataDir == "" {
+		dataDir = "/data"
+	}
+	analyzer := export.NewAnalyzer(database.DB, dataDir)
+
+	// Analyze backup
+	analysis, err := analyzer.AnalyzeBackup(tempFilePath)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to analyze backup: " + err.Error(),
+			"valid": false,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"valid":    true,
+		"metadata": analysis,
+	})
+}
+
 // RestoreDatabaseHandler initiates database restore (admin only)
 func RestoreDatabaseHandler(c *gin.Context) {
 	if !database.IsMultiUserMode() {
@@ -377,92 +455,4 @@ func RestoreDatabaseHandler(c *gin.Context) {
 	})
 }
 
-// BackupStorageHandler initiates storage directory backup (admin only)
-func BackupStorageHandler(c *gin.Context) {
-	if !database.IsMultiUserMode() {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Storage backup not available in single-user mode"})
-		return
-	}
 
-	_, ok := RequireAdmin(c)
-	if !ok {
-		return
-	}
-
-	// Generate backup filename with timestamp
-	timestamp := time.Now().Format("20060102_150405")
-	filename := fmt.Sprintf("aviary_storage_%s.tar.gz", timestamp)
-
-	tempDir := os.TempDir()
-	backupPath := filepath.Join(tempDir, filename)
-
-	if err := storage.BackupUsersDir(backupPath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create storage backup: " + err.Error()})
-		return
-	}
-
-	defer os.Remove(backupPath)
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
-	c.Header("Content-Type", "application/gzip")
-	c.Header("Content-Description", "Storage Backup")
-	c.File(backupPath)
-}
-
-// RestoreStorageHandler restores the storage directory from uploaded archive (admin only)
-func RestoreStorageHandler(c *gin.Context) {
-	if !database.IsMultiUserMode() {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Storage restore not available in single-user mode"})
-		return
-	}
-
-	_, ok := RequireAdmin(c)
-	if !ok {
-		return
-	}
-
-	if err := c.Request.ParseMultipartForm(32 << 20); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse multipart form: " + err.Error()})
-		return
-	}
-
-	file, header, err := c.Request.FormFile("backup_file")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "No backup file provided"})
-		return
-	}
-	defer file.Close()
-
-	overwrite := c.PostForm("mode") == "overwrite"
-
-	tempDir := os.TempDir()
-	tempFilePath := filepath.Join(tempDir, "restore_"+header.Filename)
-
-	tempFile, err := os.Create(tempFilePath)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create temporary file"})
-		return
-	}
-	defer os.Remove(tempFilePath)
-	defer tempFile.Close()
-
-	if _, err := io.Copy(tempFile, file); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save uploaded file"})
-		return
-	}
-	tempFile.Close()
-
-	if err := storage.RestoreUsersDir(tempFilePath, overwrite); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to restore storage: " + err.Error()})
-		return
-	}
-
-	mode := "skipped conflicts"
-	if overwrite {
-		mode = "overwritten conflicts"
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": fmt.Sprintf("Storage restored successfully from %s (%s)", header.Filename, mode),
-	})
-}

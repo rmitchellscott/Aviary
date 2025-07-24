@@ -39,13 +39,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   Shield,
   Users,
@@ -159,12 +153,11 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     isOpen: boolean;
     file: File | null;
   }>({ isOpen: false, file: null });
-  const storageFileInputRef = useRef<HTMLInputElement>(null);
-  const [storageRestoreDialog, setStorageRestoreDialog] = useState<{
-    isOpen: boolean;
-    file: File | null;
-  }>({ isOpen: false, file: null });
-  const [restoreMode, setRestoreMode] = useState<"skip" | "overwrite">("skip");
+  const [backupCounts, setBackupCounts] = useState<{
+    users: number;
+    api_keys: number;
+    documents: number;
+  } | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -459,7 +452,42 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     }
   };
 
-  const handleRestoreFileSelect = (
+  const analyzeBackupFile = async (file: File) => {
+    try {
+      setSaving(true);
+      setError(null);
+      setBackupCounts(null);
+
+      const formData = new FormData();
+      formData.append("backup_file", file);
+
+      const response = await fetch("/api/admin/backup/analyze", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (response.ok && result.valid) {
+        setBackupCounts({
+          users: result.metadata.user_count,
+          api_keys: result.metadata.api_key_count,
+          documents: result.metadata.document_count,
+        });
+        return true;
+      } else {
+        setError(result.error || "Invalid backup file");
+        return false;
+      }
+    } catch (error) {
+      setError("Failed to analyze backup file: " + error.message);
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRestoreFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
@@ -474,7 +502,11 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         return;
       }
       
-      setRestoreConfirmDialog({ isOpen: true, file });
+      // Analyze the backup file first
+      const isValid = await analyzeBackupFile(file);
+      if (isValid) {
+        setRestoreConfirmDialog({ isOpen: true, file });
+      }
     }
     // Reset input value so same file can be selected again
     event.target.value = "";
@@ -525,93 +557,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   const closeRestoreConfirmDialog = () => {
     setRestoreConfirmDialog({ isOpen: false, file: null });
+    setBackupCounts(null);
   };
 
-  const handleBackupStorage = async () => {
-    try {
-      setSaving(true);
-      setError(null);
 
-      const response = await fetch("/api/admin/storage/backup", {
-        method: "POST",
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        const contentDisposition = response.headers.get("Content-Disposition");
-        let filename = "storage_backup.tar.gz";
-        if (contentDisposition) {
-          const matches = contentDisposition.match(/filename=([^;]+)/);
-          if (matches && matches[1]) {
-            filename = matches[1].replace(/"/g, "");
-          }
-        }
-
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Failed to create backup");
-      }
-    } catch (error) {
-      setError("Failed to create backup");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleRestoreStorageSelect = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setStorageRestoreDialog({ isOpen: true, file });
-    }
-    event.target.value = "";
-  };
-
-  const confirmStorageRestore = async () => {
-    const file = storageRestoreDialog.file;
-    if (!file) return;
-
-    try {
-      setSaving(true);
-      setError(null);
-
-      const formData = new FormData();
-      formData.append("backup_file", file);
-      formData.append("mode", restoreMode);
-
-      const response = await fetch("/api/admin/storage/restore", {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        setStorageRestoreDialog({ isOpen: false, file: null });
-        setSuccessMessage(result.message || "Storage restored successfully");
-      } else {
-        setError(result.error || "Failed to restore storage");
-      }
-    } catch (error) {
-      setError("Failed to restore storage");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const closeStorageRestoreDialog = () => {
-    setStorageRestoreDialog({ isOpen: false, file: null });
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
@@ -1150,7 +1099,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             <div className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Data Management</CardTitle>
+                  <CardTitle>Backup & Restore</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -1161,7 +1110,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       className="w-full"
                     >
                       <Database className="h-4 w-4 mr-2" />
-                      {saving ? "Creating Backup..." : "Backup"}
+                      {saving ? "Creating Backup..." : "Create Backup"}
                     </Button>
                     <div className="w-full">
                       <input
@@ -1178,69 +1127,25 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         className="w-full"
                       >
                         <Database className="h-4 w-4 mr-2" />
-                        Restore...
+                        {saving ? "Analyzing..." : "Restore from Backup..."}
                       </Button>
                     </div>
                   </div>
                   <div className="text-sm text-muted-foreground space-y-2">
                     <p>
-                      <strong>Backup:</strong> Downloads a complete backup including database and user files as a .tar.gz archive
+                      <strong>Backup:</strong> Creates a complete backup including database and user files as a .tar.gz archive
                     </p>
                     <p>
-                      <strong>Restore:</strong> Restores database and user files from uploaded backup archive (.tar.gz format)
+                      <strong>Restore:</strong> Restores database and user files from backup archive (.tar.gz format)
                     </p>
                     <p className="text-amber-600">
                       <AlertTriangle className="h-4 w-4 inline mr-1" />
-                      Warning: Restore will overwrite current database and files
+                      Warning: Restoring will completely overwrite all current data
                     </p>
                   </div>
                 </CardContent>
               </Card>
-{/* 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Storage Management</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <Button
-                      variant="outline"
-                      onClick={handleBackupStorage}
-                      disabled={saving}
-                      className="w-full"
-                    >
-                      <Server className="h-4 w-4 mr-2" />
-                      {saving ? "Creating Backup..." : "Backup Storage"}
-                    </Button>
-                    <div className="w-full">
-                      <input
-                        type="file"
-                        ref={storageFileInputRef}
-                        onChange={handleRestoreStorageSelect}
-                        accept=".tar.gz"
-                        style={{ display: "none" }}
-                      />
-                      <Button
-                        variant="outline"
-                        onClick={() => storageFileInputRef.current?.click()}
-                        disabled={saving}
-                        className="w-full"
-                      >
-                        <Server className="h-4 w-4 mr-2" />
-                        Restore Storage...
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="text-sm text-muted-foreground space-y-2">
-                    <p>
-                      <strong>Backup:</strong> Downloads a backup of the users directory. Includes rmapi pairings and archived files.
-                    </p>
-                    <p>
-                      <strong>Restore:</strong> Extracts uploaded archive into users directory
-                    </p>
-                  </div>
-                </CardContent>
-              </Card> */}
+
 
               {/* <Card>
                 <CardHeader>
@@ -1322,13 +1227,34 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-amber-500" />
-              Confirm Database Restore
+              Confirm Data Restore
             </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
+            <AlertDialogDescription className="space-y-3">
               <p>
                 You are about to restore from backup file:{" "}
                 <strong>{restoreConfirmDialog.file?.name}</strong>
               </p>
+              
+              {backupCounts && (
+                <div className="bg-muted p-3 rounded-md">
+                  <p className="font-medium text-sm mb-2">Backup Contents:</p>
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div className="text-center">
+                      <div className="font-semibold text-lg">{backupCounts.users}</div>
+                      <div className="text-muted-foreground">Users</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-semibold text-lg">{backupCounts.api_keys}</div>
+                      <div className="text-muted-foreground">API Keys</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-semibold text-lg">{backupCounts.documents}</div>
+                      <div className="text-muted-foreground">Documents</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               <p className="text-destructive font-medium">
                 This will permanently overwrite all current data including:
               </p>
@@ -1359,49 +1285,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Storage Restore Confirmation Dialog */}
-      <AlertDialog
-        open={storageRestoreDialog.isOpen}
-        onOpenChange={closeStorageRestoreDialog}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
-              Confirm Storage Restore
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              You are about to restore the data directory from:{" "}
-              <strong>{storageRestoreDialog.file?.name}</strong>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="space-y-2 py-2">
-            <Label htmlFor="restore-mode">Conflict Resolution</Label>
-            <Select
-              value={restoreMode}
-              onValueChange={(v) => setRestoreMode(v as "skip" | "overwrite")}
-            >
-              <SelectTrigger id="restore-mode">
-                <SelectValue placeholder="Choose mode" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="skip">Skip Existing</SelectItem>
-                <SelectItem value="overwrite">Overwrite</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={saving}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmStorageRestore}
-              disabled={saving}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {saving ? "Restoring..." : "Restore Storage"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+
     </Dialog>
   );
 }
