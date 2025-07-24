@@ -671,7 +671,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         )}
 
         <Tabs defaultValue="overview" className="w-full h-[600px] flex flex-col">
-          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-5">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Activity className="h-4 w-4" />
               {t("admin.tabs.overview")}
@@ -815,7 +815,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   <CardTitle>{t("admin.cards.create_new_user")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div>
                       <Label htmlFor="new-username">{t("admin.labels.username")}</Label>
                       <Input
@@ -1131,7 +1131,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   <CardTitle>{t("admin.cards.backup_restore")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <Button
                       variant="outline"
                       onClick={handleBackupDatabase}
@@ -1272,7 +1272,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               {backupCounts && (
                 <div className="bg-muted p-3 rounded-md">
                   <p className="font-medium text-sm mb-2">{t("admin.dialogs.backup_contents")}</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                  <div className="grid grid-cols-3 gap-4 text-sm">
                     <div className="text-center">
                       <div className="font-semibold text-lg">{backupCounts.users}</div>
                       <div className="text-muted-foreground">{t("admin.labels.users")}</div>
