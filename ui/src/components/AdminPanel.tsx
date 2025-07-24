@@ -612,7 +612,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     
     if (user.rmapi_paired) {
       return (
-        <Badge variant="default" className="w-16 justify-center bg-green-600 hover:bg-green-700">
+        <Badge variant="default" className="w-16 justify-center bg-primary text-primary-foreground hover:bg-primary/80">
           Paired
         </Badge>
       );
@@ -1167,10 +1167,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     <p>
                       <strong>Restore:</strong> Restores database and user files from backup archive (.tar.gz format)
                     </p>
-                    <p className="text-amber-600">
-                      <AlertTriangle className="h-4 w-4 inline mr-1" />
-                      Warning: Restoring will completely overwrite all current data
-                    </p>
+                    <div className="flex items-center gap-1 text-muted-foreground">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span>Warning: Restoring will completely overwrite all current data</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -1260,7 +1260,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              <AlertTriangle className="h-5 w-5 text-muted-foreground" />
               Confirm Data Restore
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-3">

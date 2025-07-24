@@ -691,22 +691,22 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                   </CardContent>
                 </Card>
 
-                <Card className="border-red-200 bg-red-50 dark:bg-red-950/20">
+                <Card className="border-destructive/20 bg-destructive/10">
                   <CardHeader>
-                    <CardTitle className="text-red-800 dark:text-red-200 flex items-center gap-2">
+                    <CardTitle className="text-destructive flex items-center gap-2">
                       <AlertTriangle className="h-5 w-5" />
                       Danger Zone
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="bg-white dark:bg-gray-900 p-4 rounded border">
-                      <h3 className="font-medium text-red-800 dark:text-red-200 mb-2">
+                    <div className="bg-card p-4 rounded border">
+                      <h3 className="font-medium text-destructive mb-2">
                         Delete Account
                       </h3>
-                      <p className="text-sm text-red-700 dark:text-red-300 mb-4">
+                      <p className="text-sm text-destructive/80 mb-4">
                         Once you delete your account, there is no going back. This action is permanent and will remove all your data including:
                       </p>
-                      <ul className="text-sm text-red-700 dark:text-red-300 list-disc list-inside space-y-1 mb-4">
+                      <ul className="text-sm text-destructive/80 list-disc list-inside space-y-1 mb-4">
                         <li>All archived documents and files</li>
                         <li>All API keys and their access</li>
                         <li>Your profile and account settings</li>
@@ -782,17 +782,17 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                 </Card>
 
                 {showNewKey && (
-                  <Card className="border-green-200 bg-green-50 dark:bg-green-950/20">
+                  <Card className="border-primary/20 bg-primary/10">
                     <CardHeader>
-                      <CardTitle className="text-green-800 dark:text-green-200">
+                      <CardTitle className="text-primary">
                         New API Key Created
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-green-700 dark:text-green-300 mb-2">
+                      <p className="text-sm text-primary/80 mb-2">
                         Copy this key now - it won't be shown again:
                       </p>
-                      <div className="flex items-center gap-2 p-2 bg-white dark:bg-gray-900 rounded border">
+                      <div className="flex items-center gap-2 p-2 bg-card rounded border">
                         <code className="flex-1 font-mono text-sm">
                           {showNewKey}
                         </code>
@@ -923,7 +923,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-red-500" />
+              <AlertTriangle className="h-5 w-5 text-destructive" />
               Delete Account
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -960,7 +960,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
             <AlertDialogAction
               onClick={confirmDeleteAccount}
               disabled={saving || !canDeleteAccount}
-              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+              className="bg-destructive hover:bg-destructive/90 focus:ring-destructive"
             >
               {saving ? 'Deleting...' : 'Delete My Account'}
             </AlertDialogAction>
@@ -976,7 +976,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-red-500" />
+              <AlertTriangle className="h-5 w-5 text-destructive" />
               Delete API Key
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -991,7 +991,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                 <li>Remove the key from your account</li>
               </ul>
               <br />
-              <strong className="text-red-600">
+              <strong className="text-destructive">
                 This action cannot be undone.
               </strong>
             </AlertDialogDescription>

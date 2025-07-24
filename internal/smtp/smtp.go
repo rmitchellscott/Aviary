@@ -2,6 +2,7 @@ package smtp
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
 	"html/template"
 	"net/smtp"
@@ -590,6 +591,14 @@ func TestSMTPConnection() error {
 		return fmt.Errorf("failed to connect to SMTP server: %w", err)
 	}
 	defer client.Quit()
+
+	// Start TLS if configured
+	if config.UseTLS {
+		tlsConfig := &tls.Config{ServerName: config.Host}
+		if err := client.StartTLS(tlsConfig); err != nil {
+			return fmt.Errorf("failed to start TLS: %w", err)
+		}
+	}
 
 	// Test auth
 	if err := client.Auth(auth); err != nil {

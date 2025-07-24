@@ -43,7 +43,7 @@ export function UserDeleteDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-red-500" />
+            <AlertTriangle className="h-5 w-5 text-destructive" />
             Delete Account
           </AlertDialogTitle>
           <AlertDialogDescription>
@@ -66,7 +66,7 @@ export function UserDeleteDialog({
                   </p>
                 </div>
                 <br />
-                <strong className="text-red-600">
+                <strong className="text-destructive">
                   This action cannot be undone and you will lose access to all your data.
                 </strong>
               </>
@@ -88,7 +88,7 @@ export function UserDeleteDialog({
                   </p>
                 </div>
                 <br />
-                <strong className="text-red-600">This action cannot be undone.</strong>
+                <strong className="text-destructive">This action cannot be undone.</strong>
               </>
             )}
           </AlertDialogDescription>
@@ -100,7 +100,7 @@ export function UserDeleteDialog({
           <AlertDialogAction
             onClick={onConfirm}
             disabled={loading}
-            className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            className="bg-destructive hover:bg-destructive/90 focus:ring-destructive"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             {loading ? 'Deleting...' : isCurrentUser ? 'Delete My Account' : 'Delete User'}
