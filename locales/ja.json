@@ -123,6 +123,7 @@
     "status": {
       "working": "動作中",
       "failed": "失敗",
+      "configured": "設定済み",
       "not_configured": "未設定",
       "unknown": "不明",
       "inactive": "非アクティブ",

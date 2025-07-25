@@ -93,7 +93,7 @@ export function PairingDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[60vh] overflow-y-auto top-[20vh] sm:top-[50%] fixed sm:relative">
         <DialogHeader>
           <DialogTitle>{t("pairing.title")}</DialogTitle>
           <DialogDescription>

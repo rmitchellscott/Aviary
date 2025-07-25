@@ -123,6 +123,7 @@
     "status": {
       "working": "작동 중",
       "failed": "실패",
+      "configured": "구성됨",
       "not_configured": "구성되지 않음",
       "unknown": "알 수 없음",
       "inactive": "비활성",

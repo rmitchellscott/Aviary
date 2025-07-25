@@ -63,15 +63,11 @@ func GetSystemStatusHandler(c *gin.Context) {
 		return
 	}
 
-	// Check SMTP configuration
+	// Check SMTP configuration (without testing connection)
 	smtpConfigured := smtp.IsSMTPConfigured()
 	var smtpStatus string
 	if smtpConfigured {
-		if err := smtp.TestSMTPConnection(); err != nil {
-			smtpStatus = "configured_but_failed"
-		} else {
-			smtpStatus = "configured_and_working"
-		}
+		smtpStatus = "configured"
 	} else {
 		smtpStatus = "not_configured"
 	}

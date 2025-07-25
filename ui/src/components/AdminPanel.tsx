@@ -129,6 +129,8 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  // SMTP test state
+  const [smtpTestResult, setSmtpTestResult] = useState<'working' | 'failed' | null>(null);
   // User creation form
   const [newUsername, setNewUsername] = useState("");
   const [newEmail, setNewEmail] = useState("");
@@ -398,6 +400,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     try {
       setSaving(true);
       setError(null);
+      setSmtpTestResult(null);
 
       const response = await fetch("/api/admin/test-smtp", {
         method: "POST",
@@ -407,11 +410,17 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       const result = await response.json();
       if (response.ok) {
         setError(null);
-        // Show success message
+        setSmtpTestResult('working');
+        // Revert back to default status after 3 seconds
+        setTimeout(() => setSmtpTestResult(null), 3000);
       } else {
+        setSmtpTestResult('failed');
+        setTimeout(() => setSmtpTestResult(null), 3000);
         setError(result.error || t("admin.errors.smtp_test"));
       }
     } catch (error) {
+      setSmtpTestResult('failed');
+      setTimeout(() => setSmtpTestResult(null), 3000);
       setError(t("admin.errors.smtp_test_network"));
     } finally {
       setSaving(false);
@@ -582,22 +591,38 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   };
 
   const getSMTPStatusColor = (status: string) => {
+    // If we have a test result, show that instead
+    if (smtpTestResult === 'working') {
+      return "default";
+    }
+    if (smtpTestResult === 'failed') {
+      return "destructive";
+    }
+    
+    // Otherwise show configuration status
     switch (status) {
-      case "configured_and_working":
-        return "success";
-      case "configured_but_failed":
-        return "destructive";
+      case "configured":
+        return "secondary";
+      case "not_configured":
+        return "secondary";
       default:
         return "secondary";
     }
   };
 
   const getSMTPStatusText = (status: string) => {
+    // If we have a test result, show that instead
+    if (smtpTestResult === 'working') {
+      return t("admin.status.working");
+    }
+    if (smtpTestResult === 'failed') {
+      return t("admin.status.failed");
+    }
+    
+    // Otherwise show configuration status
     switch (status) {
-      case "configured_and_working":
-        return t("admin.status.working");
-      case "configured_but_failed":
-        return t("admin.status.failed");
+      case "configured":
+        return t("admin.status.configured");
       case "not_configured":
         return t("admin.status.not_configured");
       default:
@@ -645,7 +670,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto sm:max-w-7xl">
+      <DialogContent className="max-w-7xl max-h-[85vh] overflow-y-auto sm:max-w-7xl sm:max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />

@@ -123,6 +123,7 @@
     "status": {
       "working": "工作中",
       "failed": "失败",
+      "configured": "已配置",
       "not_configured": "未配置",
       "unknown": "未知",
       "inactive": "非活动",

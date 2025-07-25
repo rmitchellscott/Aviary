@@ -123,6 +123,7 @@
     "status": {
       "working": "Fungerar",
       "failed": "Misslyckades",
+      "configured": "Konfigurerad",
       "not_configured": "Inte konfigurerad",
       "unknown": "Okänd",
       "inactive": "Inaktiv",

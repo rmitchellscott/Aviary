@@ -123,6 +123,7 @@
     "status": {
       "working": "Toimii",
       "failed": "Epäonnistui",
+      "configured": "Määritetty",
       "not_configured": "Ei määritetty",
       "unknown": "Tuntematon",
       "inactive": "Ei-aktiivinen",

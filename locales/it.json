@@ -123,6 +123,7 @@
     "status": {
       "working": "Funzionante",
       "failed": "Fallito",
+      "configured": "Configurato",
       "not_configured": "Non configurato",
       "unknown": "Sconosciuto",
       "inactive": "Inattivo",

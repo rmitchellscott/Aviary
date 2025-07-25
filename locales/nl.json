@@ -123,6 +123,7 @@
     "status": {
       "working": "Werkend",
       "failed": "Mislukt",
+      "configured": "Geconfigureerd",
       "not_configured": "Niet geconfigureerd",
       "unknown": "Onbekend",
       "inactive": "Inactief",
