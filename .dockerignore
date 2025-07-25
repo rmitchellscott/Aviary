@@ -6,6 +6,7 @@
 .github
 Dockerfile*
 docker-compose.yml
+docker-compose.yaml
 
 # ┌─────────────────────
 # │ Environment files
@@ -55,6 +56,23 @@ yarn-error.log*
 # └─────────────────────
 .vscode
 .idea
+
+# ┌─────────────────────
+# │ Documentation & assets (not needed in container)
+# └─────────────────────
+*.md
+assets/
+screenshots/
+
+# ┌─────────────────────
+# │ Development & testing files
+# └─────────────────────
+scripts/
+diff
+data/
+*.log
+*.tar.gz
+validate-translations.js
 
 # ┌─────────────────────
 # │ OS cruft
