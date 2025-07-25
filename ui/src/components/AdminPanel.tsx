@@ -47,7 +47,6 @@ import {
   Settings as SettingsIcon,
   Database,
   Plus,
-  Trash2,
   Edit,
   CheckCircle,
   XCircle,
@@ -988,7 +987,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                                     onClick={() => openDeleteUserDialog(user)}
                                     className="whitespace-nowrap"
                                   >
-                                    <Trash2 className="h-3 w-3 mr-1" />
                                     {t("admin.actions.delete")}
                                   </Button>
                                 </>

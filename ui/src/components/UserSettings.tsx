@@ -48,7 +48,6 @@ import {
   UserCog,
   Save,
   Plus,
-  Trash2,
   Copy,
   Eye,
   EyeOff,
@@ -56,7 +55,6 @@ import {
   XCircle,
   Clock,
   AlertTriangle,
-  UserX,
 } from "lucide-react";
 
 interface User {
@@ -724,7 +722,6 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           variant="destructive"
                           onClick={openDeleteAccountDialog}
                         >
-                          <UserX className="h-4 w-4 mr-2" />
                           {t('settings.buttons.delete_my_account')}
                         </Button>
                       </div>
@@ -905,7 +902,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                       variant="destructive"
                                       onClick={() => openDeleteKeyDialog(key)}
                                     >
-                                      <Trash2 className="h-4 w-4" />
+                                      {t("admin.actions.delete")}
                                     </Button>
                                   </div>
                                 </TableCell>
@@ -1017,7 +1014,6 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
               onClick={confirmDeleteAPIKey}
               className="bg-destructive hover:bg-destructive/90 focus:ring-destructive"
             >
-              <Trash2 className="h-4 w-4 mr-2" />
               {t("settings.actions.delete_api_key")}
             </AlertDialogAction>
           </AlertDialogFooter>

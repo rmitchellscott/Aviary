@@ -10,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { AlertTriangle, Trash2 } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 interface User {
   id: string;
@@ -104,7 +104,6 @@ export function UserDeleteDialog({
             disabled={loading}
             className="bg-destructive hover:bg-destructive/90 focus:ring-destructive"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
             {loading ? t("user_delete.deleting") : isCurrentUser ? t("user_delete.delete_account") : t("user_delete.delete_user")}
           </AlertDialogAction>
         </AlertDialogFooter>
