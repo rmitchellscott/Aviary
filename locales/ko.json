@@ -145,7 +145,7 @@
       "create_user": "사용자 생성",
       "test_smtp": "SMTP 테스트",
       "create_backup": "백업 생성",
-      "restore_backup": "백업에서 복원...",
+      "restore_backup": "백업에서 복원",
       "cancel": "취소",
       "restore_database": "데이터베이스 복원"
     },

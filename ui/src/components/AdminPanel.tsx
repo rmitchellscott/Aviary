@@ -1213,7 +1213,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         className="w-full"
                       >
                         <Database className="h-4 w-4 mr-2" />
-                        {saving ? t("admin.loading_states.analyzing") : t("admin.actions.restore_backup")}
+                        {saving ? t("admin.loading_states.analyzing") : t("admin.actions.restore_backup")}…
                       </Button>
                     </div>
                   </div>

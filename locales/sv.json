@@ -145,7 +145,7 @@
       "create_user": "Skapa användare",
       "test_smtp": "Testa SMTP",
       "create_backup": "Skapa säkerhetskopia",
-      "restore_backup": "Återställ från säkerhetskopia...",
+      "restore_backup": "Återställ från säkerhetskopia",
       "cancel": "Avbryt",
       "restore_database": "Återställ databas"
     },

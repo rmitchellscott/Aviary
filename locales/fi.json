@@ -145,7 +145,7 @@
       "create_user": "Luo käyttäjä",
       "test_smtp": "Testaa SMTP",
       "create_backup": "Luo varmuuskopio",
-      "restore_backup": "Palauta varmuuskopiosta...",
+      "restore_backup": "Palauta varmuuskopiosta",
       "cancel": "Peruuta",
       "restore_database": "Palauta tietokanta"
     },

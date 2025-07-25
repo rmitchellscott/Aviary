@@ -145,7 +145,7 @@
       "create_user": "Opprett bruker",
       "test_smtp": "Test SMTP",
       "create_backup": "Opprett sikkerhetskopi",
-      "restore_backup": "Gjenopprett fra sikkerhetskopi...",
+      "restore_backup": "Gjenopprett fra sikkerhetskopi",
       "cancel": "Avbryt",
       "restore_database": "Gjenopprett database"
     },

@@ -145,7 +145,7 @@
       "create_user": "Opret Bruger",
       "test_smtp": "Test SMTP",
       "create_backup": "Opret Backup",
-      "restore_backup": "Gendan fra Backup...",
+      "restore_backup": "Gendan fra Backup",
       "cancel": "Annuller",
       "restore_database": "Gendan Database"
     },

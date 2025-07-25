@@ -145,7 +145,7 @@
       "create_user": "Gebruiker aanmaken",
       "test_smtp": "SMTP testen",
       "create_backup": "Backup maken",
-      "restore_backup": "Herstellen van backup...",
+      "restore_backup": "Herstellen van backup",
       "cancel": "Annuleren",
       "restore_database": "Database herstellen"
     },

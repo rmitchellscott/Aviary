@@ -145,7 +145,7 @@
       "create_user": "Create User",
       "test_smtp": "Test SMTP",
       "create_backup": "Create Backup",
-      "restore_backup": "Restore from Backup...",
+      "restore_backup": "Restore from Backup",
       "cancel": "Cancel",
       "restore_database": "Restore Database"
     },

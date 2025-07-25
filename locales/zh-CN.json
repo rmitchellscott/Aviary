@@ -145,7 +145,7 @@
       "create_user": "创建用户",
       "test_smtp": "测试SMTP",
       "create_backup": "创建备份",
-      "restore_backup": "从备份还原...",
+      "restore_backup": "从备份还原",
       "cancel": "取消",
       "restore_database": "还原数据库"
     },
