@@ -678,23 +678,23 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <Activity className="h-4 w-4" />
-              {t("admin.tabs.overview")}
+              <span className="hidden sm:inline">{t("admin.tabs.overview")}</span>
             </TabsTrigger>
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              {t("admin.tabs.users")}
+              <span className="hidden sm:inline">{t("admin.tabs.users")}</span>
             </TabsTrigger>
             <TabsTrigger value="api-keys" className="flex items-center gap-2">
               <Key className="h-4 w-4" />
-              {t("admin.tabs.api_keys")}
+              <span className="hidden sm:inline">{t("admin.tabs.api_keys")}</span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <SettingsIcon className="h-4 w-4" />
-              {t("admin.tabs.settings")}
+              <span className="hidden sm:inline">{t("admin.tabs.settings")}</span>
             </TabsTrigger>
             <TabsTrigger value="system" className="flex items-center gap-2">
               <Database className="h-4 w-4" />
-              {t("admin.tabs.system")}
+              <span className="hidden sm:inline">{t("admin.tabs.system")}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -884,7 +884,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         <TableRow>
                           <TableHead>{t("admin.labels.username")}</TableHead>
                           <TableHead className="hidden md:table-cell">{t("admin.labels.email")}</TableHead>
-                          <TableHead>{t("admin.labels.role")}</TableHead>
+                          <TableHead className="hidden md:table-cell">{t("admin.labels.role")}</TableHead>
                           <TableHead className="hidden md:table-cell">{t("admin.labels.status")}</TableHead>
                           <TableHead className="hidden md:table-cell">{t("admin.labels.created")}</TableHead>
                           <TableHead className="hidden md:table-cell">{t("admin.labels.last_login")}</TableHead>
@@ -894,11 +894,13 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     <TableBody>
                       {users.map((user) => (
                         <TableRow key={user.id}>
-                          <TableCell className="font-medium">
-                            {user.username}
+                          <TableCell className="font-medium max-w-24 md:max-w-none">
+                            <div className="truncate" title={user.username}>
+                              {user.username}
+                            </div>
                           </TableCell>
                           <TableCell className="hidden md:table-cell">{user.email}</TableCell>
-                          <TableCell>
+                          <TableCell className="hidden md:table-cell">
                             <Badge
                               variant={user.is_admin ? "default" : "secondary"}
                               className="w-14 justify-center"
@@ -992,11 +994,11 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           <TableHead>{t("admin.labels.name")}</TableHead>
                           <TableHead>{t("admin.labels.user")}</TableHead>
                           <TableHead className="hidden md:table-cell">{t("admin.labels.key_preview")}</TableHead>
-                          <TableHead>{t("admin.labels.status")}</TableHead>
+                          <TableHead className="hidden md:table-cell">{t("admin.labels.status")}</TableHead>
                           <TableHead className="hidden md:table-cell">{t("admin.labels.created")}</TableHead>
                           <TableHead className="hidden md:table-cell">{t("admin.labels.last_used")}</TableHead>
                           <TableHead className="hidden md:table-cell">{t("admin.labels.expires")}</TableHead>
-                          <TableHead className="md:hidden"></TableHead>
+                          <TableHead className="md:hidden">{t("admin.labels.actions")}</TableHead>
                         </TableRow>
                       </TableHeader>
                   <TableBody>
@@ -1004,14 +1006,20 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       const status = getKeyStatus(key);
                       return (
                         <TableRow key={key.id}>
-                          <TableCell className="font-medium">
-                            {key.name}
+                          <TableCell className="font-medium max-w-20 md:max-w-none">
+                            <div className="truncate" title={key.name}>
+                              {key.name}
+                            </div>
                           </TableCell>
-                          <TableCell>{key.username}</TableCell>
+                          <TableCell className="max-w-20 md:max-w-none">
+                            <div className="truncate" title={key.username}>
+                              {key.username}
+                            </div>
+                          </TableCell>
                           <TableCell className="hidden md:table-cell">
                             <code className="text-sm">{key.key_prefix}...</code>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="hidden md:table-cell">
                             <Badge
                               variant={
                                 status === "active"
@@ -1153,7 +1161,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   <CardTitle>{t("admin.cards.backup_restore")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Button
                       variant="outline"
                       size="lg"

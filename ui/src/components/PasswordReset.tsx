@@ -120,7 +120,7 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
         // Redirect to login after a delay
         setTimeout(() => {
           window.location.href = '/';
-        }, 3000);
+        }, 2000);
       } else {
         setMessage({ type: 'error', text: data.error || t('password_reset.reset_error') });
       }
@@ -182,18 +182,15 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                   {loading ? t('password_reset.sending') : t('password_reset.send_email')}
                 </Button>
                 
-                <div className="text-center">
-                  <Button 
-                    type="button"
-                    variant="ghost" 
-                    size="sm"
-                    onClick={onBack}
-                    className="text-sm text-muted-foreground hover:text-foreground hover:bg-muted"
-                    disabled={loading}
-                  >
-                    {t('register.back_to_login')}
-                  </Button>
-                </div>
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  onClick={onBack}
+                  className="w-full"
+                  disabled={loading}
+                >
+                  {t('register.back_to_login')}
+                </Button>
               </div>
 
               <div className="text-center mt-4">

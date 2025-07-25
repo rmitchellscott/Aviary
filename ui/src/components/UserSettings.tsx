@@ -497,15 +497,15 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
-                {t("settings.tabs.profile")}
+                <span className="hidden sm:inline">{t("settings.tabs.profile")}</span>
               </TabsTrigger>
               <TabsTrigger value="account" className="flex items-center gap-2">
                 <UserCog className="h-4 w-4" />
-                {t("settings.tabs.account")}
+                <span className="hidden sm:inline">{t("settings.tabs.account")}</span>
               </TabsTrigger>
               <TabsTrigger value="api-keys" className="flex items-center gap-2">
                 <Key className="h-4 w-4" />
-                {t("settings.tabs.api_keys")}
+                <span className="hidden sm:inline">{t("settings.tabs.api_keys")}</span>
               </TabsTrigger>
             </TabsList>
 

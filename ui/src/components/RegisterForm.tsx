@@ -241,16 +241,13 @@ export function RegisterForm() {
               <Button type="submit" disabled={loading} className="w-full">
                 {loading ? t("register.creating") : t("register.button")}
               </Button>
-              <div className="text-center">
-                <Button 
-                  variant="link" 
-                  size="sm"
-                  onClick={() => window.location.href = '/login'}
-                  className="text-sm text-muted-foreground hover:text-foreground"
-                >
-                  {t("register.already_have_account")}
-                </Button>
-              </div>
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.href = '/login'}
+                className="w-full"
+              >
+                {t("register.already_have_account")}
+              </Button>
             </div>
           </form>
         </CardContent>

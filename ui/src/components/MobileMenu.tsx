@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import ThemeSwitcher from '@/components/ThemeSwitcher'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { LogoutButton } from '@/components/LogoutButton'
+import { useAuth } from '@/components/AuthProvider'
 
 interface MobileMenuProps {
   showSettings?: boolean
@@ -21,6 +22,20 @@ export function MobileMenu({
   onOpenAdmin,
 }: MobileMenuProps) {
   const { t } = useTranslation()
+  const { multiUserMode } = useAuth()
+
+  // If multi-user mode is disabled, show simple controls without hamburger
+  if (!multiUserMode) {
+    return (
+      <div className="flex items-center gap-2">
+        <LogoutButton />
+        <LanguageSwitcher />
+        <ThemeSwitcher size={24} />
+      </div>
+    )
+  }
+
+  // Multi-user mode enabled, show hamburger menu
   return (
     <Popover>
       <PopoverTrigger asChild>

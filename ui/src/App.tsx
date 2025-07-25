@@ -32,7 +32,9 @@ function AppContent() {
     return (
       <>
         <header className="flex items-center justify-between px-8 py-2 bg-background">
-        <Logo className="h-16 w-32 text-foreground dark:text-foreground-dark" />
+        <button onClick={() => window.location.href = '/'} className="cursor-pointer">
+          <Logo className="h-16 w-32 text-foreground dark:text-foreground-dark" />
+        </button>
         <div className="flex items-center gap-4">
             <LanguageSwitcher />
             <ThemeSwitcher size={24} />
@@ -49,7 +51,9 @@ function AppContent() {
     return (
       <>
         <header className="flex items-center justify-between px-8 py-2 bg-background">
-        <Logo className="h-16 w-32 text-foreground dark:text-foreground-dark" />
+        <button onClick={() => window.location.href = '/'} className="cursor-pointer">
+          <Logo className="h-16 w-32 text-foreground dark:text-foreground-dark" />
+        </button>
         <div className="flex items-center gap-4">
             <LanguageSwitcher />
             <ThemeSwitcher size={24} />
