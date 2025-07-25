@@ -140,19 +140,28 @@ export default function HomePage() {
       return COMPRESSIBLE_EXTS.some((ext) => lowerName.endsWith(ext));
     }
 
-    const trimmed = committedUrl.trim().toLowerCase();
+    const trimmed = committedUrl.trim();
     if (!trimmed) {
       // No URL entered → allow compress switch (harmless if clicked before submit)
       return true;
     }
 
-    // Does URL end with a compressible extension?
-    if (COMPRESSIBLE_EXTS.some((ext) => trimmed.endsWith(ext))) {
+    // Only look at the pathname when checking extensions
+    let path = trimmed;
+    try {
+      path = new URL(trimmed).pathname;
+    } catch {
+      // Ignore URL parse errors and use the raw string
+    }
+    const lowerPath = path.toLowerCase();
+
+    // Does URL/path end with a compressible extension?
+    if (COMPRESSIBLE_EXTS.some((ext) => lowerPath.endsWith(ext))) {
       return true;
     }
 
     // Check for any other extension in the last path segment
-    const lastSegment = trimmed.split("/").pop() || "";
+    const lastSegment = lowerPath.split("/").pop() || "";
     if (lastSegment.includes(".")) {
       // If it has a dot but doesn't end with a compressible one, disable
       return false;
