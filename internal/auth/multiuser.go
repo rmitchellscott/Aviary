@@ -292,7 +292,6 @@ func PasswordResetHandler(c *gin.Context) {
 		// Don't reveal whether email exists or not
 		c.JSON(http.StatusOK, gin.H{
 			"success": true,
-			"message": "If the email exists, a password reset link has been sent",
 		})
 		return
 	}
@@ -311,7 +310,6 @@ func PasswordResetHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "If the email exists, a password reset link has been sent",
 	})
 }
 

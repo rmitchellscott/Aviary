@@ -111,7 +111,7 @@ func SendPasswordResetEmail(email, username, resetToken string) error {
 	}
 
 	// Generate email content
-	subject := "Password Reset Request - Aviary"
+	subject := "Password Reset"
 	htmlBody, err := generatePasswordResetHTML(emailData)
 	if err != nil {
 		return fmt.Errorf("failed to generate email HTML: %w", err)
@@ -219,10 +219,11 @@ func generatePasswordResetHTML(data EmailData) (string, error) {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         .header { 
-            background: oklch(0.97 0 0); 
+            background: oklch(1 0 0); 
             padding: 32px 24px; 
             text-align: center; 
             border-bottom: 1px solid oklch(0.922 0 0);
+            border-radius: 10px 10px 0 0;
         }
         .header h1 {
             margin: 0;
@@ -267,7 +268,7 @@ func generatePasswordResetHTML(data EmailData) (string, error) {
             text-decoration: underline;
         }
         .footer { 
-            background: oklch(0.97 0 0); 
+            background: oklch(1 0 0); 
             padding: 24px; 
             text-align: center; 
             font-size: 14px; 
@@ -282,7 +283,7 @@ func generatePasswordResetHTML(data EmailData) (string, error) {
             text-decoration: underline;
         }
         .warning {
-            background: oklch(0.97 0 0);
+            background: oklch(0.98 0 0);
             border: 1px solid oklch(0.922 0 0);
             border-radius: 8px;
             padding: 16px;
@@ -296,7 +297,7 @@ func generatePasswordResetHTML(data EmailData) (string, error) {
     </style>
 </head>
 <body>
-    <div style="background: oklch(0.97 0 0); padding: 40px 20px;">
+    <div style="background: oklch(1 0 0); padding: 40px 20px;">
         <div class="container">
             <div class="header">
                 <svg width="200" height="65" viewBox="0 0 988 323" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: 0 auto;">
@@ -409,10 +410,11 @@ func generateWelcomeHTML(data EmailData) (string, error) {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         .header { 
-            background: oklch(0.97 0 0); 
+            background: oklch(1 0 0); 
             padding: 32px 24px; 
             text-align: center; 
             border-bottom: 1px solid oklch(0.922 0 0);
+            border-radius: 10px 10px 0 0;
         }
         .header h1 {
             margin: 0;
@@ -457,7 +459,7 @@ func generateWelcomeHTML(data EmailData) (string, error) {
             background: oklch(0.145 0 0);
         }
         .footer { 
-            background: oklch(0.97 0 0); 
+            background: oklch(1 0 0); 
             padding: 24px; 
             text-align: center; 
             font-size: 14px; 
@@ -472,7 +474,7 @@ func generateWelcomeHTML(data EmailData) (string, error) {
             text-decoration: underline;
         }
         .feature-box {
-            background: oklch(0.97 0 0);
+            background: oklch(0.98 0 0);
             border: 1px solid oklch(0.922 0 0);
             border-radius: 8px;
             padding: 20px;
@@ -481,7 +483,7 @@ func generateWelcomeHTML(data EmailData) (string, error) {
     </style>
 </head>
 <body>
-    <div style="background: oklch(0.97 0 0); padding: 40px 20px;">
+    <div style="background: oklch(1 0 0); padding: 40px 20px;">
         <div class="container">
             <div class="header">
                 <svg width="200" height="65" viewBox="0 0 988 323" xmlns="http://www.w3.org/2000/svg" style="display: block; margin: 0 auto;">
