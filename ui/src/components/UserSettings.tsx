@@ -136,6 +136,9 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     key: APIKey | null;
   }>({ isOpen: false, key: null });
 
+  // API key details dialog (mobile)
+  const [viewKey, setViewKey] = useState<APIKey | null>(null);
+
   useEffect(() => {
     if (isOpen) {
       fetchAPIKeys();
@@ -830,13 +833,13 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>{t("settings.labels.api_key_name")}</TableHead>
-                            <TableHead>{t("settings.labels.key_preview")}</TableHead>
-                            <TableHead>{t("settings.labels.status")}</TableHead>
-                            <TableHead>{t("settings.labels.created")}</TableHead>
-                            <TableHead>{t("settings.labels.last_used")}</TableHead>
-                            <TableHead>{t("settings.labels.expires")}</TableHead>
-                            <TableHead></TableHead>
+                          <TableHead>{t("settings.labels.api_key_name")}</TableHead>
+                          <TableHead className="hidden md:table-cell">{t("settings.labels.key_preview")}</TableHead>
+                          <TableHead className="hidden md:table-cell">{t("settings.labels.status")}</TableHead>
+                          <TableHead className="hidden md:table-cell">{t("settings.labels.created")}</TableHead>
+                          <TableHead className="hidden md:table-cell">{t("settings.labels.last_used")}</TableHead>
+                          <TableHead className="hidden md:table-cell">{t("settings.labels.expires")}</TableHead>
+                          <TableHead></TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -847,12 +850,12 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                 <TableCell className="font-medium">
                                   {key.name}
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="hidden md:table-cell">
                                   <code className="text-sm">
                                     {key.key_prefix}...
                                   </code>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="hidden md:table-cell">
                                   <Badge
                                     variant={
                                       status === "active"
@@ -874,27 +877,37 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                     {t(`settings.status.${status}`)}
                                   </Badge>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="hidden md:table-cell">
                                   {formatDate(key.created_at)}
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="hidden md:table-cell">
                                   {key.last_used
                                     ? formatDate(key.last_used)
                                     : t('settings.never')}
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="hidden md:table-cell">
                                   {key.expires_at
                                     ? formatDate(key.expires_at)
                                     : t('settings.never')}
                                 </TableCell>
                                 <TableCell>
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => openDeleteKeyDialog(key)}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="md:hidden"
+                                      onClick={() => setViewKey(key)}
+                                    >
+                                      {t('settings.actions.details', 'Details')}
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={() => openDeleteKeyDialog(key)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
                                 </TableCell>
                               </TableRow>
                             );
@@ -1010,6 +1023,39 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* API Key Details Dialog */}
+      <Dialog open={!!viewKey} onOpenChange={() => setViewKey(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{viewKey?.name}</DialogTitle>
+          </DialogHeader>
+          {viewKey && (
+            <div className="space-y-2 text-sm">
+              <p>
+                <strong>{t('settings.labels.key_preview')}:</strong>{' '}
+                <code>{viewKey.key_prefix}...</code>
+              </p>
+              <p>
+                <strong>{t('settings.labels.status')}:</strong>{' '}
+                {getKeyStatus(viewKey)}
+              </p>
+              <p>
+                <strong>{t('settings.labels.created')}:</strong>{' '}
+                {formatDate(viewKey.created_at)}
+              </p>
+              <p>
+                <strong>{t('settings.labels.last_used')}:</strong>{' '}
+                {viewKey.last_used ? formatDate(viewKey.last_used) : t('settings.never')}
+              </p>
+              <p>
+                <strong>{t('settings.labels.expires')}:</strong>{' '}
+                {viewKey.expires_at ? formatDate(viewKey.expires_at) : t('settings.never')}
+              </p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -151,6 +151,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [newPasswordValue, setNewPasswordValue] = useState("");
   const [deleting, setDeleting] = useState(false);
 
+  // Details dialogs for mobile
+  const [viewUser, setViewUser] = useState<User | null>(null);
+  const [viewKey, setViewKey] = useState<APIKey | null>(null);
+
   // Database backup/restore
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [restoreConfirmDialog, setRestoreConfirmDialog] = useState<{
@@ -879,11 +883,11 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       <TableHeader>
                         <TableRow>
                           <TableHead>{t("admin.labels.username")}</TableHead>
-                          <TableHead>{t("admin.labels.email")}</TableHead>
+                          <TableHead className="hidden md:table-cell">{t("admin.labels.email")}</TableHead>
                           <TableHead>{t("admin.labels.role")}</TableHead>
-                          <TableHead>{t("admin.labels.status")}</TableHead>
-                          <TableHead>{t("admin.labels.created")}</TableHead>
-                          <TableHead>{t("admin.labels.last_login")}</TableHead>
+                          <TableHead className="hidden md:table-cell">{t("admin.labels.status")}</TableHead>
+                          <TableHead className="hidden md:table-cell">{t("admin.labels.created")}</TableHead>
+                          <TableHead className="hidden md:table-cell">{t("admin.labels.last_login")}</TableHead>
                           <TableHead>{t("admin.labels.actions")}</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -893,7 +897,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           <TableCell className="font-medium">
                             {user.username}
                           </TableCell>
-                          <TableCell>{user.email}</TableCell>
+                          <TableCell className="hidden md:table-cell">{user.email}</TableCell>
                           <TableCell>
                             <Badge
                               variant={user.is_admin ? "default" : "secondary"}
@@ -902,17 +906,25 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               {user.is_admin ? t("admin.roles.admin") : t("admin.roles.user")}
                             </Badge>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="hidden md:table-cell">
                             {getUserStatusBadge(user)}
                           </TableCell>
-                          <TableCell>{formatDate(user.created_at)}</TableCell>
-                          <TableCell>
+                          <TableCell className="hidden md:table-cell">{formatDate(user.created_at)}</TableCell>
+                          <TableCell className="hidden md:table-cell">
                             {user.last_login
                               ? formatDate(user.last_login)
                               : t("admin.never")}
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2 flex-wrap">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="md:hidden"
+                                onClick={() => setViewUser(user)}
+                              >
+                                {t('admin.actions.details', 'Details')}
+                              </Button>
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -979,11 +991,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         <TableRow>
                           <TableHead>{t("admin.labels.name")}</TableHead>
                           <TableHead>{t("admin.labels.user")}</TableHead>
-                          <TableHead>{t("admin.labels.key_preview")}</TableHead>
+                          <TableHead className="hidden md:table-cell">{t("admin.labels.key_preview")}</TableHead>
                           <TableHead>{t("admin.labels.status")}</TableHead>
-                          <TableHead>{t("admin.labels.created")}</TableHead>
-                          <TableHead>{t("admin.labels.last_used")}</TableHead>
-                          <TableHead>{t("admin.labels.expires")}</TableHead>
+                          <TableHead className="hidden md:table-cell">{t("admin.labels.created")}</TableHead>
+                          <TableHead className="hidden md:table-cell">{t("admin.labels.last_used")}</TableHead>
+                          <TableHead className="hidden md:table-cell">{t("admin.labels.expires")}</TableHead>
+                          <TableHead className="md:hidden"></TableHead>
                         </TableRow>
                       </TableHeader>
                   <TableBody>
@@ -995,7 +1008,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                             {key.name}
                           </TableCell>
                           <TableCell>{key.username}</TableCell>
-                          <TableCell>
+                          <TableCell className="hidden md:table-cell">
                             <code className="text-sm">{key.key_prefix}...</code>
                           </TableCell>
                           <TableCell>
@@ -1020,16 +1033,25 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               {status}
                             </Badge>
                           </TableCell>
-                          <TableCell>{formatDate(key.created_at)}</TableCell>
-                          <TableCell>
+                          <TableCell className="hidden md:table-cell">{formatDate(key.created_at)}</TableCell>
+                          <TableCell className="hidden md:table-cell">
                             {key.last_used
                               ? formatDate(key.last_used)
                               : t("admin.never")}
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="hidden md:table-cell">
                             {key.expires_at
                               ? formatDate(key.expires_at)
                               : t("admin.never")}
+                          </TableCell>
+                          <TableCell className="md:hidden">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setViewKey(key)}
+                            >
+                              {t('admin.actions.details', 'Details')}
+                            </Button>
                           </TableCell>
                         </TableRow>
                       );
@@ -1134,6 +1156,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   <div className="grid grid-cols-2 gap-4">
                     <Button
                       variant="outline"
+                      size="lg"
                       onClick={handleBackupDatabase}
                       disabled={saving}
                       className="w-full"
@@ -1151,6 +1174,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       />
                       <Button
                         variant="outline"
+                        size="lg"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={saving}
                         className="w-full"
@@ -1317,6 +1341,71 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* User Details Dialog */}
+      <Dialog open={!!viewUser} onOpenChange={() => setViewUser(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{viewUser?.username}</DialogTitle>
+          </DialogHeader>
+          {viewUser && (
+            <div className="space-y-2 text-sm">
+              <p>
+                <strong>{t('admin.labels.email')}:</strong> {viewUser.email}
+              </p>
+              <p>
+                <strong>{t('admin.labels.role')}:</strong>{' '}
+                {viewUser.is_admin ? t('admin.roles.admin') : t('admin.roles.user')}
+              </p>
+              <p>
+                <strong>{t('admin.labels.status')}:</strong>{' '}
+                {viewUser.is_active ? t('admin.status.active') : t('admin.status.inactive')}
+              </p>
+              <p>
+                <strong>{t('admin.labels.created')}:</strong> {formatDate(viewUser.created_at)}
+              </p>
+              <p>
+                <strong>{t('admin.labels.last_login')}:</strong>{' '}
+                {viewUser.last_login ? formatDate(viewUser.last_login) : t('admin.never')}
+              </p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* API Key Details Dialog */}
+      <Dialog open={!!viewKey} onOpenChange={() => setViewKey(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{viewKey?.name}</DialogTitle>
+          </DialogHeader>
+          {viewKey && (
+            <div className="space-y-2 text-sm">
+              <p>
+                <strong>{t('admin.labels.user')}:</strong> {viewKey.username}
+              </p>
+              <p>
+                <strong>{t('admin.labels.key_preview')}:</strong>{' '}
+                <code>{viewKey.key_prefix}...</code>
+              </p>
+              <p>
+                <strong>{t('admin.labels.status')}:</strong> {getKeyStatus(viewKey)}
+              </p>
+              <p>
+                <strong>{t('admin.labels.created')}:</strong> {formatDate(viewKey.created_at)}
+              </p>
+              <p>
+                <strong>{t('admin.labels.last_used')}:</strong>{' '}
+                {viewKey.last_used ? formatDate(viewKey.last_used) : t('admin.never')}
+              </p>
+              <p>
+                <strong>{t('admin.labels.expires')}:</strong>{' '}
+                {viewKey.expires_at ? formatDate(viewKey.expires_at) : t('admin.never')}
+              </p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
 
     </Dialog>
