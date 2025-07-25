@@ -1,0 +1,50 @@
+# Aviary Docker Compose Configuration
+# 
+# This example shows multi-user mode with SQLite database.
+# For more examples, see: https://github.com/rmitchellscott/Aviary/blob/main/DEPLOYMENT.md
+
+services:
+  aviary:
+    image: ghcr.io/rmitchellscott/aviary:latest
+    ports:
+      - "8000:8000"
+    environment:
+      # Multi-user mode (comment out for single-user)
+      MULTI_USER: "true"
+      AUTH_USERNAME: "${AUTH_USERNAME}"    # Initial admin user
+      AUTH_PASSWORD: "${AUTH_PASSWORD}"
+      ADMIN_EMAIL: "${ADMIN_EMAIL:-admin@localhost}"
+      
+      # Optional: SMTP for password resets
+      # SMTP_HOST: "${SMTP_HOST}"
+      # SMTP_PORT: "${SMTP_PORT:-587}"
+      # SMTP_USERNAME: "${SMTP_USERNAME}"
+      # SMTP_PASSWORD: "${SMTP_PASSWORD}"
+      # SMTP_FROM: "${SMTP_FROM}"
+      # SMTP_TLS: "${SMTP_TLS:-true}"
+      # SITE_URL: "${SITE_URL:-http://localhost:8000}"
+      
+      # Optional: rmapi configuration
+      # RMAPI_HOST: "${RMAPI_HOST}"        # For self-hosted rmfakecloud
+      # RMAPI_COVERPAGE: "${RMAPI_COVERPAGE}" # "first" to use first page as cover
+      
+      # Optional: Other settings
+      # JWT_SECRET: "${JWT_SECRET}"        # Custom JWT secret (recommended)
+      # DRY_RUN: "${DRY_RUN:-false}"      # Set to "true" to test without uploading
+    volumes:
+      # Multi-user data storage
+      - type: bind
+        source: ./data
+        target: /data
+        
+      # Optional: Pre-configured rmapi.conf for single-user mode
+      # - type: bind
+      #   source: ./rmapi.conf
+      #   target: /root/.config/rmapi/rmapi.conf
+    restart: unless-stopped
+
+# For single-user mode, comment out MULTI_USER and related variables above,
+# then uncomment the rmapi.conf volume mount.
+#
+# For PostgreSQL, production setups, or advanced configurations,
+# see: https://github.com/rmitchellscott/Aviary/blob/main/DEPLOYMENT.md
