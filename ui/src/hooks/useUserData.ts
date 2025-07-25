@@ -10,6 +10,8 @@ interface UserData {
   rmapi_paired?: boolean;
   default_rmdir: string;
   coverpage_setting: string;
+  page_resolution?: string;
+  page_dpi?: number;
   created_at: string;
   last_login?: string;
 }

@@ -48,6 +48,14 @@ function waitForJobWS(
   onUpdate: (st: JobStatus) => void,
 ): Promise<void> {
   return new Promise((resolve) => {
+    let resolved = false;
+    const safeResolve = () => {
+      if (!resolved) {
+        resolved = true;
+        resolve();
+      }
+    };
+
     const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
     const ws = new WebSocket(
       `${proto}//${window.location.host}/api/status/ws/${jobId}`,
@@ -60,7 +68,7 @@ function waitForJobWS(
           // Add small delay to ensure React state update completes before resolving
           setTimeout(() => {
             ws.close();
-            resolve();
+            safeResolve();
           }, 10);
           return;
         }
@@ -68,11 +76,8 @@ function waitForJobWS(
         // ignore parse errors
       }
     };
-    ws.onclose = () => {
-      // Only resolve if not already resolved by final status
-      resolve();
-    };
-    ws.onerror = () => resolve();
+    ws.onclose = () => safeResolve();
+    ws.onerror = () => safeResolve();
   });
 }
 

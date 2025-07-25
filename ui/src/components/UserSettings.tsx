@@ -25,7 +25,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -56,20 +55,6 @@ import {
   Clock,
   AlertTriangle,
 } from "lucide-react";
-
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  is_admin: boolean;
-  rmapi_host?: string;
-  default_rmdir: string;
-  coverpage_setting: string;
-  page_resolution?: string;
-  page_dpi?: number;
-  created_at: string;
-  last_login?: string;
-}
 
 interface APIKey {
   id: string;

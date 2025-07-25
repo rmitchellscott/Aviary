@@ -22,7 +22,7 @@ You can start Aviary without an rmapi.conf file and pair through the web interfa
 #### Method 2: Command Line Pairing (Recommended for stateless setups)
 Get your device and user token file (rmapi.conf) by running:
 ```bash
-docker run -it -e RMAPI_HOST=remarkable.mydomain.com ghcr.io/rmitchellscott/aviary pair
+docker run -it -e RMAPI_HOST=https://remarkable.mydomain.com ghcr.io/rmitchellscott/aviary pair
 ```
 
 For the standard reMarkable Cloud, omit the `RMAPI_HOST`:
