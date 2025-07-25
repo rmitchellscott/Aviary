@@ -57,7 +57,7 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 - Optional Ghostscript compression
 - Two upload modes:
   - **Simple**: upload the raw PDF
-  - **Managed**: rename by date, upload, then append the year locally & clean up files older than 7 days
+  - **Managed**: rename by date, upload, then append the year locally & clean up files older than the set retention period
 
 ## Screenshot
 
@@ -74,9 +74,32 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 
 ## Environment Variable Configuration
 
+### File-based Environment Variables
+
+For security purposes, any environment variable can be read from a file instead of being set directly. To use this feature, append `_FILE` to any environment variable name and provide the path to a file containing the value.
+
+**Examples:**
+```bash
+# Instead of setting the password directly:
+SMTP_PASSWORD=mypassword
+
+# You can store it in a file and reference it:
+SMTP_PASSWORD_FILE=/run/secrets/smtp_password
+
+# This works for any environment variable:
+API_KEY_FILE=/run/secrets/api_key
+JWT_SECRET_FILE=/run/secrets/jwt_secret
+DB_PASSWORD_FILE=/run/secrets/db_password
+AUTH_PASSWORD_FILE=/run/secrets/auth_password
+```
+
+This is particularly useful when using Docker secrets, Kubernetes secrets, or other secure credential management systems. The file contents will be read and whitespace will be trimmed automatically.
+
 ### Core Configuration
 | Variable                 | Required? | Default | Description |
 |--------------------------|-----------|---------|-------------|
+| PORT                     | No        | 8000    | Port for the web server to listen on |
+| GIN_MODE                 | No        | release | Gin web framework mode (`release`, `debug`, or `test`) |
 | DISABLE_UI               | No        | false   | Set `true` to disable the UI routes and run in API-only mode |
 | PDF_DIR                  | No        | /app/pdfs| Directory to archive PDFs into |
 | RMAPI_HOST               | No        |         | Self-hosted endpoint to use for rmapi (single-user mode only) |
@@ -87,6 +110,9 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 | SNIFF_TIMEOUT            | No        | 5s      | Timeout for sniffing the MIME type |
 | DOWNLOAD_TIMEOUT         | No        | 1m      | Timeout for Download requests |
 | FOLDER_CACHE_INTERVAL    | No        | 1h      | How often to refresh the folder listing cache. `0` disables caching |
+| FOLDER_REFRESH_RATE      | No        | 0.2     | Rate of folder refreshes per second (e.g., "0.2" for one refresh every 5 seconds) |
+| PAGE_RESOLUTION          | No        | 1404x1872 | Page resolution for PDF conversion (WIDTHxHEIGHT format) |
+| PAGE_DPI                 | No        | 226     | Page DPI for PDF conversion |
 | DRY_RUN                  | No        | false   | Set to `true` to log rmapi commands without running them |
 
 ### Multi-User Mode Configuration
@@ -116,6 +142,7 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 | SMTP_PASSWORD            | No        |         | SMTP password |
 | SMTP_FROM                | No        |         | From email address for system emails |
 | SMTP_TLS                 | No        | true    | Whether to use TLS for SMTP connection |
+| SITE_URL                 | No        | http://localhost:8000 | Base URL for the site (used in email links) |
 
 For more rmapi-specific configuration, see [their documentation](https://github.com/ddvk/rmapi?tab=readme-ov-file#environment-variables).
 
@@ -127,6 +154,19 @@ For more rmapi-specific configuration, see [their documentation](https://github.
 | API_KEY                  | No        |         | Secret key for API access via Authorization header (single-user mode only) |
 | JWT_SECRET               | No        | auto-generated | Custom JWT signing secret (auto-generated if not provided.) If not set, restarting the container will log out all users. |
 | ALLOW_INSECURE           | No        |  false  | Set to `true` to allow non-secure cookies (not recommended) |
+| PROXY_AUTH_HEADER        | No        |         | Header name for proxy-based authentication |
+
+### OIDC Authentication Configuration
+| Variable                 | Required? | Default | Description |
+|--------------------------|-----------|---------|-------------|
+| OIDC_ISSUER              | No        |         | OIDC issuer URL |
+| OIDC_CLIENT_ID           | No        |         | OIDC client ID |
+| OIDC_CLIENT_SECRET       | No        |         | OIDC client secret |
+| OIDC_REDIRECT_URL        | No        |         | OIDC redirect URL |
+| OIDC_SCOPES              | No        |         | OIDC scopes (space-separated) |
+| OIDC_AUTO_CREATE_USERS   | No        | false   | Set to `true` to automatically create users from OIDC claims |
+| OIDC_SUCCESS_REDIRECT_URL | No       |         | URL to redirect to after successful OIDC authentication |
+| OIDC_POST_LOGOUT_REDIRECT_URL | No   |         | URL to redirect to after OIDC logout |
 
 ## Authentication
 
@@ -438,6 +478,66 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+
+volumes:
+  postgres_data:
+```
+
+### Multi-User Mode with PostgreSQL and Docker Secrets
+```yaml
+services:
+  aviary:
+    image: ghcr.io/rmitchellscott/aviary
+    ports:
+      - "8000:8000"
+    environment:
+      MULTI_USER: "true"
+      AUTH_USERNAME: "admin"
+      AUTH_PASSWORD_FILE: "/run/secrets/auth_password"
+      ADMIN_EMAIL: "admin@example.com"
+      DB_TYPE: "postgres"
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      DB_USER: "aviary"
+      DB_PASSWORD_FILE: "/run/secrets/db_password"
+      DB_NAME: "aviary"
+      DB_SSLMODE: "disable"
+      JWT_SECRET_FILE: "/run/secrets/jwt_secret"
+      SMTP_PASSWORD_FILE: "/run/secrets/smtp_password"
+    secrets:
+      - auth_password
+      - db_password
+      - jwt_secret
+      - smtp_password
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: "aviary"
+      POSTGRES_USER: "aviary"
+      POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
+    secrets:
+      - db_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+secrets:
+  auth_password:
+    file: ./secrets/auth_password.txt
+  db_password:
+    file: ./secrets/db_password.txt
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt
+  smtp_password:
+    file: ./secrets/smtp_password.txt
 
 volumes:
   postgres_data:

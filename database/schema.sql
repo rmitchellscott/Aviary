@@ -20,6 +20,10 @@ CREATE TABLE users (
     -- User-specific settings
     rmapi_host VARCHAR(255),
     default_rmdir VARCHAR(255) DEFAULT '/',
+    coverpage_setting VARCHAR(255),
+    folder_refresh_percent INTEGER DEFAULT 0,
+    page_resolution VARCHAR(255),
+    page_dpi DECIMAL(10,2),
     
     -- Password reset
     reset_token VARCHAR(255),

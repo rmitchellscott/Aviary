@@ -29,6 +29,15 @@ func parseEnvResolution() (widthPx int, heightPx int, err error) {
 	if raw == "" {
 		raw = defaultRemarkable2Resolution
 	}
+	return parseResolutionString(raw)
+}
+
+// parseResolutionString parses a resolution string in "WIDTHxHEIGHT" format.
+// Returns (widthPx, heightPx, error).
+func parseResolutionString(raw string) (widthPx int, heightPx int, err error) {
+	if raw == "" {
+		raw = defaultRemarkable2Resolution
+	}
 	parts := strings.Split(raw, "x")
 	if len(parts) != 2 {
 		return 0, 0, fmt.Errorf("PAGE_RESOLUTION %q is not in WIDTHxHEIGHT form", raw)
@@ -49,6 +58,15 @@ func parseEnvResolution() (widthPx int, heightPx int, err error) {
 // Returns (dpi, error).
 func parseEnvDPI() (float64, error) {
 	raw := config.Get("PAGE_DPI", "")
+	if raw == "" {
+		return defaultRemarkable2DPI, nil
+	}
+	return parseDPIValue(raw)
+}
+
+// parseDPIValue parses a DPI value from a string.
+// Returns (dpi, error).
+func parseDPIValue(raw string) (float64, error) {
 	if raw == "" {
 		return defaultRemarkable2DPI, nil
 	}
@@ -129,5 +147,73 @@ func ConvertImageToPDF(imgPath string) (string, error) {
 	}
 
 	log.Printf("ConvertImageToPDF: successfully created PDF = %s", outPDF)
+	return outPDF, nil
+}
+
+// ConvertImageToPDFWithSettings takes an input image path and custom resolution/DPI settings,
+// converts it to PDF using the specified settings, falling back to environment defaults if empty.
+func ConvertImageToPDFWithSettings(imgPath, resolution string, dpi float64) (string, error) {
+	ext := strings.ToLower(filepath.Ext(imgPath))
+	if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
+		return "", fmt.Errorf("ConvertImageToPDFWithSettings: unsupported extension %q", ext)
+	}
+
+	// 1. Parse resolution in pixels (use custom or fall back to environment):
+	var resWpx, resHpx int
+	var err error
+	if resolution != "" {
+		resWpx, resHpx, err = parseResolutionString(resolution)
+	} else {
+		resWpx, resHpx, err = parseEnvResolution()
+	}
+	if err != nil {
+		return "", err
+	}
+
+	// 2. Parse DPI (use custom or fall back to environment):
+	var finalDPI float64
+	if dpi > 0 {
+		finalDPI = dpi
+	} else {
+		finalDPI, err = parseEnvDPI()
+		if err != nil {
+			return "", err
+		}
+	}
+
+	// 3. Build output PDF path (same directory, same basename):
+	base := strings.TrimSuffix(filepath.Base(imgPath), ext)
+	outPDF := filepath.Join(filepath.Dir(imgPath), base+".pdf")
+
+	// --- LOGGING FOR DIAGNOSIS: print computed values ----
+	log.Printf("ConvertImageToPDFWithSettings: input image = %s", imgPath)
+	log.Printf("ConvertImageToPDFWithSettings: target resolution = %dx%d px, DPI = %.2f", resWpx, resHpx, finalDPI)
+
+	// 4. Use ImageMagick's "convert" with the same logic as ConvertImageToPDF
+	args := []string{
+		imgPath,
+		"-density", fmt.Sprintf("%.2f", finalDPI),
+		"-resize", fmt.Sprintf("%dx%d>", resWpx, resHpx),
+		"-background", "white",
+		"-gravity", "center",
+		"-extent", fmt.Sprintf("%dx%d", resWpx, resHpx),
+		"-quality", "100",
+		outPDF,
+	}
+	log.Printf("ConvertImageToPDFWithSettings: running ImageMagick convert with args: %v", args)
+	cmd := exec.Command("convert", args...)
+
+	// Capture combined stdout+stderr so we can log if conversion fails:
+	var buf bytes.Buffer
+	cmd.Stdout = &buf
+	cmd.Stderr = &buf
+
+	if outputErr := cmd.Run(); outputErr != nil {
+		// Dump the full convert output for diagnosis:
+		log.Printf("ConvertImageToPDFWithSettings: ImageMagick output:\n%s", buf.String())
+		return "", fmt.Errorf("imagemagick convert failed (exit: %v): %s", outputErr, buf.String())
+	}
+
+	log.Printf("ConvertImageToPDFWithSettings: successfully created PDF = %s", outPDF)
 	return outPDF, nil
 }

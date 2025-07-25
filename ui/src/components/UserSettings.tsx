@@ -65,6 +65,8 @@ interface User {
   rmapi_host?: string;
   default_rmdir: string;
   coverpage_setting: string;
+  page_resolution?: string;
+  page_dpi?: number;
   created_at: string;
   last_login?: string;
 }
@@ -87,6 +89,45 @@ interface UserSettingsProps {
 export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const { t } = useTranslation();
   const { user, loading: userDataLoading, rmapiPaired, rmapiHost, refetch, updatePairingStatus } = useUserData();
+
+  // Device presets for image to PDF conversion
+  const devicePresets = {
+    remarkable_1_2: { resolution: "1404x1872", dpi: 226 },
+    remarkable_paper_pro: { resolution: "1620x2160", dpi: 229 }
+  };
+
+  // Helper function to determine device preset from user settings
+  const getDevicePresetFromUser = (pageResolution?: string, pageDPI?: number) => {
+    if (!pageResolution && !pageDPI) {
+      return "remarkable_1_2"; // Default
+    }
+    
+    if (pageResolution === "1620x2160" && pageDPI === 229) {
+      return "remarkable_paper_pro";
+    }
+    
+    if (pageResolution === "1404x1872" && pageDPI === 226) {
+      return "remarkable_1_2";
+    }
+    
+    return "manual";
+  };
+
+  // Helper function to get actual values for API call
+  const getPageSettingsForAPI = () => {
+    if (devicePreset === "manual") {
+      return {
+        page_resolution: manualPageResolution || "",
+        page_dpi: manualPageDPI ? parseFloat(manualPageDPI) : 0
+      };
+    } else {
+      const preset = devicePresets[devicePreset as keyof typeof devicePresets];
+      return {
+        page_resolution: preset.resolution,
+        page_dpi: preset.dpi
+      };
+    }
+  };
   const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -97,13 +138,19 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [userRmapiHost, setUserRmapiHost] = useState("");
   const [defaultRmdir, setDefaultRmdir] = useState("/");
   const [coverpageSetting, setCoverpageSetting] = useState("current");
+  const [devicePreset, setDevicePreset] = useState("remarkable_1_2");
+  const [manualPageResolution, setManualPageResolution] = useState("");
+  const [manualPageDPI, setManualPageDPI] = useState("");
   
   // Original values for change tracking
   const [originalValues, setOriginalValues] = useState({
     email: "",
     userRmapiHost: "",
     defaultRmdir: "/",
-    coverpageSetting: "current"
+    coverpageSetting: "current",
+    devicePreset: "remarkable_1_2",
+    manualPageResolution: "",
+    manualPageDPI: ""
   });
   
   // Folder cache
@@ -150,19 +197,28 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       const userRmapiHost = user.rmapi_host || "";
       const defaultRmdir = user.default_rmdir || "/";
       const coverpageSetting = user.coverpage_setting || "current";
+      const detectedPreset = getDevicePresetFromUser(user.page_resolution, user.page_dpi);
+      const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
+      const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
       
       setUsername(user.username);
       setEmail(email);
       setUserRmapiHost(userRmapiHost);
       setDefaultRmdir(defaultRmdir);
       setCoverpageSetting(coverpageSetting);
+      setDevicePreset(detectedPreset);
+      setManualPageResolution(manualResolution);
+      setManualPageDPI(manualDPI);
       
       // Store original values for change tracking
       setOriginalValues({
         email,
         userRmapiHost,
         defaultRmdir,
-        coverpageSetting
+        coverpageSetting,
+        devicePreset: detectedPreset,
+        manualPageResolution: manualResolution,
+        manualPageDPI: manualDPI
       });
     }
   }, [user]);
@@ -223,7 +279,10 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       email !== originalValues.email ||
       userRmapiHost !== originalValues.userRmapiHost ||
       defaultRmdir !== originalValues.defaultRmdir ||
-      coverpageSetting !== originalValues.coverpageSetting
+      coverpageSetting !== originalValues.coverpageSetting ||
+      devicePreset !== originalValues.devicePreset ||
+      manualPageResolution !== originalValues.manualPageResolution ||
+      manualPageDPI !== originalValues.manualPageDPI
     );
   };
 
@@ -232,6 +291,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setSaving(true);
       setError(null);
 
+      const pageSettings = getPageSettingsForAPI();
       const response = await fetch("/api/profile", {
         method: "PUT",
         headers: {
@@ -243,6 +303,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           rmapi_host: userRmapiHost,
           default_rmdir: defaultRmdir,
           coverpage_setting: coverpageSetting,
+          ...pageSettings,
         }),
       });
 
@@ -623,6 +684,64 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                     <p className="text-sm text-muted-foreground mt-1">
                       {t("settings.help.cover_page")}
                     </p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="device-preset">{t("settings.labels.pdf_conversion_device")}</Label>
+                    <Select 
+                      value={devicePreset} 
+                      onValueChange={setDevicePreset}
+                    >
+                      <SelectTrigger id="device-preset" className="mt-2">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="remarkable_1_2">
+                          reMarkable 1 & 2
+                        </SelectItem>
+                        <SelectItem value="remarkable_paper_pro">
+                          reMarkable Paper Pro
+                        </SelectItem>
+                        <SelectItem value="manual">
+                          {t("settings.options.manual")}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {t("settings.help.pdf_conversion_device")}
+                    </p>
+                    
+                    {devicePreset === "manual" && (
+                      <div className="mt-4 space-y-4 p-4 bg-muted/50 rounded-md border">
+                        <div>
+                          <Label htmlFor="manual-resolution">{t("settings.labels.page_resolution")}</Label>
+                          <Input
+                            id="manual-resolution"
+                            value={manualPageResolution}
+                            onChange={(e) => setManualPageResolution(e.target.value)}
+                            placeholder={t('settings.placeholders.page_resolution')}
+                            className="mt-2"
+                          />
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {t("settings.help.page_resolution")}
+                          </p>
+                        </div>
+                        <div>
+                          <Label htmlFor="manual-dpi">{t("settings.labels.page_dpi")}</Label>
+                          <Input
+                            id="manual-dpi"
+                            type="number"
+                            value={manualPageDPI}
+                            onChange={(e) => setManualPageDPI(e.target.value)}
+                            placeholder={t('settings.placeholders.page_dpi')}
+                            className="mt-2"
+                          />
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {t("settings.help.page_dpi")}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex justify-end">

@@ -32,12 +32,14 @@ func GetPostPairingCallback() PostPairingCallback {
 
 // UpdateUserRequest represents a user update request
 type UpdateUserRequest struct {
-	Email            *string `json:"email,omitempty" binding:"omitempty,email"`
-	RmapiHost        *string `json:"rmapi_host,omitempty"`
-	DefaultRmdir     *string `json:"default_rmdir,omitempty"`
-	CoverpageSetting *string `json:"coverpage_setting,omitempty"`
-	IsAdmin          *bool   `json:"is_admin,omitempty"`
-	IsActive         *bool   `json:"is_active,omitempty"`
+	Email            *string  `json:"email,omitempty" binding:"omitempty,email"`
+	RmapiHost        *string  `json:"rmapi_host,omitempty"`
+	DefaultRmdir     *string  `json:"default_rmdir,omitempty"`
+	CoverpageSetting *string  `json:"coverpage_setting,omitempty"`
+	PageResolution   *string  `json:"page_resolution,omitempty"`
+	PageDPI          *float64 `json:"page_dpi,omitempty"`
+	IsAdmin          *bool    `json:"is_admin,omitempty"`
+	IsActive         *bool    `json:"is_active,omitempty"`
 }
 
 // UpdatePasswordRequest represents a password update request
@@ -248,6 +250,15 @@ func UpdateUserHandler(c *gin.Context) {
 	if req.DefaultRmdir != nil && *req.DefaultRmdir != "" {
 		updates["default_rmdir"] = *req.DefaultRmdir
 	}
+	if req.CoverpageSetting != nil && *req.CoverpageSetting != "" {
+		updates["coverpage_setting"] = *req.CoverpageSetting
+	}
+	if req.PageResolution != nil {
+		updates["page_resolution"] = *req.PageResolution
+	}
+	if req.PageDPI != nil {
+		updates["page_dpi"] = *req.PageDPI
+	}
 	if req.IsAdmin != nil {
 		updates["is_admin"] = *req.IsAdmin
 	}
@@ -355,6 +366,14 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 
 	if req.CoverpageSetting != nil && *req.CoverpageSetting != "" {
 		updates["coverpage_setting"] = *req.CoverpageSetting
+	}
+
+	if req.PageResolution != nil {
+		updates["page_resolution"] = *req.PageResolution // Allow clearing by setting to empty string
+	}
+
+	if req.PageDPI != nil {
+		updates["page_dpi"] = *req.PageDPI // Allow clearing by setting to 0
 	}
 
 	if len(updates) == 0 {

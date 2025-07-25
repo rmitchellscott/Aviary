@@ -354,8 +354,16 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		jobStore.UpdateWithOperation(jobID, "Running", "backend.status.converting_pdf", nil, "converting")
 		origPath := localPath
 
-		// Convert the image → PDF (using PAGE_RESOLUTION & PAGE_DPI)
-		pdfPath, convErr := converter.ConvertImageToPDF(origPath)
+		// Convert the image → PDF (using per-user PAGE_RESOLUTION & PAGE_DPI if available)
+		var pdfPath string
+		var convErr error
+		if database.IsMultiUserMode() && dbUser != nil {
+			// Use user-specific settings if available, falling back to environment defaults
+			pdfPath, convErr = converter.ConvertImageToPDFWithSettings(origPath, dbUser.PageResolution, dbUser.PageDPI)
+		} else {
+			// Use environment defaults (existing behavior)
+			pdfPath, convErr = converter.ConvertImageToPDF(origPath)
+		}
 		if convErr != nil {
 			return "backend.status.conversion_error", nil, convErr
 		}

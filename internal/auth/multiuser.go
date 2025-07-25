@@ -44,6 +44,8 @@ type UserResponse struct {
 	RmapiHost        string     `json:"rmapi_host,omitempty"`
 	DefaultRmdir     string     `json:"default_rmdir"`
 	CoverpageSetting string     `json:"coverpage_setting"`
+	PageResolution   string     `json:"page_resolution,omitempty"`
+	PageDPI          float64    `json:"page_dpi,omitempty"`
 	RmapiPaired      bool       `json:"rmapi_paired"`
 	CreatedAt        time.Time  `json:"created_at"`
 	LastLogin        *time.Time `json:"last_login,omitempty"`
@@ -169,6 +171,8 @@ func RegisterHandler(c *gin.Context) {
 		RmapiPaired:      isUserPaired(newUser.ID),
 		DefaultRmdir:     newUser.DefaultRmdir,
 		CoverpageSetting: newUser.CoverpageSetting,
+		PageResolution:   newUser.PageResolution,
+		PageDPI:          newUser.PageDPI,
 		CreatedAt:        newUser.CreatedAt,
 		LastLogin:        newUser.LastLogin,
 	}
@@ -267,6 +271,8 @@ func MultiUserLoginHandler(c *gin.Context) {
 			RmapiPaired:      isUserPaired(user.ID),
 			DefaultRmdir:     user.DefaultRmdir,
 			CoverpageSetting: user.CoverpageSetting,
+			PageResolution:   user.PageResolution,
+			PageDPI:          user.PageDPI,
 			CreatedAt:        user.CreatedAt,
 			LastLogin:        user.LastLogin,
 		},
@@ -371,6 +377,8 @@ func GetCurrentUserHandler(c *gin.Context) {
 		RmapiPaired:      isUserPaired(user.ID),
 		DefaultRmdir:     user.DefaultRmdir,
 		CoverpageSetting: user.CoverpageSetting,
+		PageResolution:   user.PageResolution,
+		PageDPI:          user.PageDPI,
 		CreatedAt:        user.CreatedAt,
 		LastLogin:        user.LastLogin,
 	}
@@ -444,6 +452,8 @@ func MultiUserCheckAuthHandler(c *gin.Context) {
 			RmapiPaired:      isUserPaired(user.ID),
 			DefaultRmdir:     user.DefaultRmdir,
 			CoverpageSetting: user.CoverpageSetting,
+			PageResolution:   user.PageResolution,
+			PageDPI:          user.PageDPI,
 			CreatedAt:        user.CreatedAt,
 			LastLogin:        user.LastLogin,
 		},
