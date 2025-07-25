@@ -286,7 +286,10 @@
       "status": "状態",
       "created": "作成日",
       "last_used": "最終使用",
-      "expires": "有効期限"
+      "expires": "有効期限",
+      "pdf_conversion_device": "変換ターゲット",
+      "page_resolution": "ページ解像度",
+      "page_dpi": "ページDPI"
     },
     "actions": {
       "unpair": "ペアリング解除",
@@ -298,7 +301,8 @@
     },
     "options": {
       "cover_current": "現在のページ",
-      "cover_first": "最初のページ"
+      "cover_first": "最初のページ",
+      "manual": "手動"
     },
     "expiry_options": {
       "one_week": "1週間",
@@ -316,7 +320,10 @@
       "no_api_keys": "APIキーはまだ作成されていません"
     },
     "help": {
-      "cover_page": "PDFアップロード時に最初のページまたは現在のページをカバーとして使用するかを制御"
+      "cover_page": "PDFアップロード時に最初のページまたは現在のページをカバーとして使用するかを制御",
+      "pdf_conversion_device": "最適な画像かPDFへの変換のためにreMarkableデバイスモデルを選択してください。この設定はPDFに変換される画像ファイル（JPEG、PNG）のみに影響します。",
+      "page_resolution": "幅x高さ形式のページ解像度",
+      "page_dpi": "1インチあたりのドット数"
     },
     "status": {
       "active": "アクティブ",
@@ -346,7 +353,9 @@
       "api_key": "私のAPIキー",
       "never_expires": "有効期限なし",
       "current_password": "現在のパスワードを入力してください",
-      "delete_confirm": "アカウントを削除"
+      "delete_confirm": "アカウントを削除",
+      "page_resolution": "1404x1872",
+      "page_dpi": "226"
     },
     "loading_states": {
       "saving": "保存中...",

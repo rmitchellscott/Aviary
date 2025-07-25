@@ -328,7 +328,7 @@
       "created": "Creado",
       "last_used": "Último Uso",
       "expires": "Expira",
-      "pdf_conversion_device": "Dispositivo de Conversión de Imagen a PDF",
+      "pdf_conversion_device": "Objetivo de Conversión",
       "page_resolution": "Resolución de Página",
       "page_dpi": "DPI de Página"
     },
@@ -363,8 +363,8 @@
     "help": {
       "cover_page": "Controla si la primera página o página actual se usa como portada al subir PDFs",
       "pdf_conversion_device": "Elige el modelo de tu dispositivo reMarkable para una conversión óptima de imagen a PDF. Esta configuración solo afecta archivos de imagen (JPEG, PNG) que se convierten a PDF.",
-      "page_resolution": "Resolución de página en formato ANCHOxALTO (ej., 1404x1872)",
-      "page_dpi": "Puntos por pulgada para conversión PDF (ej., 226)"
+      "page_resolution": "Resolución de página en formato ANCHOxALTO",
+      "page_dpi": "Puntos por pulgada"
     },
     "status": {
       "active": "activo",

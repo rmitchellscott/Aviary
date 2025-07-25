@@ -327,7 +327,10 @@
       "status": "Stato",
       "created": "Creato",
       "last_used": "Ultimo Utilizzo",
-      "expires": "Scade"
+      "expires": "Scade",
+      "pdf_conversion_device": "Obiettivo di conversione",
+      "page_resolution": "Risoluzione pagina",
+      "page_dpi": "DPI pagina"
     },
     "actions": {
       "unpair": "Scollega",
@@ -339,7 +342,8 @@
     },
     "options": {
       "cover_current": "Pagina corrente",
-      "cover_first": "Prima pagina"
+      "cover_first": "Prima pagina",
+      "manual": "Manuale"
     },
     "expiry_options": {
       "one_week": "1 settimana",
@@ -357,7 +361,10 @@
       "no_api_keys": "Nessuna chiave API creata ancora"
     },
     "help": {
-      "cover_page": "Controlla se la prima pagina o la pagina corrente viene utilizzata come copertina durante il caricamento di PDF"
+      "cover_page": "Controlla se la prima pagina o la pagina corrente viene utilizzata come copertina durante il caricamento di PDF",
+      "pdf_conversion_device": "Scegli il modello del tuo dispositivo reMarkable per una conversione ottimale da immagine a PDF. Questa impostazione influisce solo sui file immagine (JPEG, PNG) convertiti in PDF.",
+      "page_resolution": "Risoluzione pagina nel formato LARGHEZZAxALTEZZA",
+      "page_dpi": "Punti per pollice"
     },
     "status": {
       "active": "attivo",
@@ -387,7 +394,9 @@
       "api_key": "La Mia Chiave API",
       "never_expires": "Non scade mai",
       "current_password": "Inserisci la tua password attuale",
-      "delete_confirm": "ELIMINA IL MIO ACCOUNT"
+      "delete_confirm": "ELIMINA IL MIO ACCOUNT",
+      "page_resolution": "1404x1872",
+      "page_dpi": "226"
     },
     "loading_states": {
       "saving": "Salvataggio...",

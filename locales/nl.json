@@ -286,7 +286,10 @@
       "status": "Status",
       "created": "Aangemaakt",
       "last_used": "Laatst gebruikt",
-      "expires": "Verloopt"
+      "expires": "Verloopt",
+      "pdf_conversion_device": "Conversiedoel",
+      "page_resolution": "Paginaresolutie",
+      "page_dpi": "Pagina DPI"
     },
     "actions": {
       "unpair": "Ontkoppelen",
@@ -298,7 +301,8 @@
     },
     "options": {
       "cover_current": "Huidige pagina",
-      "cover_first": "Eerste pagina"
+      "cover_first": "Eerste pagina",
+      "manual": "Handmatig"
     },
     "expiry_options": {
       "one_week": "1 week",
@@ -316,7 +320,10 @@
       "no_api_keys": "Nog geen API-sleutels aangemaakt"
     },
     "help": {
-      "cover_page": "Bepaalt of de eerste pagina of huidige pagina wordt gebruikt als omslag bij het uploaden van PDF's"
+      "cover_page": "Bepaalt of de eerste pagina of huidige pagina wordt gebruikt als omslag bij het uploaden van PDF's",
+      "pdf_conversion_device": "Kies je reMarkable apparaatmodel voor optimale afbeelding-naar-PDF conversie. Deze instelling heeft alleen effect op afbeeldingsbestanden (JPEG, PNG) die naar PDF worden geconverteerd.",
+      "page_resolution": "Paginaresolutie in BREEDTExHOOGTE formaat",
+      "page_dpi": "Punten per inch"
     },
     "status": {
       "active": "actief",
@@ -346,7 +353,9 @@
       "api_key": "Mijn API-sleutel",
       "never_expires": "Verloopt nooit",
       "current_password": "Voer je huidige wachtwoord in",
-      "delete_confirm": "VERWIJDER MIJN ACCOUNT"
+      "delete_confirm": "VERWIJDER MIJN ACCOUNT",
+      "page_resolution": "1404x1872",
+      "page_dpi": "226"
     },
     "loading_states": {
       "saving": "Opslaan...",

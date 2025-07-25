@@ -286,7 +286,10 @@
       "status": "Status",
       "created": "Utworzone",
       "last_used": "Ostatnio używane",
-      "expires": "Wygasa"
+      "expires": "Wygasa",
+      "pdf_conversion_device": "Cel konwersji",
+      "page_resolution": "Rozdzielczość strony",
+      "page_dpi": "DPI strony"
     },
     "actions": {
       "unpair": "Odparuj",
@@ -298,7 +301,8 @@
     },
     "options": {
       "cover_current": "Bieżąca strona",
-      "cover_first": "Pierwsza strona"
+      "cover_first": "Pierwsza strona",
+      "manual": "Ręczny"
     },
     "expiry_options": {
       "one_week": "1 tydzień",
@@ -316,7 +320,10 @@
       "no_api_keys": "Nie utworzono jeszcze żadnych kluczy API"
     },
     "help": {
-      "cover_page": "Kontroluje, czy pierwsza strona lub bieżąca strona jest używana jako okładka podczas przesyłania plików PDF"
+      "cover_page": "Kontroluje, czy pierwsza strona lub bieżąca strona jest używana jako okładka podczas przesyłania plików PDF",
+      "pdf_conversion_device": "Wybierz model swojego urządzenia reMarkable dla optymalnej konwersji obraz-PDF. To ustawienie wpływa tylko na pliki obrazowe (JPEG, PNG) konwertowane do PDF.",
+      "page_resolution": "Rozdzielczość strony w formacie SZEROKoŚĆxWYSOKoŚĆ",
+      "page_dpi": "Punkty na cal"
     },
     "status": {
       "active": "aktywny",
@@ -346,7 +353,9 @@
       "api_key": "Mój klucz API",
       "never_expires": "Nigdy nie wygasa",
       "current_password": "Wprowadź swoje bieżące hasło",
-      "delete_confirm": "USUŃ MOJE KONTO"
+      "delete_confirm": "USUŃ MOJE KONTO",
+      "page_resolution": "1404x1872",
+      "page_dpi": "226"
     },
     "loading_states": {
       "saving": "Zapisywanie...",

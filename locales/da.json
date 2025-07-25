@@ -286,7 +286,10 @@
       "status": "Status",
       "created": "Oprettet",
       "last_used": "Sidst Brugt",
-      "expires": "Udløber"
+      "expires": "Udløber",
+      "pdf_conversion_device": "Konverteringsmål",
+      "page_resolution": "Sideopløsning",
+      "page_dpi": "Side DPI"
     },
     "actions": {
       "unpair": "Afpar",
@@ -298,7 +301,8 @@
     },
     "options": {
       "cover_current": "Nuværende side",
-      "cover_first": "Første side"
+      "cover_first": "Første side",
+      "manual": "Manuel"
     },
     "expiry_options": {
       "one_week": "1 uge",
@@ -316,7 +320,10 @@
       "no_api_keys": "Ingen API-nøgler oprettet endnu"
     },
     "help": {
-      "cover_page": "Styrer om første side eller nuværende side bruges som forside ved upload af PDF'er"
+      "cover_page": "Styrer om første side eller nuværende side bruges som forside ved upload af PDF'er",
+      "pdf_conversion_device": "Vælg din reMarkable enhedsmodel for optimal billede til PDF konvertering. Denne indstilling påvirker kun billedfiler (JPEG, PNG) der konverteres til PDF.",
+      "page_resolution": "Sideopløsning i BREDDExHØJDE format",
+      "page_dpi": "Punkter pr. tomme"
     },
     "status": {
       "active": "aktiv",
@@ -346,7 +353,9 @@
       "api_key": "Min API-nøgle",
       "never_expires": "Udløber aldrig",
       "current_password": "Indtast din nuværende adgangskode",
-      "delete_confirm": "SLET MIN KONTO"
+      "delete_confirm": "SLET MIN KONTO",
+      "page_resolution": "1404x1872",
+      "page_dpi": "226"
     },
     "loading_states": {
       "saving": "Gemmer...",

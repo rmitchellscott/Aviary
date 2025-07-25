@@ -286,7 +286,10 @@
       "status": "Status",
       "created": "Erstellt",
       "last_used": "Zuletzt verwendet",
-      "expires": "Läuft ab"
+      "expires": "Läuft ab",
+      "pdf_conversion_device": "Konvertierungsziel",
+      "page_resolution": "Seitenauflösung",
+      "page_dpi": "Seiten-DPI"
     },
     "actions": {
       "unpair": "Entkoppeln",
@@ -298,7 +301,8 @@
     },
     "options": {
       "cover_current": "Aktuelle Seite",
-      "cover_first": "Erste Seite"
+      "cover_first": "Erste Seite",
+      "manual": "Manuell"
     },
     "expiry_options": {
       "one_week": "1 Woche",
@@ -316,7 +320,10 @@
       "no_api_keys": "Noch keine API-Schlüssel erstellt"
     },
     "help": {
-      "cover_page": "Steuert, ob die erste Seite oder die aktuelle Seite als Deckblatt beim Hochladen von PDFs verwendet wird"
+      "cover_page": "Steuert, ob die erste Seite oder die aktuelle Seite als Deckblatt beim Hochladen von PDFs verwendet wird",
+      "pdf_conversion_device": "Wählen Sie Ihr reMarkable Gerätemodell für optimale Bild-zu-PDF-Konvertierung. Diese Einstellung betrifft nur Bilddateien (JPEG, PNG), die zu PDF konvertiert werden.",
+      "page_resolution": "Seitenauflösung im BREITExHÖHE Format",
+      "page_dpi": "Punkte pro Zoll"
     },
     "status": {
       "active": "aktiv",
@@ -346,7 +353,9 @@
       "api_key": "Mein API-Schlüssel",
       "never_expires": "Läuft nie ab",
       "current_password": "Geben Sie Ihr aktuelles Passwort ein",
-      "delete_confirm": "MEIN KONTO LÖSCHEN"
+      "delete_confirm": "MEIN KONTO LÖSCHEN",
+      "page_resolution": "1404x1872",
+      "page_dpi": "226"
     },
     "loading_states": {
       "saving": "Speichern...",

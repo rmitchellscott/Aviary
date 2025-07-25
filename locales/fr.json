@@ -351,7 +351,10 @@
       "status": "Statut",
       "created": "Créé",
       "last_used": "Dernière utilisation",
-      "expires": "Expire"
+      "expires": "Expire",
+      "pdf_conversion_device": "Cible de conversion",
+      "page_resolution": "Résolution de page",
+      "page_dpi": "DPI de page"
     },
     "actions": {
       "unpair": "Découpler",
@@ -363,7 +366,8 @@
     },
     "options": {
       "cover_current": "Page actuelle",
-      "cover_first": "Première page"
+      "cover_first": "Première page",
+      "manual": "Manuel"
     },
     "expiry_options": {
       "one_week": "1 semaine",
@@ -381,7 +385,10 @@
       "no_api_keys": "Aucune clé API créée pour le moment"
     },
     "help": {
-      "cover_page": "Contrôle si la première page ou la page actuelle est utilisée comme couverture lors du téléchargement de PDF"
+      "cover_page": "Contrôle si la première page ou la page actuelle est utilisée comme couverture lors du téléchargement de PDF",
+      "pdf_conversion_device": "Choisissez le modèle de votre appareil reMarkable pour une conversion optimale d'image vers PDF. Ce paramètre n'affecte que les fichiers image (JPEG, PNG) convertis en PDF.",
+      "page_resolution": "Résolution de page au format LARGEURxHAUTEUR",
+      "page_dpi": "Points par pouce"
     },
     "status": {
       "active": "actif",
@@ -411,7 +418,9 @@
       "api_key": "Ma clé API",
       "never_expires": "N'expire jamais",
       "current_password": "Entrez votre mot de passe actuel",
-      "delete_confirm": "SUPPRIMER MON COMPTE"
+      "delete_confirm": "SUPPRIMER MON COMPTE",
+      "page_resolution": "1404x1872",
+      "page_dpi": "226"
     },
     "loading_states": {
       "saving": "Enregistrement...",

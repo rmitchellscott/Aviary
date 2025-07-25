@@ -286,7 +286,10 @@
       "status": "Tila",
       "created": "Luotu",
       "last_used": "Viimeksi käytetty",
-      "expires": "Vanhenee"
+      "expires": "Vanhenee",
+      "pdf_conversion_device": "Muunnoskohde",
+      "page_resolution": "Sivun resoluutio",
+      "page_dpi": "Sivun DPI"
     },
     "actions": {
       "unpair": "Katkaise yhteys",
@@ -298,7 +301,8 @@
     },
     "options": {
       "cover_current": "Nykyinen sivu",
-      "cover_first": "Ensimmäinen sivu"
+      "cover_first": "Ensimmäinen sivu",
+      "manual": "Manuaalinen"
     },
     "expiry_options": {
       "one_week": "1 viikko",
@@ -316,7 +320,10 @@
       "no_api_keys": "API-avaimia ei ole vielä luotu"
     },
     "help": {
-      "cover_page": "Ohjaa käytetäänkö ensimmäistä sivua vai nykyistä sivua kansikuvana PDF-tiedostoja ladattaessa"
+      "cover_page": "Ohjaa käytetäänkö ensimmäistä sivua vai nykyistä sivua kansikuvana PDF-tiedostoja ladattaessa",
+      "pdf_conversion_device": "Valitse reMarkable-laitteesi malli optimaaliseen kuva-PDF-muunnokseen. Tämä asetus vaikuttaa vain kuvatiedostoihin (JPEG, PNG), jotka muunnetaan PDF:ksi.",
+      "page_resolution": "Sivun resoluutio LEVEYSxKORKEUS muodossa",
+      "page_dpi": "Pistettä tuumaa kohti"
     },
     "status": {
       "active": "aktiivinen",
@@ -346,7 +353,9 @@
       "api_key": "Minun API-avaimeni",
       "never_expires": "Ei vanhene koskaan",
       "current_password": "Syötä nykyinen salasanasi",
-      "delete_confirm": "POISTA TILINI"
+      "delete_confirm": "POISTA TILINI",
+      "page_resolution": "1404x1872",
+      "page_dpi": "226"
     },
     "loading_states": {
       "saving": "Tallennetaan...",

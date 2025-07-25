@@ -286,7 +286,10 @@
       "status": "状态",
       "created": "创建时间",
       "last_used": "最后使用",
-      "expires": "过期时间"
+      "expires": "过期时间",
+      "pdf_conversion_device": "转换目标",
+      "page_resolution": "页面分辨率",
+      "page_dpi": "页面DPI"
     },
     "actions": {
       "unpair": "取消配对",
@@ -298,7 +301,8 @@
     },
     "options": {
       "cover_current": "当前页面",
-      "cover_first": "第一页"
+      "cover_first": "第一页",
+      "manual": "手动"
     },
     "expiry_options": {
       "one_week": "1周",
@@ -316,7 +320,10 @@
       "no_api_keys": "尚未创建API密钥"
     },
     "help": {
-      "cover_page": "控制上传PDF时是使用第一页还是当前页作为封面"
+      "cover_page": "控制上传PDF时是使用第一页还是当前页作为封面",
+      "pdf_conversion_device": "选择您的reMarkable设备型号以获得最佳的图像转PDF转换效果。此设置仅影响转换为PDF的图像文件（JPEG、PNG）。",
+      "page_resolution": "以宽度x高度格式的页面分辨率",
+      "page_dpi": "每英寸点数"
     },
     "status": {
       "active": "活动",
@@ -346,7 +353,9 @@
       "api_key": "我的API密钥",
       "never_expires": "永不过期",
       "current_password": "输入您的当前密码",
-      "delete_confirm": "删除我的账户"
+      "delete_confirm": "删除我的账户",
+      "page_resolution": "1404x1872",
+      "page_dpi": "226"
     },
     "loading_states": {
       "saving": "保存中...",

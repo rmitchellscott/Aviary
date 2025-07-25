@@ -286,7 +286,10 @@
       "status": "Status",
       "created": "Skapad",
       "last_used": "Senast använd",
-      "expires": "Upphör"
+      "expires": "Upphör",
+      "pdf_conversion_device": "Konverteringsmål",
+      "page_resolution": "Sidupplösning",
+      "page_dpi": "Sid-DPI"
     },
     "actions": {
       "unpair": "Koppla från",
@@ -298,7 +301,8 @@
     },
     "options": {
       "cover_current": "Nuvarande sida",
-      "cover_first": "Första sidan"
+      "cover_first": "Första sidan",
+      "manual": "Manuell"
     },
     "expiry_options": {
       "one_week": "1 vecka",
@@ -316,7 +320,10 @@
       "no_api_keys": "Inga API-nycklar skapade än"
     },
     "help": {
-      "cover_page": "Kontrollerar om första sidan eller nuvarande sida används som omslag vid uppladdning av PDF-filer"
+      "cover_page": "Kontrollerar om första sidan eller nuvarande sida används som omslag vid uppladdning av PDF-filer",
+      "pdf_conversion_device": "Välj din reMarkable enhetsmodell för optimal bild-till-PDF konvertering. Den här inställningen påverkar endast bildfiler (JPEG, PNG) som konverteras till PDF.",
+      "page_resolution": "Sidupplösning i BREDDxHÖJD format",
+      "page_dpi": "Punkter per tum"
     },
     "status": {
       "active": "aktiv",
@@ -346,7 +353,9 @@
       "api_key": "Min API-nyckel",
       "never_expires": "Upphör aldrig",
       "current_password": "Ange ditt nuvarande lösenord",
-      "delete_confirm": "RADERA MITT KONTO"
+      "delete_confirm": "RADERA MITT KONTO",
+      "page_resolution": "1404x1872",
+      "page_dpi": "226"
     },
     "loading_states": {
       "saving": "Sparar...",
