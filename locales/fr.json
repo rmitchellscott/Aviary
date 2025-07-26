@@ -171,6 +171,7 @@
     },
     "labels": {
       "username": "Nom d'utilisateur",
+      "user_id": "ID de l'utilisateur",
       "email": "Email",
       "password": "Mot de passe",
       "role": "Rôle",

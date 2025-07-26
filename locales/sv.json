@@ -171,6 +171,7 @@
     },
     "labels": {
       "username": "Användarnamn",
+      "user_id": "Användar-ID",
       "email": "E-post",
       "password": "Lösenord",
       "role": "Roll",
