@@ -31,7 +31,7 @@ type User struct {
 	
 	
 	// OIDC integration
-	OIDCSubject *string `gorm:"uniqueIndex" json:"oidc_subject,omitempty"`
+	OidcSubject *string `gorm:"column:oidc_subject;uniqueIndex" json:"oidc_subject,omitempty"`
 	
 	// Timestamps
 	CreatedAt time.Time  `json:"created_at"`
