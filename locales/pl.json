@@ -186,7 +186,10 @@
       "new_password": "Nowe hasło",
       "enable_registration": "Włącz rejestrację użytkowników",
       "max_api_keys": "Maksymalna liczba kluczy API na użytkownika",
-      "session_timeout": "Limit czasu sesji (godziny)"
+      "session_timeout": "Limit czasu sesji (godziny)",
+      "users": "Użytkownicy",
+      "api_keys": "Klucze API",
+      "documents": "Dokumenty"
     },
     "placeholders": {
       "username": "nazwa_użytkownika",

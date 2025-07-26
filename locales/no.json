@@ -186,7 +186,10 @@
       "new_password": "Nytt passord",
       "enable_registration": "Aktiver brukerregistrering",
       "max_api_keys": "Maksimum API-nøkler per bruker",
-      "session_timeout": "Økt timeout (timer)"
+      "session_timeout": "Økt timeout (timer)",
+      "users": "Brukere",
+      "api_keys": "API-nøkler",
+      "documents": "Dokumenter"
     },
     "placeholders": {
       "username": "brukernavn",

@@ -186,7 +186,10 @@
       "new_password": "Nieuw wachtwoord",
       "enable_registration": "Gebruikersregistratie inschakelen",
       "max_api_keys": "Maximum API-sleutels per gebruiker",
-      "session_timeout": "Sessie timeout (uren)"
+      "session_timeout": "Sessie timeout (uren)",
+      "users": "Gebruikers",
+      "api_keys": "API-sleutels",
+      "documents": "Documenten"
     },
     "placeholders": {
       "username": "gebruikersnaam",

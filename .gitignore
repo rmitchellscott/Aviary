@@ -62,4 +62,4 @@ aviary
 Thumbs.db
 
 # Development docker compose
-docker-compose.dev.yaml
+docker-compose.dev*.yaml

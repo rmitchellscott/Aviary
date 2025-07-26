@@ -186,7 +186,10 @@
       "new_password": "新しいパスワード",
       "enable_registration": "ユーザー登録を有効にする",
       "max_api_keys": "ユーザーあたりの最大APIキー数",
-      "session_timeout": "セッションタイムアウト（時間）"
+      "session_timeout": "セッションタイムアウト（時間）",
+      "users": "ユーザー",
+      "api_keys": "APIキー",
+      "documents": "ドキュメント"
     },
     "placeholders": {
       "username": "ユーザー名",

@@ -186,7 +186,10 @@
       "new_password": "Ny Adgangskode",
       "enable_registration": "Aktiver Brugerregistrering",
       "max_api_keys": "Maksimum API-nøgler pr. Bruger",
-      "session_timeout": "Session Timeout (timer)"
+      "session_timeout": "Session Timeout (timer)",
+      "users": "Brugere",
+      "api_keys": "API-nøgler",
+      "documents": "Dokumenter"
     },
     "placeholders": {
       "username": "brugernavn",

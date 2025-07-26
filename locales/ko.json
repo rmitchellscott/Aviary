@@ -186,7 +186,10 @@
       "new_password": "새 비밀번호",
       "enable_registration": "사용자 등록 활성화",
       "max_api_keys": "사용자당 최대 API 키",
-      "session_timeout": "세션 타임아웃 (시간)"
+      "session_timeout": "세션 타임아웃 (시간)",
+      "users": "사용자",
+      "api_keys": "API 키",
+      "documents": "문서"
     },
     "placeholders": {
       "username": "사용자명",

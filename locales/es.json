@@ -186,7 +186,10 @@
       "new_password": "Nueva Contraseña",
       "enable_registration": "Habilitar Registro de Usuarios",
       "max_api_keys": "Máximo de Claves API por Usuario",
-      "session_timeout": "Tiempo de Espera de Sesión (horas)"
+      "session_timeout": "Tiempo de Espera de Sesión (horas)",
+      "users": "Usuarios",
+      "api_keys": "Claves API",
+      "documents": "Documentos"
     },
     "placeholders": {
       "username": "usuario",

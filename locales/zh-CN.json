@@ -186,7 +186,10 @@
       "new_password": "新密码",
       "enable_registration": "启用用户注册",
       "max_api_keys": "每用户最大API密钥数",
-      "session_timeout": "会话超时（小时）"
+      "session_timeout": "会话超时（小时）",
+      "users": "用户",
+      "api_keys": "API密钥",
+      "documents": "文档"
     },
     "placeholders": {
       "username": "用户名",

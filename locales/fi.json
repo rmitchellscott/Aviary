@@ -186,7 +186,10 @@
       "new_password": "Uusi salasana",
       "enable_registration": "Ota käyttöön käyttäjärekisteröinti",
       "max_api_keys": "Maksimi API-avaimia per käyttäjä",
-      "session_timeout": "Istunnon aikakatkaisu (tunnit)"
+      "session_timeout": "Istunnon aikakatkaisu (tunnit)",
+      "users": "Käyttäjät",
+      "api_keys": "API-avaimet",
+      "documents": "Dokumentit"
     },
     "placeholders": {
       "username": "käyttäjänimi",

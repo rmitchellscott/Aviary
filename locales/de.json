@@ -186,7 +186,10 @@
       "new_password": "Neues Passwort",
       "enable_registration": "Benutzerregistrierung aktivieren",
       "max_api_keys": "Maximale API-Schlüssel pro Benutzer",
-      "session_timeout": "Sitzungstimeout (Stunden)"
+      "session_timeout": "Sitzungstimeout (Stunden)",
+      "users": "Benutzer",
+      "api_keys": "API-Schlüssel",
+      "documents": "Dokumente"
     },
     "placeholders": {
       "username": "benutzername",

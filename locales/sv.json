@@ -186,7 +186,10 @@
       "new_password": "Nytt lösenord",
       "enable_registration": "Aktivera användarregistrering",
       "max_api_keys": "Maximalt antal API-nycklar per användare",
-      "session_timeout": "Session timeout (timmar)"
+      "session_timeout": "Session timeout (timmar)",
+      "users": "Användare",
+      "api_keys": "API-nycklar",
+      "documents": "Dokument"
     },
     "placeholders": {
       "username": "användarnamn",
