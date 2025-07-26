@@ -59,12 +59,8 @@ export function useUserData() {
             setUser(authData.user);
             setRmapiPaired(!!authData.user.rmapi_paired);
             
-            // Default to environment RMAPI_HOST if user hasn't set their own
-            if (authData.user.rmapi_host) {
-              setRmapiHost(authData.user.rmapi_host);
-            } else {
-              setRmapiHost(config.rmapi_host || "");
-            }
+            // Use user's RMAPI_HOST setting, or empty string for official cloud
+            setRmapiHost(authData.user.rmapi_host || "");
           } else {
             setUser(null);
             setRmapiPaired(false);

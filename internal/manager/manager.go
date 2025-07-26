@@ -39,6 +39,17 @@ func DefaultRmDir() string {
 	return d
 }
 
+// filterEnv removes environment variables with the given prefix from the slice
+func filterEnv(env []string, prefix string) []string {
+	var filtered []string
+	for _, e := range env {
+		if !strings.HasPrefix(e, prefix+"=") {
+			filtered = append(filtered, e)
+		}
+	}
+	return filtered
+}
+
 // rmapiCmd builds an exec.Cmd to run rmapi with user-specific configuration
 // if provided.
 func rmapiCmd(user *database.User, args ...string) *exec.Cmd {
@@ -47,8 +58,9 @@ func rmapiCmd(user *database.User, args ...string) *exec.Cmd {
 	if user != nil {
 		if user.RmapiHost != "" {
 			env = append(env, "RMAPI_HOST="+user.RmapiHost)
-		} else if host := config.Get("RMAPI_HOST", ""); host != "" {
-			env = append(env, "RMAPI_HOST="+host)
+		} else {
+			// Remove server-level RMAPI_HOST to use official cloud
+			env = filterEnv(env, "RMAPI_HOST")
 		}
 		if cfg, err := GetUserRmapiConfigPath(user.ID); err == nil {
 			env = append(env, "RMAPI_CONFIG="+cfg)

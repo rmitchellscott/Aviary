@@ -79,6 +79,17 @@ func isUserPaired(id uuid.UUID) bool {
 	return err == nil && info.Size() > 0
 }
 
+// filterEnv removes environment variables with the given prefix from the slice
+func filterEnv(env []string, prefix string) []string {
+	var filtered []string
+	for _, e := range env {
+		if !strings.HasPrefix(e, prefix+"=") {
+			filtered = append(filtered, e)
+		}
+	}
+	return filtered
+}
+
 // GetUsersHandler returns all users (admin only)
 func GetUsersHandler(c *gin.Context) {
 	if !database.IsMultiUserMode() {
@@ -473,8 +484,9 @@ func PairRMAPIHandler(c *gin.Context) {
 	env = append(env, "RMAPI_CONFIG="+cfgPath)
 	if user.RmapiHost != "" {
 		env = append(env, "RMAPI_HOST="+user.RmapiHost)
-	} else if host := config.Get("RMAPI_HOST", ""); host != "" {
-		env = append(env, "RMAPI_HOST="+host)
+	} else {
+		// Remove server-level RMAPI_HOST to use official cloud
+		env = filterEnv(env, "RMAPI_HOST")
 	}
 	cmd.Env = env
 	if err := cmd.Run(); err != nil {

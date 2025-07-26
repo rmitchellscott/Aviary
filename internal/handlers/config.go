@@ -34,12 +34,8 @@ func ConfigHandler(c *gin.Context) {
 					defaultRmDir = manager.DefaultRmDir()
 				}
 
-				// Use user-specific rmapi host if set, otherwise use global default
-				if dbUser.RmapiHost != "" {
-					rmapiHost = dbUser.RmapiHost
-				} else {
-					rmapiHost = config.Get("RMAPI_HOST", "")
-				}
+				// Use user-specific rmapi host if set, empty string for official cloud
+				rmapiHost = dbUser.RmapiHost
 			} else {
 				// Fallback to global defaults
 				defaultRmDir = manager.DefaultRmDir()
