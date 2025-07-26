@@ -315,6 +315,15 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 			if err != nil {
 				return fmt.Errorf("failed to create user: %w", err)
 			}
+
+			// If this is the first user, migrate single-user data asynchronously
+			if firstUser {
+				go func() {
+					if err := database.MigrateSingleUserData(user.ID); err != nil {
+						fmt.Printf("Warning: failed to migrate single-user data: %v\n", err)
+					}
+				}()
+			}
 			} else {
 				fmt.Printf("OIDC: Linked user %s via email\n", user.Username)
 				if err := database.DB.Model(user).Update("oidc_subject", subject).Error; err != nil {

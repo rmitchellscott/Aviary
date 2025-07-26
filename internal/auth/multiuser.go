@@ -75,11 +75,20 @@ func PublicRegisterHandler(c *gin.Context) {
 		return
 	}
 
-	// Check if registration is enabled
-	regEnabled, err := database.GetSystemSetting("registration_enabled")
-	if err != nil || regEnabled != "true" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "User registration is disabled"})
+	// Check if this would be the first user
+	var userCount int64
+	if err := database.DB.Model(&database.User{}).Count(&userCount).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check user count"})
 		return
+	}
+
+	// Allow registration if no users exist, otherwise check if registration is enabled
+	if userCount > 0 {
+		regEnabled, err := database.GetSystemSetting("registration_enabled")
+		if err != nil || regEnabled != "true" {
+			c.JSON(http.StatusForbidden, gin.H{"error": "User registration is disabled"})
+			return
+		}
 	}
 
 	var req RegisterRequest
@@ -88,8 +97,10 @@ func PublicRegisterHandler(c *gin.Context) {
 		return
 	}
 
+	firstUser := userCount == 0
+
 	userService := database.NewUserService(database.DB)
-	newUser, err := userService.CreateUser(req.Username, req.Email, req.Password, false)
+	newUser, err := userService.CreateUser(req.Username, req.Email, req.Password, firstUser)
 	if err != nil {
 		if strings.Contains(err.Error(), "already exists") {
 			c.JSON(http.StatusConflict, gin.H{"error": "User with this username or email already exists"})
@@ -97,6 +108,15 @@ func PublicRegisterHandler(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
+	}
+
+	// If this is the first user, migrate single-user data asynchronously
+	if firstUser {
+		go func() {
+			if err := database.MigrateSingleUserData(newUser.ID); err != nil {
+				fmt.Printf("Warning: failed to migrate single-user data: %v\n", err)
+			}
+		}()
 	}
 
 	// Send welcome email if SMTP is configured

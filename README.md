@@ -70,7 +70,13 @@ docker run -d -p 8000:8000 -v ~/.config/rmapi:/root/.config/rmapi ghcr.io/rmitch
 
 ### Multi-User Setup
 ```bash
-# Multi-user mode with SQLite
+# Multi-user mode - first user becomes admin
+docker run -d -p 8000:8000 \
+  -e MULTI_USER=true \
+  -v ./data:/data \
+  ghcr.io/rmitchellscott/aviary
+
+# Or pre-create admin user
 docker run -d -p 8000:8000 \
   -e MULTI_USER=true \
   -e AUTH_USERNAME=admin \

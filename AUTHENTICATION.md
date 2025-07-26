@@ -35,12 +35,20 @@ Use the API key in requests with either header:
 Database-backed authentication with user management
 
 #### Enabling Multi-User Mode
-Set `MULTI_USER=true` and configure database settings. `AUTH_USERNAME` and `AUTH_PASSWORD` are required to be set for the first run, they will be used to create the initial admin user:
+Set `MULTI_USER=true` and configure database settings. The first user to register (via Create Account or OIDC) will automatically become the admin user.
+
+Optionally, you can pre-create an admin user by setting:
 ```bash
 MULTI_USER=true
 AUTH_USERNAME=admin
 AUTH_PASSWORD=secure-admin-password
 ADMIN_EMAIL=admin@example.com
+```
+
+Or start with no users and let the first registration become admin:
+```bash
+MULTI_USER=true
+# First user registration will become admin
 ```
 
 #### Features
@@ -145,8 +153,8 @@ In multi-user mode, you can enable multiple authentication methods simultaneousl
 When enabling multi-user mode:
 
 1. Set `MULTI_USER=true` in your environment
-2. Set `AUTH_USERNAME` and `AUTH_PASSWORD` for the initial run
-3. The env-based user becomes the administrator
+2. Optionally set `AUTH_USERNAME` and `AUTH_PASSWORD` to pre-create an admin user, or let the first user registration become admin
+3. If env-based credentials are provided, that user becomes the administrator
 4. Existing rmapi configuration is migrated to the admin user, if present
 5. Existing PDF files are moved to the admin user's directory, if present
 6. Environment-based API key is migrated to the admin user's account, if present

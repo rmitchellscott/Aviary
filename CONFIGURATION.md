@@ -51,7 +51,7 @@ For more rmapi-specific configuration, see [their documentation](https://github.
 | Variable                 | Required? | Default | Description |
 |--------------------------|-----------|---------|-------------|
 | MULTI_USER               | No        | false   | Set to `true` to enable multi-user mode with database |
-| ADMIN_EMAIL              | No        | username@localhost | Admin user email (used when creating initial admin from AUTH_USERNAME) |
+| ADMIN_EMAIL              | No        | username@localhost | Admin user email (used when creating initial admin from AUTH_USERNAME, if provided) |
 | DATA_DIR                 | No        | /data   | Directory for database and user data storage |
 
 ## Database Configuration (Multi-User Mode)
@@ -82,8 +82,8 @@ For more rmapi-specific configuration, see [their documentation](https://github.
 
 | Variable                 | Required? | Default | Description |
 |--------------------------|-----------|---------|-------------|
-| AUTH_USERNAME            | No        |         | Username for web UI login (single-user mode) or initial admin user (multi-user mode) |
-| AUTH_PASSWORD            | No        |         | Password for web UI login (single-user mode) or initial admin user (multi-user mode) |
+| AUTH_USERNAME            | No        |         | Username for web UI login (single-user mode) or initial admin user (multi-user mode, optional) |
+| AUTH_PASSWORD            | No        |         | Password for web UI login (single-user mode) or initial admin user (multi-user mode, optional) |
 | API_KEY                  | No        |         | Secret key for API access via Authorization header (single-user mode only) |
 | JWT_SECRET               | No        | auto-generated | Custom JWT signing secret (auto-generated if not provided.) If not set, restarting the container will log out all users. |
 | ALLOW_INSECURE           | No        |  false  | Set to `true` to allow non-secure cookies (not recommended) |
