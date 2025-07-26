@@ -61,5 +61,6 @@ aviary
 .DS_Store
 Thumbs.db
 
-# Development docker compose
+# Development
 docker-compose.dev*.yaml
+/data*/
