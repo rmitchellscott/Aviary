@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { LoginForm } from "@/components/LoginForm";
+import { PairingDialog } from "@/components/PairingDialog";
+import { useUserData } from "@/hooks/useUserData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,12 +29,9 @@ import { Progress } from "@/components/ui/progress";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
 
-// List of file extensions (lower-cased, including the dot) that we allow compression for:
 const COMPRESSIBLE_EXTS = [".pdf", ".png", ".jpg", ".jpeg"];
-// How often to animate progress bar updates (ms)
 const POLL_INTERVAL_MS = 200;
 
-// Job status from backend
 interface JobStatus {
   status: string;
   message: string;
@@ -46,6 +45,14 @@ function waitForJobWS(
   onUpdate: (st: JobStatus) => void,
 ): Promise<void> {
   return new Promise((resolve) => {
+    let resolved = false;
+    const safeResolve = () => {
+      if (!resolved) {
+        resolved = true;
+        resolve();
+      }
+    };
+
     const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
     const ws = new WebSocket(
       `${proto}//${window.location.host}/api/status/ws/${jobId}`,
@@ -55,14 +62,17 @@ function waitForJobWS(
         const st = JSON.parse(ev.data);
         onUpdate(st);
         if (st.status === "success" || st.status === "error") {
-          ws.close();
+          setTimeout(() => {
+            ws.close();
+            safeResolve();
+          }, 10);
+          return;
         }
       } catch {
-        // ignore parse errors
       }
     };
-    ws.onclose = () => resolve();
-    ws.onerror = () => resolve();
+    ws.onclose = () => safeResolve();
+    ws.onerror = () => safeResolve();
   });
 }
 
@@ -92,9 +102,11 @@ async function sniffMime(url: string): Promise<string | null> {
 }
 
 export default function HomePage() {
-  const { isAuthenticated, isLoading, login, authConfigured, uiSecret } =
+  const { isAuthenticated, isLoading, login, authConfigured, uiSecret, multiUserMode, oidcEnabled, proxyAuthEnabled } =
     useAuth();
   const { t } = useTranslation();
+  const { rmapiPaired, rmapiHost, loading: userDataLoading, updatePairingStatus } = useUserData();
+  
   const [url, setUrl] = useState<string>("");
   const [committedUrl, setCommittedUrl] = useState<string>("");
   const [urlMime, setUrlMime] = useState<string | null>(null);
@@ -104,45 +116,44 @@ export default function HomePage() {
   const [status, setStatus] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [progress, setProgress] = useState<number>(0);
-  const [operation, setOperation] = useState<string>("");
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadPhase, setUploadPhase] = useState<'idle' | 'uploading' | 'processing'>('idle');
   const [fileError, setFileError] = useState<string | null>(null);
   const DEFAULT_RM_DIR = "default";
   const [folders, setFolders] = useState<string[]>([]);
   const [foldersLoading, setFoldersLoading] = useState<boolean>(true);
   const [rmDir, setRmDir] = useState<string>(DEFAULT_RM_DIR);
+  
+  // Pairing dialog state
+  const [pairingDialogOpen, setPairingDialogOpen] = useState(false);
 
-  /**
-   * Determine if "Compress PDF" should be enabled:
-   * - File mode: only if selected file name ends with a compressible extension
-   * - URL mode: if URL ends with a compressible extension; if URL has some other extension, disable;
-   *   if no extension, keep enabled.
-   */
   const isCompressibleFileOrUrl = useMemo(() => {
     if (selectedFile) {
-      // See if selectedFile.name ends with any compressible extension
       const lowerName = selectedFile.name.toLowerCase();
       return COMPRESSIBLE_EXTS.some((ext) => lowerName.endsWith(ext));
     }
 
-    const trimmed = committedUrl.trim().toLowerCase();
+    const trimmed = committedUrl.trim();
     if (!trimmed) {
-      // No URL entered → allow compress switch (harmless if clicked before submit)
       return true;
     }
 
-    // Does URL end with a compressible extension?
-    if (COMPRESSIBLE_EXTS.some((ext) => trimmed.endsWith(ext))) {
+    let path = trimmed;
+    try {
+      path = new URL(trimmed).pathname;
+    } catch {
+    }
+    const lowerPath = path.toLowerCase();
+
+    if (COMPRESSIBLE_EXTS.some((ext) => lowerPath.endsWith(ext))) {
       return true;
     }
 
-    // Check for any other extension in the last path segment
-    const lastSegment = trimmed.split("/").pop() || "";
+    const lastSegment = lowerPath.split("/").pop() || "";
     if (lastSegment.includes(".")) {
-      // If it has a dot but doesn't end with a compressible one, disable
       return false;
     }
 
-    // No extension in URL (e.g. "https://example.com/download")
     if (urlMime) {
       const mt = urlMime.toLowerCase();
       return (
@@ -151,7 +162,6 @@ export default function HomePage() {
         mt.startsWith("image/jpeg")
       );
     }
-    // No MIME info → allow compress
     return true;
   }, [selectedFile, committedUrl, urlMime]);
 
@@ -162,9 +172,15 @@ export default function HomePage() {
   }, [isCompressibleFileOrUrl, compress]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !rmapiPaired || userDataLoading) {
+      setFolders([]);
+      setFoldersLoading(false);
+      return;
+    }
+
     (async () => {
       try {
+        setFoldersLoading(true);
         const headers: HeadersInit = {
           "Accept-Language": i18n.language,
         };
@@ -183,7 +199,6 @@ export default function HomePage() {
           setFolders(cleaned);
         }
 
-        // Fetch an up-to-date list in the background and update state when done
         const refreshHeaders: HeadersInit = {
           "Accept-Language": i18n.language,
         };
@@ -206,32 +221,71 @@ export default function HomePage() {
           .catch((err) => console.error("Failed to refresh folders:", err));
       } catch (error) {
         console.error("Failed to fetch folders:", error);
+      } finally {
+        setFoldersLoading(false);
       }
-      setFoldersLoading(false);
     })();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, rmapiPaired, userDataLoading]);
+
+  const handlePairingSuccess = () => {
+    updatePairingStatus(true);
+  };
 
   if (isLoading) {
     return null;
   }
 
-  // Show login form if auth is configured and not authenticated
   if (authConfigured && !isAuthenticated) {
     return <LoginForm onLogin={login} />;
   }
 
-  /**
-   * If a local file is selected, POST it to /api/upload as multipart/form-data.
-   * Otherwise, enqueue by sending a URL to /api/webhook (old behavior).
-   */
+  const uploadFileWithProgress = async (formData: FormData): Promise<{ jobId: string }> => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = (event.loaded / event.total) * 100;
+          setUploadProgress(percentComplete);
+        }
+      });
+      
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } catch (err) {
+            reject(new Error('Invalid response format'));
+          }
+        } else {
+          reject(new Error(xhr.responseText || `HTTP ${xhr.status}`));
+        }
+      });
+      
+      xhr.addEventListener('error', () => {
+        reject(new Error('Upload failed'));
+      });
+      
+      xhr.open('POST', '/api/upload');
+      
+      if (uiSecret) {
+        xhr.setRequestHeader('X-UI-Token', uiSecret);
+      }
+      xhr.setRequestHeader('Accept-Language', i18n.language);
+      xhr.withCredentials = true;
+      
+      xhr.send(formData);
+    });
+  };
   const handleSubmit = async () => {
     setLoading(true);
     setMessage("");
     setStatus("");
-    setOperation("");
+    setUploadProgress(0);
+    setUploadPhase('idle');
 
     if (selectedFile) {
-      // === FILE UPLOAD FLOW (enqueue + poll) ===
       try {
         const formData = new FormData();
         formData.append("file", selectedFile);
@@ -240,33 +294,19 @@ export default function HomePage() {
           formData.append("rm_dir", rmDir);
         }
 
-        // 1) send to /api/upload and get back { jobId }
-        const headers: HeadersInit = {};
-        if (uiSecret) {
-          headers["X-UI-Token"] = uiSecret;
-        }
-        // Include current language for backend i18n
-        headers["Accept-Language"] = i18n.language;
-
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          headers,
-          credentials: "include",
-          body: formData,
-        });
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(errText);
-        }
-        const { jobId } = await res.json();
+        setUploadPhase('uploading');
+        setMessage(t("home.uploading"));
+        const { jobId } = await uploadFileWithProgress(formData);
+        
+        setUploadPhase('processing');
         setMessage(t("home.job_queued", { id: jobId }));
+        setUploadProgress(100); // Upload complete
 
         setStatus("running");
         setProgress(0);
         await waitForJobWS(jobId, (st) => {
           setStatus(st.status.toLowerCase());
           setMessage(t(st.message, st.data || {}));
-          setOperation(st.operation || "");
           if (typeof st.progress === "number") {
             setProgress(st.progress);
           }
@@ -276,15 +316,14 @@ export default function HomePage() {
         setStatus("error");
         setMessage(t(msg));
       } finally {
-        // clear the selected file so <Input> becomes enabled again
         setSelectedFile(null);
         setUrl("");
         setProgress(0);
-        setOperation("");
+        setUploadProgress(0);
+        setUploadPhase('idle');
         setLoading(false);
       }
     } else {
-      // === URL SUBMIT FLOW (EXISTING) ===
       const form = new URLSearchParams();
       form.append("Body", url);
       form.append("compress", compress ? "true" : "false");
@@ -319,7 +358,6 @@ export default function HomePage() {
         await waitForJobWS(jobId, (st) => {
           setStatus(st.status.toLowerCase());
           setMessage(t(st.message, st.data || {}));
-          setOperation(st.operation || "");
           if (typeof st.progress === "number") {
             setProgress(st.progress);
           }
@@ -331,7 +369,6 @@ export default function HomePage() {
       } finally {
         setUrl("");
         setProgress(0);
-        setOperation("");
         setLoading(false);
       }
     }
@@ -345,7 +382,6 @@ export default function HomePage() {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* === URL INPUT === */}
           <div>
             <Input
               id="url"
@@ -353,14 +389,12 @@ export default function HomePage() {
               value={url}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setUrl(e.target.value);
-                // Clear any selected file if the user starts typing a URL
                 if (selectedFile) {
                   setSelectedFile(null);
                 }
                 setUrlMime(null);
               }}
               onBlur={async () => {
-                // commit the URL once the user leaves the field
                 setCommittedUrl(url);
                 if (url.trim()) {
                   const mt = await sniffMime(url.trim());
@@ -378,19 +412,16 @@ export default function HomePage() {
             {t("home.or")}
           </div>
 
-          {/* === DRAG & DROP FILE === */}
           <div>
             <FileDropzone
               onFileSelected={(file) => {
                 setSelectedFile(file);
-                // Clear any URL if the user picks a file
                 if (url) {
                   setUrl("");
                 }
                 setUrlMime(null);
               }}
               onError={(msg) => {
-                // Set the error text—this will open the Dialog
                 setFileError(msg);
               }}
               disabled={!!url}
@@ -412,10 +443,13 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* === FOLDER SELECT === */}
           <div className="flex items-center space-x-2">
             <Label htmlFor="rmDir">{t("home.destination_folder")}</Label>
-            <Select value={rmDir} onValueChange={setRmDir}>
+            <Select 
+              value={rmDir} 
+              onValueChange={setRmDir}
+              disabled={!rmapiPaired}
+            >
               <SelectTrigger id="rmDir">
                 <SelectValue />
               </SelectTrigger>
@@ -423,12 +457,17 @@ export default function HomePage() {
                 <SelectItem value={DEFAULT_RM_DIR}>
                   {t("home.default")}
                 </SelectItem>
-                {foldersLoading && (
+                {!rmapiPaired && (
+                  <SelectItem value="not-paired" disabled>
+                    {t("home.pair_with_cloud")}
+                  </SelectItem>
+                )}
+                {rmapiPaired && foldersLoading && (
                   <SelectItem value="loading" disabled>
                     {t("home.loading")}
                   </SelectItem>
                 )}
-                {folders.map((f) => (
+                {rmapiPaired && folders.map((f) => (
                   <SelectItem key={f} value={f}>
                     {f}
                   </SelectItem>
@@ -437,7 +476,6 @@ export default function HomePage() {
             </Select>
           </div>
 
-          {/* === COMPRESS SWITCH === */}
           <div className="flex items-center space-x-2 mt-4">
             <Label
               htmlFor="compress"
@@ -453,19 +491,28 @@ export default function HomePage() {
             />
           </div>
 
-          {/* === SUBMIT BUTTON === */}
+          {!rmapiPaired && !userDataLoading && (
+            <div className="bg-muted border rounded-md p-3 text-muted-foreground">
+              <p className="text-sm">
+                <strong className="text-foreground">{t("home.pair_with_remarkable")}</strong>{t("home.to_upload_documents")}{multiUserMode && (
+                  <>{t("home.settings_config")}</>
+                )}
+              </p>
+            </div>
+          )}
+
           <div className="flex justify-end">
             <Button
-              onClick={handleSubmit}
-              disabled={loading || (!url && !selectedFile)}
+              onClick={!rmapiPaired ? () => setPairingDialogOpen(true) : handleSubmit}
+              disabled={loading || (!url && !selectedFile && rmapiPaired)}
             >
-              {loading ? t("home.sending") : t("home.send")}
+              {loading ? t("home.sending") : !rmapiPaired ? t("home.pair") : t("home.send")}
             </Button>
           </div>
 
           {message && (
             <div className="mt-2 flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-sm text-secondary-foreground">
-              {status === "running" && (
+              {(status === "running" || uploadPhase === 'uploading') && (
                 <Loader2 className="size-4 flex-shrink-0 animate-spin" />
               )}
               {status === "success" && (
@@ -477,20 +524,17 @@ export default function HomePage() {
               <span className="break-words">{message}</span>
             </div>
           )}
-          {status === "running" &&
-            operation === "compressing" &&
-            progress > 0 &&
-            progress < 100 && (
+          {(uploadPhase === 'uploading' && uploadProgress > 0 && uploadProgress < 100) ||
+           (status === "running" && progress > 0 && progress < 100) ? (
               <Progress
-                value={progress}
+                value={uploadPhase === 'uploading' ? uploadProgress : progress}
                 durationMs={POLL_INTERVAL_MS}
                 className="mt-2"
               />
-            )}
+            ) : null}
         </CardContent>
       </Card>
 
-      {/* === ERROR DIALOG === */}
       <Dialog
         open={!!fileError}
         onOpenChange={(open) => {
@@ -509,6 +553,13 @@ export default function HomePage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <PairingDialog
+        isOpen={pairingDialogOpen}
+        onClose={() => setPairingDialogOpen(false)}
+        onPairingSuccess={handlePairingSuccess}
+        rmapiHost={rmapiHost}
+      />
     </div>
   );
 }

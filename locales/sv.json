@@ -9,11 +9,39 @@
     "signing_in": "Loggar in...",
     "button": "Logga in",
     "network_error": "Nätverksfel",
-    "fail": "Inloggning misslyckades"
+    "fail": "Inloggning misslyckades",
+    "register": "Skapa konto",
+    "sso_button": "Logga in med SSO",
+    "or_continue_with": "Eller fortsätt med",
+    "forgot_password": "Glömt lösenord?"
+  },
+  "register": {
+    "title": "Skapa konto",
+    "username": "Användarnamn",
+    "username_help": "Användarnamnet måste vara 3-50 tecken långt och endast innehålla bokstäver, siffror, understreck och bindestreck",
+    "email": "E-post",
+    "password": "Lösenord",
+    "password_help": "Lösenordet måste vara minst 8 tecken långt",
+    "confirm_password": "Bekräfta lösenord",
+    "button": "Skapa konto",
+    "creating": "Skapar konto...",
+    "back_to_login": "Tillbaka till inloggning",
+    "success_title": "Konto skapat!",
+    "success_message": "Ditt konto har skapats framgångsrikt. Du kan nu logga in med dina uppgifter.",
+    "login_now": "Fortsätt till inloggning",
+    "disabled": "Användarregistrering är för närvarande inaktiverad",
+    "disabled_message": "Ny användarregistrering är för närvarande inaktiverad. Kontakta en administratör för att skapa ett konto.",
+    "missing_fields": "Fyll i alla obligatoriska fält",
+    "password_mismatch": "Lösenorden stämmer inte överens",
+    "password_too_short": "Lösenordet måste vara minst 8 tecken långt",
+    "user_exists": "En användare med detta användarnamn eller e-post finns redan",
+    "network_error": "Nätverksfel inträffade",
+    "fail": "Kontoskapande misslyckades",
+    "already_have_account": "Har du redan ett konto? Logga in"
   },
   "logout": "Logga ut",
   "home": {
-    "send_document": "Skicka Dokument",
+    "send_document": "Skicka dokument",
     "url_placeholder": "https://exempel.com/fil.pdf",
     "or": "— ELLER —",
     "selected_file": "Vald fil:",
@@ -23,10 +51,16 @@
     "loading": "Laddar...",
     "compress_pdf": "Komprimera PDF",
     "send": "Skicka",
+    "pair": "Para",
     "sending": "Skickar…",
+    "uploading": "Laddar upp till Aviary",
     "invalid_file": "Ogiltig fil",
     "ok": "OK",
-    "job_queued": "Jobb i kö: {{id}}"
+    "job_queued": "Jobb i kö: {{id}}",
+    "pair_with_cloud": "Para med molnet för att ladda mappar",
+    "pair_with_remarkable": "Para med reMarkable-molnet",
+    "to_upload_documents": " för att ladda upp dokument.",
+    "settings_config": " Gå till Inställningar för ytterligare konfiguration."
   },
   "filedrop": {
     "instruction": "Klicka för att ladda upp eller dra och släpp",
@@ -40,8 +74,325 @@
   },
   "language": {
     "search": "Sök...",
+    "search_fallback": "Sök språk...",
     "no_results": "Inga resultat.",
-    "tooltip": "Språk"
+    "no_results_fallback": "Inga språk hittades.",
+    "tooltip": "Språk",
+    "tooltip_fallback": "Språk"
+  },
+  "pairing": {
+    "title": "Para med reMarkable Cloud",
+    "description": "Ange engångskod från {{displayHost}}",
+    "code_label": "Engångskod",
+    "code_placeholder": "8 tecken kod",
+    "cancel": "Avbryt",
+    "pair": "Para",
+    "pairing": "Parar...",
+    "code_error": "Koden måste vara 8 tecken lång",
+    "pair_error": "Parning misslyckades"
+  },
+  "user_delete": {
+    "title": "Radera konto",
+    "current_user_warning": "Är du säker på att du vill radera ditt konto permanent?",
+    "admin_user_warning": "Är du säker på att du vill radera användaren <strong>{{username}}</strong> permanent?",
+    "action_will": "Denna åtgärd kommer att:",
+    "current_user": {
+      "data_deletion": "Radera all din data inklusive uppladdade dokument och API-nycklar",
+      "remove_sessions": "Ta bort alla dina sessioner och logga ut dig",
+      "remove_history": "Ta bort all din inloggningshistorik",
+      "permanent_removal": "Permanent ta bort ditt konto från systemet"
+    },
+    "admin_user": {
+      "data_deletion": "Radera all användardata inklusive arkiverade dokument och API-nycklar",
+      "remove_sessions": "Ta bort alla användarsessioner",
+      "remove_history": "Ta bort all inloggningshistorik"
+    },
+    "note_label": "Observera:",
+    "note_current": "Ditt reMarkable Cloud-konto och enhetsdata kommer att förbli helt opåverkat.",
+    "note_admin": "Användarens reMarkable Cloud-konto och enhetsdata kommer att förbli helt opåverkat.",
+    "cannot_undo_current": "Denna åtgärd kan inte ångras och du kommer att förlora åtkomst till all din data.",
+    "cannot_undo_admin": "Denna åtgärd kan inte ångras.",
+    "cancel": "Avbryt",
+    "delete_account": "Radera mitt konto",
+    "delete_user": "Radera användare",
+    "deleting": "Raderar..."
+  },
+  "admin": {
+    "title": "Administratörspanel",
+    "description": "Hantera användare, systeminställningar och övervaka systemhälsa",
+    "status": {
+      "working": "Fungerar",
+      "failed": "Misslyckades",
+      "configured": "Konfigurerad",
+      "not_configured": "Inte konfigurerad",
+      "unknown": "Okänd",
+      "inactive": "Inaktiv",
+      "paired": "Parad",
+      "unpaired": "Ej parad",
+      "active": "aktiv"
+    },
+    "roles": {
+      "admin": "Administratör",
+      "user": "Användare"
+    },
+    "actions": {
+      "make_admin": "Gör till administratör",
+      "make_user": "Gör till användare",
+      "activate": "Aktivera",
+      "deactivate": "Inaktivera",
+      "reset_password": "Återställ lösenord",
+      "delete": "Radera",
+      "create_user": "Skapa användare",
+      "test_smtp": "Testa SMTP",
+      "create_backup": "Skapa säkerhetskopia",
+      "restore_backup": "Återställ från säkerhetskopia",
+      "cancel": "Avbryt",
+      "restore_database": "Återställ databas"
+    },
+    "tabs": {
+      "overview": "Översikt",
+      "users": "Användare",
+      "api_keys": "API-nycklar",
+      "settings": "Inställningar",
+      "system": "System"
+    },
+    "cards": {
+      "total_users": "Totalt antal användare",
+      "api_keys": "API-nycklar",
+      "documents": "Dokument",
+      "active_sessions": "Aktiva sessioner",
+      "smtp_status": "SMTP-status",
+      "system_mode": "Systemläge",
+      "create_new_user": "Skapa ny användare",
+      "user_management": "Användarhantering",
+      "api_key_settings": "API-nyckelinställningar",
+      "session_settings": "Sessionsinställningar",
+      "backup_restore": "Säkerhetskopiering och återställning"
+    },
+    "labels": {
+      "username": "Användarnamn",
+      "email": "E-post",
+      "password": "Lösenord",
+      "role": "Roll",
+      "status": "Status",
+      "created": "Skapad",
+      "last_login": "Senaste inloggning",
+      "actions": "Åtgärder",
+      "name": "Namn",
+      "user": "Användare",
+      "key_preview": "Nyckelförhandsvisning",
+      "last_used": "Senast använd",
+      "expires": "Upphör",
+      "new_password": "Nytt lösenord",
+      "enable_registration": "Aktivera användarregistrering",
+      "max_api_keys": "Maximalt antal API-nycklar per användare",
+      "session_timeout": "Session timeout (timmar)"
+    },
+    "placeholders": {
+      "username": "användarnamn",
+      "email": "användare@exempel.se",
+      "password": "lösenord",
+      "new_password": "Ange nytt lösenord (minst 8 tecken)"
+    },
+    "descriptions": {
+      "registration_help": "Tillåt självbetjäning för skapande av nya användarkonton",
+      "total_uploaded": "Totalt uppladdade",
+      "current_sessions": "Nuvarande ej utgångna sessioner",
+      "backup_description": "Skapar en fullständig säkerhetskopia inklusive databas och användarfiler som ett .tar.gz-arkiv",
+      "restore_description": "Återställer databas och användarfiler från säkerhetskopiearkiv (.tar.gz-format)",
+      "restore_warning": "Varning: Återställning kommer helt att skriva över all nuvarande data"
+    },
+    "badges": {
+      "multi_user": "Flermanvändarläge",
+      "dry_run": "Torrörningsläge",
+      "oidc_enabled": "OIDC aktiverat",
+      "proxy_auth": "Proxy Auth aktiverat"
+    },
+    "loading_states": {
+      "creating_backup": "Skapar säkerhetskopia...",
+      "analyzing": "Analyserar...",
+      "resetting": "Återställer...",
+      "restoring": "Återställer...",
+      "loading": "Laddar..."
+    },
+    "dialogs": {
+      "reset_password_title": "Återställ lösenord",
+      "reset_password_description": "Återställ lösenordet för användare: ",
+      "confirm_restore_title": "Bekräfta dataåterställning",
+      "confirm_restore_description": "Du är på väg att återställa från säkerhetskopian: ",
+      "backup_contents": "Säkerhetskopieinnehåll:",
+      "restore_warning_text": "Detta kommer permanent att skriva över all nuvarande data inklusive:",
+      "restore_warning_items": {
+        "accounts": "Alla användarkonton och inställningar",
+        "api_keys": "Alla API-nycklar och sessioner",
+        "documents": "Alla användardokument och filer",
+        "pairing": "All molnparningskonfiguration",
+        "folders": "Alla mappbuffer",
+        "settings": "Alla systeminställningar"
+      },
+      "restore_final_warning": "Denna åtgärd kan inte ångras. Se till att du har en aktuell säkerhetskopia innan du fortsätter."
+    },
+    "errors": {
+      "create_user": "Misslyckades att skapa användare",
+      "delete_user": "Misslyckades att radera användare",
+      "reset_password": "Misslyckades att återställa lösenord",
+      "password_length": "Lösenordet måste vara minst 8 tecken långt",
+      "smtp_test": "SMTP-test misslyckades",
+      "smtp_test_network": "Misslyckades att testa SMTP",
+      "backup_create": "Misslyckades att skapa säkerhetskopia",
+      "backup_invalid": "Ogiltig säkerhetskopia",
+      "backup_analyze": "Misslyckades att analysera säkerhetskopia: ",
+      "backup_file_type": "Ogiltig filtyp. Välj ett säkerhetskopiearkiv (.tar.gz eller .tgz). Vald fil: ",
+      "restore_failed": "Misslyckades att återställa databas",
+      "restore_error": "Misslyckades att återställa databas: "
+    },
+    "success": {
+      "restore_complete": "Databas återställd framgångsrikt"
+    },
+    "counts": {
+      "users": "Användare ({{count}})",
+      "all_api_keys": "Alla API-nycklar ({{count}})"
+    },
+    "never": "Aldrig"
+  },
+  "settings": {
+    "title": "Användarinställningar",
+    "description": "Hantera din profil, API-nycklar och kontoinställningar",
+    "tabs": {
+      "profile": "Profil",
+      "account": "Konto",
+      "api_keys": "API-nycklar"
+    },
+    "cards": {
+      "profile_information": "Profilinformation",
+      "change_password": "Ändra lösenord",
+      "danger_zone": "Riskzon",
+      "create_api_key": "Skapa ny API-nyckel",
+      "your_api_keys": "Dina API-nycklar"
+    },
+    "labels": {
+      "username": "Användarnamn",
+      "email": "E-post",
+      "rmapi_host": "reMarkable-värd (valfritt)",
+      "default_directory": "Standardkatalog",
+      "cover_page": "Omslagssida",
+      "current_password": "Nuvarande lösenord",
+      "new_password": "Nytt lösenord",
+      "confirm_new_password": "Bekräfta nytt lösenord",
+      "delete_account": "Radera konto",
+      "api_key_name": "Namn",
+      "api_key_expiry": "Utgång (valfritt)",
+      "key_preview": "Nyckelförhandsvisning",
+      "status": "Status",
+      "created": "Skapad",
+      "last_used": "Senast använd",
+      "expires": "Upphör",
+      "pdf_conversion_device": "Konverteringsmål",
+      "page_resolution": "Sidupplösning",
+      "page_dpi": "Sid-DPI"
+    },
+    "actions": {
+      "unpair": "Koppla från",
+      "pair": "Para",
+      "create_api_key": "Skapa API-nyckel",
+      "got_it": "Förstått",
+      "cancel": "Avbryt",
+      "delete_api_key": "Radera API-nyckel"
+    },
+    "options": {
+      "cover_current": "Nuvarande sida",
+      "cover_first": "Första sidan",
+      "manual": "Manuell"
+    },
+    "expiry_options": {
+      "one_week": "1 vecka",
+      "one_month": "1 månad",
+      "three_months": "3 månader",
+      "one_year": "1 år"
+    },
+    "messages": {
+      "pair_to_load_folders": "Para för att ladda mappar",
+      "pair_help": "Para med reMarkable-molnet för att välja från befintliga mappar",
+      "delete_warning_intro": "När du raderar ditt konto finns det ingen återvändo. Denna åtgärd är permanent och kommer att ta bort all din data inklusive:",
+      "remarkable_unaffected": "Ditt reMarkable Cloud-konto och enhetsdata kommer att förbli helt opåverkat.",
+      "api_key_created_title": "Ny API-nyckel skapad",
+      "api_key_created_message": "Kopiera denna nyckel nu - den kommer inte att visas igen:",
+      "no_api_keys": "Inga API-nycklar skapade än"
+    },
+    "help": {
+      "cover_page": "Kontrollerar om första sidan eller nuvarande sida används som omslag vid uppladdning av PDF-filer",
+      "pdf_conversion_device": "Välj din reMarkable enhetsmodell för optimal bild-till-PDF konvertering. Den här inställningen påverkar endast bildfiler (JPEG, PNG) som konverteras till PDF.",
+      "page_resolution": "Sidupplösning i BREDDxHÖJD format",
+      "page_dpi": "Punkter per tum"
+    },
+    "status": {
+      "active": "aktiv",
+      "expired": "utgången",
+      "inactive": "inaktiv"
+    },
+    "delete_warnings": {
+      "documents": "Alla arkiverade dokument och filer",
+      "api_keys": "Alla API-nycklar och deras åtkomst",
+      "profile": "Din profil och kontoinställningar"
+    },
+    "dialogs": {
+      "delete_api_key_title": "Radera API-nyckel",
+      "delete_api_key_message": "Är du säker på att du vill radera API-nyckeln",
+      "delete_api_key_consequences_title": "Denna åtgärd kommer att:",
+      "delete_api_key_consequences": {
+        "revoke": "Permanent återkalla API-nyckeln",
+        "stop_apps": "Stoppa alla applikationer som använder denna nyckel",
+        "remove": "Ta bort nyckeln från ditt konto"
+      },
+      "cannot_undo": "Denna åtgärd kan inte ångras.",
+      "delete_account_confirmation": "Är du säker på att du vill radera ditt konto permanent? Denna åtgärd kan inte ångras.",
+      "delete_account_type_confirm": "Skriv \"{{confirmText}}\" för att bekräfta"
+    },
+    "placeholders": {
+      "cloud_default": "Lämna tom för reMarkable Cloud",
+      "api_key": "Min API-nyckel",
+      "never_expires": "Upphör aldrig",
+      "current_password": "Ange ditt nuvarande lösenord",
+      "delete_confirm": "RADERA MITT KONTO",
+      "page_resolution": "1404x1872",
+      "page_dpi": "226"
+    },
+    "loading_states": {
+      "saving": "Sparar...",
+      "updating": "Uppdaterar...",
+      "deleting": "Raderar...",
+      "loading": "Laddar..."
+    },
+    "buttons": {
+      "save_changes": "Spara ändringar",
+      "update_password": "Uppdatera lösenord",
+      "delete_my_account": "Radera mitt konto"
+    },
+    "never": "Aldrig"
+  },
+  "app": {
+    "settings": "Inställningar",
+    "admin": "Administration"
+  },
+  "password_reset": {
+    "title": "Återställ lösenord",
+    "new_password_title": "Ställ in nytt lösenord",
+    "email_placeholder": "Ange din e-postadress",
+    "password_placeholder": "Ange nytt lösenord",
+    "confirm_placeholder": "Bekräfta nytt lösenord",
+    "sending": "Skickar...",
+    "send_email": "Skicka återställnings-e-post",
+    "resetting": "Återställer...",
+    "reset_button": "Återställ lösenord",
+    "email_sent": "Om e-postadressen finns har en länk för lösenordsåterställning skickats",
+    "send_email_error": "Misslyckades att skicka återställnings-e-post",
+    "success": "Lösenordet har återställts framgångsrikt. Du kan nu logga in med ditt nya lösenord.",
+    "reset_error": "Misslyckades att återställa lösenord",
+    "email_instruction": "Ange din e-postadress så skickar vi dig en länk för att återställa ditt lösenord."
+  },
+  "accessibility": {
+    "logo": "Aviary-logotyp",
+    "select_language": "Välj språk"
   },
   "backend": {
     "auth": {
@@ -50,13 +401,13 @@
       "not_configured": "Autentisering inte konfigurerad",
       "invalid_credentials": "Ogiltiga inloggningsuppgifter",
       "token_error": "Kunde inte generera token",
-      "no_token": "Ingen auth token eller API-nyckel",
+      "no_token": "Ingen auth-token eller API-nyckel",
       "invalid_token": "Ogiltig token",
       "required": "Autentisering krävs",
       "session_error": "Kunde inte generera session"
     },
     "status": {
-      "job_not_found": "Jobb inte hittad",
+      "job_not_found": "Jobb inte hittat",
       "internal_error": "Internt fel",
       "done": "Klar",
       "invalid_prefix": "Ogiltigt prefix",
@@ -69,18 +420,18 @@
       "compressing_pdf": "Komprimerar PDF",
       "compress_error": "Komprimeringsfel",
       "rename_error": "Namnbytesfel",
-      "uploading": "Laddar upp",
+      "uploading": "Laddar upp till molnet",
       "upload_success": "Ditt dokument är tillgängligt på din reMarkable på {{path}}"
     },
     "errors": {
       "missing_url": "Saknad URL-parameter",
-      "parse_form": "Kunde inte parsa multipart formulär",
+      "parse_form": "Kunde inte tolka multipart-formulär",
       "get_file": "Kunde inte hämta fil",
       "open_file": "Kunde inte öppna uppladdad fil",
       "create_dir": "Kunde inte skapa uppladdningskatalog",
       "create_file": "Kunde inte skapa fil på disk",
       "save_file": "Kunde inte spara fil",
-      "no_form": "Inget multipart formulär hittades",
+      "no_form": "Inget multipart-formulär hittat",
       "no_file_field": "Ingen fil med fältnamn {{field}}"
     }
   }

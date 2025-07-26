@@ -10,13 +10,16 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/rmitchellscott/aviary/internal/config"
+	"github.com/rmitchellscott/aviary/internal/database"
 )
 
 // ExecCommand is exec.Command by default, but can be overridden in tests.
 var ExecCommand = exec.Command
 
 func init() {
-	if os.Getenv("DRY_RUN") != "" {
+	if config.Get("DRY_RUN", "") != "" {
 		ExecCommand = func(name string, args ...string) *exec.Cmd {
 			cmdStr := name
 			if len(args) > 0 {
@@ -29,15 +32,42 @@ func init() {
 }
 
 func DefaultRmDir() string {
-	d := os.Getenv("RM_TARGET_DIR")
+	d := config.Get("RM_TARGET_DIR", "")
 	if d == "" {
 		d = "/"
 	}
 	return d
 }
 
+// rmapiCmd builds an exec.Cmd to run rmapi with user-specific configuration
+// if provided.
+func rmapiCmd(user *database.User, args ...string) *exec.Cmd {
+	cmd := ExecCommand("rmapi", args...)
+	env := os.Environ()
+	if user != nil {
+		if user.RmapiHost != "" {
+			env = append(env, "RMAPI_HOST="+user.RmapiHost)
+		} else if host := config.Get("RMAPI_HOST", ""); host != "" {
+			env = append(env, "RMAPI_HOST="+host)
+		}
+		if cfg, err := GetUserRmapiConfigPath(user.ID); err == nil {
+			env = append(env, "RMAPI_CONFIG="+cfg)
+		}
+	}
+	cmd.Env = env
+	return cmd
+}
+
 func Logf(format string, v ...interface{}) {
 	fmt.Printf("[%s] "+format+"\n", append([]interface{}{time.Now().Format(time.RFC3339)}, v...)...)
+}
+
+// LogfWithUser logs a message with username prefix in multi-user mode
+func LogfWithUser(user *database.User, format string, v ...interface{}) {
+	if database.IsMultiUserMode() && user != nil {
+		format = "[" + user.Username + "] " + format
+	}
+	Logf(format, v...)
 }
 
 // SanitizePrefix ensures prefix is a simple directory name with no path
@@ -51,6 +81,7 @@ func SanitizePrefix(p string) (string, error) {
 	}
 	return p, nil
 }
+
 func RenameLocalNoYear(src, prefix string) (string, error) {
 	dir := filepath.Dir(src)
 	today := time.Now()
@@ -80,6 +111,7 @@ func AppendYearLocal(noYearPath string) (string, error) {
 	}
 	return dest, nil
 }
+
 func moveFile(src, dst string) error {
 	in, err := os.Open(src)
 	if err != nil {
@@ -109,13 +141,27 @@ func moveFile(src, dst string) error {
 }
 
 // SimpleUpload calls `rmapi put` and returns the uploaded filename or a detailed error.
-func SimpleUpload(path, rmDir string) (string, error) {
+func SimpleUpload(path, rmDir string, user *database.User) (string, error) {
 	args := []string{"put"}
-	if os.Getenv("RMAPI_COVERPAGE") == "first" {
+
+	// Use user's coverpage setting if provided, otherwise fall back to environment variable or default
+	coverpageSetting := ""
+	if user != nil {
+		coverpageSetting = user.CoverpageSetting
+	}
+	if coverpageSetting == "" {
+		if config.Get("RMAPI_COVERPAGE", "") == "first" {
+			coverpageSetting = "first"
+		} else {
+			coverpageSetting = "current"
+		}
+	}
+
+	if coverpageSetting == "first" {
 		args = append(args, "--coverpage=1")
 	}
 	args = append(args, path, rmDir)
-	cmd := ExecCommand("rmapi", args...)
+	cmd := rmapiCmd(user, args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		raw := strings.TrimSpace(string(out))
@@ -156,23 +202,33 @@ func RenameLocal(path, prefix string) (string, error) {
 	return withYearPath, nil
 }
 
-// / RenameAndUpload renames locally, uploads via rmapi, and returns the name on the device.
-func RenameAndUpload(path, prefix, rmDir string) (string, error) {
+// RenameAndUpload renames locally, uploads via rmapi, and returns the name on the device.
+func RenameAndUpload(path, prefix, rmDir string, user *database.User) (string, error) {
 	// Validate prefix early
 	var err error
 	prefix, err = SanitizePrefix(prefix)
 	if err != nil {
 		return "", err
 	}
-	// Build target dir under PDF_DIR
-	pdfDir := os.Getenv("PDF_DIR")
-	if pdfDir == "" {
-		pdfDir = "/app/pdfs"
-	}
-	if prefix != "" {
-		pdfDir = filepath.Join(pdfDir, prefix)
-		if err := os.MkdirAll(pdfDir, 0755); err != nil {
+
+	// Build target dir - use user-specific directory in multi-user mode
+	var pdfDir string
+	if database.IsMultiUserMode() && user != nil {
+		pdfDir, err = GetUserPDFDir(user.ID, prefix)
+		if err != nil {
 			return "", err
+		}
+	} else {
+		// Single-user mode - use existing logic
+		pdfDir = config.Get("PDF_DIR", "")
+		if pdfDir == "" {
+			pdfDir = "/app/pdfs"
+		}
+		if prefix != "" {
+			pdfDir = filepath.Join(pdfDir, prefix)
+			if err := os.MkdirAll(pdfDir, 0755); err != nil {
+				return "", err
+			}
 		}
 	}
 
@@ -191,11 +247,25 @@ func RenameAndUpload(path, prefix, rmDir string) (string, error) {
 	}
 
 	args := []string{"put"}
-	if os.Getenv("RMAPI_COVERPAGE") == "first" {
+
+	// Use user's coverpage setting, fallback to environment variable, then default to "current"
+	coverpageSetting := ""
+	if user != nil {
+		coverpageSetting = user.CoverpageSetting
+	}
+	if coverpageSetting == "" {
+		if config.Get("RMAPI_COVERPAGE", "") == "first" {
+			coverpageSetting = "first"
+		} else {
+			coverpageSetting = "current"
+		}
+	}
+
+	if coverpageSetting == "first" {
 		args = append(args, "--coverpage=1")
 	}
 	args = append(args, noYearPath, rmDir)
-	cmd := ExecCommand("rmapi", args...)
+	cmd := rmapiCmd(user, args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		raw := strings.TrimSpace(string(out))
@@ -219,27 +289,34 @@ func RenameAndUpload(path, prefix, rmDir string) (string, error) {
 	return noYear, nil
 }
 
-func CleanupOld(prefix, rmDir string, retentionDays int) error {
+func CleanupOld(prefix, rmDir string, retentionDays int, user *database.User) error {
 	today := time.Now()
 	cutoff := today.AddDate(0, 0, -retentionDays)
-	Logf("[cleanup] today=%s, cutoff=%s",
-		today.Format("2006-01-02"), cutoff.Format("2006-01-02"))
+
+	// In multi-user mode, add user context to cleanup logs
+	if database.IsMultiUserMode() && user != nil {
+		Logf("[cleanup] user=%s, today=%s, cutoff=%s",
+			user.ID.String(), today.Format("2006-01-02"), cutoff.Format("2006-01-02"))
+	} else {
+		Logf("[cleanup] today=%s, cutoff=%s",
+			today.Format("2006-01-02"), cutoff.Format("2006-01-02"))
+	}
 
 	// 1) List remote files
-	proc := ExecCommand("rmapi", "ls", rmDir)
+	proc := rmapiCmd(user, "ls", rmDir)
 	out, err := proc.Output()
 	if err != nil {
 		return err
 	}
 
 	// 2) Compile regexes
-	// match any file entry (we’ll strip .pdf later if present)
+	// match any file entry (we'll strip .pdf later if present)
 	lineRe := regexp.MustCompile(`^\[f\]\s+(.*)$`)
 
-	// date pattern: optional prefix, Month, Day, with or without “.pdf”
+	// date pattern: optional prefix, Month, Day, with or without ".pdf"
 	var dateRe *regexp.Regexp
 	if prefix != "" {
-		// e.g. “DUMMY May 7” or “DUMMY May 7.pdf”
+		// e.g. "DUMMY May 7" or "DUMMY May 7.pdf"
 		dateRe = regexp.MustCompile(
 			`^` + regexp.QuoteMeta(prefix+` `) + `([A-Za-z]+)\s+(\d+)(?:\.pdf)?$`,
 		)
@@ -254,7 +331,7 @@ func CleanupOld(prefix, rmDir string, retentionDays int) error {
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		// grab the name field (might end in “.pdf” or not)
+		// grab the name field (might end in ".pdf" or not)
 		m := lineRe.FindStringSubmatch(line)
 		if m == nil {
 			continue
@@ -283,7 +360,7 @@ func CleanupOld(prefix, rmDir string, retentionDays int) error {
 		if fileDate.Before(cutoff) {
 			Logf("Removing %s (dated %s < %s)",
 				fname, fileDate.Format("2006-01-02"), cutoff.Format("2006-01-02"))
-			ExecCommand("rmapi", "rm", filepath.Join(rmDir, fname)).Run()
+			rmapiCmd(user, "rm", filepath.Join(rmDir, fname)).Run()
 		}
 	}
 

@@ -36,14 +36,6 @@ export function FileDropzone({
         }
         return
       }
-    //   if (fileRejections.length > 0) {
-    //     const firstRej = fileRejections[0]
-    //     const msg = firstRej.errors[0]?.message || 'Invalid file type'
-    //     if (onError) {
-    //       onError(msg)
-    //     }
-    //     return
-    //   }
 
       // Otherwise, accept exactly the first file
       if (acceptedFiles.length > 0) {

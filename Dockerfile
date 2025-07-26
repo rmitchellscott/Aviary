@@ -18,20 +18,22 @@ COPY --from=xx / /
 RUN apk add --no-cache git
 
 
-# Rmapi build
-FROM --platform=$BUILDPLATFORM go-base AS rmapi-source
-RUN git clone --branch master https://github.com/ddvk/rmapi .
+# # Rmapi build
+# FROM --platform=$BUILDPLATFORM go-base AS rmapi-source
+# RUN git clone --branch master https://github.com/ddvk/rmapi .
 
-FROM --platform=$BUILDPLATFORM go-base AS rmapi-builder
+# FROM --platform=$BUILDPLATFORM go-base AS rmapi-builder
 
-COPY --from=rmapi-source /app/go.mod /app/go.sum ./
-RUN go mod download
+# COPY --from=rmapi-source /app/go.mod /app/go.sum ./
+# RUN go mod download
 
-COPY --from=rmapi-source /app .
-ARG TARGETPLATFORM
-RUN --mount=type=cache,target=/root/.cache \
-    CGO_ENABLED=0 xx-go build -ldflags='-w -s' -trimpath
+# COPY --from=rmapi-source /app .
+# ARG TARGETPLATFORM
+# RUN --mount=type=cache,target=/root/.cache \
+#     CGO_ENABLED=0 xx-go build -ldflags='-w -s' -trimpath
 
+# Rmapi stage
+FROM ghcr.io/ddvk/rmapi:v0.0.31 AS rmapi-binary
 
 # Aviary build
 FROM --platform=$BUILDPLATFORM go-base AS aviary-builder
@@ -42,9 +44,19 @@ RUN go mod download
 COPY . .
 COPY --from=ui-builder /app/ui/dist ./ui/dist
 
+# Build args for version injection
+ARG VERSION=dev
+ARG GIT_COMMIT=unknown
+ARG BUILD_DATE=unknown
 ARG TARGETPLATFORM
+
 RUN --mount=type=cache,target=/root/.cache \
-    CGO_ENABLED=0 xx-go build -ldflags='-w -s' -trimpath
+    CGO_ENABLED=0 xx-go build \
+    -ldflags="-w -s \
+        -X github.com/rmitchellscott/aviary/internal/version.Version=${VERSION} \
+        -X github.com/rmitchellscott/aviary/internal/version.GitCommit=${GIT_COMMIT} \
+        -X github.com/rmitchellscott/aviary/internal/version.BuildDate=${BUILD_DATE}" \
+    -trimpath
 
 
 # Final image
@@ -55,11 +67,12 @@ RUN apk add --no-cache \
       ca-certificates \
       ghostscript \
       imagemagick \
+      postgresql-client \
     && update-ca-certificates
 
 WORKDIR /app
 
-COPY --from=rmapi-builder /app/rmapi /usr/local/bin/
+COPY --from=rmapi-binary /usr/local/bin/rmapi /usr/local/bin/
 COPY --from=aviary-builder /app/aviary /usr/local/bin/
 COPY --from=aviary-builder /app/locales ./locales
 

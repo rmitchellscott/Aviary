@@ -1,10 +1,12 @@
 package manager
 
 import (
-	"os"
+	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/rmitchellscott/aviary/internal/config"
 )
 
 // folderCache stores the cached folder listing
@@ -26,7 +28,7 @@ var refreshRunning int32
 var cacheRefreshInterval = 60 * time.Minute
 
 func init() {
-	if v := os.Getenv("FOLDER_CACHE_INTERVAL"); v != "" {
+	if v := config.Get("FOLDER_CACHE_INTERVAL", ""); v != "" {
 		if d, err := time.ParseDuration(v); err == nil {
 			cacheRefreshInterval = d
 		}
@@ -57,10 +59,24 @@ func StartFolderCache() {
 	}()
 }
 
+// RefreshFolderCache manually triggers a folder cache refresh (single-user mode)
+func RefreshFolderCache() error {
+	// Check if single user is paired before attempting refresh
+	if !IsSingleUserPaired() {
+		return fmt.Errorf("single user not paired")
+	}
+	return refreshFolderCache()
+}
+
 // refreshFolderCache fetches folders from the device and stores them
 // in the global cache.
 func refreshFolderCache() error {
-	dirs, err := ListFolders()
+	// Check if single user is paired before attempting refresh
+	if !IsSingleUserPaired() {
+		return fmt.Errorf("single user not paired")
+	}
+
+	dirs, err := ListFolders(nil)
 	if err != nil {
 		return err
 	}

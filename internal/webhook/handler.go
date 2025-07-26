@@ -15,8 +15,10 @@ import (
 	"github.com/coder/websocket/wsjson"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/rmitchellscott/aviary/internal/auth"
 	"github.com/rmitchellscott/aviary/internal/compressor"
 	"github.com/rmitchellscott/aviary/internal/converter"
+	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/downloader"
 	"github.com/rmitchellscott/aviary/internal/jobs"
 	"github.com/rmitchellscott/aviary/internal/manager"
@@ -71,58 +73,71 @@ var (
 
 // DocumentRequest represents a webhook request that can contain either a URL or document content
 type DocumentRequest struct {
-	Body        string `form:"Body" json:"body"`               // URL or base64 content
-	ContentType string `form:"ContentType" json:"contentType"` // MIME type for content
-	Filename    string `form:"Filename" json:"filename"`       // Original filename
-	IsContent   bool   `form:"IsContent" json:"isContent"`     // Flag: true=content, false=URL
-	Prefix      string `form:"prefix" json:"prefix"`
-	Compress    string `form:"compress" json:"compress"`
-	Manage      string `form:"manage" json:"manage"`
-	Archive     string `form:"archive" json:"archive"`
-	RmDir       string `form:"rm_dir" json:"rm_dir"`
+	Body          string `form:"Body" json:"body"`               // URL or base64 content
+	ContentType   string `form:"ContentType" json:"contentType"` // MIME type for content
+	Filename      string `form:"Filename" json:"filename"`       // Original filename
+	IsContent     bool   `form:"IsContent" json:"isContent"`     // Flag: true=content, false=URL
+	Prefix        string `form:"prefix" json:"prefix"`
+	Compress      string `form:"compress" json:"compress"`
+	Manage        string `form:"manage" json:"manage"`
+	Archive       string `form:"archive" json:"archive"`
+	RmDir         string `form:"rm_dir" json:"rm_dir"`
 	RetentionDays string `form:"retention_days" json:"retention_days"`
 }
 
 // enqueueJob creates a new job ID, logs form fields, starts processPDF(form) in a goroutine,
 // and returns the newly generated jobId.
 func enqueueJob(form map[string]string) string {
-	// Log each form field in “Human Key: Value” format.
+	return enqueueJobForUser(form, uuid.Nil)
+}
+
+// enqueueJobForUser creates a new job ID for a specific user, logs form fields, starts processPDF(form) in a goroutine,
+// and returns the newly generated jobId.
+func enqueueJobForUser(form map[string]string, userID uuid.UUID) string {
+	// Get user for logging context
+	var user *database.User
+	if database.IsMultiUserMode() && userID != uuid.Nil {
+		userService := database.NewUserService(database.DB)
+		if u, err := userService.GetUserByID(userID); err == nil {
+			user = u
+		}
+	}
+
+	// Log each form field in "Human Key: Value" format with username.
 	titleCaser := cases.Title(language.English)
 	for key, val := range form {
 		humanKey := titleCaser.String(strings.ReplaceAll(key, "_", " "))
-		manager.Logf("%s: %s", humanKey, val)
+		manager.LogfWithUser(user, "%s: %s", humanKey, val)
 	}
 
 	// Create a new job in the in-memory store.
 	id := uuid.NewString()
 	jobStore.Create(id)
 
-
 	// Launch background worker
 	go func() {
 		jobStore.Update(id, "Running", "", nil)
 		jobStore.UpdateProgress(id, 0)
 
-
 		// Catch panics
 		defer func() {
 			if r := recover(); r != nil {
-				manager.Logf("❌ Panic in processPDF: %v", r)
+				manager.LogfWithUser(user, "❌ Panic in processPDF: %v", r)
 				jobStore.Update(id, "Error", "backend.status.internal_error", nil)
 			}
 		}()
 
 		// Do the actual work
-		msgKey, data, err := processPDF(id, form)
+		msgKey, data, err := processPDFForUser(id, form, userID)
 		if err != nil {
-			manager.Logf("❌ processPDF error: %v, message: %s", err, keyToMessage(msgKey))
+			manager.LogfWithUser(user, "❌ processPDF error: %v, message: %s", err, keyToMessage(msgKey))
 			jobStore.Update(id, "error", msgKey, data)
 		} else {
 			logMsg := keyToMessage(msgKey)
 			if data != nil && data["path"] != "" {
 				logMsg += " -> " + data["path"]
 			}
-			manager.Logf("✅ processPDF success: %s", logMsg)
+			manager.LogfWithUser(user, "✅ processPDF success: %s", logMsg)
 			jobStore.Update(id, "success", msgKey, data)
 		}
 	}()
@@ -132,6 +147,16 @@ func enqueueJob(form map[string]string) string {
 
 // EnqueueHandler accepts either form-values (URL-based flow) or JSON (document content flow), enqueues a job, and returns JSON{"jobId": "..."}.
 func EnqueueHandler(c *gin.Context) {
+	// Get user context for multi-user mode
+	var userID uuid.UUID
+	if database.IsMultiUserMode() {
+		user, ok := auth.RequireUser(c)
+		if !ok {
+			return // auth.RequireUser already set the response
+		}
+		userID = user.ID
+	}
+
 	// Check if this is a JSON request with document content
 	contentType := c.GetHeader("Content-Type")
 	if strings.HasPrefix(contentType, "application/json") {
@@ -140,10 +165,10 @@ func EnqueueHandler(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON format"})
 			return
 		}
-		
+
 		// Handle document content or URL processing via JSON
 		if req.IsContent {
-			id := enqueueDocumentJob(req)
+			id := enqueueDocumentJobForUser(req, userID)
 			c.JSON(http.StatusAccepted, gin.H{"jobId": id})
 		} else {
 			// JSON URL processing - convert to form map
@@ -169,7 +194,7 @@ func EnqueueHandler(c *gin.Context) {
 			if form["retention_days"] == "" {
 				form["retention_days"] = "7"
 			}
-			id := enqueueJob(form)
+			id := enqueueJobForUser(form, userID)
 			c.JSON(http.StatusAccepted, gin.H{"jobId": id})
 		}
 	} else {
@@ -183,7 +208,7 @@ func EnqueueHandler(c *gin.Context) {
 			"rm_dir":         c.PostForm("rm_dir"),
 			"retention_days": c.DefaultPostForm("retention_days", "7"),
 		}
-		id := enqueueJob(form)
+		id := enqueueJobForUser(form, userID)
 		c.JSON(http.StatusAccepted, gin.H{"jobId": id})
 	}
 }
@@ -232,6 +257,14 @@ func StatusWSHandler(c *gin.Context) {
 // (optionally) compress, then upload/manage on the reMarkable. Returns a human-readable status message
 // and/or an error.
 func processPDF(jobID string, form map[string]string) (string, map[string]string, error) {
+	return processPDFForUser(jobID, form, uuid.Nil)
+}
+
+// processPDFForUser is the core pipeline for a specific user: Given a form-map and userID, it either treats form["Body"] as a local file path
+// (if it exists on disk) or else extracts a URL from form["Body"], downloads it, and then proceeds to
+// (optionally) compress, then upload/manage on the reMarkable. Returns a human-readable status message
+// and/or an error.
+func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (string, map[string]string, error) {
 
 	body := form["Body"]
 	prefix := form["prefix"]
@@ -243,11 +276,7 @@ func processPDF(jobID string, form map[string]string) (string, map[string]string
 	compress := isTrue(form["compress"])
 	manage := isTrue(form["manage"])
 	archive := isTrue(form["archive"])
-	rmDir := form["rm_dir"]
 	retentionStr := form["retention_days"]
-	if rmDir == "" {
-		rmDir = manager.DefaultRmDir()
-	}
 
 	retentionDays := 7
 	if rd, err := strconv.Atoi(retentionStr); err == nil && rd > 0 {
@@ -259,9 +288,26 @@ func processPDF(jobID string, form map[string]string) (string, map[string]string
 		remoteName string
 		err        error
 		cleanupErr error
+		dbUser     *database.User
 	)
 
-	// 1) If “Body” is already a valid local file path, skip download.
+	if database.IsMultiUserMode() && userID != uuid.Nil {
+		dbUser, _ = database.NewUserService(database.DB).GetUserByID(userID)
+	}
+
+	// Determine target reMarkable directory
+	rmDir := form["rm_dir"]
+	if rmDir == "" {
+		// In multi-user mode, use user's personal default folder
+		if database.IsMultiUserMode() && dbUser != nil && dbUser.DefaultRmdir != "" {
+			rmDir = dbUser.DefaultRmdir
+		} else {
+			// Fallback to global default
+			rmDir = manager.DefaultRmDir()
+		}
+	}
+
+	// 1) If "Body" is already a valid local file path, skip download.
 	if fi, statErr := os.Stat(body); statErr == nil && !fi.IsDir() {
 		localPath = body
 		manager.Logf("processPDF: using local file path %q, skipping download", localPath)
@@ -282,10 +328,10 @@ func processPDF(jobID string, form map[string]string) (string, map[string]string
 			return "backend.status.no_url", nil, fmt.Errorf("no URL")
 		}
 
-		tmpDir := !archive // if archive==false, we download into a temp dir so it’ll get cleaned up
+		tmpDir := !archive // if archive==false, we download into a temp dir so it'll get cleaned up
 		manager.Logf("DownloadPDF: tmp=%t, prefix=%q", tmpDir, prefix)
 		jobStore.UpdateWithOperation(jobID, "Running", "backend.status.downloading", nil, "downloading")
-		localPath, err = downloader.DownloadPDF(match, tmpDir, prefix, nil)
+		localPath, err = downloader.DownloadPDFForUser(match, tmpDir, prefix, userID, nil)
 		if err != nil {
 			// Even if download fails, localPath may be empty—no cleanup needed here.
 			return "backend.status.download_error", nil, err
@@ -308,8 +354,16 @@ func processPDF(jobID string, form map[string]string) (string, map[string]string
 		jobStore.UpdateWithOperation(jobID, "Running", "backend.status.converting_pdf", nil, "converting")
 		origPath := localPath
 
-		// Convert the image → PDF (using PAGE_RESOLUTION & PAGE_DPI)
-		pdfPath, convErr := converter.ConvertImageToPDF(origPath)
+		// Convert the image → PDF (using per-user PAGE_RESOLUTION & PAGE_DPI if available)
+		var pdfPath string
+		var convErr error
+		if database.IsMultiUserMode() && dbUser != nil {
+			// Use user-specific settings if available, falling back to environment defaults
+			pdfPath, convErr = converter.ConvertImageToPDFWithSettings(origPath, dbUser.PageResolution, dbUser.PageDPI)
+		} else {
+			// Use environment defaults (existing behavior)
+			pdfPath, convErr = converter.ConvertImageToPDF(origPath)
+		}
 		if convErr != nil {
 			return "backend.status.conversion_error", nil, convErr
 		}
@@ -348,7 +402,7 @@ func processPDF(jobID string, form map[string]string) (string, map[string]string
 		localPath = compressedPath
 		jobStore.UpdateProgress(jobID, 100)
 
-		// If “manage” is false, rename the compressed back to “*.pdf” (drop “_compressed” suffix)
+		// If "manage" is false, rename the compressed back to "*.pdf" (drop "_compressed" suffix)
 		if !manage {
 			origPath := strings.TrimSuffix(localPath, "_compressed.pdf") + ".pdf"
 			if err := os.Rename(localPath, origPath); err != nil {
@@ -363,7 +417,7 @@ func processPDF(jobID string, form map[string]string) (string, map[string]string
 	switch {
 	case manage && archive:
 		manager.Logf("📤 Managed archive upload")
-		remoteName, err = manager.RenameAndUpload(localPath, prefix, rmDir)
+		remoteName, err = manager.RenameAndUpload(localPath, prefix, rmDir, dbUser)
 		if err != nil {
 			return "backend.status.internal_error", nil, err
 		}
@@ -374,7 +428,7 @@ func processPDF(jobID string, form map[string]string) (string, map[string]string
 		if err2 != nil {
 			return "backend.status.internal_error", nil, err2
 		}
-		remoteName, err = manager.SimpleUpload(noYearPath, rmDir)
+		remoteName, err = manager.SimpleUpload(noYearPath, rmDir, dbUser)
 		if err != nil {
 			return "backend.status.internal_error", nil, err
 		}
@@ -384,14 +438,14 @@ func processPDF(jobID string, form map[string]string) (string, map[string]string
 
 	case !manage && archive:
 		manager.Logf("📤 Archive-only upload")
-		remoteName, err = manager.SimpleUpload(localPath, rmDir)
+		remoteName, err = manager.SimpleUpload(localPath, rmDir, dbUser)
 		if err != nil {
 			return "backend.status.internal_error", nil, err
 		}
 
 	default:
 		manager.Logf("📤 Simple upload")
-		remoteName, err = manager.SimpleUpload(localPath, rmDir)
+		remoteName, err = manager.SimpleUpload(localPath, rmDir, dbUser)
 		if err != nil {
 			return "backend.status.internal_error", nil, err
 		}
@@ -399,12 +453,20 @@ func processPDF(jobID string, form map[string]string) (string, map[string]string
 
 	// 5) If manage==true, perform cleanup
 	if manage {
-		if err := manager.CleanupOld(prefix, rmDir, retentionDays); err != nil {
+		if err := manager.CleanupOld(prefix, rmDir, retentionDays, dbUser); err != nil {
 			manager.Logf("cleanup warning: %v", err)
 		}
 	}
 
-	// 6) Now that the file has been uploaded to the reMarkable, build final status message
+	// 6) Track document in database if in multi-user mode
+	if database.IsMultiUserMode() && userID != uuid.Nil {
+		if err := trackDocumentUpload(userID, localPath, remoteName, rmDir); err != nil {
+			manager.Logf("⚠️ failed to track document upload: %v", err)
+			// Continue anyway - the upload was successful
+		}
+	}
+
+	// 7) Now that the file has been uploaded to the reMarkable, build final status message
 	fullPath := filepath.Join(rmDir, remoteName)
 	fullPath = strings.TrimPrefix(fullPath, "/")
 	jobStore.UpdateProgress(jobID, 100)
@@ -413,18 +475,23 @@ func processPDF(jobID string, form map[string]string) (string, map[string]string
 
 // enqueueDocumentJob processes document content instead of URLs
 func enqueueDocumentJob(req DocumentRequest) string {
+	return enqueueDocumentJobForUser(req, uuid.Nil)
+}
+
+// enqueueDocumentJobForUser processes document content instead of URLs for a specific user
+func enqueueDocumentJobForUser(req DocumentRequest, userID uuid.UUID) string {
 	// Log document processing request
 	manager.Logf("Processing document content: %s (%s)", req.Filename, req.ContentType)
-	
+
 	// Create a new job in the in-memory store
 	id := uuid.NewString()
 	jobStore.Create(id)
-	
+
 	// Launch background worker
 	go func() {
 		jobStore.Update(id, "Running", "", nil)
 		jobStore.UpdateProgress(id, 0)
-		
+
 		// Catch panics
 		defer func() {
 			if r := recover(); r != nil {
@@ -432,9 +499,9 @@ func enqueueDocumentJob(req DocumentRequest) string {
 				jobStore.Update(id, "Error", "backend.status.internal_error", nil)
 			}
 		}()
-		
+
 		// Process the document content
-		msgKey, data, err := processDocument(id, req)
+		msgKey, data, err := processDocumentForUser(id, req, userID)
 		if err != nil {
 			manager.Logf("❌ processDocument error: %v, message: %q", err, msgKey)
 			jobStore.Update(id, "error", msgKey, data)
@@ -443,32 +510,47 @@ func enqueueDocumentJob(req DocumentRequest) string {
 			jobStore.Update(id, "success", msgKey, data)
 		}
 	}()
-	
+
 	return id
 }
 
 // processDocument handles document content processing
 func processDocument(jobID string, req DocumentRequest) (string, map[string]string, error) {
+	return processDocumentForUser(jobID, req, uuid.Nil)
+}
+
+// processDocumentForUser handles document content processing for a specific user
+func processDocumentForUser(jobID string, req DocumentRequest, userID uuid.UUID) (string, map[string]string, error) {
 	// Create job-specific temp directory
-	jobTempDir := filepath.Join(os.TempDir(), "aviary_job_"+jobID)
+	var jobTempDir string
+	if database.IsMultiUserMode() && userID != uuid.Nil {
+		userTempDir, err := manager.GetUserTempDir(userID)
+		if err != nil {
+			return "backend.status.internal_error", nil, fmt.Errorf("failed to get user temp directory: %w", err)
+		}
+		jobTempDir = filepath.Join(userTempDir, "aviary_job_"+jobID)
+	} else {
+		jobTempDir = filepath.Join(os.TempDir(), "aviary_job_"+jobID)
+	}
+
 	if err := os.MkdirAll(jobTempDir, 0755); err != nil {
 		return "backend.status.internal_error", nil, fmt.Errorf("failed to create job temp directory: %w", err)
 	}
-	
+
 	// Ensure cleanup of job temp directory
 	defer func() {
 		if err := os.RemoveAll(jobTempDir); err != nil {
 			manager.Logf("⚠️ cleanup warning: could not remove job temp directory %q: %v", jobTempDir, err)
 		}
 	}()
-	
+
 	// Validate content type if provided
 	if req.ContentType != "" {
 		if !isValidContentType(req.ContentType) {
 			return "backend.status.unsupported_file_type", nil, fmt.Errorf("unsupported content type: %s", req.ContentType)
 		}
 	}
-	
+
 	// Decode base64 content with validation/cleaning
 	jobStore.UpdateWithOperation(jobID, "Running", "backend.status.decoding_content", nil, "decoding")
 	cleanedBase64 := cleanBase64(req.Body)
@@ -476,14 +558,14 @@ func processDocument(jobID string, req DocumentRequest) (string, map[string]stri
 	if err != nil {
 		return "backend.status.decode_error", nil, fmt.Errorf("failed to decode document content: %w", err)
 	}
-	
+
 	// Verify content type matches actual content
 	detectedType := http.DetectContentType(content[:min(512, len(content))])
 	if req.ContentType != "" && !isContentTypeMatch(req.ContentType, detectedType) {
 		manager.Logf("⚠️ Content type mismatch: claimed %s, detected %s", req.ContentType, detectedType)
 		// Continue but log the mismatch - use detected type for processing
 	}
-	
+
 	// Sanitize filename
 	filename := sanitizeFilename(req.Filename)
 	if filename == "" {
@@ -504,13 +586,13 @@ func processDocument(jobID string, req DocumentRequest) (string, map[string]stri
 			filename += ".epub"
 		}
 	}
-	
+
 	// Create temp file in job-specific directory
 	tempFile := filepath.Join(jobTempDir, filename)
 	if err := os.WriteFile(tempFile, content, 0644); err != nil {
 		return "backend.status.save_error", nil, fmt.Errorf("failed to save document: %w", err)
 	}
-	
+
 	// Create form map for existing processing pipeline
 	form := map[string]string{
 		"Body":           tempFile,
@@ -521,7 +603,7 @@ func processDocument(jobID string, req DocumentRequest) (string, map[string]stri
 		"rm_dir":         req.RmDir,
 		"retention_days": req.RetentionDays,
 	}
-	
+
 	// Set defaults for empty values
 	if form["compress"] == "" {
 		form["compress"] = "false"
@@ -535,9 +617,9 @@ func processDocument(jobID string, req DocumentRequest) (string, map[string]stri
 	if form["retention_days"] == "" {
 		form["retention_days"] = "7"
 	}
-	
+
 	// Process through existing pipeline
-	return processPDF(jobID, form)
+	return processPDFForUser(jobID, form, userID)
 }
 
 // isValidContentType checks if the content type is supported
@@ -583,23 +665,23 @@ func sanitizeFilename(filename string) string {
 	if filename == "" {
 		return ""
 	}
-	
+
 	// Use only the base filename (no path traversal)
 	filename = filepath.Base(filename)
-	
+
 	// Remove dangerous characters
 	dangerous := []string{"..", "~", "$", "`", "|", ";", "&", "<", ">", "(", ")", "{", "}", "[", "]", "'", `"`}
 	for _, char := range dangerous {
 		filename = strings.ReplaceAll(filename, char, "_")
 	}
-	
+
 	// Limit length
 	if len(filename) > 200 {
 		ext := filepath.Ext(filename)
 		base := filename[:200-len(ext)]
 		filename = base + ext
 	}
-	
+
 	return filename
 }
 
@@ -615,4 +697,47 @@ func min(a, b int) int {
 func isTrue(s string) bool {
 	s = strings.ToLower(s)
 	return s == "true" || s == "1" || s == "yes"
+}
+
+// trackDocumentUpload records a document upload in the database
+func trackDocumentUpload(userID uuid.UUID, localPath, remoteName, rmDir string) error {
+	if database.DB == nil {
+		return nil // Database not initialized
+	}
+
+	// Get file info
+	var fileSize int64
+	if info, err := os.Stat(localPath); err == nil {
+		fileSize = info.Size()
+	}
+
+	// Determine document type from extension
+	ext := strings.ToLower(filepath.Ext(localPath))
+	var docType string
+	switch ext {
+	case ".pdf":
+		docType = "PDF"
+	case ".jpg", ".jpeg":
+		docType = "JPEG"
+	case ".png":
+		docType = "PNG"
+	case ".epub":
+		docType = "EPUB"
+	default:
+		docType = "Unknown"
+	}
+
+	// Create document record
+	doc := database.Document{
+		ID:           uuid.New(),
+		UserID:       userID,
+		DocumentName: remoteName,
+		LocalPath:    localPath,
+		RemotePath:   filepath.Join(rmDir, remoteName),
+		DocumentType: docType,
+		FileSize:     fileSize,
+		Status:       "uploaded",
+	}
+
+	return database.DB.Create(&doc).Error
 }

@@ -9,7 +9,35 @@
     "signing_in": "Anmeldung läuft...",
     "button": "Anmelden",
     "network_error": "Netzwerkfehler",
-    "fail": "Anmeldung fehlgeschlagen"
+    "fail": "Anmeldung fehlgeschlagen",
+    "register": "Konto erstellen",
+    "sso_button": "Mit SSO anmelden",
+    "or_continue_with": "Oder fortfahren mit",
+    "forgot_password": "Passwort vergessen?"
+  },
+  "register": {
+    "title": "Konto erstellen",
+    "username": "Benutzername",
+    "username_help": "Der Benutzername muss zwischen 3 und 50 Zeichen lang sein und darf nur Buchstaben, Zahlen, Unterstriche und Bindestriche enthalten",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "password_help": "Das Passwort muss mindestens 8 Zeichen lang sein",
+    "confirm_password": "Passwort bestätigen",
+    "button": "Konto erstellen",
+    "creating": "Konto wird erstellt...",
+    "back_to_login": "Zurück zur Anmeldung",
+    "success_title": "Konto erstellt!",
+    "success_message": "Ihr Konto wurde erfolgreich erstellt. Sie können sich jetzt mit Ihren Zugangsdaten anmelden.",
+    "login_now": "Zur Anmeldung fortfahren",
+    "disabled": "Benutzerregistrierung ist derzeit deaktiviert",
+    "disabled_message": "Die Registrierung neuer Benutzer ist derzeit deaktiviert. Bitte kontaktieren Sie einen Administrator, um ein Konto zu erstellen.",
+    "missing_fields": "Bitte füllen Sie alle erforderlichen Felder aus",
+    "password_mismatch": "Passwörter stimmen nicht überein",
+    "password_too_short": "Das Passwort muss mindestens 8 Zeichen lang sein",
+    "user_exists": "Ein Benutzer mit diesem Benutzernamen oder dieser E-Mail existiert bereits",
+    "network_error": "Netzwerkfehler aufgetreten",
+    "fail": "Kontoerstellung fehlgeschlagen",
+    "already_have_account": "Haben Sie bereits ein Konto? Anmelden"
   },
   "logout": "Abmelden",
   "home": {
@@ -26,7 +54,13 @@
     "sending": "Wird gesendet…",
     "invalid_file": "Ungültige Datei",
     "ok": "OK",
-    "job_queued": "Job in Warteschlange: {{id}}"
+    "job_queued": "Job in Warteschlange: {{id}}",
+    "uploading": "Wird zu Aviary hochgeladen",
+    "pair": "Koppeln",
+    "pair_with_cloud": "Mit Cloud koppeln, um Ordner zu laden",
+    "pair_with_remarkable": "Mit reMarkable Cloud koppeln",
+    "to_upload_documents": " um Dokumente hochzuladen.",
+    "settings_config": " Gehen Sie zu den Einstellungen für weitere Konfiguration."
   },
   "filedrop": {
     "instruction": "Zum Hochladen klicken oder Datei hierher ziehen",
@@ -40,8 +74,325 @@
   },
   "language": {
     "search": "Suchen...",
+    "search_fallback": "Sprachen suchen...",
     "no_results": "Keine Ergebnisse.",
-    "tooltip": "Sprache"
+    "no_results_fallback": "Keine Sprachen gefunden.",
+    "tooltip": "Sprache",
+    "tooltip_fallback": "Sprache"
+  },
+  "pairing": {
+    "title": "Mit reMarkable Cloud koppeln",
+    "description": "Einmalcode von {{displayHost}} eingeben",
+    "code_label": "Einmalcode",
+    "code_placeholder": "8-stelliger Code",
+    "cancel": "Abbrechen",
+    "pair": "Koppeln",
+    "pairing": "Kopplung läuft...",
+    "code_error": "Code muss 8 Zeichen lang sein",
+    "pair_error": "Kopplung fehlgeschlagen"
+  },
+  "user_delete": {
+    "title": "Konto löschen",
+    "current_user_warning": "Sind Sie sicher, dass Sie Ihr Konto dauerhaft löschen möchten?",
+    "admin_user_warning": "Sind Sie sicher, dass Sie den Benutzer <strong>{{username}}</strong> dauerhaft löschen möchten?",
+    "action_will": "Diese Aktion wird:",
+    "current_user": {
+      "data_deletion": "Alle Ihre Daten einschließlich hochgeladener Dokumente und API-Schlüssel löschen",
+      "remove_sessions": "Alle Ihre Sitzungen entfernen und Sie abmelden",
+      "remove_history": "Ihre gesamte Anmeldehistorie entfernen",
+      "permanent_removal": "Ihr Konto dauerhaft aus dem System entfernen"
+    },
+    "admin_user": {
+      "data_deletion": "Alle Benutzerdaten einschließlich archivierter Dokumente und API-Schlüssel löschen",
+      "remove_sessions": "Alle Benutzersitzungen entfernen",
+      "remove_history": "Die gesamte Anmeldehistorie entfernen"
+    },
+    "note_label": "Hinweis:",
+    "note_current": "Ihr reMarkable Cloud-Konto und die Gerätedaten bleiben vollständig unbeeinträchtigt.",
+    "note_admin": "Das reMarkable Cloud-Konto des Benutzers und die Gerätedaten bleiben vollständig unbeeinträchtigt.",
+    "cannot_undo_current": "Diese Aktion kann nicht rückgängig gemacht werden und Sie verlieren den Zugang zu all Ihren Daten.",
+    "cannot_undo_admin": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "cancel": "Abbrechen",
+    "delete_account": "Mein Konto löschen",
+    "delete_user": "Benutzer löschen",
+    "deleting": "Wird gelöscht..."
+  },
+  "admin": {
+    "title": "Admin-Panel",
+    "description": "Benutzer verwalten, Systemeinstellungen und Systemzustand überwachen",
+    "status": {
+      "working": "Funktionsfähig",
+      "failed": "Fehlgeschlagen",
+      "configured": "Konfiguriert",
+      "not_configured": "Nicht konfiguriert",
+      "unknown": "Unbekannt",
+      "inactive": "Inaktiv",
+      "paired": "Gekoppelt",
+      "unpaired": "Nicht gekoppelt",
+      "active": "aktiv"
+    },
+    "roles": {
+      "admin": "Administrator",
+      "user": "Benutzer"
+    },
+    "actions": {
+      "make_admin": "Als Admin setzen",
+      "make_user": "Als Benutzer setzen",
+      "activate": "Aktivieren",
+      "deactivate": "Deaktivieren",
+      "reset_password": "Passwort zurücksetzen",
+      "delete": "Löschen",
+      "create_user": "Benutzer erstellen",
+      "test_smtp": "SMTP testen",
+      "create_backup": "Backup erstellen",
+      "restore_backup": "Aus Backup wiederherstellen",
+      "cancel": "Abbrechen",
+      "restore_database": "Datenbank wiederherstellen"
+    },
+    "tabs": {
+      "overview": "Übersicht",
+      "users": "Benutzer",
+      "api_keys": "API-Schlüssel",
+      "settings": "Einstellungen",
+      "system": "System"
+    },
+    "cards": {
+      "total_users": "Benutzer gesamt",
+      "api_keys": "API-Schlüssel",
+      "documents": "Dokumente",
+      "active_sessions": "Aktive Sitzungen",
+      "smtp_status": "SMTP-Status",
+      "system_mode": "Systemmodus",
+      "create_new_user": "Neuen Benutzer erstellen",
+      "user_management": "Benutzerverwaltung",
+      "api_key_settings": "API-Schlüssel-Einstellungen",
+      "session_settings": "Sitzungseinstellungen",
+      "backup_restore": "Backup & Wiederherstellung"
+    },
+    "labels": {
+      "username": "Benutzername",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "role": "Rolle",
+      "status": "Status",
+      "created": "Erstellt",
+      "last_login": "Letzte Anmeldung",
+      "actions": "Aktionen",
+      "name": "Name",
+      "user": "Benutzer",
+      "key_preview": "Schlüssel-Vorschau",
+      "last_used": "Zuletzt verwendet",
+      "expires": "Läuft ab",
+      "new_password": "Neues Passwort",
+      "enable_registration": "Benutzerregistrierung aktivieren",
+      "max_api_keys": "Maximale API-Schlüssel pro Benutzer",
+      "session_timeout": "Sitzungstimeout (Stunden)"
+    },
+    "placeholders": {
+      "username": "benutzername",
+      "email": "benutzer@beispiel.de",
+      "password": "passwort",
+      "new_password": "Neues Passwort eingeben (mindestens 8 Zeichen)"
+    },
+    "descriptions": {
+      "registration_help": "Selbstständige Erstellung neuer Benutzerkonten erlauben",
+      "total_uploaded": "Insgesamt hochgeladen",
+      "current_sessions": "Aktuelle nicht abgelaufene Sitzungen",
+      "backup_description": "Erstellt ein vollständiges Backup einschließlich Datenbank und Benutzerdateien als .tar.gz-Archiv",
+      "restore_description": "Stellt Datenbank und Benutzerdateien aus einem Backup-Archiv (.tar.gz-Format) wieder her",
+      "restore_warning": "Warnung: Die Wiederherstellung überschreibt alle aktuellen Daten vollständig"
+    },
+    "badges": {
+      "multi_user": "Mehrbenutzermodus",
+      "dry_run": "Testlaufmodus",
+      "oidc_enabled": "OIDC aktiviert",
+      "proxy_auth": "Proxy-Auth aktiviert"
+    },
+    "loading_states": {
+      "creating_backup": "Backup wird erstellt...",
+      "analyzing": "Analysiere...",
+      "resetting": "Zurücksetzen...",
+      "restoring": "Wiederherstellen...",
+      "loading": "Laden..."
+    },
+    "dialogs": {
+      "reset_password_title": "Passwort zurücksetzen",
+      "reset_password_description": "Passwort zurücksetzen für Benutzer: ",
+      "confirm_restore_title": "Datenwiederherstellung bestätigen",
+      "confirm_restore_description": "Sie sind dabei, aus der Backup-Datei wiederherzustellen: ",
+      "backup_contents": "Backup-Inhalte:",
+      "restore_warning_text": "Dies wird alle aktuellen Daten dauerhaft überschreiben, einschließlich:",
+      "restore_warning_items": {
+        "accounts": "Alle Benutzerkonten und Einstellungen",
+        "api_keys": "Alle API-Schlüssel und Sitzungen", 
+        "documents": "Alle Benutzerdokumente und Dateien",
+        "pairing": "Alle Cloud-Kopplungskonfigurationen",
+        "folders": "Alle Ordner-Caches",
+        "settings": "Alle Systemeinstellungen"
+      },
+      "restore_final_warning": "Diese Aktion kann nicht rückgängig gemacht werden. Stellen Sie sicher, dass Sie ein aktuelles Backup haben, bevor Sie fortfahren."
+    },
+    "errors": {
+      "create_user": "Benutzer konnte nicht erstellt werden",
+      "delete_user": "Benutzer konnte nicht gelöscht werden",
+      "reset_password": "Passwort zurücksetzen fehlgeschlagen",
+      "password_length": "Passwort muss mindestens 8 Zeichen lang sein",
+      "smtp_test": "SMTP-Test fehlgeschlagen",
+      "smtp_test_network": "SMTP-Test fehlgeschlagen",
+      "backup_create": "Backup-Erstellung fehlgeschlagen",
+      "backup_invalid": "Ungültige Backup-Datei",
+      "backup_analyze": "Backup-Datei-Analyse fehlgeschlagen: ",
+      "backup_file_type": "Ungültiger Dateityp. Bitte wählen Sie ein Backup-Archiv (.tar.gz oder .tgz). Ausgewählte Datei: ",
+      "restore_failed": "Datenbankwiederherstellung fehlgeschlagen",
+      "restore_error": "Datenbankwiederherstellung fehlgeschlagen: "
+    },
+    "success": {
+      "restore_complete": "Datenbank erfolgreich wiederhergestellt"
+    },
+    "counts": {
+      "users": "Benutzer ({{count}})",
+      "all_api_keys": "Alle API-Schlüssel ({{count}})"
+    },
+    "never": "Nie"
+  },
+  "settings": {
+    "title": "Benutzereinstellungen",
+    "description": "Verwalten Sie Ihr Profil, API-Schlüssel und Kontoeinstellungen",
+    "tabs": {
+      "profile": "Profil",
+      "account": "Konto",
+      "api_keys": "API-Schlüssel"
+    },
+    "cards": {
+      "profile_information": "Profilinformationen",
+      "change_password": "Passwort ändern",
+      "danger_zone": "Gefahrenbereich",
+      "create_api_key": "Neuen API-Schlüssel erstellen",
+      "your_api_keys": "Ihre API-Schlüssel"
+    },
+    "labels": {
+      "username": "Benutzername",
+      "email": "E-Mail",
+      "rmapi_host": "reMarkable Host (optional)",
+      "default_directory": "Standardverzeichnis",
+      "cover_page": "Deckblatt",
+      "current_password": "Aktuelles Passwort",
+      "new_password": "Neues Passwort",
+      "confirm_new_password": "Neues Passwort bestätigen",
+      "delete_account": "Konto löschen",
+      "api_key_name": "Name",
+      "api_key_expiry": "Ablauf (optional)",
+      "key_preview": "Schlüssel-Vorschau",
+      "status": "Status",
+      "created": "Erstellt",
+      "last_used": "Zuletzt verwendet",
+      "expires": "Läuft ab",
+      "pdf_conversion_device": "Konvertierungsziel",
+      "page_resolution": "Seitenauflösung",
+      "page_dpi": "Seiten-DPI"
+    },
+    "actions": {
+      "unpair": "Entkoppeln",
+      "pair": "Koppeln",
+      "create_api_key": "API-Schlüssel erstellen",
+      "got_it": "Verstanden",
+      "cancel": "Abbrechen",
+      "delete_api_key": "API-Schlüssel löschen"
+    },
+    "options": {
+      "cover_current": "Aktuelle Seite",
+      "cover_first": "Erste Seite",
+      "manual": "Manuell"
+    },
+    "expiry_options": {
+      "one_week": "1 Woche",
+      "one_month": "1 Monat",
+      "three_months": "3 Monate",
+      "one_year": "1 Jahr"
+    },
+    "messages": {
+      "pair_to_load_folders": "Koppeln, um Ordner zu laden",
+      "pair_help": "Mit reMarkable Cloud koppeln, um aus vorhandenen Ordnern auszuwählen",
+      "delete_warning_intro": "Sobald Sie Ihr Konto löschen, gibt es kein Zurück mehr. Diese Aktion ist dauerhaft und entfernt alle Ihre Daten einschließlich:",
+      "remarkable_unaffected": "Ihr reMarkable Cloud-Konto und die Gerätedaten bleiben vollständig unberührt.",
+      "api_key_created_title": "Neuer API-Schlüssel erstellt",
+      "api_key_created_message": "Kopieren Sie diesen Schlüssel jetzt - er wird nicht erneut angezeigt:",
+      "no_api_keys": "Noch keine API-Schlüssel erstellt"
+    },
+    "help": {
+      "cover_page": "Steuert, ob die erste Seite oder die aktuelle Seite als Deckblatt beim Hochladen von PDFs verwendet wird",
+      "pdf_conversion_device": "Wählen Sie Ihr reMarkable Gerätemodell für optimale Bild-zu-PDF-Konvertierung. Diese Einstellung betrifft nur Bilddateien (JPEG, PNG), die zu PDF konvertiert werden.",
+      "page_resolution": "Seitenauflösung im BREITExHÖHE Format",
+      "page_dpi": "Punkte pro Zoll"
+    },
+    "status": {
+      "active": "aktiv",
+      "expired": "abgelaufen",
+      "inactive": "inaktiv"
+    },
+    "delete_warnings": {
+      "documents": "Alle archivierten Dokumente und Dateien",
+      "api_keys": "Alle API-Schlüssel und deren Zugriff",
+      "profile": "Ihr Profil und Kontoeinstellungen"
+    },
+    "dialogs": {
+      "delete_api_key_title": "API-Schlüssel löschen",
+      "delete_api_key_message": "Sind Sie sicher, dass Sie den API-Schlüssel löschen möchten",
+      "delete_api_key_consequences_title": "Diese Aktion wird:",
+      "delete_api_key_consequences": {
+        "revoke": "Den API-Schlüssel dauerhaft widerrufen",
+        "stop_apps": "Alle Anwendungen stoppen, die diesen Schlüssel verwenden",
+        "remove": "Den Schlüssel aus Ihrem Konto entfernen"
+      },
+      "cannot_undo": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "delete_account_confirmation": "Sind Sie sicher, dass Sie Ihr Konto dauerhaft löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "delete_account_type_confirm": "Geben Sie \"{{confirmText}}\" ein, um zu bestätigen"
+    },
+    "placeholders": {
+      "cloud_default": "Leer lassen für reMarkable Cloud",
+      "api_key": "Mein API-Schlüssel",
+      "never_expires": "Läuft nie ab",
+      "current_password": "Geben Sie Ihr aktuelles Passwort ein",
+      "delete_confirm": "MEIN KONTO LÖSCHEN",
+      "page_resolution": "1404x1872",
+      "page_dpi": "226"
+    },
+    "loading_states": {
+      "saving": "Speichern...",
+      "updating": "Aktualisieren...",
+      "deleting": "Löschen...",
+      "loading": "Laden..."
+    },
+    "buttons": {
+      "save_changes": "Änderungen speichern",
+      "update_password": "Passwort aktualisieren",
+      "delete_my_account": "Mein Konto löschen"
+    },
+    "never": "Nie"
+  },
+  "app": {
+    "settings": "Einstellungen",
+    "admin": "Administration"
+  },
+  "password_reset": {
+    "title": "Passwort zurücksetzen",
+    "new_password_title": "Neues Passwort festlegen",
+    "email_placeholder": "Geben Sie Ihre E-Mail-Adresse ein",
+    "password_placeholder": "Neues Passwort eingeben",
+    "confirm_placeholder": "Neues Passwort bestätigen",
+    "sending": "Senden...",
+    "send_email": "Reset-E-Mail senden",
+    "resetting": "Zurücksetzen...",
+    "reset_button": "Passwort zurücksetzen",
+    "email_sent": "Falls die E-Mail existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet",
+    "send_email_error": "Fehler beim Senden der Passwort-Reset-E-Mail",
+    "success": "Das Passwort wurde erfolgreich zurückgesetzt. Sie können sich jetzt mit Ihrem neuen Passwort anmelden.",
+    "reset_error": "Fehler beim Zurücksetzen des Passworts",
+    "email_instruction": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts."
+  },
+  "accessibility": {
+    "logo": "Aviary-Logo",
+    "select_language": "Sprache auswählen"
   },
   "backend": {
     "auth": {

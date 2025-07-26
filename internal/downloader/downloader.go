@@ -12,6 +12,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/rmitchellscott/aviary/internal/config"
+	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/manager"
 )
 
@@ -76,9 +79,16 @@ func (pr *progressReader) Read(p []byte) (int, error) {
 }
 
 // DownloadPDF fetches the PDF and saves locally.
-// tmp==true → os.TempDir(), else under $PDF_DIR/prefix or $PDF_DIR.
+// tmp==true → user temp dir, else under user PDF dir/prefix.
 // progress is an optional callback receiving bytes downloaded and total bytes.
 func DownloadPDF(urlStr string, tmp bool, prefix string, progress func(done, total int64)) (string, error) {
+	return DownloadPDFForUser(urlStr, tmp, prefix, uuid.Nil, progress)
+}
+
+// DownloadPDFForUser fetches the PDF and saves locally for a specific user.
+// tmp==true → user temp dir, else under user PDF dir/prefix.
+// progress is an optional callback receiving bytes downloaded and total bytes.
+func DownloadPDFForUser(urlStr string, tmp bool, prefix string, userID uuid.UUID, progress func(done, total int64)) (string, error) {
 	// Sanitize prefix before using it in any paths
 	var err error
 	prefix, err = manager.SanitizePrefix(prefix)
@@ -89,19 +99,32 @@ func DownloadPDF(urlStr string, tmp bool, prefix string, progress func(done, tot
 	// 1) Determine destination directory
 	var destDir string
 	if tmp {
-		destDir = os.TempDir()
+		if database.IsMultiUserMode() && userID != uuid.Nil {
+			destDir, err = manager.GetUserTempDir(userID)
+		} else {
+			destDir = os.TempDir()
+		}
 	} else {
-		d := os.Getenv("PDF_DIR")
-		if d == "" {
-			d = "/app/pdfs"
+		if database.IsMultiUserMode() && userID != uuid.Nil {
+			destDir, err = manager.GetUserPDFDir(userID, prefix)
+		} else {
+			// Single-user mode - use existing logic
+			d := config.Get("PDF_DIR", "")
+			if d == "" {
+				d = "/app/pdfs"
+			}
+			if prefix != "" {
+				d = filepath.Join(d, prefix)
+			}
+			if err := os.MkdirAll(d, 0755); err != nil {
+				return "", err
+			}
+			destDir = d
 		}
-		if prefix != "" {
-			d = filepath.Join(d, prefix)
-		}
-		if err := os.MkdirAll(d, 0755); err != nil {
-			return "", err
-		}
-		destDir = d
+	}
+
+	if err != nil {
+		return "", err
 	}
 
 	// 2) Build request with a random UA

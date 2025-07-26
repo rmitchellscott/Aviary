@@ -9,7 +9,35 @@
     "signing_in": "Logger ind...",
     "button": "Log ind",
     "network_error": "Netværksfejl",
-    "fail": "Login mislykkedes"
+    "fail": "Login mislykkedes",
+    "register": "Opret konto",
+    "sso_button": "Log ind med SSO",
+    "or_continue_with": "Eller fortsæt med",
+    "forgot_password": "Glemt adgangskode?"
+  },
+  "register": {
+    "title": "Opret konto",
+    "username": "Brugernavn",
+    "username_help": "Brugernavn skal være 3-50 tegn langt og kun indeholde bogstaver, tal, understreger og bindestreger",
+    "email": "E-mail",
+    "password": "Adgangskode",
+    "password_help": "Adgangskode skal være mindst 8 tegn lang",
+    "confirm_password": "Bekræft adgangskode",
+    "button": "Opret konto",
+    "creating": "Opretter konto...",
+    "back_to_login": "Tilbage til login",
+    "success_title": "Konto oprettet!",
+    "success_message": "Din konto er blevet oprettet. Du kan nu logge ind med dine legitimationsoplysninger.",
+    "login_now": "Fortsæt til login",
+    "disabled": "Brugerregistrering er i øjeblikket deaktiveret",
+    "disabled_message": "Ny brugerregistrering er i øjeblikket deaktiveret. Kontakt en administrator for at oprette en konto.",
+    "missing_fields": "Udfyld alle påkrævede felter",
+    "password_mismatch": "Adgangskoder matcher ikke",
+    "password_too_short": "Adgangskode skal være mindst 8 tegn lang",
+    "user_exists": "En bruger med dette brugernavn eller e-mail eksisterer allerede",
+    "network_error": "Netværksfejl opstod",
+    "fail": "Kontooprettelse mislykkedes",
+    "already_have_account": "Har du allerede en konto? Log ind"
   },
   "logout": "Log ud",
   "home": {
@@ -23,10 +51,16 @@
     "loading": "Indlæser...",
     "compress_pdf": "Komprimer PDF",
     "send": "Send",
+    "pair": "Parr",
     "sending": "Sender…",
+    "uploading": "Uploader til Aviary",
     "invalid_file": "Ugyldig fil",
     "ok": "OK",
-    "job_queued": "Job i kø: {{id}}"
+    "job_queued": "Job i kø: {{id}}",
+    "pair_with_cloud": "Parr med cloud for at indlæse mapper",
+    "pair_with_remarkable": "Parr med reMarkable cloud",
+    "to_upload_documents": " for at uploade dokumenter.",
+    "settings_config": " Gå til Indstillinger for yderligere konfiguration."
   },
   "filedrop": {
     "instruction": "Klik for at uploade eller træk og slip",
@@ -40,8 +74,325 @@
   },
   "language": {
     "search": "Søg...",
+    "search_fallback": "Søg sprog...",
     "no_results": "Ingen resultater.",
-    "tooltip": "Sprog"
+    "no_results_fallback": "Ingen sprog fundet.",
+    "tooltip": "Sprog",
+    "tooltip_fallback": "Sprog"
+  },
+  "pairing": {
+    "title": "Parr med reMarkable Cloud",
+    "description": "Indtast engangskode fra {{displayHost}}",
+    "code_label": "Engangskode",
+    "code_placeholder": "8 tegn kode",
+    "cancel": "Annuller",
+    "pair": "Parr",
+    "pairing": "Parrer...",
+    "code_error": "Koden skal være 8 tegn lang",
+    "pair_error": "Parring mislykkedes"
+  },
+  "user_delete": {
+    "title": "Slet konto",
+    "current_user_warning": "Er du sikker på, at du vil slette din konto permanent?",
+    "admin_user_warning": "Er du sikker på, at du vil slette brugeren <strong>{{username}}</strong> permanent?",
+    "action_will": "Denne handling vil:",
+    "current_user": {
+      "data_deletion": "Slette alle dine data inklusive uploadede dokumenter og API-nøgler",
+      "remove_sessions": "Fjerne alle dine sessioner og logge dig ud",
+      "remove_history": "Fjerne hele din login-historik",
+      "permanent_removal": "Permanent fjerne din konto fra systemet"
+    },
+    "admin_user": {
+      "data_deletion": "Slette alle brugerdata inklusive arkiverede dokumenter og API-nøgler",
+      "remove_sessions": "Fjerne alle brugersessioner",
+      "remove_history": "Fjerne hele login-historikken"
+    },
+    "note_label": "Bemærk:",
+    "note_current": "Din reMarkable Cloud-konto og enhedsdata vil forblive helt upåvirket.",
+    "note_admin": "Brugerens reMarkable Cloud-konto og enhedsdata vil forblive helt upåvirket.",
+    "cannot_undo_current": "Denne handling kan ikke fortrydes, og du vil miste adgang til alle dine data.",
+    "cannot_undo_admin": "Denne handling kan ikke fortrydes.",
+    "cancel": "Annuller",
+    "delete_account": "Slet min konto",
+    "delete_user": "Slet bruger",
+    "deleting": "Sletter..."
+  },
+  "admin": {
+    "title": "Administrationspanel",
+    "description": "Administrer brugere, systemindstillinger og overvåg systemsundhed",
+    "status": {
+      "working": "Fungerer",
+      "failed": "Mislykkedes",
+      "configured": "Konfigureret",
+      "not_configured": "Ikke konfigureret",
+      "unknown": "Ukendt",
+      "inactive": "Inaktiv",
+      "paired": "Parret",
+      "unpaired": "Ikke parret",
+      "active": "aktiv"
+    },
+    "roles": {
+      "admin": "Administrator",
+      "user": "Bruger"
+    },
+    "actions": {
+      "make_admin": "Gør til Administrator",
+      "make_user": "Gør til Bruger",
+      "activate": "Aktiver",
+      "deactivate": "Deaktiver",
+      "reset_password": "Nulstil Adgangskode",
+      "delete": "Slet",
+      "create_user": "Opret Bruger",
+      "test_smtp": "Test SMTP",
+      "create_backup": "Opret Backup",
+      "restore_backup": "Gendan fra Backup",
+      "cancel": "Annuller",
+      "restore_database": "Gendan Database"
+    },
+    "tabs": {
+      "overview": "Overblik",
+      "users": "Brugere",
+      "api_keys": "API-nøgler",
+      "settings": "Indstillinger",
+      "system": "System"
+    },
+    "cards": {
+      "total_users": "Total Brugere",
+      "api_keys": "API-nøgler",
+      "documents": "Dokumenter",
+      "active_sessions": "Aktive Sessioner",
+      "smtp_status": "SMTP Status",
+      "system_mode": "System Tilstand",
+      "create_new_user": "Opret Ny Bruger",
+      "user_management": "Brugerstyring",
+      "api_key_settings": "API-nøgle Indstillinger",
+      "session_settings": "Session Indstillinger",
+      "backup_restore": "Backup og Gendan"
+    },
+    "labels": {
+      "username": "Brugernavn",
+      "email": "E-mail",
+      "password": "Adgangskode",
+      "role": "Rolle",
+      "status": "Status",
+      "created": "Oprettet",
+      "last_login": "Sidste Login",
+      "actions": "Handlinger",
+      "name": "Navn",
+      "user": "Bruger",
+      "key_preview": "Nøgle Forhåndsvisning",
+      "last_used": "Sidst Brugt",
+      "expires": "Udløber",
+      "new_password": "Ny Adgangskode",
+      "enable_registration": "Aktiver Brugerregistrering",
+      "max_api_keys": "Maksimum API-nøgler pr. Bruger",
+      "session_timeout": "Session Timeout (timer)"
+    },
+    "placeholders": {
+      "username": "brugernavn",
+      "email": "bruger@eksempel.dk",
+      "password": "adgangskode",
+      "new_password": "Indtast ny adgangskode (minimum 8 tegn)"
+    },
+    "descriptions": {
+      "registration_help": "Tillad selvbetjening af nye brugerkonti",
+      "total_uploaded": "Total uploadet",
+      "current_sessions": "Nuværende ikke-udløbne sessioner",
+      "backup_description": "Opretter en komplet backup inklusive database og brugerfiler som .tar.gz arkiv",
+      "restore_description": "Gendanner database og brugerfiler fra backup arkiv (.tar.gz format)",
+      "restore_warning": "Advarsel: Gendannelse vil fuldstændigt overskrive alle nuværende data"
+    },
+    "badges": {
+      "multi_user": "Multi-bruger Tilstand",
+      "dry_run": "Tør Kørsel Tilstand",
+      "oidc_enabled": "OIDC Aktiveret",
+      "proxy_auth": "Proxy Auth Aktiveret"
+    },
+    "loading_states": {
+      "creating_backup": "Opretter Backup...",
+      "analyzing": "Analyserer...",
+      "resetting": "Nulstiller...",
+      "restoring": "Gendanner...",
+      "loading": "Indlæser..."
+    },
+    "dialogs": {
+      "reset_password_title": "Nulstil Adgangskode",
+      "reset_password_description": "Nulstil adgangskoden for bruger: ",
+      "confirm_restore_title": "Bekræft Data Gendannelse",
+      "confirm_restore_description": "Du er ved at gendanne fra backup fil: ",
+      "backup_contents": "Backup Indhold:",
+      "restore_warning_text": "Dette vil permanent overskrive alle nuværende data inklusive:",
+      "restore_warning_items": {
+        "accounts": "Alle brugerkonti og indstillinger",
+        "api_keys": "Alle API-nøgler og sessioner",
+        "documents": "Alle brugerdokumenter og filer",
+        "pairing": "Al cloud parring konfiguration",
+        "folders": "Alle mappe caches",
+        "settings": "Alle systemindstillinger"
+      },
+      "restore_final_warning": "Denne handling kan ikke fortrydes. Sørg for at have en aktuel backup før du fortsætter."
+    },
+    "errors": {
+      "create_user": "Kunne ikke oprette bruger",
+      "delete_user": "Kunne ikke slette bruger",
+      "reset_password": "Kunne ikke nulstille adgangskode",
+      "password_length": "Adgangskode skal være mindst 8 tegn lang",
+      "smtp_test": "SMTP test mislykkedes",
+      "smtp_test_network": "Kunne ikke teste SMTP",
+      "backup_create": "Kunne ikke oprette backup",
+      "backup_invalid": "Ugyldig backup fil",
+      "backup_analyze": "Kunne ikke analysere backup fil: ",
+      "backup_file_type": "Ugyldig filtype. Vælg venligst et backup arkiv (.tar.gz eller .tgz). Valgt fil: ",
+      "restore_failed": "Kunne ikke gendanne database",
+      "restore_error": "Kunne ikke gendanne database: "
+    },
+    "success": {
+      "restore_complete": "Database gendannet succesfuldt"
+    },
+    "counts": {
+      "users": "Brugere ({{count}})",
+      "all_api_keys": "Alle API-nøgler ({{count}})"
+    },
+    "never": "Aldrig"
+  },
+  "settings": {
+    "title": "Brugerindstillinger",
+    "description": "Administrer din profil, API-nøgler og kontopræferencer",
+    "tabs": {
+      "profile": "Profil",
+      "account": "Konto",
+      "api_keys": "API-nøgler"
+    },
+    "cards": {
+      "profile_information": "Profilinformation",
+      "change_password": "Skift Adgangskode",
+      "danger_zone": "Farezone",
+      "create_api_key": "Opret Ny API-nøgle",
+      "your_api_keys": "Dine API-nøgler"
+    },
+    "labels": {
+      "username": "Brugernavn",
+      "email": "E-mail",
+      "rmapi_host": "reMarkable Host (valgfrit)",
+      "default_directory": "Standard Mappe",
+      "cover_page": "Forside",
+      "current_password": "Nuværende Adgangskode",
+      "new_password": "Ny Adgangskode",
+      "confirm_new_password": "Bekræft Ny Adgangskode",
+      "delete_account": "Slet Konto",
+      "api_key_name": "Navn",
+      "api_key_expiry": "Udløb (valgfrit)",
+      "key_preview": "Nøgle Forhåndsvisning",
+      "status": "Status",
+      "created": "Oprettet",
+      "last_used": "Sidst Brugt",
+      "expires": "Udløber",
+      "pdf_conversion_device": "Konverteringsmål",
+      "page_resolution": "Sideopløsning",
+      "page_dpi": "Side DPI"
+    },
+    "actions": {
+      "unpair": "Afpar",
+      "pair": "Parr",
+      "create_api_key": "Opret API-nøgle",
+      "got_it": "Forstået",
+      "cancel": "Annuller",
+      "delete_api_key": "Slet API-nøgle"
+    },
+    "options": {
+      "cover_current": "Nuværende side",
+      "cover_first": "Første side",
+      "manual": "Manuel"
+    },
+    "expiry_options": {
+      "one_week": "1 uge",
+      "one_month": "1 måned",
+      "three_months": "3 måneder",
+      "one_year": "1 år"
+    },
+    "messages": {
+      "pair_to_load_folders": "Parr for at indlæse mapper",
+      "pair_help": "Parr med reMarkable cloud for at vælge fra eksisterende mapper",
+      "delete_warning_intro": "Når du sletter din konto, er der ingen vej tilbage. Denne handling er permanent og vil fjerne alle dine data inklusive:",
+      "remarkable_unaffected": "Din reMarkable Cloud-konto og enhedsdata vil forblive helt upåvirket.",
+      "api_key_created_title": "Ny API-nøgle Oprettet",
+      "api_key_created_message": "Kopier denne nøgle nu - den vil ikke blive vist igen:",
+      "no_api_keys": "Ingen API-nøgler oprettet endnu"
+    },
+    "help": {
+      "cover_page": "Styrer om første side eller nuværende side bruges som forside ved upload af PDF'er",
+      "pdf_conversion_device": "Vælg din reMarkable enhedsmodel for optimal billede til PDF konvertering. Denne indstilling påvirker kun billedfiler (JPEG, PNG) der konverteres til PDF.",
+      "page_resolution": "Sideopløsning i BREDDExHØJDE format",
+      "page_dpi": "Punkter pr. tomme"
+    },
+    "status": {
+      "active": "aktiv",
+      "expired": "udløbet",
+      "inactive": "inaktiv"
+    },
+    "delete_warnings": {
+      "documents": "Alle arkiverede dokumenter og filer",
+      "api_keys": "Alle API-nøgler og deres adgang",
+      "profile": "Din profil og kontoindstillinger"
+    },
+    "dialogs": {
+      "delete_api_key_title": "Slet API-nøgle",
+      "delete_api_key_message": "Er du sikker på, at du vil slette API-nøglen",
+      "delete_api_key_consequences_title": "Denne handling vil:",
+      "delete_api_key_consequences": {
+        "revoke": "Permanent tilbagekalde API-nøglen",
+        "stop_apps": "Stoppe alle applikationer der bruger denne nøgle",
+        "remove": "Fjerne nøglen fra din konto"
+      },
+      "cannot_undo": "Denne handling kan ikke fortrydes.",
+      "delete_account_confirmation": "Er du sikker på, at du vil slette din konto permanent? Denne handling kan ikke fortrydes.",
+      "delete_account_type_confirm": "Skriv \"{{confirmText}}\" for at bekræfte"
+    },
+    "placeholders": {
+      "cloud_default": "Lad være tom for reMarkable Cloud",
+      "api_key": "Min API-nøgle",
+      "never_expires": "Udløber aldrig",
+      "current_password": "Indtast din nuværende adgangskode",
+      "delete_confirm": "SLET MIN KONTO",
+      "page_resolution": "1404x1872",
+      "page_dpi": "226"
+    },
+    "loading_states": {
+      "saving": "Gemmer...",
+      "updating": "Opdaterer...",
+      "deleting": "Sletter...",
+      "loading": "Indlæser..."
+    },
+    "buttons": {
+      "save_changes": "Gem Ændringer",
+      "update_password": "Opdater Adgangskode",
+      "delete_my_account": "Slet Min Konto"
+    },
+    "never": "Aldrig"
+  },
+  "app": {
+    "settings": "Indstillinger",
+    "admin": "Administration"
+  },
+  "password_reset": {
+    "title": "Nulstil adgangskode",
+    "new_password_title": "Indstil ny adgangskode",
+    "email_placeholder": "Indtast din e-mailadresse",
+    "password_placeholder": "Indtast ny adgangskode",
+    "confirm_placeholder": "Bekræft ny adgangskode",
+    "sending": "Sender...",
+    "send_email": "Send nulstillings-e-mail",
+    "resetting": "Nulstiller...",
+    "reset_button": "Nulstil adgangskode",
+    "email_sent": "Hvis e-mailen eksisterer, er et nulstillingslink blevet sendt",
+    "send_email_error": "Kunne ikke sende nulstillings-e-mail",
+    "success": "Adgangskoden er blevet nulstillet succesfuldt. Du kan nu logge ind med din nye adgangskode.",
+    "reset_error": "Kunne ikke nulstille adgangskode",
+    "email_instruction": "Indtast din e-mailadresse og vi sender dig et link til at nulstille din adgangskode."
+  },
+  "accessibility": {
+    "logo": "Aviary-logo",
+    "select_language": "Vælg sprog"
   },
   "backend": {
     "auth": {
@@ -69,7 +420,7 @@
       "compressing_pdf": "Komprimerer PDF",
       "compress_error": "Komprimeringsfejl",
       "rename_error": "Omdøbningsfejl",
-      "uploading": "Uploader",
+      "uploading": "Uploader til cloud",
       "upload_success": "Dit dokument er tilgængeligt på din reMarkable på {{path}}"
     },
     "errors": {

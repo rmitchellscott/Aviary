@@ -4,7 +4,7 @@ import { useAuth } from './AuthProvider'
 import { Button } from './ui/button'
 import { useTranslation } from 'react-i18next'
 
-export function LogoutButton() {
+export function LogoutButton({ className = '' }: { className?: string }) {
   const { isAuthenticated, authConfigured, logout } = useAuth()
   const { t } = useTranslation()
 
@@ -14,7 +14,7 @@ export function LogoutButton() {
   }
 
   return (
-    <Button variant="ghost" size="sm" onClick={logout}>
+    <Button variant="ghost" size="sm" onClick={logout} className={className}>
       {t('logout')}
     </Button>
   )

@@ -1,6 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function Logo(props) {
+  const { t } = useTranslation();
   return (
     <svg
       {...props}
@@ -8,7 +10,7 @@ export function Logo(props) {
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 988 323"
       role="img"
-      aria-label="Aviary logo"
+      aria-label={t("accessibility.logo")}
     >
       {/* Force all fills to currentColor via CSS */}
       <style>{`
