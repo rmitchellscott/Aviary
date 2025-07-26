@@ -143,7 +143,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   // Settings
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
   const [maxApiKeys, setMaxApiKeys] = useState("10");
-  const [sessionTimeout, setSessionTimeout] = useState("24");
 
   // Modal states
   const [resetPasswordDialog, setResetPasswordDialog] = useState<{
@@ -192,7 +191,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         setSystemStatus(status);
         setRegistrationEnabled(status.settings.registration_enabled === "true");
         setMaxApiKeys(status.settings.max_api_keys_per_user);
-        setSessionTimeout(status.settings.session_timeout_hours);
       }
     } catch (error) {
       console.error("Failed to fetch system status:", error);
@@ -1161,31 +1159,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("admin.cards.session_settings")}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="session-timeout">
-                      {t("admin.labels.session_timeout")}
-                    </Label>
-                    <Input
-                      id="session-timeout"
-                      type="number"
-                      value={sessionTimeout}
-                      onChange={(e) => setSessionTimeout(e.target.value)}
-                      onBlur={() =>
-                        updateSystemSetting(
-                          "session_timeout_hours",
-                          sessionTimeout,
-                        )
-                      }
-                      className="mt-2"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </TabsContent>
 

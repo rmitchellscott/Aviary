@@ -166,7 +166,6 @@
       "create_new_user": "Create New User",
       "user_management": "User Management",
       "api_key_settings": "API Key Settings",
-      "session_settings": "Session Settings",
       "backup_restore": "Backup & Restore"
     },
     "labels": {
@@ -187,7 +186,6 @@
       "new_password": "New Password",
       "enable_registration": "Enable User Registration",
       "max_api_keys": "Maximum API Keys per User",
-      "session_timeout": "Session Timeout (hours)",
       "users": "Users",
       "api_keys": "API Keys",
       "documents": "Documents"

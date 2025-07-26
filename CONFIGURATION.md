@@ -88,6 +88,7 @@ For more rmapi-specific configuration, see [their documentation](https://github.
 | JWT_SECRET               | No        | auto-generated | Custom JWT signing secret (auto-generated if not provided.) If not set, restarting the container will log out all users. |
 | ALLOW_INSECURE           | No        |  false  | Set to `true` to allow non-secure cookies (not recommended) |
 | PROXY_AUTH_HEADER        | No        |         | Header name for proxy-based authentication |
+| SESSION_TIMEOUT          | No        | 24h     | Lifetime of login sessions (e.g., `24h`, `30d`) |
 
 ## OIDC Authentication Configuration
 

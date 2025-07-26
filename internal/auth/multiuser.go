@@ -238,7 +238,7 @@ func MultiUserLoginHandler(c *gin.Context) {
 		"user_id":  user.ID.String(),
 		"username": user.Username,
 		"is_admin": user.IsAdmin,
-		"exp":      time.Now().Add(24 * time.Hour).Unix(),
+		"exp":      time.Now().Add(sessionTimeout).Unix(),
 		"iat":      time.Now().Unix(),
 	})
 
@@ -251,14 +251,14 @@ func MultiUserLoginHandler(c *gin.Context) {
 	// Set HTTP-only cookie
 	secure := !allowInsecure()
 	c.SetSameSite(http.SameSiteStrictMode)
-	c.SetCookie("auth_token", tokenString, 24*3600, "/", "", secure, true)
+	c.SetCookie("auth_token", tokenString, int(sessionTimeout.Seconds()), "/", "", secure, true)
 
 	// Also create a session record
 	sessionHash, _ := bcrypt.GenerateFromPassword([]byte(tokenString), bcrypt.DefaultCost)
 	database.DB.Create(&database.UserSession{
 		UserID:    user.ID,
 		TokenHash: string(sessionHash),
-		ExpiresAt: time.Now().Add(24 * time.Hour),
+		ExpiresAt: time.Now().Add(sessionTimeout),
 		UserAgent: c.GetHeader("User-Agent"),
 		IPAddress: ip,
 	})

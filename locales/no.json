@@ -166,7 +166,6 @@
       "create_new_user": "Opprett ny bruker",
       "user_management": "Brukeradministrasjon",
       "api_key_settings": "API-nøkkel innstillinger",
-      "session_settings": "Økt-innstillinger",
       "backup_restore": "Sikkerhetskopi og gjenoppretting"
     },
     "labels": {
@@ -187,7 +186,6 @@
       "new_password": "Nytt passord",
       "enable_registration": "Aktiver brukerregistrering",
       "max_api_keys": "Maksimum API-nøkler per bruker",
-      "session_timeout": "Økt timeout (timer)",
       "users": "Brukere",
       "api_keys": "API-nøkler",
       "documents": "Dokumenter"

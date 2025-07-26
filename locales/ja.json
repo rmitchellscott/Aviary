@@ -166,7 +166,6 @@
       "create_new_user": "新規ユーザー作成",
       "user_management": "ユーザー管理",
       "api_key_settings": "APIキー設定",
-      "session_settings": "セッション設定",
       "backup_restore": "バックアップと復元"
     },
     "labels": {
@@ -187,7 +186,6 @@
       "new_password": "新しいパスワード",
       "enable_registration": "ユーザー登録を有効にする",
       "max_api_keys": "ユーザーあたりの最大APIキー数",
-      "session_timeout": "セッションタイムアウト（時間）",
       "users": "ユーザー",
       "api_keys": "APIキー",
       "documents": "ドキュメント"

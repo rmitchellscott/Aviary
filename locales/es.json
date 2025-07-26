@@ -166,7 +166,6 @@
       "create_new_user": "Crear Nuevo Usuario",
       "user_management": "Gestión de Usuarios",
       "api_key_settings": "Configuración de Claves API",
-      "session_settings": "Configuración de Sesión",
       "backup_restore": "Respaldo y Restauración"
     },
     "labels": {
@@ -187,7 +186,6 @@
       "new_password": "Nueva Contraseña",
       "enable_registration": "Habilitar Registro de Usuarios",
       "max_api_keys": "Máximo de Claves API por Usuario",
-      "session_timeout": "Tiempo de Espera de Sesión (horas)",
       "users": "Usuarios",
       "api_keys": "Claves API",
       "documents": "Documentos"

@@ -166,7 +166,6 @@
       "create_new_user": "Opret Ny Bruger",
       "user_management": "Brugerstyring",
       "api_key_settings": "API-nøgle Indstillinger",
-      "session_settings": "Session Indstillinger",
       "backup_restore": "Backup og Gendan"
     },
     "labels": {
@@ -187,7 +186,6 @@
       "new_password": "Ny Adgangskode",
       "enable_registration": "Aktiver Brugerregistrering",
       "max_api_keys": "Maksimum API-nøgler pr. Bruger",
-      "session_timeout": "Session Timeout (timer)",
       "users": "Brugere",
       "api_keys": "API-nøgler",
       "documents": "Dokumenter"

@@ -166,7 +166,6 @@
       "create_new_user": "创建新用户",
       "user_management": "用户管理",
       "api_key_settings": "API密钥设置",
-      "session_settings": "会话设置",
       "backup_restore": "备份与还原"
     },
     "labels": {
@@ -187,7 +186,6 @@
       "new_password": "新密码",
       "enable_registration": "启用用户注册",
       "max_api_keys": "每用户最大API密钥数",
-      "session_timeout": "会话超时（小时）",
       "users": "用户",
       "api_keys": "API密钥",
       "documents": "文档"
