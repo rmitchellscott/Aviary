@@ -71,11 +71,11 @@ func ProxyAuthMiddleware() gin.HandlerFunc {
 			}
 
 			// Check if user is active
-			if !user.IsActive {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "User account is deactivated"})
-				c.Abort()
-				return
-			}
+                        if !user.IsActive {
+                                c.JSON(http.StatusUnauthorized, gin.H{"error": "backend.auth.account_disabled"})
+                                c.Abort()
+                                return
+                        }
 
 			c.Set("user", user)
 			c.Set("auth_method", "proxy")
@@ -137,14 +137,14 @@ func ProxyAuthCheckHandler(c *gin.Context) {
 			return
 		}
 
-		if !user.IsActive {
-			c.JSON(http.StatusOK, gin.H{
-				"authenticated": false,
-				"proxy_auth":    true,
-				"error":         "User account is deactivated",
-			})
-			return
-		}
+                if !user.IsActive {
+                        c.JSON(http.StatusOK, gin.H{
+                                "authenticated": false,
+                                "proxy_auth":    true,
+                                "error":         "backend.auth.account_disabled",
+                        })
+                        return
+                }
 
 		c.JSON(http.StatusOK, gin.H{
 			"authenticated": true,

@@ -213,12 +213,16 @@ func MultiUserLoginHandler(c *gin.Context) {
 		UserAgent:   c.GetHeader("User-Agent"),
 	})
 
-	userService := database.NewUserService(database.DB)
-	user, err := userService.AuthenticateUser(req.Username, req.Password)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "backend.auth.invalid_credentials"})
-		return
-	}
+        userService := database.NewUserService(database.DB)
+        user, err := userService.AuthenticateUser(req.Username, req.Password)
+        if err != nil {
+                if err.Error() == "account disabled" {
+                        c.JSON(http.StatusUnauthorized, gin.H{"error": "backend.auth.account_disabled"})
+                } else {
+                        c.JSON(http.StatusUnauthorized, gin.H{"error": "backend.auth.invalid_credentials"})
+                }
+                return
+        }
 
 	// Log successful login
 	database.DB.Create(&database.LoginAttempt{

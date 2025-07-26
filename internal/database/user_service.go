@@ -68,14 +68,18 @@ func (s *UserService) CreateUser(username, email, password string, isAdmin bool)
 
 // AuthenticateUser validates user credentials and returns user if valid
 func (s *UserService) AuthenticateUser(username, password string) (*User, error) {
-	var user User
-	if err := s.db.Where("username = ? AND is_active = ?", username, true).First(&user).Error; err != nil {
-		return nil, errors.New("invalid credentials")
-	}
+        var user User
+        if err := s.db.Where("username = ?", username).First(&user).Error; err != nil {
+                return nil, errors.New("invalid credentials")
+        }
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return nil, errors.New("invalid credentials")
-	}
+        if !user.IsActive {
+                return nil, errors.New("account disabled")
+        }
+
+        if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+                return nil, errors.New("invalid credentials")
+        }
 
 	// Update last login
 	now := time.Now()

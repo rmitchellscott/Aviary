@@ -403,6 +403,7 @@
       "invalid_request": "Solicitação inválida",
       "not_configured": "Autenticação não configurada",
       "invalid_credentials": "Credenciais inválidas",
+      "account_disabled": "A conta do usuário está desativada",
       "token_error": "Não foi possível gerar token",
       "no_token": "Nenhum token de autenticação ou chave API",
       "invalid_token": "Token inválido",

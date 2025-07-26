@@ -264,6 +264,7 @@
       "invalid_request": "Richiesta non valida",
       "not_configured": "Autenticazione non configurata",
       "invalid_credentials": "Credenziali non valide",
+      "account_disabled": "L'account utente è disattivato",
       "token_error": "Impossibile generare il token",
       "no_token": "Nessun token di autenticazione o chiave API",
       "invalid_token": "Token non valido",

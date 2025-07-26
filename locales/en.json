@@ -403,6 +403,7 @@
       "invalid_request": "Invalid request",
       "not_configured": "Authentication not configured",
       "invalid_credentials": "Invalid credentials",
+      "account_disabled": "User account is deactivated",
       "token_error": "Could not generate token",
       "no_token": "No auth token or API key",
       "invalid_token": "Invalid token",

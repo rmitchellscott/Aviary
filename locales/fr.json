@@ -288,6 +288,7 @@
       "invalid_request": "Requête invalide",
       "not_configured": "Authentification non configurée",
       "invalid_credentials": "Identifiants invalides",
+      "account_disabled": "Le compte utilisateur est désactivé",
       "token_error": "Impossible de générer le token",
       "no_token": "Aucun token d'authentification ou clé API",
       "invalid_token": "Token invalide",
