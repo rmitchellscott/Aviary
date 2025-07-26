@@ -16,6 +16,7 @@ import (
 
 	// internal
 	"github.com/rmitchellscott/aviary/internal/auth"
+	"github.com/rmitchellscott/aviary/internal/backup"
 	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/downloader"
@@ -59,6 +60,12 @@ func main() {
 		}
 
 		manager.InitializeUserFolderCache(database.DB)
+		
+		// Start backup worker for background backup processing
+		backupWorker := backup.NewWorker(database.DB)
+		backupWorker.Start()
+		defer backupWorker.Stop()
+		log.Println("Backup worker started")
 	}
 
 	if err := auth.InitOIDC(); err != nil {
@@ -192,6 +199,11 @@ func main() {
 		admin.POST("/backup", auth.BackupDatabaseHandler)        // POST /api/admin/backup - backup database
 		admin.POST("/backup/analyze", auth.AnalyzeBackupHandler) // POST /api/admin/backup/analyze - analyze backup file
 		admin.POST("/restore", auth.RestoreDatabaseHandler)      // POST /api/admin/restore - restore database
+		admin.POST("/backup-job", auth.CreateBackupJobHandler)   // POST /api/admin/backup-job - create background backup job
+		admin.GET("/backup-jobs", auth.GetBackupJobsHandler)     // GET /api/admin/backup-jobs - get backup jobs
+		admin.GET("/backup-job/:id", auth.GetBackupJobHandler)   // GET /api/admin/backup-job/:id - get backup job
+		admin.GET("/backup-job/:id/download", auth.DownloadBackupHandler) // GET /api/admin/backup-job/:id/download - download backup
+		admin.DELETE("/backup-job/:id", auth.DeleteBackupJobHandler)      // DELETE /api/admin/backup-job/:id - delete backup job
 	}
 
 	protected.POST("/webhook", webhook.EnqueueHandler)

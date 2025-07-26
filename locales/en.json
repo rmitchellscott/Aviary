@@ -246,10 +246,32 @@
       "backup_analyze": "Failed to analyze backup file: ",
       "backup_file_type": "Invalid file type. Please select a backup archive (.tar.gz or .tgz). Selected file: ",
       "restore_failed": "Failed to restore database",
-      "restore_error": "Failed to restore database: "
+      "restore_error": "Failed to restore database: ",
+      "backup_download": "Failed to download backup file"
     },
     "success": {
       "restore_complete": "Database restored successfully"
+    },
+    "backup": {
+      "create_backup": "Create Background Backup",
+      "instant_backup": "Instant Download",
+      "creating_job": "Creating backup job...",
+      "recent_jobs": "Recent Backups",
+      "job": "Job",
+      "progress": "Progress",
+      "download": "Download",
+      "delete_backup_title": "Delete Backup",
+      "delete_error": "Failed to delete backup",
+      "background_description": "Creates a backup in the background that you can download once complete",
+      "status": {
+        "pending": "Pending",
+        "running": "Running", 
+        "completed": "Done",
+        "failed": "Failed"
+      }
+    },
+    "messages": {
+      "backup_job_created": "Backup job created successfully. You will be able to download it once complete."
     },
     "counts": {
       "users": "Users ({{count}})",

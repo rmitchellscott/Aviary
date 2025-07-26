@@ -87,6 +87,22 @@ interface APIKey {
   username: string;
 }
 
+interface BackupJob {
+  id: string;
+  status: string;
+  progress: number;
+  include_files: boolean;
+  include_configs: boolean;
+  file_path?: string;
+  filename?: string;
+  file_size?: number;
+  error_message?: string;
+  started_at?: string;
+  completed_at?: string;
+  expires_at?: string;
+  created_at: string;
+}
+
 interface SystemStatus {
   database: {
     total_users: number;
@@ -129,6 +145,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [users, setUsers] = useState<User[]>([]);
   const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
+  const [backupJobs, setBackupJobs] = useState<BackupJob[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -160,6 +177,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [viewUser, setViewUser] = useState<User | null>(null);
   const [viewKey, setViewKey] = useState<APIKey | null>(null);
 
+  // Delete backup confirmation
+  const [deleteBackupDialog, setDeleteBackupDialog] = useState<{
+    isOpen: boolean;
+    job: BackupJob | null;
+  }>({ isOpen: false, job: null });
+
   // Database backup/restore
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [restoreConfirmDialog, setRestoreConfirmDialog] = useState<{
@@ -177,8 +200,21 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       fetchSystemStatus();
       fetchUsers();
       fetchAPIKeys();
+      fetchBackupJobs();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isOpen && backupJobs.some(job => job.status === 'running' || job.status === 'pending')) {
+      interval = setInterval(() => {
+        fetchBackupJobs();
+      }, 2000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isOpen, backupJobs]);
 
   const fetchSystemStatus = async () => {
     try {
@@ -224,6 +260,21 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       }
     } catch (error) {
       console.error("Failed to fetch API keys:", error);
+    }
+  };
+
+  const fetchBackupJobs = async () => {
+    try {
+      const response = await fetch("/api/admin/backup-jobs", {
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setBackupJobs(data.jobs || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch backup jobs:", error);
     }
   };
 
@@ -429,6 +480,31 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     }
   };
 
+  const handleCreateBackupJob = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+
+      const response = await fetch("/api/admin/backup-job", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSuccessMessage(t("admin.messages.backup_job_created"));
+        await fetchBackupJobs();
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || t("admin.errors.backup_create"));
+      }
+    } catch (error) {
+      setError(t("admin.errors.backup_create"));
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleBackupDatabase = async () => {
     try {
       setSaving(true);
@@ -468,6 +544,72 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       setError(t("admin.errors.backup_create"));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDownloadBackup = async (jobId: string) => {
+    try {
+      const response = await fetch(`/api/admin/backup-job/${jobId}/download`, {
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const contentDisposition = response.headers.get("Content-Disposition");
+        let filename = "backup.tar.gz";
+        if (contentDisposition) {
+          const matches = contentDisposition.match(/filename=([^;]+)/);
+          if (matches && matches[1]) {
+            filename = matches[1].replace(/"/g, "");
+          }
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || t("admin.errors.backup_download"));
+      }
+    } catch (error) {
+      setError(t("admin.errors.backup_download"));
+    }
+  };
+
+  const openDeleteBackupDialog = (job: BackupJob) => {
+    setDeleteBackupDialog({ isOpen: true, job });
+  };
+
+  const closeDeleteBackupDialog = () => {
+    setDeleteBackupDialog({ isOpen: false, job: null });
+  };
+
+  const confirmDeleteBackup = async () => {
+    if (!deleteBackupDialog.job) return;
+
+    try {
+      setDeleting(true);
+      const response = await fetch(`/api/admin/backup-job/${deleteBackupDialog.job.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        await fetchBackupJobs();
+        closeDeleteBackupDialog();
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || t("admin.backup.delete_error"));
+      }
+    } catch (error) {
+      setError(t("admin.backup.delete_error"));
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -582,7 +724,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
+    return new Date(dateString).toLocaleString();
   };
 
   const getKeyStatus = (key: APIKey) => {
@@ -630,6 +772,67 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       default:
         return t("admin.status.unknown");
     }
+  };
+
+  const getBackupStatusButton = (job: BackupJob) => {
+    if (job.status === "completed") {
+      return (
+        <div className="flex gap-2 shrink-0">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleDownloadBackup(job.id)}
+          >
+            {t("admin.backup.download")}
+          </Button>
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={() => openDeleteBackupDialog(job)}
+            className="hidden sm:flex"
+          >
+            {t("admin.actions.delete")}
+          </Button>
+        </div>
+      );
+    }
+
+    let text;
+    let variant: "secondary" | "destructive" = "secondary";
+
+    switch (job.status) {
+      case "pending":
+        text = t("admin.backup.status.pending");
+        break;
+      case "running":
+        text = t("admin.backup.status.running");
+        break;
+      case "failed":
+        text = t("admin.backup.status.failed");
+        variant = "destructive";
+        break;
+      default:
+        text = job.status;
+    }
+
+    return (
+      <Button
+        size="sm"
+        variant={variant}
+        disabled
+        className="shrink-0"
+      >
+        {text}
+      </Button>
+    );
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   const getUserStatusBadge = (user: User) => {
@@ -1173,13 +1376,57 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     <Button
                       variant="outline"
                       size="lg"
+                      onClick={handleCreateBackupJob}
+                      disabled={saving}
+                      className="w-full"
+                    >
+                      <Database className="h-4 w-4 mr-2" />
+                      {saving ? t("admin.backup.creating_job") : t("admin.backup.create_backup")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
                       onClick={handleBackupDatabase}
                       disabled={saving}
                       className="w-full"
                     >
                       <Database className="h-4 w-4 mr-2" />
-                      {saving ? t("admin.loading_states.creating_backup") : t("admin.actions.create_backup")}
+                      {saving ? t("admin.loading_states.creating_backup") : t("admin.backup.instant_backup")}
                     </Button>
+                  </div>
+                  
+                  {backupJobs.length > 0 && (
+                    <div className="mt-6">
+                      <h4 className="text-sm font-medium mb-3">{t("admin.backup.recent_jobs")}</h4>
+                      <div className="space-y-2">
+                        {backupJobs.slice(0, 5).map((job) => (
+                          <div key={job.id} className="flex items-center justify-between p-3 border rounded-lg">
+                            <div className="text-sm flex-1 min-w-0">
+                              <div className="font-medium">
+                                {formatDate(job.created_at)}
+                              </div>
+                              <div className="text-muted-foreground">
+                                {job.file_size ? formatFileSize(job.file_size) : '—'}
+                              </div>
+                              {job.status === "running" && (
+                                <div className="text-xs text-muted-foreground">
+                                  {t("admin.backup.progress")}: {job.progress}%
+                                </div>
+                              )}
+                              {job.error_message && (
+                                <div className="text-xs text-destructive mt-1 truncate">
+                                  {job.error_message}
+                                </div>
+                              )}
+                            </div>
+                            {getBackupStatusButton(job)}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="border-t pt-4">
                     <div className="w-full">
                       <input
                         type="file"
@@ -1200,9 +1447,13 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       </Button>
                     </div>
                   </div>
+                  
                   <div className="text-sm text-muted-foreground space-y-2">
                     <p>
-                      <strong>{t("admin.actions.create_backup")}:</strong> {t("admin.descriptions.backup_description")}
+                      <strong>{t("admin.backup.create_backup")}:</strong> {t("admin.backup.background_description")}
+                    </p>
+                    <p>
+                      <strong>{t("admin.backup.instant_backup")}:</strong> {t("admin.descriptions.backup_description")}
                     </p>
                     <p>
                       <strong>{t("admin.actions.restore_backup")}:</strong> {t("admin.descriptions.restore_description")}
@@ -1426,6 +1677,35 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         </DialogContent>
       </Dialog>
 
+      {/* Delete Backup Confirmation Dialog */}
+      <AlertDialog
+        open={deleteBackupDialog.isOpen}
+        onOpenChange={closeDeleteBackupDialog}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-muted-foreground" />
+              {t("admin.backup.delete_backup_title")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("settings.dialogs.cannot_undo")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>
+              {t("admin.actions.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteBackup}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? t("admin.loading_states.deleting") : t("admin.actions.delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
     </Dialog>
   );

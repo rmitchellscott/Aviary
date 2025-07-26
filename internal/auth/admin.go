@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/rmitchellscott/aviary/internal/backup"
 	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/export"
@@ -453,5 +454,183 @@ func RestoreDatabaseHandler(c *gin.Context) {
 			"users_restored": len(metadata.UsersExported),
 			"export_date":    metadata.ExportTimestamp.Format("2006-01-02 15:04:05"),
 		},
+	})
+}
+
+// CreateBackupJobHandler creates a background backup job (admin only)
+func CreateBackupJobHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Background backup not available in single-user mode"})
+		return
+	}
+
+	user, ok := RequireAdmin(c)
+	if !ok {
+		return
+	}
+
+	// Parse query parameters for export options
+	includeFiles := c.DefaultQuery("include_files", "true") == "true"
+	includeConfigs := c.DefaultQuery("include_configs", "true") == "true"
+	userIDsParam := c.Query("user_ids")
+
+	// Parse user IDs if specified
+	var userIDs []uuid.UUID
+	if userIDsParam != "" {
+		for _, idStr := range strings.Split(userIDsParam, ",") {
+			if id, err := uuid.Parse(strings.TrimSpace(idStr)); err == nil {
+				userIDs = append(userIDs, id)
+			}
+		}
+	}
+
+	// Create backup job
+	job, err := backup.CreateBackupJob(database.DB, user.ID, includeFiles, includeConfigs, userIDs)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to create backup job: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"job_id":  job.ID,
+		"message": "Backup job created successfully",
+	})
+}
+
+// GetBackupJobsHandler returns backup jobs for the admin user
+func GetBackupJobsHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Background backup not available in single-user mode"})
+		return
+	}
+
+	user, ok := RequireAdmin(c)
+	if !ok {
+		return
+	}
+
+	jobs, err := backup.GetBackupJobs(database.DB, user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to get backup jobs: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"jobs": jobs,
+	})
+}
+
+// GetBackupJobHandler returns a specific backup job
+func GetBackupJobHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Background backup not available in single-user mode"})
+		return
+	}
+
+	user, ok := RequireAdmin(c)
+	if !ok {
+		return
+	}
+
+	jobIDStr := c.Param("id")
+	jobID, err := uuid.Parse(jobIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid job ID"})
+		return
+	}
+
+	job, err := backup.GetBackupJob(database.DB, jobID, user.ID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Backup job not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, job)
+}
+
+// DownloadBackupHandler downloads a completed backup file
+func DownloadBackupHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Background backup not available in single-user mode"})
+		return
+	}
+
+	user, ok := RequireAdmin(c)
+	if !ok {
+		return
+	}
+
+	jobIDStr := c.Param("id")
+	jobID, err := uuid.Parse(jobIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid job ID"})
+		return
+	}
+
+	job, err := backup.GetBackupJob(database.DB, jobID, user.ID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Backup job not found"})
+		return
+	}
+
+	if job.Status != "completed" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Backup not ready for download"})
+		return
+	}
+
+	if job.FilePath == "" || job.Filename == "" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Backup file not available"})
+		return
+	}
+
+	// Check if file exists
+	if _, err := os.Stat(job.FilePath); os.IsNotExist(err) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Backup file not found"})
+		return
+	}
+
+	// Set headers for download
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", job.Filename))
+	c.Header("Content-Type", "application/gzip")
+	c.Header("Content-Description", "Aviary Backup")
+
+	// Stream file to client
+	c.File(job.FilePath)
+}
+
+// DeleteBackupJobHandler deletes a backup job and its file
+func DeleteBackupJobHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Background backup not available in single-user mode"})
+		return
+	}
+
+	user, ok := RequireAdmin(c)
+	if !ok {
+		return
+	}
+
+	jobIDStr := c.Param("id")
+	jobID, err := uuid.Parse(jobIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid job ID"})
+		return
+	}
+
+	if err := backup.DeleteBackupJob(database.DB, jobID, user.ID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to delete backup job: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Backup job deleted successfully",
 	})
 }
