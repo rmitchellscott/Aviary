@@ -120,7 +120,8 @@ Proxy authentication assumes that your reverse proxy has already authenticated t
 ### OIDC User Management
 When OIDC is enabled:
 - If `OIDC_AUTO_CREATE_USERS=true`, new users are automatically created on first login
-- Users are identified by their email address (preferred) or OIDC subject ID
+- Users are identified by OIDC subject ID first, then by username, then by email for migration
+- Existing users without OIDC subjects are automatically linked on first OIDC login
 - User information is automatically updated from OIDC claims on each login
 - Admin privileges are managed through Aviary's native user management UI
 

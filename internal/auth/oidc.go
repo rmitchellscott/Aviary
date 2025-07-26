@@ -252,14 +252,15 @@ func OIDCCallbackHandler(c *gin.Context) {
 		return
 	}
 
-	// Determine username - prefer email, fallback to preferred_username, then subject
-	username := claims.Email
+	// Determine username - prefer preferred_username, fallback to email, then subject
+	username := claims.PreferredUsername
 	if username == "" {
-		username = claims.PreferredUsername
+		username = claims.Email
 	}
 	if username == "" {
 		username = claims.Subject
 	}
+
 
 	if username == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No suitable username claim found"})
@@ -286,58 +287,69 @@ func OIDCCallbackHandler(c *gin.Context) {
 
 // handleOIDCMultiUserAuth handles OIDC authentication in multi-user mode
 func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject string) error {
-	// Try to find existing user by username (email) or OIDC subject
-	user, err := database.GetUserByUsername(username)
+	var user *database.User
+	var err error
+
+	user, err = database.GetUserByOIDCSubject(subject)
 	if err != nil {
-		// User doesn't exist - check if we should auto-create
-		autoCreateUsers := config.Get("OIDC_AUTO_CREATE_USERS", "")
-		if autoCreateUsers != "true" && autoCreateUsers != "1" {
-			return fmt.Errorf("user not found and auto-creation disabled")
-		}
-
-		// Check if this would be the first user (for admin privileges)
-		var userCount int64
-		if err := database.DB.Model(&database.User{}).Count(&userCount).Error; err != nil {
-			return fmt.Errorf("failed to check user count: %w", err)
-		}
-		firstUser := userCount == 0
-
-		// Auto-create user using the existing CreateUser method
-		userService := database.NewUserService(database.DB)
-		user, err = userService.CreateUser(username, email, "", firstUser) // Empty password for OIDC users
+		user, err = database.GetUserByUsernameWithoutOIDC(username)
 		if err != nil {
-			return fmt.Errorf("failed to create user: %w", err)
-		}
+			user, err = database.GetUserByEmailWithoutOIDC(email)
+			if err != nil {
+				fmt.Printf("OIDC: No existing user found, creating new user\n")
+				autoCreateUsers := config.Get("OIDC_AUTO_CREATE_USERS", "")
+				if autoCreateUsers != "true" && autoCreateUsers != "1" {
+					return fmt.Errorf("user not found and auto-creation disabled")
+				}
 
-		// Update OIDC subject after creation
-		if err := database.DB.Model(user).Update("oidc_subject", subject).Error; err != nil {
-			return fmt.Errorf("failed to update OIDC subject: %w", err)
-		}
-	} else {
-		// Update existing user's OIDC subject and profile info if not set
-		updates := make(map[string]interface{})
+			// Check if this would be the first user (for admin privileges)
+			var userCount int64
+			if err := database.DB.Model(&database.User{}).Count(&userCount).Error; err != nil {
+				return fmt.Errorf("failed to check user count: %w", err)
+			}
+			firstUser := userCount == 0
 
-		if user.OidcSubject == nil || *user.OidcSubject != subject {
-			updates["oidc_subject"] = subject
-		}
-
-		// Update profile information from OIDC claims if not already set
-		if email != "" && user.Email == "" {
-			updates["email"] = email
-		}
-
-		if len(updates) > 0 {
-			updates["updated_at"] = time.Now()
-			if err := database.DB.Model(user).Updates(updates).Error; err != nil {
-				return fmt.Errorf("failed to update user: %w", err)
+			// Auto-create user using the existing CreateUser method
+			userService := database.NewUserService(database.DB)
+			user, err = userService.CreateUser(username, email, "", firstUser) // Empty password for OIDC users
+			if err != nil {
+				return fmt.Errorf("failed to create user: %w", err)
+			}
+			} else {
+				fmt.Printf("OIDC: Linked user %s via email\n", user.Username)
+				if err := database.DB.Model(user).Update("oidc_subject", subject).Error; err != nil {
+					return fmt.Errorf("failed to link existing user to OIDC subject: %w", err)
+				}
+			}
+		} else {
+			fmt.Printf("OIDC: Linked user %s via username\n", user.Username)
+			if err := database.DB.Model(user).Update("oidc_subject", subject).Error; err != nil {
+				return fmt.Errorf("failed to link existing user to OIDC subject: %w", err)
 			}
 		}
 	}
 
+	// Update profile information from OIDC claims
+	updates := make(map[string]interface{})
+	if user.OidcSubject == nil || *user.OidcSubject != subject {
+		updates["oidc_subject"] = subject
+	}
+
+	if email != "" && user.Email == "" {
+		updates["email"] = email
+	}
+
+	if len(updates) > 0 {
+		updates["updated_at"] = time.Now()
+		if err := database.DB.Model(user).Updates(updates).Error; err != nil {
+			return fmt.Errorf("failed to update user: %w", err)
+		}
+	}
+
 	// Check if user is active
-        if !user.IsActive {
-                return fmt.Errorf("account disabled")
-        }
+	if !user.IsActive {
+		return fmt.Errorf("account disabled")
+	}
 
 	// Generate JWT token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
