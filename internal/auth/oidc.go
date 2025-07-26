@@ -313,7 +313,7 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 		// Update existing user's OIDC subject and profile info if not set
 		updates := make(map[string]interface{})
 
-		if user.OIDCSubject == nil || *user.OIDCSubject != subject {
+		if user.OidcSubject == nil || *user.OidcSubject != subject {
 			updates["oidc_subject"] = subject
 		}
 
