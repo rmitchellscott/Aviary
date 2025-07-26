@@ -166,7 +166,6 @@
       "create_new_user": "Luo uusi käyttäjä",
       "user_management": "Käyttäjähallinta",
       "api_key_settings": "API-avainten asetukset",
-      "session_settings": "Istuntoasetukset",
       "backup_restore": "Varmuuskopiointi ja palautus"
     },
     "labels": {
@@ -186,7 +185,6 @@
       "new_password": "Uusi salasana",
       "enable_registration": "Ota käyttöön käyttäjärekisteröinti",
       "max_api_keys": "Maksimi API-avaimia per käyttäjä",
-      "session_timeout": "Istunnon aikakatkaisu (tunnit)",
       "users": "Käyttäjät",
       "api_keys": "API-avaimet",
       "documents": "Dokumentit"

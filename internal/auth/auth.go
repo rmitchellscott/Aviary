@@ -29,6 +29,9 @@ var (
 	loginRate     = rate.Every(time.Minute / 5) // 5 requests per minute
 )
 
+// Default session timeout is 24 hours, can be overridden via SESSION_TIMEOUT env var.
+var sessionTimeout = 24 * time.Hour
+
 func getLoginLimiter(ip string) *rate.Limiter {
 	val, ok := loginLimiters.Load(ip)
 	if ok {
@@ -57,6 +60,9 @@ func init() {
 	uiSecretBytes := make([]byte, 32)
 	rand.Read(uiSecretBytes)
 	uiSecret = fmt.Sprintf("%x", uiSecretBytes)
+
+	// Read session timeout from environment
+	sessionTimeout = config.GetDuration("SESSION_TIMEOUT", 24*time.Hour)
 }
 
 type LoginRequest struct {
@@ -95,7 +101,7 @@ func LoginHandler(c *gin.Context) {
 	// Generate JWT token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": req.Username,
-		"exp":      time.Now().Add(24 * time.Hour).Unix(),
+		"exp":      time.Now().Add(sessionTimeout).Unix(),
 		"iat":      time.Now().Unix(),
 	})
 
@@ -108,7 +114,7 @@ func LoginHandler(c *gin.Context) {
 	// Set HTTP-only cookie
 	secure := !allowInsecure()
 	c.SetSameSite(http.SameSiteStrictMode)
-	c.SetCookie("auth_token", tokenString, 24*3600, "/", "", secure, true)
+	c.SetCookie("auth_token", tokenString, int(sessionTimeout.Seconds()), "/", "", secure, true)
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
@@ -224,7 +230,7 @@ func CheckAuthHandler(c *gin.Context) {
 		// Generate auto-JWT for UI user
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 			"username": "ui-user",
-			"exp":      time.Now().Add(24 * time.Hour).Unix(),
+			"exp":      time.Now().Add(sessionTimeout).Unix(),
 			"iat":      time.Now().Unix(),
 			"auto":     true, // Mark as auto-generated
 		})
@@ -238,7 +244,7 @@ func CheckAuthHandler(c *gin.Context) {
 		// Set HTTP-only cookie
 		secure := !allowInsecure()
 		c.SetSameSite(http.SameSiteStrictMode)
-		c.SetCookie("auth_token", tokenString, 24*3600, "/", "", secure, true)
+		c.SetCookie("auth_token", tokenString, int(sessionTimeout.Seconds()), "/", "", secure, true)
 		c.JSON(http.StatusOK, gin.H{"authenticated": true})
 		return
 	}

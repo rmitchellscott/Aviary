@@ -166,7 +166,6 @@
       "create_new_user": "Nieuwe gebruiker aanmaken",
       "user_management": "Gebruikersbeheer",
       "api_key_settings": "API-sleutel instellingen",
-      "session_settings": "Sessie-instellingen",
       "backup_restore": "Backup & Herstel"
     },
     "labels": {
@@ -186,7 +185,6 @@
       "new_password": "Nieuw wachtwoord",
       "enable_registration": "Gebruikersregistratie inschakelen",
       "max_api_keys": "Maximum API-sleutels per gebruiker",
-      "session_timeout": "Sessie timeout (uren)",
       "users": "Gebruikers",
       "api_keys": "API-sleutels",
       "documents": "Documenten"

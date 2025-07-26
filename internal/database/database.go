@@ -202,11 +202,6 @@ func initializeSystemSettings() error {
 			Value:       "10",
 			Description: "Maximum API keys per user",
 		},
-		"session_timeout_hours": {
-			Key:         "session_timeout_hours",
-			Value:       "24",
-			Description: "Session timeout in hours",
-		},
 		"password_reset_timeout_hours": {
 			Key:         "password_reset_timeout_hours",
 			Value:       "24",

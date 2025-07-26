@@ -166,7 +166,6 @@
       "create_new_user": "새 사용자 생성",
       "user_management": "사용자 관리",
       "api_key_settings": "API 키 설정",
-      "session_settings": "세션 설정",
       "backup_restore": "백업 및 복원"
     },
     "labels": {
@@ -186,7 +185,6 @@
       "new_password": "새 비밀번호",
       "enable_registration": "사용자 등록 활성화",
       "max_api_keys": "사용자당 최대 API 키",
-      "session_timeout": "세션 타임아웃 (시간)",
       "users": "사용자",
       "api_keys": "API 키",
       "documents": "문서"

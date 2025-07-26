@@ -4,6 +4,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Get returns the value of the environment variable `key` if set.
@@ -43,6 +44,31 @@ func GetBool(key string, def bool) bool {
 			return true
 		case "0", "f", "false", "n", "no":
 			return false
+		}
+	}
+	return def
+}
+
+// ParseDuration parses a duration string. It behaves like time.ParseDuration
+// but also supports values like "30d" to represent days.
+func ParseDuration(s string) (time.Duration, error) {
+	lower := strings.ToLower(strings.TrimSpace(s))
+	if strings.HasSuffix(lower, "d") {
+		days := strings.TrimSuffix(lower, "d")
+		if n, err := strconv.Atoi(days); err == nil {
+			return time.Duration(n) * 24 * time.Hour, nil
+		}
+	}
+	return time.ParseDuration(lower)
+}
+
+// GetDuration returns the duration value of the environment variable `key`.
+// It uses ParseDuration and falls back to def if parsing fails or the variable
+// is unset.
+func GetDuration(key string, def time.Duration) time.Duration {
+	if val := Get(key, ""); val != "" {
+		if d, err := ParseDuration(val); err == nil {
+			return d
 		}
 	}
 	return def

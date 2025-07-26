@@ -166,7 +166,6 @@
       "create_new_user": "Skapa ny användare",
       "user_management": "Användarhantering",
       "api_key_settings": "API-nyckelinställningar",
-      "session_settings": "Sessionsinställningar",
       "backup_restore": "Säkerhetskopiering och återställning"
     },
     "labels": {
@@ -186,7 +185,6 @@
       "new_password": "Nytt lösenord",
       "enable_registration": "Aktivera användarregistrering",
       "max_api_keys": "Maximalt antal API-nycklar per användare",
-      "session_timeout": "Session timeout (timmar)",
       "users": "Användare",
       "api_keys": "API-nycklar",
       "documents": "Dokument"

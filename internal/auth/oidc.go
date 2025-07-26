@@ -341,7 +341,7 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 		"username":    user.Username,
 		"email":       user.Email,
 		"is_admin":    user.IsAdmin,
-		"exp":         time.Now().Add(24 * time.Hour).Unix(),
+		"exp":         time.Now().Add(sessionTimeout).Unix(),
 		"iat":         time.Now().Unix(),
 		"iss":         "aviary",
 		"aud":         "aviary-web",
@@ -356,7 +356,7 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 	// Set secure cookie
 	secure := !allowInsecure()
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("auth_token", tokenString, 24*3600, "/", "", secure, true)
+	c.SetCookie("auth_token", tokenString, int(sessionTimeout.Seconds()), "/", "", secure, true)
 
 	// Redirect to frontend
 	redirectURL := config.Get("OIDC_SUCCESS_REDIRECT_URL", "")
@@ -372,7 +372,7 @@ func handleOIDCSingleUserAuth(c *gin.Context, username string) error {
 	// In single-user mode, we create a JWT token for the authenticated user
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username":    username,
-		"exp":         time.Now().Add(24 * time.Hour).Unix(),
+		"exp":         time.Now().Add(sessionTimeout).Unix(),
 		"iat":         time.Now().Unix(),
 		"iss":         "aviary",
 		"aud":         "aviary-web",
@@ -387,7 +387,7 @@ func handleOIDCSingleUserAuth(c *gin.Context, username string) error {
 	// Set secure cookie
 	secure := !allowInsecure()
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("auth_token", tokenString, 24*3600, "/", "", secure, true)
+	c.SetCookie("auth_token", tokenString, int(sessionTimeout.Seconds()), "/", "", secure, true)
 
 	// Call post-pairing callback if set (folder cache refresh)
 	if GetPostPairingCallback() != nil {
