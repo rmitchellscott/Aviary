@@ -404,6 +404,7 @@
       "invalid_request": "無効なリクエスト",
       "not_configured": "認証が設定されていません",
       "invalid_credentials": "認証情報が無効です",
+      "account_disabled": "ユーザーアカウントが無効化されています",
       "token_error": "トークンを生成できませんでした",
       "no_token": "認証トークンまたはAPIキーがありません",
       "invalid_token": "無効なトークン",

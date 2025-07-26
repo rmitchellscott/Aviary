@@ -404,6 +404,7 @@
       "invalid_request": "Ongeldig verzoek",
       "not_configured": "Authenticatie niet geconfigureerd",
       "invalid_credentials": "Ongeldige inloggegevens",
+      "account_disabled": "Gebruikersaccount is gedeactiveerd",
       "token_error": "Kon token niet genereren",
       "no_token": "Geen auth token of API-sleutel",
       "invalid_token": "Ongeldige token",

@@ -404,6 +404,7 @@
       "invalid_request": "Ogiltig begäran",
       "not_configured": "Autentisering inte konfigurerad",
       "invalid_credentials": "Ogiltiga inloggningsuppgifter",
+      "account_disabled": "Användarkontot är inaktiverat",
       "token_error": "Kunde inte generera token",
       "no_token": "Ingen auth-token eller API-nyckel",
       "invalid_token": "Ogiltig token",

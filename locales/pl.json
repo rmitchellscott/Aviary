@@ -404,6 +404,7 @@
       "invalid_request": "Nieprawidłowe żądanie",
       "not_configured": "Uwierzytelnianie nie skonfigurowane",
       "invalid_credentials": "Nieprawidłowe dane uwierzytelniające",
+      "account_disabled": "Konto użytkownika zostało dezaktywowane",
       "token_error": "Nie można wygenerować tokena",
       "no_token": "Brak tokena uwierzytelniającego lub klucza API",
       "invalid_token": "Nieprawidłowy token",

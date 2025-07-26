@@ -404,6 +404,7 @@
       "invalid_request": "Ugyldig anmodning",
       "not_configured": "Godkendelse ikke konfigureret",
       "invalid_credentials": "Ugyldige legitimationsoplysninger",
+      "account_disabled": "Brugerkontoen er deaktiveret",
       "token_error": "Kunne ikke generere token",
       "no_token": "Ingen auth token eller API-nøgle",
       "invalid_token": "Ugyldig token",

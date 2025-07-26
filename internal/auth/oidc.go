@@ -267,12 +267,16 @@ func OIDCCallbackHandler(c *gin.Context) {
 	}
 
 	// Handle user authentication based on mode
-	if database.IsMultiUserMode() {
-		if err := handleOIDCMultiUserAuth(c, username, claims.Email, claims.Name, claims.Subject); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-	} else {
+        if database.IsMultiUserMode() {
+                if err := handleOIDCMultiUserAuth(c, username, claims.Email, claims.Name, claims.Subject); err != nil {
+                        if err.Error() == "account disabled" {
+                                c.JSON(http.StatusUnauthorized, gin.H{"error": "backend.auth.account_disabled"})
+                        } else {
+                                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                        }
+                        return
+                }
+        } else {
 		if err := handleOIDCSingleUserAuth(c, username); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -331,9 +335,9 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 	}
 
 	// Check if user is active
-	if !user.IsActive {
-		return fmt.Errorf("user account is deactivated")
-	}
+        if !user.IsActive {
+                return fmt.Errorf("account disabled")
+        }
 
 	// Generate JWT token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{

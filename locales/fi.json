@@ -404,6 +404,7 @@
       "invalid_request": "Virheellinen pyyntö",
       "not_configured": "Todennusta ei ole määritetty",
       "invalid_credentials": "Virheelliset tunnistetiedot",
+      "account_disabled": "Käyttäjätili on poistettu käytöstä",
       "token_error": "Token-tunnuksen luominen epäonnistui",
       "no_token": "Ei auth token -tunnusta tai API-avainta",
       "invalid_token": "Virheellinen token",

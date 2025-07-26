@@ -404,6 +404,7 @@
       "invalid_request": "Ungültige Anfrage",
       "not_configured": "Authentifizierung nicht konfiguriert",
       "invalid_credentials": "Ungültige Anmeldedaten",
+      "account_disabled": "Benutzerkonto ist deaktiviert",
       "token_error": "Token konnte nicht generiert werden",
       "no_token": "Kein Auth-Token oder API-Schlüssel",
       "invalid_token": "Ungültiger Token",

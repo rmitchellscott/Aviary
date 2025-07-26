@@ -265,6 +265,7 @@
       "invalid_request": "Solicitud inválida",
       "not_configured": "Autenticación no configurada",
       "invalid_credentials": "Credenciales inválidas",
+      "account_disabled": "La cuenta de usuario está desactivada",
       "token_error": "No se pudo generar el token",
       "no_token": "No hay token de autenticación o clave API",
       "invalid_token": "Token inválido",

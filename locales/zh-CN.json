@@ -404,6 +404,7 @@
       "invalid_request": "无效请求",
       "not_configured": "认证未配置",
       "invalid_credentials": "无效凭据",
+      "account_disabled": "用户账户已被停用",
       "token_error": "无法生成令牌",
       "no_token": "无认证令牌或API密钥",
       "invalid_token": "无效令牌",
