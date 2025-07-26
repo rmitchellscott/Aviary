@@ -325,7 +325,8 @@
       "cover_page": "Bepaalt of de eerste pagina of huidige pagina wordt gebruikt als omslag bij het uploaden van PDF's",
       "pdf_conversion_device": "Kies je reMarkable apparaatmodel voor optimale afbeelding-naar-PDF conversie. Deze instelling heeft alleen effect op afbeeldingsbestanden (JPEG, PNG) die naar PDF worden geconverteerd.",
       "page_resolution": "Paginaresolutie in BREEDTExHOOGTE formaat",
-      "page_dpi": "Punten per inch"
+      "page_dpi": "Punten per inch",
+      "default_directory": "Kies de standaardmap waar uw documenten worden geüpload"
     },
     "status": {
       "active": "actief",

@@ -325,7 +325,8 @@
       "cover_page": "PDFアップロード時に最初のページまたは現在のページをカバーとして使用するかを制御",
       "pdf_conversion_device": "最適な画像かPDFへの変換のためにreMarkableデバイスモデルを選択してください。この設定はPDFに変換される画像ファイル（JPEG、PNG）のみに影響します。",
       "page_resolution": "幅x高さ形式のページ解像度",
-      "page_dpi": "1インチあたりのドット数"
+      "page_dpi": "1インチあたりのドット数",
+      "default_directory": "ドキュメントがアップロードされるデフォルトフォルダを選択してください"
     },
     "status": {
       "active": "アクティブ",

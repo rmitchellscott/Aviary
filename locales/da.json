@@ -325,7 +325,8 @@
       "cover_page": "Styrer om første side eller nuværende side bruges som forside ved upload af PDF'er",
       "pdf_conversion_device": "Vælg din reMarkable enhedsmodel for optimal billede til PDF konvertering. Denne indstilling påvirker kun billedfiler (JPEG, PNG) der konverteres til PDF.",
       "page_resolution": "Sideopløsning i BREDDExHØJDE format",
-      "page_dpi": "Punkter pr. tomme"
+      "page_dpi": "Punkter pr. tomme",
+      "default_directory": "Vælg standardmappen hvor dine dokumenter vil blive uploadet"
     },
     "status": {
       "active": "aktiv",

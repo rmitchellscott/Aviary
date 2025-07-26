@@ -325,7 +325,8 @@
       "cover_page": "控制上传PDF时是使用第一页还是当前页作为封面",
       "pdf_conversion_device": "选择您的reMarkable设备型号以获得最佳的图像转PDF转换效果。此设置仅影响转换为PDF的图像文件（JPEG、PNG）。",
       "page_resolution": "以宽度x高度格式的页面分辨率",
-      "page_dpi": "每英寸点数"
+      "page_dpi": "每英寸点数",
+      "default_directory": "选择您的文档将上传到的默认文件夹"
     },
     "status": {
       "active": "活动",

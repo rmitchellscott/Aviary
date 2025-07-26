@@ -367,7 +367,8 @@
       "cover_page": "Controla si la primera página o página actual se usa como portada al subir PDFs",
       "pdf_conversion_device": "Elige el modelo de tu dispositivo reMarkable para una conversión óptima de imagen a PDF. Esta configuración solo afecta archivos de imagen (JPEG, PNG) que se convierten a PDF.",
       "page_resolution": "Resolución de página en formato ANCHOxALTO",
-      "page_dpi": "Puntos por pulgada"
+      "page_dpi": "Puntos por pulgada",
+      "default_directory": "Elige la carpeta predeterminada donde se cargarán tus documentos"
     },
     "status": {
       "active": "activo",

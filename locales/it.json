@@ -367,7 +367,8 @@
       "cover_page": "Controlla se la prima pagina o la pagina corrente viene utilizzata come copertina durante il caricamento di PDF",
       "pdf_conversion_device": "Scegli il modello del tuo dispositivo reMarkable per una conversione ottimale da immagine a PDF. Questa impostazione influisce solo sui file immagine (JPEG, PNG) convertiti in PDF.",
       "page_resolution": "Risoluzione pagina nel formato LARGHEZZAxALTEZZA",
-      "page_dpi": "Punti per pollice"
+      "page_dpi": "Punti per pollice",
+      "default_directory": "Scegli la cartella predefinita dove verranno caricati i tuoi documenti"
     },
     "status": {
       "active": "attivo",

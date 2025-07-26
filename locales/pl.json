@@ -325,7 +325,8 @@
       "cover_page": "Kontroluje, czy pierwsza strona lub bieżąca strona jest używana jako okładka podczas przesyłania plików PDF",
       "pdf_conversion_device": "Wybierz model swojego urządzenia reMarkable dla optymalnej konwersji obraz-PDF. To ustawienie wpływa tylko na pliki obrazowe (JPEG, PNG) konwertowane do PDF.",
       "page_resolution": "Rozdzielczość strony w formacie SZEROKoŚĆxWYSOKoŚĆ",
-      "page_dpi": "Punkty na cal"
+      "page_dpi": "Punkty na cal",
+      "default_directory": "Wybierz domyślny folder, do którego będą przesyłane Twoje dokumenty"
     },
     "status": {
       "active": "aktywny",

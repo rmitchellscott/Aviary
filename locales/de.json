@@ -325,7 +325,8 @@
       "cover_page": "Steuert, ob die erste Seite oder die aktuelle Seite als Deckblatt beim Hochladen von PDFs verwendet wird",
       "pdf_conversion_device": "Wählen Sie Ihr reMarkable Gerätemodell für optimale Bild-zu-PDF-Konvertierung. Diese Einstellung betrifft nur Bilddateien (JPEG, PNG), die zu PDF konvertiert werden.",
       "page_resolution": "Seitenauflösung im BREITExHÖHE Format",
-      "page_dpi": "Punkte pro Zoll"
+      "page_dpi": "Punkte pro Zoll",
+      "default_directory": "Wählen Sie den Standardordner, in den Ihre Dokumente hochgeladen werden"
     },
     "status": {
       "active": "aktiv",

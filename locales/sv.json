@@ -325,7 +325,8 @@
       "cover_page": "Kontrollerar om första sidan eller nuvarande sida används som omslag vid uppladdning av PDF-filer",
       "pdf_conversion_device": "Välj din reMarkable enhetsmodell för optimal bild-till-PDF konvertering. Den här inställningen påverkar endast bildfiler (JPEG, PNG) som konverteras till PDF.",
       "page_resolution": "Sidupplösning i BREDDxHÖJD format",
-      "page_dpi": "Punkter per tum"
+      "page_dpi": "Punkter per tum",
+      "default_directory": "Välj standardmappen där dina dokument kommer att laddas upp"
     },
     "status": {
       "active": "aktiv",

@@ -325,7 +325,8 @@
       "cover_page": "Controla se a primeira página ou página atual é usada como capa ao enviar PDFs",
       "pdf_conversion_device": "Escolha o modelo do seu dispositivo reMarkable para conversão ótima de imagem para PDF. Esta configuração afeta apenas arquivos de imagem (JPEG, PNG) convertidos para PDF.",
       "page_resolution": "Resolução da página no formato LARGURAxALTURA",
-      "page_dpi": "Pontos por polegada"
+      "page_dpi": "Pontos por polegada",
+      "default_directory": "Escolha a pasta padrão onde seus documentos serão enviados"
     },
     "status": {
       "active": "ativo",
