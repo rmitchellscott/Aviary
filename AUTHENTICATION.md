@@ -32,10 +32,10 @@ Use the API key in requests with either header:
 - **API endpoints accept either**: Valid API key OR valid web login session
 
 ### Multi-User Mode
-Database-backed authentication with user management:
+Database-backed authentication with user management
 
 #### Enabling Multi-User Mode
-Set `MULTI_USER=true` and configure database settings. If `AUTH_USERNAME` and `AUTH_PASSWORD` are set, they will be used to create the initial admin user:
+Set `MULTI_USER=true` and configure database settings. `AUTH_USERNAME` and `AUTH_PASSWORD` are required to be set for the first run, they will be used to create the initial admin user:
 ```bash
 MULTI_USER=true
 AUTH_USERNAME=admin
@@ -52,7 +52,7 @@ ADMIN_EMAIL=admin@example.com
 - **Database Support**: SQLite (default) or PostgreSQL for production
 - **Per-User Data**: Separate document storage and folder cache per user
 
-## Advanced Authentication (Multi-User Mode Only)
+## Advanced Authentication
 
 > [!IMPORTANT]  
 > OIDC and Proxy Authentication require multi-user mode to be enabled (`MULTI_USER=true`).
@@ -141,13 +141,14 @@ In multi-user mode, you can enable multiple authentication methods simultaneousl
 
 ## Migration from Single-User Mode
 
-When enabling multi-user mode with OIDC or proxy auth:
+When enabling multi-user mode:
 
 1. Set `MULTI_USER=true` in your environment
-2. The env-based user becomes the administrator
-3. Existing rmapi configuration is migrated to the admin user, if present
-4. Existing PDF files are moved to the admin user's directory, if present
-5. Environment-based API key is migrated to the admin user's account, if present
+2. Set `AUTH_USERNAME` and `AUTH_PASSWORD` for the initial run
+3. The env-based user becomes the administrator
+4. Existing rmapi configuration is migrated to the admin user, if present
+5. Existing PDF files are moved to the admin user's directory, if present
+6. Environment-based API key is migrated to the admin user's account, if present
 
 ## API Access
 
