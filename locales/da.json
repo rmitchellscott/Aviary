@@ -171,6 +171,7 @@
     },
     "labels": {
       "username": "Brugernavn",
+      "user_id": "Bruger-id",
       "email": "E-mail",
       "password": "Adgangskode",
       "role": "Rolle",

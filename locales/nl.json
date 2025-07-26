@@ -171,6 +171,7 @@
     },
     "labels": {
       "username": "Gebruikersnaam",
+      "user_id": "Gebruikers-ID",
       "email": "E-mail",
       "password": "Wachtwoord",
       "role": "Rol",

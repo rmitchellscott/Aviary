@@ -171,6 +171,7 @@
     },
     "labels": {
       "username": "Käyttäjänimi",
+      "user_id": "Käyttäjätunnus",
       "email": "Sähköposti",
       "password": "Salasana",
       "role": "Rooli",

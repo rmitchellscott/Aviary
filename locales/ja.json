@@ -171,6 +171,7 @@
     },
     "labels": {
       "username": "ユーザー名",
+      "user_id": "ユーザーID",
       "email": "メール",
       "password": "パスワード",
       "role": "役割",

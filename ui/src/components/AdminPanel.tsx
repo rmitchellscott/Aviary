@@ -32,6 +32,11 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import {
   Table,
   TableBody,
   TableCell,
@@ -919,9 +924,16 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       {users.map((user) => (
                         <TableRow key={user.id}>
                           <TableCell className="font-medium max-w-24 md:max-w-none">
-                            <div className="truncate" title={user.username}>
-                              {user.username}
-                            </div>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="truncate cursor-default" title={user.username}>
+                                  {user.username}
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {t('admin.labels.user_id')}: {user.id}
+                              </TooltipContent>
+                            </Tooltip>
                           </TableCell>
                           <TableCell className="hidden md:table-cell">{user.email}</TableCell>
                           <TableCell className="hidden md:table-cell">
@@ -1383,6 +1395,9 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             <div className="space-y-2 text-sm">
               <p>
                 <strong>{t('admin.labels.email')}:</strong> {viewUser.email}
+              </p>
+              <p>
+                <strong>{t('admin.labels.user_id')}:</strong> {viewUser.id}
               </p>
               <p>
                 <strong>{t('admin.labels.role')}:</strong>{' '}

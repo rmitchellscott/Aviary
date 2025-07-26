@@ -171,6 +171,7 @@
     },
     "labels": {
       "username": "用户名",
+      "user_id": "用户ID",
       "email": "邮箱",
       "password": "密码",
       "role": "角色",
