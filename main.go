@@ -32,19 +32,14 @@ import (
 var embeddedUI embed.FS
 
 func main() {
-	// Load .env if present
 	_ = godotenv.Load()
-
-	// Log version information
 	log.Printf("Starting %s", version.String())
 
-	// Add --version flag support
 	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
 		fmt.Println(version.String())
 		os.Exit(0)
 	}
 
-	// Interactive pair flow
 	if len(os.Args) > 1 && os.Args[1] == "pair" {
 		if err := auth.RunPair(os.Stdout, os.Stderr); err != nil {
 			fmt.Fprintf(os.Stderr, "pair failed: %v\n", err)
@@ -53,31 +48,25 @@ func main() {
 		os.Exit(0)
 	}
 
-	// Initialize database if multi-user mode is enabled
 	if database.IsMultiUserMode() {
 		if err := database.Initialize(); err != nil {
 			log.Fatalf("Failed to initialize database: %v", err)
 		}
 		defer database.Close()
 
-		// Migrate from single-user to multi-user if needed
 		if err := database.MigrateToMultiUser(); err != nil {
 			log.Fatalf("Failed to migrate to multi-user mode: %v", err)
 		}
 
-		// Initialize user folder cache service
 		manager.InitializeUserFolderCache(database.DB)
 	}
 
-	// Initialize OIDC if configured
 	if err := auth.InitOIDC(); err != nil {
 		log.Fatalf("Failed to initialize OIDC: %v", err)
 	}
 
-	// Initialize proxy authentication
 	auth.InitProxyAuth()
 
-	// Determine port
 	port := config.Get("PORT", "")
 	if port == "" {
 		port = "8000"
@@ -101,19 +90,16 @@ func main() {
 	// Set up post-pairing callback to refresh folder cache
 	auth.SetPostPairingCallback(func(userID string, singleUserMode bool) {
 		if singleUserMode {
-			// Single-user mode: refresh global cache
 			if err := manager.RefreshFolderCache(); err != nil {
 				log.Printf("Failed to refresh folder cache after pairing: %v", err)
 			}
 		} else {
-			// Multi-user mode: refresh user-specific cache
 			if err := manager.RefreshUserFolderCache(userID); err != nil {
 				log.Printf("Failed to refresh folder cache after pairing for user %s: %v", userID, err)
 			}
 		}
 	})
 
-	// Create a Sub FS rooted at our static export
 	uiFS, err := fs.Sub(embeddedUI, "ui/dist")
 	if err != nil {
 		log.Fatalf("embed error: %v", err)
@@ -125,42 +111,31 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// Gin router for /api
 	router := gin.New()
 	router.Use(gin.Logger(), gin.Recovery())
 
-	// Auth endpoints (always available)
 	router.POST("/api/auth/login", auth.MultiUserLoginHandler)
 	router.POST("/api/auth/logout", auth.LogoutHandler)
 	router.GET("/api/auth/check", auth.MultiUserCheckAuthHandler)
-	router.GET("/api/auth/registration-status", auth.GetRegistrationStatusHandler) // Check if registration is enabled
+	router.GET("/api/auth/registration-status", auth.GetRegistrationStatusHandler)
 
-	// OIDC endpoints (multi-user mode only)
 	if database.IsMultiUserMode() {
 		router.GET("/api/auth/oidc/login", auth.OIDCAuthHandler)
 		router.GET("/api/auth/oidc/callback", auth.OIDCCallbackHandler)
 		router.POST("/api/auth/oidc/logout", auth.OIDCLogoutHandler)
-
-		// Proxy auth check endpoint
 		router.GET("/api/auth/proxy/check", auth.ProxyAuthCheckHandler)
 	}
 
-	// Multi-user specific auth endpoints
 	router.POST("/api/auth/register", auth.MultiUserAuthMiddleware(), auth.RegisterHandler)
-	router.POST("/api/auth/register/public", auth.PublicRegisterHandler) // Public registration (when enabled)
+	router.POST("/api/auth/register/public", auth.PublicRegisterHandler)
 	router.POST("/api/auth/password-reset", auth.PasswordResetHandler)
 	router.POST("/api/auth/password-reset/confirm", auth.PasswordResetConfirmHandler)
 
-	// Protected API endpoints (require auth if configured)
 	protected := router.Group("/api")
 	if auth.AuthRequired() || database.IsMultiUserMode() {
 		protected.Use(auth.MultiUserAuthMiddleware())
 	}
 
-	// Protected auth endpoints
-	// Note: User data is available via /api/auth/check endpoint
-
-	// User management endpoints (multi-user mode only)
 	users := protected.Group("/users")
 	{
 		users.GET("", auth.GetUsersHandler)                               // GET /api/users - list all users (admin)
@@ -176,7 +151,6 @@ func main() {
 		users.GET("/stats", auth.GetUserStatsHandler)                     // GET /api/users/stats - get user statistics (admin)
 	}
 
-	// Current user endpoints (multi-user mode only)
 	profile := protected.Group("/profile")
 	{
 		profile.PUT("", auth.UpdateCurrentUserHandler)         // PUT /api/profile - update current user
@@ -187,10 +161,8 @@ func main() {
 		profile.DELETE("", auth.DeleteCurrentUserHandler)      // DELETE /api/profile - delete current user account
 	}
 
-	// Single-user pairing endpoint (available in both modes, but works differently)
 	protected.POST("/pair", auth.HandlePairRequest)
 
-	// API key management endpoints (multi-user mode only)
 	apiKeys := protected.Group("/api-keys")
 	{
 		apiKeys.GET("", auth.GetAPIKeysHandler)                       // GET /api/api-keys - list user's API keys
@@ -201,7 +173,6 @@ func main() {
 		apiKeys.POST("/:id/deactivate", auth.DeactivateAPIKeyHandler) // POST /api/api-keys/:id/deactivate - deactivate API key
 	}
 
-	// Admin API key endpoints (multi-user mode only)
 	adminApiKeys := protected.Group("/admin/api-keys")
 	adminApiKeys.Use(auth.AdminRequiredMiddleware())
 	{
@@ -210,7 +181,6 @@ func main() {
 		adminApiKeys.POST("/cleanup", auth.CleanupExpiredAPIKeysHandler) // POST /api/admin/api-keys/cleanup - cleanup expired keys
 	}
 
-	// Admin system endpoints (multi-user mode only)
 	admin := protected.Group("/admin")
 	admin.Use(auth.AdminRequiredMiddleware())
 	{
@@ -235,33 +205,26 @@ func main() {
 	})
 	router.GET("/api/config", handlers.ConfigHandler)
 
-	// File server for all embedded files (gate behind AVIARY_DISABLE_UI)
 	if config.Get("DISABLE_UI", "") == "" {
 		router.NoRoute(func(c *gin.Context) {
-			// strip leading slash
 			p := strings.TrimPrefix(c.Request.URL.Path, "/")
 			if p == "" {
 				p = "index.html"
 			}
 
-			// Check if this is index.html and if we should inject UI secret
 			if p == "index.html" {
 				envUsername := config.Get("AUTH_USERNAME", "")
 				envPassword := config.Get("AUTH_PASSWORD", "")
 				webAuthDisabled := envUsername == "" || envPassword == ""
 
 				if webAuthDisabled {
-					// Web auth disabled - inject UI secret for auto-authentication
 					auth.ServeIndexWithSecret(c, uiFS, auth.GetUISecret())
 					return
 				}
-				// Web auth enabled - serve normal index.html (users must login)
 			}
 
-			// Check if file exists in embedded FS
 			if stat, err := fs.Stat(uiFS, p); err != nil || stat.IsDir() {
 				p = "index.html"
-				// If we're falling back to index.html, check auth again
 				if p == "index.html" {
 					envUsername := config.Get("AUTH_USERNAME", "")
 					envPassword := config.Get("AUTH_PASSWORD", "")

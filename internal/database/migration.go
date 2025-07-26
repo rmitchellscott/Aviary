@@ -129,33 +129,6 @@ func CreateDefaultAdminUser(username, email, password string) (*User, error) {
 	return userService.CreateUser(username, email, password, true)
 }
 
-// MigrateUserDocuments migrates existing documents to the new user structure
-func MigrateUserDocuments(userID uuid.UUID) error {
-	// This would scan the existing PDF directory and create document records
-	// for files that already exist on disk
-
-	pdfDir := config.Get("PDF_DIR", "")
-	if pdfDir == "" {
-		pdfDir = "/app/pdfs"
-	}
-
-	// For now, just log that this would need to be implemented
-	log.Printf("TODO: Implement document migration for user %s from directory %s", userID, pdfDir)
-
-	return nil
-}
-
-// BackupDatabase creates a backup using the new JSON export system
-// This function is kept for backward compatibility but now uses JSON export
-func BackupDatabase(backupPath string) error {
-	return fmt.Errorf("legacy backup method deprecated - use JSON export system instead")
-}
-
-// RestoreDatabase restores from a backup using the new JSON import system
-// This function is kept for backward compatibility but now uses JSON import
-func RestoreDatabase(backupPath string) error {
-	return fmt.Errorf("legacy restore method deprecated - use JSON import system instead")
-}
 
 // CleanupOldData removes old data based on retention policies
 func CleanupOldData() error {

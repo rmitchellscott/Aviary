@@ -29,12 +29,9 @@ import { Progress } from "@/components/ui/progress";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
 
-// List of file extensions (lower-cased, including the dot) that we allow compression for:
 const COMPRESSIBLE_EXTS = [".pdf", ".png", ".jpg", ".jpeg"];
-// How often to animate progress bar updates (ms)
 const POLL_INTERVAL_MS = 200;
 
-// Job status from backend
 interface JobStatus {
   status: string;
   message: string;
@@ -65,7 +62,6 @@ function waitForJobWS(
         const st = JSON.parse(ev.data);
         onUpdate(st);
         if (st.status === "success" || st.status === "error") {
-          // Add small delay to ensure React state update completes before resolving
           setTimeout(() => {
             ws.close();
             safeResolve();
@@ -73,7 +69,6 @@ function waitForJobWS(
           return;
         }
       } catch {
-        // ignore parse errors
       }
     };
     ws.onclose = () => safeResolve();
@@ -132,47 +127,33 @@ export default function HomePage() {
   // Pairing dialog state
   const [pairingDialogOpen, setPairingDialogOpen] = useState(false);
 
-  /**
-   * Determine if "Compress PDF" should be enabled:
-   * - File mode: only if selected file name ends with a compressible extension
-   * - URL mode: if URL ends with a compressible extension; if URL has some other extension, disable;
-   *   if no extension, keep enabled.
-   */
   const isCompressibleFileOrUrl = useMemo(() => {
     if (selectedFile) {
-      // See if selectedFile.name ends with any compressible extension
       const lowerName = selectedFile.name.toLowerCase();
       return COMPRESSIBLE_EXTS.some((ext) => lowerName.endsWith(ext));
     }
 
     const trimmed = committedUrl.trim();
     if (!trimmed) {
-      // No URL entered → allow compress switch (harmless if clicked before submit)
       return true;
     }
 
-    // Only look at the pathname when checking extensions
     let path = trimmed;
     try {
       path = new URL(trimmed).pathname;
     } catch {
-      // Ignore URL parse errors and use the raw string
     }
     const lowerPath = path.toLowerCase();
 
-    // Does URL/path end with a compressible extension?
     if (COMPRESSIBLE_EXTS.some((ext) => lowerPath.endsWith(ext))) {
       return true;
     }
 
-    // Check for any other extension in the last path segment
     const lastSegment = lowerPath.split("/").pop() || "";
     if (lastSegment.includes(".")) {
-      // If it has a dot but doesn't end with a compressible one, disable
       return false;
     }
 
-    // No extension in URL (e.g. "https://example.com/download")
     if (urlMime) {
       const mt = urlMime.toLowerCase();
       return (
@@ -181,7 +162,6 @@ export default function HomePage() {
         mt.startsWith("image/jpeg")
       );
     }
-    // No MIME info → allow compress
     return true;
   }, [selectedFile, committedUrl, urlMime]);
 
@@ -191,7 +171,6 @@ export default function HomePage() {
     }
   }, [isCompressibleFileOrUrl, compress]);
 
-  // Fetch folders only if paired
   useEffect(() => {
     if (!isAuthenticated || !rmapiPaired || userDataLoading) {
       setFolders([]);
@@ -220,7 +199,6 @@ export default function HomePage() {
           setFolders(cleaned);
         }
 
-        // Fetch an up-to-date list in the background and update state when done
         const refreshHeaders: HeadersInit = {
           "Accept-Language": i18n.language,
         };
@@ -257,19 +235,14 @@ export default function HomePage() {
     return null;
   }
 
-  // Show login form if auth is configured and not authenticated
   if (authConfigured && !isAuthenticated) {
     return <LoginForm onLogin={login} />;
   }
 
-  /**
-   * Upload file with progress tracking using XMLHttpRequest
-   */
   const uploadFileWithProgress = async (formData: FormData): Promise<{ jobId: string }> => {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       
-      // Track upload progress
       xhr.upload.addEventListener('progress', (event) => {
         if (event.lengthComputable) {
           const percentComplete = (event.loaded / event.total) * 100;
@@ -277,7 +250,6 @@ export default function HomePage() {
         }
       });
       
-      // Handle completion
       xhr.addEventListener('load', () => {
         if (xhr.status >= 200 && xhr.status < 300) {
           try {
@@ -291,29 +263,21 @@ export default function HomePage() {
         }
       });
       
-      // Handle errors
       xhr.addEventListener('error', () => {
         reject(new Error('Upload failed'));
       });
       
-      // Set up request
       xhr.open('POST', '/api/upload');
       
-      // Add headers
       if (uiSecret) {
         xhr.setRequestHeader('X-UI-Token', uiSecret);
       }
       xhr.setRequestHeader('Accept-Language', i18n.language);
       xhr.withCredentials = true;
       
-      // Send the request
       xhr.send(formData);
     });
   };
-  /**
-   * If a local file is selected, POST it to /api/upload as multipart/form-data.
-   * Otherwise, enqueue by sending a URL to /api/webhook (old behavior).
-   */
   const handleSubmit = async () => {
     setLoading(true);
     setMessage("");
@@ -322,7 +286,6 @@ export default function HomePage() {
     setUploadPhase('idle');
 
     if (selectedFile) {
-      // === FILE UPLOAD FLOW (upload with progress + enqueue + poll) ===
       try {
         const formData = new FormData();
         formData.append("file", selectedFile);
@@ -331,12 +294,10 @@ export default function HomePage() {
           formData.append("rm_dir", rmDir);
         }
 
-        // 1) Upload file with progress tracking
         setUploadPhase('uploading');
         setMessage(t("home.uploading"));
         const { jobId } = await uploadFileWithProgress(formData);
         
-        // 2) File uploaded, now processing
         setUploadPhase('processing');
         setMessage(t("home.job_queued", { id: jobId }));
         setUploadProgress(100); // Upload complete
@@ -355,7 +316,6 @@ export default function HomePage() {
         setStatus("error");
         setMessage(t(msg));
       } finally {
-        // clear the selected file so <Input> becomes enabled again
         setSelectedFile(null);
         setUrl("");
         setProgress(0);
@@ -364,7 +324,6 @@ export default function HomePage() {
         setLoading(false);
       }
     } else {
-      // === URL SUBMIT FLOW (EXISTING) ===
       const form = new URLSearchParams();
       form.append("Body", url);
       form.append("compress", compress ? "true" : "false");
@@ -423,7 +382,6 @@ export default function HomePage() {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* === URL INPUT === */}
           <div>
             <Input
               id="url"
@@ -431,14 +389,12 @@ export default function HomePage() {
               value={url}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setUrl(e.target.value);
-                // Clear any selected file if the user starts typing a URL
                 if (selectedFile) {
                   setSelectedFile(null);
                 }
                 setUrlMime(null);
               }}
               onBlur={async () => {
-                // commit the URL once the user leaves the field
                 setCommittedUrl(url);
                 if (url.trim()) {
                   const mt = await sniffMime(url.trim());
@@ -456,19 +412,16 @@ export default function HomePage() {
             {t("home.or")}
           </div>
 
-          {/* === DRAG & DROP FILE === */}
           <div>
             <FileDropzone
               onFileSelected={(file) => {
                 setSelectedFile(file);
-                // Clear any URL if the user picks a file
                 if (url) {
                   setUrl("");
                 }
                 setUrlMime(null);
               }}
               onError={(msg) => {
-                // Set the error text—this will open the Dialog
                 setFileError(msg);
               }}
               disabled={!!url}
@@ -490,7 +443,6 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* === FOLDER SELECT === */}
           <div className="flex items-center space-x-2">
             <Label htmlFor="rmDir">{t("home.destination_folder")}</Label>
             <Select 
@@ -524,7 +476,6 @@ export default function HomePage() {
             </Select>
           </div>
 
-          {/* === COMPRESS SWITCH === */}
           <div className="flex items-center space-x-2 mt-4">
             <Label
               htmlFor="compress"
@@ -540,7 +491,6 @@ export default function HomePage() {
             />
           </div>
 
-          {/* === PAIRING PROMPT === */}
           {!rmapiPaired && !userDataLoading && (
             <div className="bg-muted border rounded-md p-3 text-muted-foreground">
               <p className="text-sm">
@@ -551,7 +501,6 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* === SUBMIT BUTTON === */}
           <div className="flex justify-end">
             <Button
               onClick={!rmapiPaired ? () => setPairingDialogOpen(true) : handleSubmit}
@@ -586,7 +535,6 @@ export default function HomePage() {
         </CardContent>
       </Card>
 
-      {/* === ERROR DIALOG === */}
       <Dialog
         open={!!fileError}
         onOpenChange={(open) => {
@@ -606,7 +554,6 @@ export default function HomePage() {
         </DialogContent>
       </Dialog>
 
-      {/* === PAIRING DIALOG === */}
       <PairingDialog
         isOpen={pairingDialogOpen}
         onClose={() => setPairingDialogOpen(false)}
