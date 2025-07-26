@@ -88,6 +88,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+            VERSION=${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
             GIT_COMMIT=${{ github.sha }}
             BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
