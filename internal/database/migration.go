@@ -37,7 +37,8 @@ func MigrateToMultiUser() error {
 	email := config.Get("ADMIN_EMAIL", "")
 
 	if username == "" || password == "" {
-		return fmt.Errorf("AUTH_USERNAME and AUTH_PASSWORD must be set when enabling multi-user mode")
+		log.Printf("AUTH_USERNAME and AUTH_PASSWORD not set - first user will become admin")
+		return nil
 	}
 
 	if email == "" {
@@ -94,19 +95,31 @@ func MigrateToMultiUser() error {
 		}
 	}
 
-	// Copy rmapi config from root to user directory
-	if err := migrateRmapiConfig(adminUser.ID); err != nil {
-		log.Printf("Warning: failed to migrate rmapi config: %v", err)
-	}
-
-	// Migrate archived files to user directory
-	if err := migrateArchivedFiles(adminUser.ID); err != nil {
-		log.Printf("Warning: failed to migrate archived files: %v", err)
-	}
+	// Migrate single-user data (rmapi config and files) asynchronously
+	go func() {
+		if err := MigrateSingleUserData(adminUser.ID); err != nil {
+			log.Printf("Warning: failed to migrate single-user data during startup: %v", err)
+		}
+	}()
 
 	// Ensure all existing users have coverpage setting set
 	if err := ensureUsersHaveCoverpageSetting(); err != nil {
 		log.Printf("Warning: failed to set coverpage setting for existing users: %v", err)
+	}
+
+	return nil
+}
+
+// MigrateSingleUserData migrates rmapi config and archived files to first admin user
+func MigrateSingleUserData(adminUserID uuid.UUID) error {
+	// Copy rmapi config from root to user directory
+	if err := migrateRmapiConfig(adminUserID); err != nil {
+		log.Printf("Warning: failed to migrate rmapi config: %v", err)
+	}
+
+	// Migrate archived files to user directory
+	if err := migrateArchivedFiles(adminUserID); err != nil {
+		log.Printf("Warning: failed to migrate archived files: %v", err)
 	}
 
 	return nil

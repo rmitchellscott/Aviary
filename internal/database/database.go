@@ -255,6 +255,33 @@ func GetUserByUsername(username string) (*User, error) {
 	return &user, nil
 }
 
+// GetUserByOIDCSubject gets a user by OIDC subject
+func GetUserByOIDCSubject(oidcSubject string) (*User, error) {
+	var user User
+	if err := DB.First(&user, "oidc_subject = ? AND is_active = ?", oidcSubject, true).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+// GetUserByUsernameWithoutOIDC gets a user by username without an OIDC subject
+func GetUserByUsernameWithoutOIDC(username string) (*User, error) {
+	var user User
+	if err := DB.First(&user, "username = ? AND is_active = ? AND (oidc_subject IS NULL OR oidc_subject = '')", username, true).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+// GetUserByEmailWithoutOIDC gets a user by email without an OIDC subject
+func GetUserByEmailWithoutOIDC(email string) (*User, error) {
+	var user User
+	if err := DB.First(&user, "email = ? AND is_active = ? AND (oidc_subject IS NULL OR oidc_subject = '')", email, true).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 // GetUserByEmail gets a user by email
 func GetUserByEmail(email string) (*User, error) {
 	var user User

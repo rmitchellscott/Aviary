@@ -79,12 +79,20 @@ ghcr.io/rmitchellscott/aviary
 ### Multi-User Mode with SQLite
 
 ```shell
+# Option 1: Pre-create admin user
 docker run -d \
 -p 8000:8000 \
 -e MULTI_USER=true \
 -e AUTH_USERNAME=admin \
 -e AUTH_PASSWORD=secure-admin-password \
 -e ADMIN_EMAIL=admin@example.com \
+-v ./data:/data \
+ghcr.io/rmitchellscott/aviary
+
+# Option 2: Let first user become admin
+docker run -d \
+-p 8000:8000 \
+-e MULTI_USER=true \
 -v ./data:/data \
 ghcr.io/rmitchellscott/aviary
 ```
@@ -125,9 +133,9 @@ services:
       - "8000:8000"
     environment:
       MULTI_USER: "true"
-      AUTH_USERNAME: "${AUTH_USERNAME}"  # Initial admin user
-      AUTH_PASSWORD: "${AUTH_PASSWORD}"
-      ADMIN_EMAIL: "${ADMIN_EMAIL}"
+      AUTH_USERNAME: "${AUTH_USERNAME}"  # Optional: pre-create admin user
+      AUTH_PASSWORD: "${AUTH_PASSWORD}"  # Optional: pre-create admin user
+      ADMIN_EMAIL: "${ADMIN_EMAIL}"      # Optional: admin email
       # Optional SMTP for password resets:
       # SMTP_HOST: "${SMTP_HOST}"
       # SMTP_PORT: "${SMTP_PORT}"
@@ -150,9 +158,9 @@ services:
       - "8000:8000"
     environment:
       MULTI_USER: "true"
-      AUTH_USERNAME: "${AUTH_USERNAME}"
-      AUTH_PASSWORD: "${AUTH_PASSWORD}"
-      ADMIN_EMAIL: "${ADMIN_EMAIL}"
+      AUTH_USERNAME: "${AUTH_USERNAME}"  # Optional: pre-create admin user
+      AUTH_PASSWORD: "${AUTH_PASSWORD}"  # Optional: pre-create admin user
+      ADMIN_EMAIL: "${ADMIN_EMAIL}"      # Optional: admin email
       DB_TYPE: "postgres"
       DB_HOST: "postgres"
       DB_PORT: "5432"
