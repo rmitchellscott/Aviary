@@ -325,7 +325,8 @@
       "cover_page": "Kontrollerer om første side eller nåværende side brukes som forside ved opplasting av PDF-er",
       "pdf_conversion_device": "Velg din reMarkable enhetsmodell for optimal bilde-til-PDF konvertering. Denne innstillingen påvirker kun bildefiler (JPEG, PNG) som konverteres til PDF.",
       "page_resolution": "Sideoppøsning i BREDDExHØYDE format",
-      "page_dpi": "Punkter per tomme"
+      "page_dpi": "Punkter per tomme",
+      "default_directory": "Velg standardmappen hvor dokumentene dine vil bli lastet opp"
     },
     "status": {
       "active": "aktiv",

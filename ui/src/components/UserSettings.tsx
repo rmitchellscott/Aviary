@@ -559,7 +559,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                   <CardTitle>{t("settings.cards.profile_information")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="username">{t("settings.labels.username")}</Label>
                       <Input
@@ -581,16 +581,18 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                     </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="rmapi-host">{t("settings.labels.rmapi_host")}</Label>
-                    <Input
-                      id="rmapi-host"
-                      value={userRmapiHost}
-                      onChange={(e) => setUserRmapiHost(e.target.value)}
-                      placeholder={t('settings.placeholders.cloud_default')}
-                      className="mt-2"
-                    />
-                    <div className="mt-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label htmlFor="rmapi-host">{t("settings.labels.rmapi_host")}</Label>
+                      <Input
+                        id="rmapi-host"
+                        value={userRmapiHost}
+                        onChange={(e) => setUserRmapiHost(e.target.value)}
+                        placeholder={t('settings.placeholders.cloud_default')}
+                        className="mt-2"
+                      />
+                    </div>
+                    <div className="flex items-end">
                       {rmapiPaired ? (
                         <Button
                           variant="outline"
@@ -610,123 +612,123 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                     </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="default-rmdir">{t("settings.labels.default_directory")}</Label>
-                    <Select 
-                      value={defaultRmdir} 
-                      onValueChange={setDefaultRmdir}
-                      disabled={!rmapiPaired}
-                    >
-                      <SelectTrigger id="default-rmdir" className="mt-2">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="/">
-                          /
-                        </SelectItem>
-                        {!rmapiPaired && (
-                          <SelectItem value="not-paired" disabled>
-                            {t("settings.messages.pair_to_load_folders")}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <Label htmlFor="default-rmdir">{t("settings.labels.default_directory")}</Label>
+                      <Select 
+                        value={defaultRmdir} 
+                        onValueChange={setDefaultRmdir}
+                        disabled={!rmapiPaired}
+                      >
+                        <SelectTrigger id="default-rmdir" className="mt-2">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="/">
+                            /
                           </SelectItem>
-                        )}
-                        {rmapiPaired && foldersLoading && (
-                          <SelectItem value="loading" disabled>
-                            {t('settings.loading_states.loading')}
-                          </SelectItem>
-                        )}
-                        {rmapiPaired && folders.map((f) => (
-                          <SelectItem key={f} value={f}>
-                            {f}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {!rmapiPaired && (
+                          {!rmapiPaired && (
+                            <SelectItem value="not-paired" disabled>
+                              {t("settings.messages.pair_to_load_folders")}
+                            </SelectItem>
+                          )}
+                          {rmapiPaired && foldersLoading && (
+                            <SelectItem value="loading" disabled>
+                              {t('settings.loading_states.loading')}
+                            </SelectItem>
+                          )}
+                          {rmapiPaired && folders.map((f) => (
+                            <SelectItem key={f} value={f}>
+                              {f}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {t("settings.messages.pair_help")}
+                        {!rmapiPaired ? t("settings.messages.pair_help") : t("settings.help.default_directory")}
                       </p>
-                    )}
-                  </div>
+                    </div>
 
-                  <div>
-                    <Label htmlFor="coverpage-setting">{t("settings.labels.cover_page")}</Label>
-                    <Select 
-                      value={coverpageSetting} 
-                      onValueChange={setCoverpageSetting}
-                    >
-                      <SelectTrigger id="coverpage-setting" className="mt-2">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="current">
-                          {t("settings.options.cover_current")}
-                        </SelectItem>
-                        <SelectItem value="first">
-                          {t("settings.options.cover_first")}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {t("settings.help.cover_page")}
-                    </p>
-                  </div>
+                    <div>
+                      <Label htmlFor="coverpage-setting">{t("settings.labels.cover_page")}</Label>
+                      <Select 
+                        value={coverpageSetting} 
+                        onValueChange={setCoverpageSetting}
+                      >
+                        <SelectTrigger id="coverpage-setting" className="mt-2">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="current">
+                            {t("settings.options.cover_current")}
+                          </SelectItem>
+                          <SelectItem value="first">
+                            {t("settings.options.cover_first")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {t("settings.help.cover_page")}
+                      </p>
+                    </div>
 
-                  <div>
-                    <Label htmlFor="device-preset">{t("settings.labels.pdf_conversion_device")}</Label>
-                    <Select 
-                      value={devicePreset} 
-                      onValueChange={setDevicePreset}
-                    >
-                      <SelectTrigger id="device-preset" className="mt-2">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="remarkable_1_2">
-                          reMarkable 1 & 2
-                        </SelectItem>
-                        <SelectItem value="remarkable_paper_pro">
-                          reMarkable Paper Pro
-                        </SelectItem>
-                        <SelectItem value="manual">
-                          {t("settings.options.manual")}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {t("settings.help.pdf_conversion_device")}
-                    </p>
-                    
-                    {devicePreset === "manual" && (
-                      <div className="mt-4 space-y-4 p-4 bg-muted/50 rounded-md border">
-                        <div>
-                          <Label htmlFor="manual-resolution">{t("settings.labels.page_resolution")}</Label>
-                          <Input
-                            id="manual-resolution"
-                            value={manualPageResolution}
-                            onChange={(e) => setManualPageResolution(e.target.value)}
-                            placeholder={t('settings.placeholders.page_resolution')}
-                            className="mt-2"
-                          />
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {t("settings.help.page_resolution")}
-                          </p>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="device-preset">{t("settings.labels.pdf_conversion_device")}</Label>
+                      <Select 
+                        value={devicePreset} 
+                        onValueChange={setDevicePreset}
+                      >
+                        <SelectTrigger id="device-preset" className="mt-2">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="remarkable_1_2">
+                            reMarkable 1 & 2
+                          </SelectItem>
+                          <SelectItem value="remarkable_paper_pro">
+                            reMarkable Paper Pro
+                          </SelectItem>
+                          <SelectItem value="manual">
+                            {t("settings.options.manual")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {t("settings.help.pdf_conversion_device")}
+                      </p>
+                      
+                      {devicePreset === "manual" && (
+                        <div className="mt-4 space-y-4 p-4 bg-muted/50 rounded-md border">
+                          <div>
+                            <Label htmlFor="manual-resolution">{t("settings.labels.page_resolution")}</Label>
+                            <Input
+                              id="manual-resolution"
+                              value={manualPageResolution}
+                              onChange={(e) => setManualPageResolution(e.target.value)}
+                              placeholder={t('settings.placeholders.page_resolution')}
+                              className="mt-2"
+                            />
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {t("settings.help.page_resolution")}
+                            </p>
+                          </div>
+                          <div>
+                            <Label htmlFor="manual-dpi">{t("settings.labels.page_dpi")}</Label>
+                            <Input
+                              id="manual-dpi"
+                              type="number"
+                              value={manualPageDPI}
+                              onChange={(e) => setManualPageDPI(e.target.value)}
+                              placeholder={t('settings.placeholders.page_dpi')}
+                              className="mt-2"
+                            />
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {t("settings.help.page_dpi")}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <Label htmlFor="manual-dpi">{t("settings.labels.page_dpi")}</Label>
-                          <Input
-                            id="manual-dpi"
-                            type="number"
-                            value={manualPageDPI}
-                            onChange={(e) => setManualPageDPI(e.target.value)}
-                            placeholder={t('settings.placeholders.page_dpi')}
-                            className="mt-2"
-                          />
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {t("settings.help.page_dpi")}
-                          </p>
-                        </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
 
                   <div className="flex justify-end">

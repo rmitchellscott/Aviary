@@ -325,7 +325,8 @@
       "cover_page": "PDF 업로드 시 첫 번째 페이지 또는 현재 페이지를 표지로 사용할지 제어",
       "pdf_conversion_device": "최적의 이미지-PDF 변환을 위해 reMarkable 디바이스 모델을 선택하세요. 이 설정은 PDF로 변환되는 이미지 파일(JPEG, PNG)에만 영향을 줍니다.",
       "page_resolution": "너비x높이 형식의 페이지 해상도",
-      "page_dpi": "인치당 도트 수"
+      "page_dpi": "인치당 도트 수",
+      "default_directory": "문서가 업로드될 기본 폴더를 선택하세요"
     },
     "status": {
       "active": "활성",

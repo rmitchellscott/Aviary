@@ -325,7 +325,8 @@
       "cover_page": "Ohjaa käytetäänkö ensimmäistä sivua vai nykyistä sivua kansikuvana PDF-tiedostoja ladattaessa",
       "pdf_conversion_device": "Valitse reMarkable-laitteesi malli optimaaliseen kuva-PDF-muunnokseen. Tämä asetus vaikuttaa vain kuvatiedostoihin (JPEG, PNG), jotka muunnetaan PDF:ksi.",
       "page_resolution": "Sivun resoluutio LEVEYSxKORKEUS muodossa",
-      "page_dpi": "Pistettä tuumaa kohti"
+      "page_dpi": "Pistettä tuumaa kohti",
+      "default_directory": "Valitse oletuskansio, johon asiakirjasi ladataan"
     },
     "status": {
       "active": "aktiivinen",
