@@ -120,6 +120,13 @@ func LoginHandler(c *gin.Context) {
 }
 
 func LogoutHandler(c *gin.Context) {
+	// If OIDC is enabled, delegate to OIDC logout handler
+	if IsOIDCEnabled() {
+		OIDCLogoutHandler(c)
+		return
+	}
+	
+	// Regular logout for non-OIDC sessions
 	secure := !allowInsecure()
 	c.SetSameSite(http.SameSiteStrictMode)
 	c.SetCookie("auth_token", "", -1, "/", "", secure, true)
