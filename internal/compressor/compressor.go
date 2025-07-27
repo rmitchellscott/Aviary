@@ -74,3 +74,24 @@ func CompressPDFWithProgress(path string, progress func(page, total int)) (strin
 	}
 	return out, nil
 }
+
+// GetPDFPageCount returns the number of pages in a PDF file using ghostscript
+func GetPDFPageCount(path string) (int, error) {
+	args := []string{
+		"gs", "-q", "-dNODISPLAY", "-dBATCH",
+		"-c", "(" + path + ") (r) file runpdfbegin pdfpagecount = quit",
+	}
+	cmd := ExecCommand(args[0], args[1:]...)
+	
+	output, err := cmd.Output()
+	if err != nil {
+		return 0, err
+	}
+	
+	var pageCount int
+	if _, err := fmt.Sscanf(string(output), "%d", &pageCount); err != nil {
+		return 0, err
+	}
+	
+	return pageCount, nil
+}

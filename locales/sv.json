@@ -468,7 +468,8 @@
       "compress_error": "Komprimeringsfel",
       "rename_error": "Namnbytesfel",
       "uploading": "Laddar upp till molnet",
-      "upload_success": "Ditt dokument är tillgängligt på din reMarkable på {{path}}"
+      "upload_success": "Ditt dokument är tillgängligt på din reMarkable på {{path}}",
+      "upload_success_multiple": "Dina dokument är tillgängliga på din reMarkable på:\n{{paths}}"
     },
     "errors": {
       "missing_url": "Saknad URL-parameter",

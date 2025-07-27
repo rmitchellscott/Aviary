@@ -468,7 +468,8 @@
       "compress_error": "Błąd kompresji",
       "rename_error": "Błąd zmiany nazwy",
       "uploading": "Przesyłanie do chmury",
-      "upload_success": "Twój dokument jest dostępny na twoim reMarkable w {{path}}"
+      "upload_success": "Twój dokument jest dostępny na twoim reMarkable w {{path}}",
+      "upload_success_multiple": "Twoje dokumenty są dostępne na twoim reMarkable w:\n{{paths}}"
     },
     "errors": {
       "missing_url": "Brakujący parametr URL",

@@ -468,7 +468,8 @@
       "compress_error": "圧縮エラー",
       "rename_error": "名前変更エラー",
       "uploading": "クラウドにアップロード中",
-      "upload_success": "ドキュメントはreMarkableの{{path}}で利用可能です"
+      "upload_success": "ドキュメントはreMarkableの{{path}}で利用可能です",
+      "upload_success_multiple": "ドキュメントはreMarkableの以下の場所で利用可能です:\n{{paths}}"
     },
     "errors": {
       "missing_url": "URLパラメータが不足しています",

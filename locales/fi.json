@@ -468,7 +468,8 @@
       "compress_error": "Pakkausvirhe",
       "rename_error": "Uudelleennimeämisvirhe",
       "uploading": "Ladataan pilveen",
-      "upload_success": "Asiakirjasi on saatavilla reMarkablessa polussa {{path}}"
+      "upload_success": "Asiakirjasi on saatavilla reMarkablessa polussa {{path}}",
+      "upload_success_multiple": "Asiakirjasi ovat saatavilla reMarkablessa:\n{{paths}}"
     },
     "errors": {
       "missing_url": "Puuttuva URL-parametri",

@@ -111,6 +111,7 @@ export default function HomePage() {
   const [committedUrl, setCommittedUrl] = useState<string>("");
   const [urlMime, setUrlMime] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [compress, setCompress] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [status, setStatus] = useState<string>("");
@@ -128,6 +129,12 @@ export default function HomePage() {
   const [pairingDialogOpen, setPairingDialogOpen] = useState(false);
 
   const isCompressibleFileOrUrl = useMemo(() => {
+    if (selectedFiles.length > 0) {
+      return selectedFiles.some(file => {
+        const lowerName = file.name.toLowerCase();
+        return COMPRESSIBLE_EXTS.some((ext) => lowerName.endsWith(ext));
+      });
+    }
     if (selectedFile) {
       const lowerName = selectedFile.name.toLowerCase();
       return COMPRESSIBLE_EXTS.some((ext) => lowerName.endsWith(ext));
@@ -163,7 +170,7 @@ export default function HomePage() {
       );
     }
     return true;
-  }, [selectedFile, committedUrl, urlMime]);
+  }, [selectedFile, selectedFiles, committedUrl, urlMime]);
 
   useEffect(() => {
     if (!isCompressibleFileOrUrl && compress) {
@@ -289,10 +296,20 @@ export default function HomePage() {
     setUploadProgress(0);
     setUploadPhase('idle');
 
-    if (selectedFile) {
+    if (selectedFile || selectedFiles.length > 0) {
       try {
         const formData = new FormData();
-        formData.append("file", selectedFile);
+        
+        if (selectedFiles.length > 0) {
+          // Multiple files
+          selectedFiles.forEach((file) => {
+            formData.append("files", file);
+          });
+        } else {
+          // Single file (legacy)
+          formData.append("file", selectedFile!);
+        }
+        
         formData.append("compress", compress ? "true" : "false");
         if (rmDir !== DEFAULT_RM_DIR) {
           formData.append("rm_dir", rmDir);
@@ -321,6 +338,7 @@ export default function HomePage() {
         setMessage(t(msg));
       } finally {
         setSelectedFile(null);
+        setSelectedFiles([]);
         setUrl("");
         setProgress(0);
         setUploadProgress(0);
@@ -396,6 +414,9 @@ export default function HomePage() {
                 if (selectedFile) {
                   setSelectedFile(null);
                 }
+                if (selectedFiles.length > 0) {
+                  setSelectedFiles([]);
+                }
                 setUrlMime(null);
               }}
               onBlur={async () => {
@@ -408,7 +429,7 @@ export default function HomePage() {
                 }
               }}
               placeholder={t("home.url_placeholder")}
-              disabled={!!selectedFile}
+              disabled={!!selectedFile || selectedFiles.length > 0}
             />
           </div>
 
@@ -423,12 +444,26 @@ export default function HomePage() {
                 if (url) {
                   setUrl("");
                 }
+                if (selectedFiles.length > 0) {
+                  setSelectedFiles([]);
+                }
+                setUrlMime(null);
+              }}
+              onFilesSelected={(files) => {
+                setSelectedFiles(files);
+                if (url) {
+                  setUrl("");
+                }
+                if (selectedFile) {
+                  setSelectedFile(null);
+                }
                 setUrlMime(null);
               }}
               onError={(msg) => {
                 setFileError(msg);
               }}
               disabled={!!url}
+              multiple={true}
             />
             {selectedFile && (
               <div className="mt-2 flex justify-between items-center">
@@ -443,6 +478,27 @@ export default function HomePage() {
                 >
                   {t("home.remove")}
                 </Button>
+              </div>
+            )}
+            {selectedFiles.length > 0 && (
+              <div className="mt-2 space-y-2">
+                {selectedFiles.map((file, index) => (
+                  <div key={index} className="flex justify-between items-center">
+                    <p className="text-sm text-foreground">
+                      <span className="font-medium">{file.name}</span>
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const newFiles = selectedFiles.filter((_, i) => i !== index);
+                        setSelectedFiles(newFiles);
+                      }}
+                    >
+                      {t("home.remove")}
+                    </Button>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -508,7 +564,7 @@ export default function HomePage() {
           <div className="flex justify-end">
             <Button
               onClick={!rmapiPaired ? () => setPairingDialogOpen(true) : handleSubmit}
-              disabled={loading || (!url && !selectedFile && rmapiPaired)}
+              disabled={loading || (!url && !selectedFile && selectedFiles.length === 0 && rmapiPaired)}
             >
               {loading ? t("home.sending") : !rmapiPaired ? t("home.pair") : t("home.send")}
             </Button>

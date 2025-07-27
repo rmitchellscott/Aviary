@@ -6,8 +6,10 @@ import { useTranslation } from 'react-i18next'
 
 interface FileDropzoneProps {
   onFileSelected: (file: File) => void
+  onFilesSelected: (files: File[]) => void
   disabled?: boolean
   onError?: (message: string) => void
+  multiple?: boolean
 }
 
 /**
@@ -22,8 +24,10 @@ interface FileDropzoneProps {
  */
 export function FileDropzone({
   onFileSelected,
+  onFilesSelected,
   disabled = false,
   onError,
+  multiple = false,
 }: FileDropzoneProps) {
   const { t } = useTranslation()
   const onDrop = useCallback(
@@ -37,17 +41,21 @@ export function FileDropzone({
         return
       }
 
-      // Otherwise, accept exactly the first file
+      // Otherwise, accept files based on multiple mode
       if (acceptedFiles.length > 0) {
-        onFileSelected(acceptedFiles[0])
+        if (multiple) {
+          onFilesSelected(acceptedFiles)
+        } else {
+          onFileSelected(acceptedFiles[0])
+        }
       }
     },
-    [onFileSelected, onError]
+    [onFileSelected, onFilesSelected, onError, multiple]
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    multiple: false,
+    multiple,
     disabled,
     accept: {
       'application/pdf': ['.pdf'],
@@ -102,7 +110,11 @@ export function FileDropzone({
         )
         
         if (isValidType || isValidExtension) {
-          onFileSelected(file)
+          if (multiple) {
+            onFilesSelected([file])
+          } else {
+            onFileSelected(file)
+          }
         } else if (onError) {
           onError(t('filedrop.invalid_type'))
         }
@@ -119,7 +131,7 @@ export function FileDropzone({
       window.removeEventListener('dragover', handleDragOver)
       window.removeEventListener('drop', handleDrop)
     }
-  }, [disabled, onFileSelected, onError, t])
+  }, [disabled, onFileSelected, onFilesSelected, onError, t, multiple])
 
   const active = isDragActive || windowDragActive
 

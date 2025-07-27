@@ -468,7 +468,8 @@
       "compress_error": "Compress error",
       "rename_error": "Rename error",
       "uploading": "Uploading to cloud",
-      "upload_success": "Your document is available on your reMarkable at {{path}}"
+      "upload_success": "Your document is available on your reMarkable at {{path}}",
+      "upload_success_multiple": "Your documents are available on your reMarkable at:\n{{paths}}"
     },
     "errors": {
       "missing_url": "Missing URL parameter",

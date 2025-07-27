@@ -468,7 +468,8 @@
       "compress_error": "Komprimeringsfejl",
       "rename_error": "Omdøbningsfejl",
       "uploading": "Uploader til cloud",
-      "upload_success": "Dit dokument er tilgængeligt på din reMarkable på {{path}}"
+      "upload_success": "Dit dokument er tilgængeligt på din reMarkable på {{path}}",
+      "upload_success_multiple": "Dine dokumenter er tilgængelige på din reMarkable på:\n{{paths}}"
     },
     "errors": {
       "missing_url": "Manglende URL-parameter",

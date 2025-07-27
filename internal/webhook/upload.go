@@ -1,6 +1,7 @@
 package webhook
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -25,22 +26,24 @@ func UploadHandler(c *gin.Context) {
 		return
 	}
 
-	// 2) Retrieve the *multipart.FileHeader for "file"
-	fileHeader, err := getFileHeader(c.Request, "file")
-	if err != nil {
-		c.String(http.StatusBadRequest, "backend.errors.get_file")
-		return
+	// 2) Retrieve file(s) - try "files" first for multiple, then "file" for single
+	var fileHeaders []*multipart.FileHeader
+	var err error
+	
+	// Try multiple files first
+	if files := c.Request.MultipartForm.File["files"]; len(files) > 0 {
+		fileHeaders = files
+	} else {
+		// Fall back to single file
+		fileHeader, err := getFileHeader(c.Request, "file")
+		if err != nil {
+			c.String(http.StatusBadRequest, "backend.errors.get_file")
+			return
+		}
+		fileHeaders = []*multipart.FileHeader{fileHeader}
 	}
 
-	// 3) Open the uploaded file
-	src, err := fileHeader.Open()
-	if err != nil {
-		c.String(http.StatusInternalServerError, "backend.errors.open_file")
-		return
-	}
-	defer src.Close()
-
-	// 4) Determine upload directory based on user context
+	// 3) Determine upload directory based on user context
 	var uploadDir string
 	var userID uuid.UUID
 	
@@ -64,43 +67,74 @@ func UploadHandler(c *gin.Context) {
 		}
 	}
 
-	// 5) Create destination file on disk
-	dstPath := filepath.Join(uploadDir, filepath.Base(fileHeader.Filename))
-	dstFile, err := os.Create(dstPath)
-	if err != nil {
-		c.String(http.StatusInternalServerError, "backend.errors.create_file")
-		return
-	}
-	defer dstFile.Close()
+	// 4) Process each file and save to disk
+	var savedPaths []string
+	for _, fileHeader := range fileHeaders {
+		// Open the uploaded file
+		src, err := fileHeader.Open()
+		if err != nil {
+			c.String(http.StatusInternalServerError, "backend.errors.open_file")
+			return
+		}
+		defer src.Close()
 
-	// 6) Copy the uploaded contents into the new file
-	if _, err := io.Copy(dstFile, src); err != nil {
-		c.String(http.StatusInternalServerError, "backend.errors.save_file")
-		return
+		// Create destination file on disk
+		dstPath := filepath.Join(uploadDir, filepath.Base(fileHeader.Filename))
+		dstFile, err := os.Create(dstPath)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "backend.errors.create_file")
+			return
+		}
+		defer dstFile.Close()
+
+		// Copy the uploaded contents into the new file
+		if _, err := io.Copy(dstFile, src); err != nil {
+			c.String(http.StatusInternalServerError, "backend.errors.save_file")
+			return
+		}
+		
+		savedPaths = append(savedPaths, dstPath)
 	}
 
-	// 7) Read additional form values (compress, manage, archive, rm_dir)
+	// 5) Read additional form values (compress, manage, archive, rm_dir)
 	compressVal := c.Request.FormValue("compress")
 	manageVal := c.Request.FormValue("manage")
 	archiveVal := c.Request.FormValue("archive")
 	rmDirVal := c.Request.FormValue("rm_dir")
 	prefixVal := c.Request.FormValue("prefix")
 
-	// 8) Build the same "form" map that EnqueueHandler would use,
-	//    but set Body = local path of the saved file (dstPath).
-	form := map[string]string{
-		"Body":     dstPath,
-		"prefix":   prefixVal,
-		"compress": compressVal,
-		"manage":   manageVal,
-		"archive":  archiveVal,
-		"rm_dir":   rmDirVal,
+	// 6) For multiple files, create a single job with all file paths
+	var jobId string
+	if len(savedPaths) == 1 {
+		// Single file - use existing logic
+		form := map[string]string{
+			"Body":     savedPaths[0],
+			"prefix":   prefixVal,
+			"compress": compressVal,
+			"manage":   manageVal,
+			"archive":  archiveVal,
+			"rm_dir":   rmDirVal,
+		}
+		jobId = enqueueJobForUser(form, userID)
+	} else {
+		// Multiple files - create job with JSON-encoded paths
+		pathsJSON, err := json.Marshal(savedPaths)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "backend.errors.internal_error")
+			return
+		}
+		form := map[string]string{
+			"Body":     fmt.Sprintf("files:%s", string(pathsJSON)),
+			"prefix":   prefixVal,
+			"compress": compressVal,
+			"manage":   manageVal,
+			"archive":  archiveVal,
+			"rm_dir":   rmDirVal,
+		}
+		jobId = enqueueJobForUser(form, userID)
 	}
 
-	// 9) Enqueue the job (enqueueJob is defined in handler.go)
-	jobId := enqueueJobForUser(form, userID)
-
-	// 10) Return the job ID so the client can poll /api/status/{jobId}
+	// 7) Return the job ID so the client can poll /api/status/{jobId}
 	c.JSON(http.StatusAccepted, gin.H{"jobId": jobId})
 }
 
