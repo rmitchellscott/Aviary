@@ -26,6 +26,14 @@ Backups are created through the Admin interface or via API calls. The system gen
 - **User configurations**: rmapi configs and settings
 - **Metadata**: Export information and compatibility data
 
+### Background Job Processing
+
+Aviary supports background backup processing:
+
+- **Background jobs**: Backups are processed as background jobs
+- **Job tracking**: Monitor backup progress through the admin interface
+- **Download when ready**: Completed backups can be downloaded from the jobs panel
+
 ### Backup Options
 
 When creating a backup via the Admin Panel, it will always be a full backup.
@@ -159,10 +167,12 @@ ls -la filesystem/configs/*/
 2. Navigate to Admin Panel → System Settings
 3. Click "Backup & Restore"
 4. Click "Create Backup"
+5. Monitor job progress in "Recent Jobs" section
+6. Download completed backups when ready
 
-**API Access**:
+**API Access - Background Job**:
 ```bash
-curl -X POST http://localhost:8000/api/admin/backup \
+curl -X POST http://localhost:8000/api/admin/backup-jobs \
   -H "Authorization: Bearer your-admin-api-key" \
   -d '{
     "includeDatabase": true,
@@ -173,38 +183,75 @@ curl -X POST http://localhost:8000/api/admin/backup \
 
 ## Restore Operations
 
-### Restoring from Backup
-When restoring via the Admin Panel, it will always be a full restore.
+### Enhanced Two-Step Restore Process
 
-Via the API, the restore process can:
-- **Full restore**: Complete system restoration (⚠️ destructive)
-- **Selective restore**: Specific users or data types
-- **Cross-platform**: Restore SQLite backup to PostgreSQL and vice versa
+Aviary uses a two-step restore process:
+
+1. **Upload Phase**: Upload and validate backup files
+2. **Restore Phase**: Confirm and execute restoration
+
+### Restore Workflow
+
+**Step 1: Upload Backup File**
+- Upload `.tar.gz` backup files through admin interface
+- Files are validated and stored temporarily (24-hour expiration)
+- Multiple files can be uploaded and managed
+- File metadata and compatibility are checked
+
+**Step 2: Confirm Restoration**
+- Select uploaded file from pending uploads
+- Configure restore options (overwrite settings, user selection)
+- Confirm and execute restoration process
+- Monitor progress through background job tracking
 
 ### Restore Options
 
 - **Overwrite Files**: Replace existing user files
 - **Overwrite Database**: Replace existing database content (⚠️ destructive)
 - **User Selection**: Restore specific users only
+- **Background Processing**: Large restores run as background jobs
 
 ### Restore Process
-
-**Admin Interface**:
-1. Navigate to Admin Panel → System Settings → Backup & Restore
-2. Click "Upload Backup File"
-3. Select your `.tar.gz` backup file
-5. Click "Restore Backup..." and confirm the operation
 
 > [!IMPORTANT]  
 > Restore operations are destructive. Always backup current data first.
 
+**Admin Interface**:
+1. Navigate to Admin Panel → System Settings → Backup & Restore
+2. Click "Upload Restore"
+3. Select and upload your `.tar.gz` backup file
+4. Wait for upload and validation to complete
+5. Click "Restore" on the uploaded file
+6. Confirm
+7. Monitor restoration progress in jobs panel
+
+**API Access - Upload**:
+```bash
+curl -X POST http://localhost:8000/api/admin/restore/upload \
+  -H "Authorization: Bearer your-admin-api-key" \
+  -F "backup_file=@backup.tar.gz"
+```
+
+**API Access - Restore**:
+```bash
+curl -X POST http://localhost:8000/api/admin/restore \
+  -H "Authorization: Bearer your-admin-api-key" \
+  -d '{
+    "upload_id": "uuid-from-upload",
+    "overwrite_files": true,
+    "overwrite_database": true,
+    "user_ids": []
+  }'
+```
+
 ### Restore Validation
 
-The system validates backups before restoration:
-- Checks backup file integrity
+The system validates backups during upload:
+- Checks backup file integrity and format
 - Validates metadata compatibility
 - Warns about version differences
 - Confirms database type compatibility
+- Analyzes backup contents before restoration
 
 ## Database Migration
 
@@ -239,13 +286,6 @@ To migrate from PostgreSQL to SQLite:
 3. **Restart Aviary** (creates new SQLite database)
 4. **Restore backup** through admin interface
 
-### Migration Considerations
-
-- **Downtime**: Plan for service interruption during migration
-- **Data validation**: Verify all data after migration
-- **Performance**: PostgreSQL recommended for production with large number of users
-- **Backup first**: Always backup before migration
-
 ## User Data Structure
 
 ### Multi-User Mode Data Layout
@@ -266,18 +306,8 @@ To migrate from PostgreSQL to SQLite:
 
 When enabling multi-user mode (`MULTI_USER=true`), Aviary automatically migrates:
 
-1. **Creates admin user** from `AUTH_USERNAME` and `AUTH_PASSWORD`
+1. **Creates admin user** from `AUTH_USERNAME` and `AUTH_PASSWORD` if present, or from the first user to login
 2. **Migrates rmapi config** from `/root/.config/rmapi/rmapi.conf`
 3. **Moves archived files** from `PDF_DIR` to admin user directory
 4. **Migrates API key** from `API_KEY` environment variable
 5. **Sets user preferences** based on environment variables
-
-### Migration Steps
-
-The migration process:
-1. Checks if users already exist (skips if found)
-2. Creates admin user with environment credentials
-3. Copies `/root/.config/rmapi/rmapi.conf` → `/data/users/{admin-id}/rmapi/`
-4. Moves files from `PDF_DIR` → `/data/users/{admin-id}/pdfs/`
-5. Creates API key record from `API_KEY` environment variable
-6. Sets user preferences (RMAPI_HOST, default directory, etc.)

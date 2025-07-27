@@ -146,6 +146,7 @@
       "test_smtp": "Testar SMTP",
       "create_backup": "Criar backup",
       "restore_backup": "Restaurar do backup",
+      "upload_restore": "Enviar restauração",
       "cancel": "Cancelar",
       "restore_database": "Restaurar banco de dados"
     },
@@ -202,6 +203,7 @@
       "current_sessions": "Sessões atuais não expiradas",
       "backup_description": "Cria um backup completo incluindo banco de dados e arquivos de usuário como arquivo .tar.gz",
       "restore_description": "Restaura banco de dados e arquivos de usuário do arquivo de backup (formato .tar.gz)",
+      "upload_restore_description": "Envie um arquivo de backup para restaurar posteriormente com confirmação",
       "restore_warning": "Aviso: A restauração substituirá completamente todos os dados atuais"
     },
     "badges": {
@@ -215,6 +217,7 @@
       "analyzing": "Analisando...",
       "resetting": "Redefinindo...",
       "restoring": "Restaurando...",
+      "uploading": "Enviando...",
       "loading": "Carregando..."
     },
     "dialogs": {
@@ -246,10 +249,47 @@
       "backup_analyze": "Falha ao analisar arquivo de backup: ",
       "backup_file_type": "Tipo de arquivo inválido. Selecione um arquivo de backup (.tar.gz ou .tgz). Arquivo selecionado: ",
       "restore_failed": "Falha ao restaurar banco de dados",
-      "restore_error": "Falha ao restaurar banco de dados: "
+      "restore_error": "Falha ao restaurar banco de dados: ",
+      "backup_download": "Falha ao baixar arquivo de backup"
     },
     "success": {
       "restore_complete": "Banco de dados restaurado com sucesso"
+    },
+    "backup": {
+      "create_backup": "Criar backup",
+      "creating_job": "Criando trabalho de backup...",
+      "backup": "Backup",
+      "download": "Baixar",
+      "delete_backup_title": "Excluir backup",
+      "delete_error": "Falha ao excluir backup",
+      "background_description": "Cria um backup em segundo plano que você pode baixar quando concluído",
+      "status": {
+        "pending": "Pendente",
+        "running": "Executando",
+        "completed": "Concluído",
+        "failed": "Falhou"
+      }
+    },
+    "restore": {
+      "create_restore": "Restaurar backup",
+      "creating_job": "Criando trabalho de restauração...",
+      "restore": "Restaurar",
+      "job_created": "Trabalho de restauração criado com sucesso. A restauração começará a processar em breve.",
+      "delete_error": "Falha ao excluir restauração",
+      "background_description": "Envia e restaura um backup em segundo plano com rastreamento de progresso",
+      "status": {
+        "pending": "Pendente",
+        "running": "Executando",
+        "completed": "Concluído",
+        "failed": "Falhou"
+      }
+    },
+    "jobs": {
+      "recent_jobs": "Trabalhos recentes",
+      "progress": "Progresso"
+    },
+    "messages": {
+      "backup_job_created": "Trabalho de backup criado com sucesso. Você poderá baixá-lo quando concluído."
     },
     "counts": {
       "users": "Usuários ({{count}})",

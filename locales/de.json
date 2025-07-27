@@ -146,6 +146,7 @@
       "test_smtp": "SMTP testen",
       "create_backup": "Backup erstellen",
       "restore_backup": "Aus Backup wiederherstellen",
+      "upload_restore": "Wiederherstellung hochladen",
       "cancel": "Abbrechen",
       "restore_database": "Datenbank wiederherstellen"
     },
@@ -202,6 +203,7 @@
       "current_sessions": "Aktuelle nicht abgelaufene Sitzungen",
       "backup_description": "Erstellt ein vollständiges Backup einschließlich Datenbank und Benutzerdateien als .tar.gz-Archiv",
       "restore_description": "Stellt Datenbank und Benutzerdateien aus einem Backup-Archiv (.tar.gz-Format) wieder her",
+      "upload_restore_description": "Backup-Datei für spätere Wiederherstellung mit Bestätigung hochladen",
       "restore_warning": "Warnung: Die Wiederherstellung überschreibt alle aktuellen Daten vollständig"
     },
     "badges": {
@@ -215,6 +217,7 @@
       "analyzing": "Analysiere...",
       "resetting": "Zurücksetzen...",
       "restoring": "Wiederherstellen...",
+      "uploading": "Hochladen...",
       "loading": "Laden..."
     },
     "dialogs": {
@@ -246,10 +249,47 @@
       "backup_analyze": "Backup-Datei-Analyse fehlgeschlagen: ",
       "backup_file_type": "Ungültiger Dateityp. Bitte wählen Sie ein Backup-Archiv (.tar.gz oder .tgz). Ausgewählte Datei: ",
       "restore_failed": "Datenbankwiederherstellung fehlgeschlagen",
-      "restore_error": "Datenbankwiederherstellung fehlgeschlagen: "
+      "restore_error": "Datenbankwiederherstellung fehlgeschlagen: ",
+      "backup_download": "Backup-Datei konnte nicht heruntergeladen werden"
     },
     "success": {
       "restore_complete": "Datenbank erfolgreich wiederhergestellt"
+    },
+    "backup": {
+      "create_backup": "Backup erstellen",
+      "creating_job": "Backup-Job wird erstellt...",
+      "backup": "Backup",
+      "download": "Herunterladen",
+      "delete_backup_title": "Backup löschen",
+      "delete_error": "Backup konnte nicht gelöscht werden",
+      "background_description": "Erstellt ein Backup im Hintergrund, das Sie nach Fertigstellung herunterladen können",
+      "status": {
+        "pending": "Wartend",
+        "running": "Läuft",
+        "completed": "Fertig",
+        "failed": "Fehlgeschlagen"
+      }
+    },
+    "restore": {
+      "create_restore": "Backup wiederherstellen",
+      "creating_job": "Wiederherstellungs-Job wird erstellt...",
+      "restore": "Wiederherstellen",
+      "job_created": "Wiederherstellungs-Job erfolgreich erstellt. Die Wiederherstellung wird in Kürze beginnen.",
+      "delete_error": "Wiederherstellung konnte nicht gelöscht werden",
+      "background_description": "Lädt ein Backup hoch und stellt es im Hintergrund mit Fortschrittsanzeige wieder her",
+      "status": {
+        "pending": "Wartend",
+        "running": "Läuft",
+        "completed": "Fertig",
+        "failed": "Fehlgeschlagen"
+      }
+    },
+    "jobs": {
+      "recent_jobs": "Aktuelle Jobs",
+      "progress": "Fortschritt"
+    },
+    "messages": {
+      "backup_job_created": "Backup-Job erfolgreich erstellt. Sie können es herunterladen, sobald es fertig ist."
     },
     "counts": {
       "users": "Benutzer ({{count}})",

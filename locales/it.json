@@ -146,6 +146,7 @@
       "test_smtp": "Testa SMTP",
       "create_backup": "Crea Backup",
       "restore_backup": "Ripristina da Backup",
+      "upload_restore": "Carica Ripristino",
       "cancel": "Annulla",
       "restore_database": "Ripristina Database"
     },
@@ -202,6 +203,7 @@
       "current_sessions": "Sessioni correnti non scadute",
       "backup_description": "Crea un backup completo inclusi database e file utente come archivio .tar.gz",
       "restore_description": "Ripristina database e file utente da archivio backup (formato .tar.gz)",
+      "upload_restore_description": "Carica un file di backup per ripristinare in seguito con conferma",
       "restore_warning": "Attenzione: Il ripristino sovrascriverà completamente tutti i dati correnti"
     },
     "badges": {
@@ -215,6 +217,7 @@
       "analyzing": "Analisi...",
       "resetting": "Reimpostazione...",
       "restoring": "Ripristino...",
+      "uploading": "Caricamento...",
       "loading": "Caricamento..."
     },
     "dialogs": {
@@ -246,10 +249,47 @@
       "backup_analyze": "Impossibile analizzare il file di backup: ",
       "backup_file_type": "Tipo di file non valido. Seleziona un archivio di backup (.tar.gz o .tgz). File selezionato: ",
       "restore_failed": "Impossibile ripristinare il database",
-      "restore_error": "Impossibile ripristinare il database: "
+      "restore_error": "Impossibile ripristinare il database: ",
+      "backup_download": "Download del file di backup non riuscito"
     },
     "success": {
       "restore_complete": "Database ripristinato con successo"
+    },
+    "backup": {
+      "create_backup": "Crea Backup",
+      "creating_job": "Creazione lavoro di backup...",
+      "backup": "Backup",
+      "download": "Scarica",
+      "delete_backup_title": "Elimina Backup",
+      "delete_error": "Eliminazione backup non riuscita",
+      "background_description": "Crea un backup in background che puoi scaricare una volta completato",
+      "status": {
+        "pending": "In attesa",
+        "running": "In esecuzione",
+        "completed": "Completato",
+        "failed": "Fallito"
+      }
+    },
+    "restore": {
+      "create_restore": "Ripristina Backup",
+      "creating_job": "Creazione lavoro di ripristino...",
+      "restore": "Ripristina",
+      "job_created": "Lavoro di ripristino creato con successo. Il ripristino inizierà l'elaborazione a breve.",
+      "delete_error": "Eliminazione ripristino non riuscita",
+      "background_description": "Carica e ripristina un backup in background con tracciamento del progresso",
+      "status": {
+        "pending": "In attesa",
+        "running": "In esecuzione",
+        "completed": "Completato",
+        "failed": "Fallito"
+      }
+    },
+    "jobs": {
+      "recent_jobs": "Lavori Recenti",
+      "progress": "Progresso"
+    },
+    "messages": {
+      "backup_job_created": "Lavoro di backup creato con successo. Potrai scaricarlo una volta completato."
     },
     "counts": {
       "users": "Utenti ({{count}})",

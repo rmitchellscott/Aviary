@@ -146,6 +146,7 @@
       "test_smtp": "Testuj SMTP",
       "create_backup": "Utwórz kopię zapasową",
       "restore_backup": "Przywróć z kopii zapasowej",
+      "upload_restore": "Prześlij przywracanie",
       "cancel": "Anuluj",
       "restore_database": "Przywróć bazę danych"
     },
@@ -202,6 +203,7 @@
       "current_sessions": "Bieżące nieważne sesje",
       "backup_description": "Tworzy kompletną kopię zapasową zawierającą bazę danych i pliki użytkowników jako archiwum .tar.gz",
       "restore_description": "Przywraca bazę danych i pliki użytkowników z archiwum kopii zapasowej (format .tar.gz)",
+      "upload_restore_description": "Prześlij plik kopii zapasowej do późniejszego przywracania z potwierdzeniem",
       "restore_warning": "Ostrzeżenie: Przywracanie całkowicie nadpisze wszystkie bieżące dane"
     },
     "badges": {
@@ -215,6 +217,7 @@
       "analyzing": "Analiza...",
       "resetting": "Resetowanie...",
       "restoring": "Przywracanie...",
+      "uploading": "Przesyłanie...",
       "loading": "Ładowanie..."
     },
     "dialogs": {
@@ -246,10 +249,47 @@
       "backup_analyze": "Nie udało się przeanalizować pliku kopii zapasowej: ",
       "backup_file_type": "Nieprawidłowy typ pliku. Wybierz archiwum kopii zapasowej (.tar.gz lub .tgz). Wybrany plik: ",
       "restore_failed": "Nie udało się przywrócić bazy danych",
-      "restore_error": "Nie udało się przywrócić bazy danych: "
+      "restore_error": "Nie udało się przywrócić bazy danych: ",
+      "backup_download": "Nie udało się pobrać pliku kopii zapasowej"
     },
     "success": {
       "restore_complete": "Baza danych przywrócona pomyślnie"
+    },
+    "backup": {
+      "create_backup": "Utwórz kopię zapasową",
+      "creating_job": "Tworzenie zadania kopii zapasowej...",
+      "backup": "Kopia zapasowa",
+      "download": "Pobierz",
+      "delete_backup_title": "Usuń kopię zapasową",
+      "delete_error": "Nie udało się usunąć kopii zapasowej",
+      "background_description": "Tworzy kopię zapasową w tle, którą można pobrać po zakończeniu",
+      "status": {
+        "pending": "Oczekujące",
+        "running": "Uruchomione",
+        "completed": "Gotowe",
+        "failed": "Nieudane"
+      }
+    },
+    "restore": {
+      "create_restore": "Przywróć kopię zapasową",
+      "creating_job": "Tworzenie zadania przywracania...",
+      "restore": "Przywróć",
+      "job_created": "Zadanie przywracania utworzone pomyślnie. Przywracanie rozpocznie się wkrótce.",
+      "delete_error": "Nie udało się usunąć przywracania",
+      "background_description": "Przesyła i przywraca kopię zapasową w tle ze śledzeniem postępu",
+      "status": {
+        "pending": "Oczekujące",
+        "running": "Uruchomione",
+        "completed": "Gotowe",
+        "failed": "Nieudane"
+      }
+    },
+    "jobs": {
+      "recent_jobs": "Ostatnie zadania",
+      "progress": "Postęp"
+    },
+    "messages": {
+      "backup_job_created": "Zadanie kopii zapasowej utworzone pomyślnie. Będzie można je pobrać po zakończeniu."
     },
     "counts": {
       "users": "Użytkownicy ({{count}})",

@@ -146,6 +146,7 @@
       "test_smtp": "Test SMTP",
       "create_backup": "Opprett sikkerhetskopi",
       "restore_backup": "Gjenopprett fra sikkerhetskopi",
+      "upload_restore": "Last opp gjenoppretting",
       "cancel": "Avbryt",
       "restore_database": "Gjenopprett database"
     },
@@ -202,6 +203,7 @@
       "current_sessions": "Nåværende ikke-utløpte økter",
       "backup_description": "Oppretter en komplett sikkerhetskopi inkludert database og brukerfiler som .tar.gz arkiv",
       "restore_description": "Gjenoppretter database og brukerfiler fra sikkerhetskopi arkiv (.tar.gz format)",
+      "upload_restore_description": "Last opp en sikkerhetskopi fil for senere gjenoppretting med bekreftelse",
       "restore_warning": "Advarsel: Gjenoppretting vil fullstendig overskrive alle nåværende data"
     },
     "badges": {
@@ -215,6 +217,7 @@
       "analyzing": "Analyserer...",
       "resetting": "Tilbakestiller...",
       "restoring": "Gjenoppretter...",
+      "uploading": "Laster opp...",
       "loading": "Laster..."
     },
     "dialogs": {
@@ -246,10 +249,47 @@
       "backup_analyze": "Kunne ikke analysere sikkerhetskopi fil: ",
       "backup_file_type": "Ugyldig filtype. Velg et sikkerhetskopi arkiv (.tar.gz eller .tgz). Valgt fil: ",
       "restore_failed": "Kunne ikke gjenopprette database",
-      "restore_error": "Kunne ikke gjenopprette database: "
+      "restore_error": "Kunne ikke gjenopprette database: ",
+      "backup_download": "Kunne ikke laste ned sikkerhetskopi fil"
     },
     "success": {
       "restore_complete": "Database gjenopprettet"
+    },
+    "backup": {
+      "create_backup": "Opprett sikkerhetskopi",
+      "creating_job": "Oppretter sikkerhetskopi jobb...",
+      "backup": "Sikkerhetskopi",
+      "download": "Last ned",
+      "delete_backup_title": "Slett sikkerhetskopi",
+      "delete_error": "Kunne ikke slette sikkerhetskopi",
+      "background_description": "Oppretter en sikkerhetskopi i bakgrunnen som du kan laste ned når den er ferdig",
+      "status": {
+        "pending": "Venter",
+        "running": "Kjører",
+        "completed": "Ferdig",
+        "failed": "Mislyktes"
+      }
+    },
+    "restore": {
+      "create_restore": "Gjenopprett sikkerhetskopi",
+      "creating_job": "Oppretter gjenopprettings jobb...",
+      "restore": "Gjenopprett",
+      "job_created": "Gjenopprettings jobb opprettet. Gjenopprettingen vil begynne behandling snart.",
+      "delete_error": "Kunne ikke slette gjenoppretting",
+      "background_description": "Laster opp og gjenoppretter en sikkerhetskopi i bakgrunnen med fremdriftsvisning",
+      "status": {
+        "pending": "Venter",
+        "running": "Kjører",
+        "completed": "Ferdig",
+        "failed": "Mislyktes"
+      }
+    },
+    "jobs": {
+      "recent_jobs": "Nylige jobber",
+      "progress": "Fremdrift"
+    },
+    "messages": {
+      "backup_job_created": "Sikkerhetskopi jobb opprettet. Du vil kunne laste den ned når den er ferdig."
     },
     "counts": {
       "users": "Brukere ({{count}})",

@@ -146,6 +146,7 @@
       "test_smtp": "SMTP 테스트",
       "create_backup": "백업 생성",
       "restore_backup": "백업에서 복원",
+      "upload_restore": "복원 업로드",
       "cancel": "취소",
       "restore_database": "데이터베이스 복원"
     },
@@ -202,6 +203,7 @@
       "current_sessions": "현재 만료되지 않은 세션",
       "backup_description": "데이터베이스와 사용자 파일을 포함한 완전한 백업을 .tar.gz 아카이브로 생성",
       "restore_description": "백업 아카이브 (.tar.gz 형식)에서 데이터베이스와 사용자 파일 복원",
+      "upload_restore_description": "확인과 함께 나중에 복원할 백업 파일 업로드",
       "restore_warning": "경고: 복원하면 모든 현재 데이터가 완전히 덮어쓰기됩니다"
     },
     "badges": {
@@ -215,6 +217,7 @@
       "analyzing": "분석 중...",
       "resetting": "재설정 중...",
       "restoring": "복원 중...",
+      "uploading": "업로드 중...",
       "loading": "로딩 중..."
     },
     "dialogs": {
@@ -246,10 +249,47 @@
       "backup_analyze": "백업 파일 분석 실패: ",
       "backup_file_type": "유효하지 않은 파일 유형. 백업 아카이브 (.tar.gz 또는 .tgz)를 선택하세요. 선택된 파일: ",
       "restore_failed": "데이터베이스 복원 실패",
-      "restore_error": "데이터베이스 복원 실패: "
+      "restore_error": "데이터베이스 복원 실패: ",
+      "backup_download": "백업 파일 다운로드 실패"
     },
     "success": {
       "restore_complete": "데이터베이스가 성공적으로 복원되었습니다"
+    },
+    "backup": {
+      "create_backup": "백업 생성",
+      "creating_job": "백업 작업 생성 중...",
+      "backup": "백업",
+      "download": "다운로드",
+      "delete_backup_title": "백업 삭제",
+      "delete_error": "백업 삭제 실패",
+      "background_description": "백그라운드에서 백업을 생성하고 완료되면 다운로드할 수 있습니다",
+      "status": {
+        "pending": "대기 중",
+        "running": "실행 중",
+        "completed": "완료",
+        "failed": "실패"
+      }
+    },
+    "restore": {
+      "create_restore": "백업 복원",
+      "creating_job": "복원 작업 생성 중...",
+      "restore": "복원",
+      "job_created": "복원 작업이 성공적으로 생성되었습니다. 복원이 곧 처리를 시작합니다.",
+      "delete_error": "복원 삭제 실패",
+      "background_description": "백그라운드에서 백업을 업로드하고 진행률을 추적하여 복원합니다",
+      "status": {
+        "pending": "대기 중",
+        "running": "실행 중",
+        "completed": "완료",
+        "failed": "실패"
+      }
+    },
+    "jobs": {
+      "recent_jobs": "최근 작업",
+      "progress": "진행률"
+    },
+    "messages": {
+      "backup_job_created": "백업 작업이 성공적으로 생성되었습니다. 완료되면 다운로드할 수 있습니다."
     },
     "counts": {
       "users": "사용자 ({{count}})",

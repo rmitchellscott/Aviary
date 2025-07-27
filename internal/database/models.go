@@ -178,6 +178,58 @@ func (l *LoginAttempt) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+// BackupJob represents a background backup operation
+type BackupJob struct {
+	ID            uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	AdminUserID   uuid.UUID `gorm:"type:uuid;not null;index" json:"admin_user_id"`
+	Status        string    `gorm:"size:50;not null;default:pending" json:"status"`
+	Progress      int       `gorm:"default:0" json:"progress"`
+	IncludeFiles  bool      `gorm:"default:true" json:"include_files"`
+	IncludeConfigs bool     `gorm:"default:true" json:"include_configs"`
+	UserIDs       string    `gorm:"type:text" json:"user_ids,omitempty"`
+	FilePath      string    `gorm:"size:1000" json:"file_path,omitempty"`
+	Filename      string    `gorm:"size:255" json:"filename,omitempty"`
+	FileSize      int64     `json:"file_size,omitempty"`
+	ErrorMessage  string    `gorm:"type:text" json:"error_message,omitempty"`
+	StartedAt     *time.Time `json:"started_at,omitempty"`
+	CompletedAt   *time.Time `json:"completed_at,omitempty"`
+	ExpiresAt     *time.Time `json:"expires_at,omitempty"`
+	CreatedAt     time.Time  `json:"created_at"`
+	
+	// Association
+	AdminUser User `gorm:"foreignKey:AdminUserID;constraint:OnDelete:CASCADE" json:"-"`
+}
+
+// RestoreUpload represents an uploaded restore file waiting for confirmation
+type RestoreUpload struct {
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	AdminUserID uuid.UUID `gorm:"type:uuid;not null;index" json:"admin_user_id"`
+	Filename    string    `gorm:"size:255;not null" json:"filename"`
+	FilePath    string    `gorm:"size:1000;not null" json:"file_path"`
+	FileSize    int64     `json:"file_size"`
+	Status      string    `gorm:"size:50;not null;default:uploaded" json:"status"`
+	ExpiresAt   time.Time `gorm:"not null" json:"expires_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	
+	// Association
+	AdminUser User `gorm:"foreignKey:AdminUserID;constraint:OnDelete:CASCADE" json:"-"`
+}
+
+func (b *BackupJob) BeforeCreate(tx *gorm.DB) error {
+	if b.ID == uuid.Nil {
+		b.ID = uuid.New()
+	}
+	return nil
+}
+
+func (r *RestoreUpload) BeforeCreate(tx *gorm.DB) error {
+	if r.ID == uuid.Nil {
+		r.ID = uuid.New()
+	}
+	return nil
+}
+
+
 // GetAllModels returns all models for auto-migration
 func GetAllModels() []interface{} {
 	return []interface{}{
@@ -188,5 +240,7 @@ func GetAllModels() []interface{} {
 		&Document{},
 		&SystemSetting{},
 		&LoginAttempt{},
+		&BackupJob{},
+		&RestoreUpload{},
 	}
 }

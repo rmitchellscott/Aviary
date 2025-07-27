@@ -145,7 +145,8 @@
       "create_user": "Create User",
       "test_smtp": "Test SMTP",
       "create_backup": "Create Backup",
-      "restore_backup": "Restore from Backup",
+      "restore_backup": "Restore Backup", 
+      "upload_restore": "Upload Restore",
       "cancel": "Cancel",
       "restore_database": "Restore Database"
     },
@@ -202,6 +203,7 @@
       "current_sessions": "Current unexpired sessions",
       "backup_description": "Creates a complete backup including database and user files as a .tar.gz archive",
       "restore_description": "Restores database and user files from backup archive (.tar.gz format)",
+      "upload_restore_description": "Upload a backup file to restore later with confirmation",
       "restore_warning": "Warning: Restoring will completely overwrite all current data"
     },
     "badges": {
@@ -215,6 +217,7 @@
       "analyzing": "Analyzing...",
       "resetting": "Resetting...",
       "restoring": "Restoring...",
+      "uploading": "Uploading...",
       "loading": "Loading..."
     },
     "dialogs": {
@@ -246,10 +249,47 @@
       "backup_analyze": "Failed to analyze backup file: ",
       "backup_file_type": "Invalid file type. Please select a backup archive (.tar.gz or .tgz). Selected file: ",
       "restore_failed": "Failed to restore database",
-      "restore_error": "Failed to restore database: "
+      "restore_error": "Failed to restore database: ",
+      "backup_download": "Failed to download backup file"
     },
     "success": {
       "restore_complete": "Database restored successfully"
+    },
+    "backup": {
+      "create_backup": "Create Backup",
+      "creating_job": "Creating backup job...",
+      "backup": "Backup",
+      "download": "Download",
+      "delete_backup_title": "Delete Backup",
+      "delete_error": "Failed to delete backup",
+      "background_description": "Creates a backup in the background that you can download once complete",
+      "status": {
+        "pending": "Pending",
+        "running": "Running", 
+        "completed": "Done",
+        "failed": "Failed"
+      }
+    },
+    "restore": {
+      "create_restore": "Restore Backup",
+      "creating_job": "Creating restore job...",
+      "restore": "Restore", 
+      "job_created": "Restore job created successfully. The restore will begin processing shortly.",
+      "delete_error": "Failed to delete restore",
+      "background_description": "Uploads and restores a backup in the background with progress tracking",
+      "status": {
+        "pending": "Pending",
+        "running": "Running",
+        "completed": "Done", 
+        "failed": "Failed"
+      }
+    },
+    "jobs": {
+      "recent_jobs": "Recent Jobs",
+      "progress": "Progress"
+    },
+    "messages": {
+      "backup_job_created": "Backup job created successfully. You will be able to download it once complete."
     },
     "counts": {
       "users": "Users ({{count}})",

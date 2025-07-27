@@ -146,6 +146,7 @@
       "test_smtp": "Test SMTP",
       "create_backup": "Opret Backup",
       "restore_backup": "Gendan fra Backup",
+      "upload_restore": "Upload Gendan",
       "cancel": "Annuller",
       "restore_database": "Gendan Database"
     },
@@ -202,6 +203,7 @@
       "current_sessions": "Nuværende ikke-udløbne sessioner",
       "backup_description": "Opretter en komplet backup inklusive database og brugerfiler som .tar.gz arkiv",
       "restore_description": "Gendanner database og brugerfiler fra backup arkiv (.tar.gz format)",
+      "upload_restore_description": "Upload en backup fil til senere gendannelse med bekræftelse",
       "restore_warning": "Advarsel: Gendannelse vil fuldstændigt overskrive alle nuværende data"
     },
     "badges": {
@@ -215,6 +217,7 @@
       "analyzing": "Analyserer...",
       "resetting": "Nulstiller...",
       "restoring": "Gendanner...",
+      "uploading": "Uploader...",
       "loading": "Indlæser..."
     },
     "dialogs": {
@@ -246,10 +249,47 @@
       "backup_analyze": "Kunne ikke analysere backup fil: ",
       "backup_file_type": "Ugyldig filtype. Vælg venligst et backup arkiv (.tar.gz eller .tgz). Valgt fil: ",
       "restore_failed": "Kunne ikke gendanne database",
-      "restore_error": "Kunne ikke gendanne database: "
+      "restore_error": "Kunne ikke gendanne database: ",
+      "backup_download": "Kunne ikke downloade backup fil"
     },
     "success": {
       "restore_complete": "Database gendannet succesfuldt"
+    },
+    "backup": {
+      "create_backup": "Opret Backup",
+      "creating_job": "Opretter backup job...",
+      "backup": "Backup",
+      "download": "Download",
+      "delete_backup_title": "Slet Backup",
+      "delete_error": "Kunne ikke slette backup",
+      "background_description": "Opretter en backup i baggrunden som du kan downloade når den er færdig",
+      "status": {
+        "pending": "Afventer",
+        "running": "Kører",
+        "completed": "Færdig",
+        "failed": "Mislykkedes"
+      }
+    },
+    "restore": {
+      "create_restore": "Gendan Backup",
+      "creating_job": "Opretter gendannings job...",
+      "restore": "Gendan",
+      "job_created": "Gendannings job oprettet succesfuldt. Gendannelsen vil begynde behandling snart.",
+      "delete_error": "Kunne ikke slette gendannelse",
+      "background_description": "Uploader og gendanner en backup i baggrunden med fremskridtsvisning",
+      "status": {
+        "pending": "Afventer",
+        "running": "Kører",
+        "completed": "Færdig",
+        "failed": "Mislykkedes"
+      }
+    },
+    "jobs": {
+      "recent_jobs": "Seneste Jobs",
+      "progress": "Fremskridt"
+    },
+    "messages": {
+      "backup_job_created": "Backup job oprettet succesfuldt. Du vil kunne downloade den når den er færdig."
     },
     "counts": {
       "users": "Brugere ({{count}})",

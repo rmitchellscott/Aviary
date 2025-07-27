@@ -146,6 +146,7 @@
       "test_smtp": "Testaa SMTP",
       "create_backup": "Luo varmuuskopio",
       "restore_backup": "Palauta varmuuskopiosta",
+      "upload_restore": "Lataa Palautus",
       "cancel": "Peruuta",
       "restore_database": "Palauta tietokanta"
     },
@@ -202,6 +203,7 @@
       "current_sessions": "Nykyiset voimassa olevat istunnot",
       "backup_description": "Luo täydellinen varmuuskopio mukaan lukien tietokanta ja käyttäjätiedostot .tar.gz-arkistona",
       "restore_description": "Palauttaa tietokannan ja käyttäjätiedostot varmuuskopioarkistosta (.tar.gz-muoto)",
+      "upload_restore_description": "Lataa varmuuskopiotiedosto myöhempää palautusta varten vahvistuksella",
       "restore_warning": "Varoitus: Palautus korvaa täysin kaikki nykyiset tiedot"
     },
     "badges": {
@@ -215,6 +217,7 @@
       "analyzing": "Analysoidaan...",
       "resetting": "Nollataan...",
       "restoring": "Palautetaan...",
+      "uploading": "Ladataan...",
       "loading": "Ladataan..."
     },
     "dialogs": {
@@ -246,10 +249,47 @@
       "backup_analyze": "Varmuuskopiotiedoston analysointi epäonnistui: ",
       "backup_file_type": "Virheellinen tiedostotyyppi. Valitse varmuuskopioarkisto (.tar.gz tai .tgz). Valittu tiedosto: ",
       "restore_failed": "Tietokannan palautus epäonnistui",
-      "restore_error": "Tietokannan palautus epäonnistui: "
+      "restore_error": "Tietokannan palautus epäonnistui: ",
+      "backup_download": "Varmuuskopiotiedoston lataus epäonnistui"
     },
     "success": {
       "restore_complete": "Tietokanta palautettu onnistuneesti"
+    },
+    "backup": {
+      "create_backup": "Luo Varmuuskopio",
+      "creating_job": "Luodaan varmuuskopiotyötä...",
+      "backup": "Varmuuskopio",
+      "download": "Lataa",
+      "delete_backup_title": "Poista Varmuuskopio",
+      "delete_error": "Varmuuskopion poistaminen epäonnistui",
+      "background_description": "Luo varmuuskopion taustalla, jonka voit ladata kun se on valmis",
+      "status": {
+        "pending": "Odottaa",
+        "running": "Käynnissä",
+        "completed": "Valmis",
+        "failed": "Epäonnistui"
+      }
+    },
+    "restore": {
+      "create_restore": "Palauta Varmuuskopio",
+      "creating_job": "Luodaan palautustyötä...",
+      "restore": "Palauta",
+      "job_created": "Palautustyö luotu onnistuneesti. Palautus alkaa käsitellä pian.",
+      "delete_error": "Palautuksen poistaminen epäonnistui",
+      "background_description": "Lataa ja palauttaa varmuuskopion taustalla edistymisen seurannan kanssa",
+      "status": {
+        "pending": "Odottaa",
+        "running": "Käynnissä",
+        "completed": "Valmis",
+        "failed": "Epäonnistui"
+      }
+    },
+    "jobs": {
+      "recent_jobs": "Viimeaikaiset Työt",
+      "progress": "Edistyminen"
+    },
+    "messages": {
+      "backup_job_created": "Varmuuskopiotuö luotu onnistuneesti. Voit ladata sen kun se on valmis."
     },
     "counts": {
       "users": "Käyttäjät ({{count}})",
