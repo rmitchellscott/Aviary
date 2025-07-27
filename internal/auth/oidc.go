@@ -261,24 +261,23 @@ func OIDCCallbackHandler(c *gin.Context) {
 		username = claims.Subject
 	}
 
-
 	if username == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No suitable username claim found"})
 		return
 	}
 
 	// Handle user authentication based on mode
-        if database.IsMultiUserMode() {
-                if err := handleOIDCMultiUserAuth(c, username, claims.Email, claims.Name, claims.Subject); err != nil {
-                        if err.Error() == "account disabled" {
-                                c.JSON(http.StatusUnauthorized, gin.H{"error": "backend.auth.account_disabled"})
-                        } else {
-                                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-                        }
-                        return
-                }
-        } else {
-		if err := handleOIDCSingleUserAuth(c, username); err != nil {
+	if database.IsMultiUserMode() {
+		if err := handleOIDCMultiUserAuth(c, username, claims.Email, claims.Name, claims.Subject, claims.Groups, rawIDToken); err != nil {
+			if err.Error() == "account disabled" {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "backend.auth.account_disabled"})
+			} else {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			}
+			return
+		}
+	} else {
+		if err := handleOIDCSingleUserAuth(c, username, rawIDToken); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
@@ -286,7 +285,7 @@ func OIDCCallbackHandler(c *gin.Context) {
 }
 
 // handleOIDCMultiUserAuth handles OIDC authentication in multi-user mode
-func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject string) error {
+func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject string, groups []string, rawIDToken string) error {
 	var user *database.User
 	var err error
 
@@ -302,28 +301,28 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 					return fmt.Errorf("user not found and auto-creation disabled")
 				}
 
-			// Check if this would be the first user (for admin privileges)
-			var userCount int64
-			if err := database.DB.Model(&database.User{}).Count(&userCount).Error; err != nil {
-				return fmt.Errorf("failed to check user count: %w", err)
-			}
-			firstUser := userCount == 0
+				// Check if this would be the first user (for admin privileges)
+				var userCount int64
+				if err := database.DB.Model(&database.User{}).Count(&userCount).Error; err != nil {
+					return fmt.Errorf("failed to check user count: %w", err)
+				}
+				firstUser := userCount == 0
 
-			// Auto-create user using the existing CreateUser method
-			userService := database.NewUserService(database.DB)
-			user, err = userService.CreateUser(username, email, "", firstUser) // Empty password for OIDC users
-			if err != nil {
-				return fmt.Errorf("failed to create user: %w", err)
-			}
+				// Auto-create user using the existing CreateUser method
+				userService := database.NewUserService(database.DB)
+				user, err = userService.CreateUser(username, email, "", firstUser) // Empty password for OIDC users
+				if err != nil {
+					return fmt.Errorf("failed to create user: %w", err)
+				}
 
-			// If this is the first user, migrate single-user data asynchronously
-			if firstUser {
-				go func() {
-					if err := database.MigrateSingleUserData(user.ID); err != nil {
-						fmt.Printf("Warning: failed to migrate single-user data: %v\n", err)
-					}
-				}()
-			}
+				// If this is the first user, migrate single-user data asynchronously
+				if firstUser {
+					go func() {
+						if err := database.MigrateSingleUserData(user.ID); err != nil {
+							fmt.Printf("Warning: failed to migrate single-user data: %v\n", err)
+						}
+					}()
+				}
 			} else {
 				fmt.Printf("OIDC: Linked user %s via email\n", user.Username)
 				if err := database.DB.Model(user).Update("oidc_subject", subject).Error; err != nil {
@@ -383,6 +382,9 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("auth_token", tokenString, int(sessionTimeout.Seconds()), "/", "", secure, true)
 
+	// Store ID token for logout (in a separate cookie)
+	c.SetCookie("oidc_id_token", rawIDToken, int(sessionTimeout.Seconds()), "/", "", secure, true)
+
 	// Redirect to frontend
 	redirectURL := config.Get("OIDC_SUCCESS_REDIRECT_URL", "")
 	if redirectURL == "" {
@@ -393,7 +395,7 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 }
 
 // handleOIDCSingleUserAuth handles OIDC authentication in single-user mode
-func handleOIDCSingleUserAuth(c *gin.Context, username string) error {
+func handleOIDCSingleUserAuth(c *gin.Context, username string, rawIDToken string) error {
 	// In single-user mode, we create a JWT token for the authenticated user
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username":    username,
@@ -413,6 +415,9 @@ func handleOIDCSingleUserAuth(c *gin.Context, username string) error {
 	secure := !allowInsecure()
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("auth_token", tokenString, int(sessionTimeout.Seconds()), "/", "", secure, true)
+
+	// Store ID token for logout (in a separate cookie)
+	c.SetCookie("oidc_id_token", rawIDToken, int(sessionTimeout.Seconds()), "/", "", secure, true)
 
 	// Call post-pairing callback if set (folder cache refresh)
 	if GetPostPairingCallback() != nil {
@@ -453,6 +458,11 @@ func OIDCLogoutHandler(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("auth_token", "", -1, "/", "", secure, true)
 
+	// Get stored ID token for logout hint
+	idToken, _ := c.Cookie("oidc_id_token")
+	// Clear ID token cookie
+	c.SetCookie("oidc_id_token", "", -1, "/", "", secure, true)
+
 	// Check if OIDC end session endpoint is available
 	if oidcEnabled && oidcProvider != nil {
 		var providerClaims struct {
@@ -463,9 +473,21 @@ func OIDCLogoutHandler(c *gin.Context) {
 			// Redirect to OIDC provider logout
 			logoutURL := providerClaims.EndSessionEndpoint
 
+			// Build query parameters
+			params := url.Values{}
+
+			// Add ID token hint if available
+			if idToken != "" {
+				params.Add("id_token_hint", idToken)
+			}
+
 			// Add post logout redirect URI if configured
 			if postLogoutRedirect := config.Get("OIDC_POST_LOGOUT_REDIRECT_URL", ""); postLogoutRedirect != "" {
-				logoutURL += "?post_logout_redirect_uri=" + url.QueryEscape(postLogoutRedirect)
+				params.Add("post_logout_redirect_uri", postLogoutRedirect)
+			}
+
+			if len(params) > 0 {
+				logoutURL += "?" + params.Encode()
 			}
 
 			c.Redirect(http.StatusFound, logoutURL)
