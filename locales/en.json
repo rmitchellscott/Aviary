@@ -295,6 +295,9 @@
       "users": "Users ({{count}})",
       "all_api_keys": "All API Keys ({{count}})"
     },
+    "tooltips": {
+      "oidc_group_managed": "Roles managed via OIDC groups"
+    },
     "never": "Never"
   },
   "settings": {

@@ -295,6 +295,9 @@
       "users": "Usuários ({{count}})",
       "all_api_keys": "Todas as chaves API ({{count}})"
     },
+    "tooltips": {
+      "oidc_group_managed": "Funções gerenciadas via grupos OIDC"
+    },
     "never": "Nunca"
   },
   "settings": {
