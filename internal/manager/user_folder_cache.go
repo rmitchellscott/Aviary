@@ -95,12 +95,25 @@ func (s *UserFolderCacheService) GetUserFolders(userID uuid.UUID, force bool) ([
 	needsRefresh := len(userCache.folders) == 0 ||
 		time.Since(userCache.updated) > s.refreshInterval ||
 		force
+	cacheIsEmpty := len(userCache.folders) == 0
 	userCache.mu.RUnlock()
 
-	if needsRefresh {
-		return s.refreshUserFolders(userID, userCache, false) // UI refresh - no rate limiting
+	// If cache is completely empty, we must refresh synchronously (first time only)
+	if cacheIsEmpty {
+		return s.refreshUserFolders(userID, userCache, false)
 	}
 
+	// If cache exists but is stale, return stale data and refresh in background (like single-user)
+	if needsRefresh {
+		go func() {
+			_, err := s.refreshUserFolders(userID, userCache, true) // background refresh with rate limiting
+			if err != nil {
+				Logf("Background folder refresh failed for user %s: %v", userID, err)
+			}
+		}()
+	}
+
+	// Always return cached data immediately (like single-user)
 	userCache.mu.RLock()
 	defer userCache.mu.RUnlock()
 
@@ -112,51 +125,52 @@ func (s *UserFolderCacheService) GetUserFolders(userID uuid.UUID, force bool) ([
 
 // refreshUserFolders refreshes the folder cache for a specific user
 func (s *UserFolderCacheService) refreshUserFolders(userID uuid.UUID, userCache *userFolderCache, rateLimited bool) ([]string, error) {
+	// Check if another goroutine is already refreshing (without holding the lock long)
 	userCache.mu.Lock()
-	defer userCache.mu.Unlock()
-
-	// Check if another goroutine is already refreshing
 	if userCache.refreshing {
-		// Wait for the refresh to complete and return current folders
-		for userCache.refreshing {
-			userCache.mu.Unlock()
-			time.Sleep(100 * time.Millisecond)
-			userCache.mu.Lock()
-		}
+		// Return current data if another refresh is in progress
 		result := make([]string, len(userCache.folders))
 		copy(result, userCache.folders)
+		userCache.mu.Unlock()
 		return result, nil
 	}
-
 	userCache.refreshing = true
-	defer func() { userCache.refreshing = false }()
+	userCache.mu.Unlock()
+	
+	defer func() {
+		userCache.mu.Lock()
+		userCache.refreshing = false
+		userCache.mu.Unlock()
+	}()
 
-	// Get user information
+	// Get user information (outside of cache lock)
 	user, err := database.NewUserService(s.db).GetUserByID(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	// Apply rate limiting for background refreshes
+	// Apply rate limiting for background refreshes (outside of cache lock)
 	if rateLimited {
 		time.Sleep(s.rateLimitDelay)
 	}
 
-	// Get folders using user-specific configuration
+	// Get folders using user-specific configuration (outside of cache lock)
 	folders, err := s.listUserFolders(user)
 	if err != nil {
 		return nil, err
 	}
 
-	// Update cache
-	userCache.folders = folders
-	userCache.updated = time.Now()
-
-	// Save to database
+	// Save to database (outside of cache lock)
 	if err := s.saveFolderCacheToDatabase(userID, folders); err != nil {
 		Logf("Failed to save folder cache to database for user %s: %v", userID, err)
 		// Continue anyway, we have the data in memory
 	}
+
+	// Update cache (quick lock)
+	userCache.mu.Lock()
+	userCache.folders = folders
+	userCache.updated = time.Now()
+	userCache.mu.Unlock()
 
 	// Return a copy
 	result := make([]string, len(folders))
