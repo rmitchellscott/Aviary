@@ -240,17 +240,19 @@ func OIDCCallbackHandler(c *gin.Context) {
 
 	// Extract claims
 	var claims struct {
-		Email             string `json:"email"`
-		Name              string `json:"name"`
-		PreferredUsername string `json:"preferred_username"`
-		Subject           string `json:"sub"`
-		EmailVerified     bool   `json:"email_verified"`
+		Email             string   `json:"email"`
+		Name              string   `json:"name"`
+		PreferredUsername string   `json:"preferred_username"`
+		Subject           string   `json:"sub"`
+		EmailVerified     bool     `json:"email_verified"`
+		Groups            []string `json:"groups"`
 	}
 
 	if err := idToken.Claims(&claims); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to extract claims"})
 		return
 	}
+
 
 	// Determine username - prefer preferred_username, fallback to email, then subject
 	username := claims.PreferredUsername
@@ -308,15 +310,26 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 				}
 				firstUser := userCount == 0
 
+				// Determine admin status based on OIDC groups or first user
+				isAdmin := shouldBeAdminFromGroups(groups, firstUser)
+
+				// Check if this would be the first admin user
+				var adminCount int64
+				if err := database.DB.Model(&database.User{}).Where("is_admin = ?", true).Count(&adminCount).Error; err != nil {
+					return fmt.Errorf("failed to check admin count: %w", err)
+				}
+				firstAdminUser := adminCount == 0
+
 				// Auto-create user using the existing CreateUser method
 				userService := database.NewUserService(database.DB)
-				user, err = userService.CreateUser(username, email, "", firstUser) // Empty password for OIDC users
+				user, err = userService.CreateUser(username, email, "", isAdmin) // Empty password for OIDC users
 				if err != nil {
 					return fmt.Errorf("failed to create user: %w", err)
 				}
 
-				// If this is the first user, migrate single-user data asynchronously
-				if firstUser {
+				// If this is the first admin user, migrate single-user data asynchronously
+				if firstAdminUser && isAdmin {
+					fmt.Printf("First admin user created, migrating single-user data to user ID: %s\n", user.ID)
 					go func() {
 						if err := database.MigrateSingleUserData(user.ID); err != nil {
 							fmt.Printf("Warning: failed to migrate single-user data: %v\n", err)
@@ -347,10 +360,20 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 		updates["email"] = email
 	}
 
+	// Update admin status based on group membership
+	currentAdminStatus := shouldBeAdminFromGroups(groups, false)
+	if user.IsAdmin != currentAdminStatus {
+		updates["is_admin"] = currentAdminStatus
+	}
+
 	if len(updates) > 0 {
 		updates["updated_at"] = time.Now()
 		if err := database.DB.Model(user).Updates(updates).Error; err != nil {
 			return fmt.Errorf("failed to update user: %w", err)
+		}
+		// Refresh user object to reflect updates
+		if err := database.DB.First(user, user.ID).Error; err != nil {
+			return fmt.Errorf("failed to refresh user: %w", err)
 		}
 	}
 
@@ -497,4 +520,24 @@ func OIDCLogoutHandler(c *gin.Context) {
 
 	// Fallback to local logout
 	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func shouldBeAdminFromGroups(groups []string, isFirstUser bool) bool {
+	adminGroup := config.Get("OIDC_ADMIN_GROUP", "")
+	
+	if adminGroup == "" {
+		return isFirstUser
+	}
+	
+	for _, group := range groups {
+		if group == adminGroup {
+			return true
+		}
+	}
+	
+	return false
+}
+
+func IsOIDCGroupBasedAdminEnabled() bool {
+	return config.Get("OIDC_ADMIN_GROUP", "") != ""
 }

@@ -295,6 +295,9 @@
       "users": "Benutzer ({{count}})",
       "all_api_keys": "Alle API-Schlüssel ({{count}})"
     },
+    "tooltips": {
+      "oidc_group_managed": "Rollen werden über OIDC-Gruppen verwaltet"
+    },
     "never": "Nie"
   },
   "settings": {

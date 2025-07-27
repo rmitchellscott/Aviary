@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useUserData } from "@/hooks/useUserData";
+import { useConfig } from "@/hooks/useConfig";
 import { UserDeleteDialog } from "@/components/UserDeleteDialog";
 import {
   Dialog,
@@ -151,6 +152,7 @@ interface AdminPanelProps {
 export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const { t } = useTranslation();
   const { user: currentUser } = useUserData();
+  const { config } = useConfig();
   const [users, setUsers] = useState<User[]>([]);
   const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
@@ -1175,12 +1177,28 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           </TableCell>
                           <TableCell className="hidden md:table-cell">{user.email}</TableCell>
                           <TableCell className="hidden md:table-cell">
-                            <Badge
-                              variant={user.is_admin ? "default" : "secondary"}
-                              className="w-14 justify-center"
-                            >
-                              {user.is_admin ? t("admin.roles.admin") : t("admin.roles.user")}
-                            </Badge>
+                            {config?.oidcGroupBasedAdmin ? (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Badge
+                                    variant={user.is_admin ? "default" : "secondary"}
+                                    className="w-14 justify-center cursor-default"
+                                  >
+                                    {user.is_admin ? t("admin.roles.admin") : t("admin.roles.user")}
+                                  </Badge>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {t("admin.tooltips.oidc_group_managed")}
+                                </TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              <Badge
+                                variant={user.is_admin ? "default" : "secondary"}
+                                className="w-14 justify-center"
+                              >
+                                {user.is_admin ? t("admin.roles.admin") : t("admin.roles.user")}
+                              </Badge>
+                            )}
                           </TableCell>
                           <TableCell className="hidden md:table-cell">
                             {getUserStatusBadge(user)}
@@ -1211,16 +1229,18 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               </Button>
                               {!isCurrentUser(user) && (
                                 <>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() =>
-                                      toggleAdminStatus(user.id, !user.is_admin)
-                                    }
-                                    className="whitespace-nowrap"
-                                  >
-                                    {user.is_admin ? t("admin.actions.make_user") : t("admin.actions.make_admin")}
-                                  </Button>
+                                  {!config?.oidcGroupBasedAdmin && (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() =>
+                                        toggleAdminStatus(user.id, !user.is_admin)
+                                      }
+                                      className="whitespace-nowrap"
+                                    >
+                                      {user.is_admin ? t("admin.actions.make_user") : t("admin.actions.make_admin")}
+                                    </Button>
+                                  )}
                                   <Button
                                     size="sm"
                                     variant="outline"

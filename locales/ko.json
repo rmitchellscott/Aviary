@@ -295,6 +295,9 @@
       "users": "사용자 ({{count}})",
       "all_api_keys": "모든 API 키 ({{count}})"
     },
+    "tooltips": {
+      "oidc_group_managed": "역할은 OIDC 그룹을 통해 관리됩니다"
+    },
     "never": "없음"
   },
   "settings": {

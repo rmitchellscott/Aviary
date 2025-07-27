@@ -295,6 +295,9 @@
       "users": "Brukere ({{count}})",
       "all_api_keys": "Alle API-nøkler ({{count}})"
     },
+    "tooltips": {
+      "oidc_group_managed": "Roller administreres via OIDC-grupper"
+    },
     "never": "Aldri"
   },
   "settings": {

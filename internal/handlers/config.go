@@ -94,6 +94,7 @@ func ConfigHandler(c *gin.Context) {
 		"smtpConfigured":   smtpConfigured,
 		"oidcEnabled":      oidcEnabled,
 		"proxyAuthEnabled": proxyAuthEnabled,
+		"oidcGroupBasedAdmin": auth.IsOIDCGroupBasedAdminEnabled(),
 	}
 
 	// Add rmapi_paired for single-user mode only
