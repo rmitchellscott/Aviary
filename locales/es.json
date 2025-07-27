@@ -146,6 +146,7 @@
       "test_smtp": "Probar SMTP",
       "create_backup": "Crear Respaldo",
       "restore_backup": "Restaurar desde Respaldo",
+      "upload_restore": "Subir Restauración",
       "cancel": "Cancelar",
       "restore_database": "Restaurar Base de Datos"
     },
@@ -202,6 +203,7 @@
       "current_sessions": "Sesiones actuales no expiradas",
       "backup_description": "Crea un respaldo completo incluyendo base de datos y archivos de usuario como archivo .tar.gz",
       "restore_description": "Restaura base de datos y archivos de usuario desde archivo de respaldo (formato .tar.gz)",
+      "upload_restore_description": "Sube un archivo de respaldo para restaurar más tarde con confirmación",
       "restore_warning": "Advertencia: La restauración sobrescribirá completamente todos los datos actuales"
     },
     "badges": {
@@ -215,6 +217,7 @@
       "analyzing": "Analizando...",
       "resetting": "Restableciendo...",
       "restoring": "Restaurando...",
+      "uploading": "Subiendo...",
       "loading": "Cargando..."
     },
     "dialogs": {
@@ -246,10 +249,47 @@
     "backup_analyze": "Error al analizar archivo de respaldo: ",
     "backup_file_type": "Tipo de archivo inválido. Selecciona un archivo de respaldo (.tar.gz o .tgz). Archivo seleccionado: ",
     "restore_failed": "Error al restaurar base de datos",
-    "restore_error": "Error al restaurar base de datos: "
+    "restore_error": "Error al restaurar base de datos: ",
+      "backup_download": "Error al descargar archivo de respaldo"
     },
     "success": {
     "restore_complete": "Base de datos restaurada exitosamente"
+    },
+    "backup": {
+      "create_backup": "Crear Respaldo",
+      "creating_job": "Creando trabajo de respaldo...",
+      "backup": "Respaldo",
+      "download": "Descargar",
+      "delete_backup_title": "Eliminar Respaldo",
+      "delete_error": "Error al eliminar respaldo",
+      "background_description": "Crea un respaldo en segundo plano que puedes descargar una vez completado",
+      "status": {
+        "pending": "Pendiente",
+        "running": "Ejecutando",
+        "completed": "Completado",
+        "failed": "Fallido"
+      }
+    },
+    "restore": {
+      "create_restore": "Restaurar Respaldo",
+      "creating_job": "Creando trabajo de restauración...",
+      "restore": "Restaurar",
+      "job_created": "Trabajo de restauración creado exitosamente. La restauración comenzará a procesarse pronto.",
+      "delete_error": "Error al eliminar restauración",
+      "background_description": "Sube y restaura un respaldo en segundo plano con seguimiento de progreso",
+      "status": {
+        "pending": "Pendiente",
+        "running": "Ejecutando",
+        "completed": "Completado",
+        "failed": "Fallido"
+      }
+    },
+    "jobs": {
+      "recent_jobs": "Trabajos Recientes",
+      "progress": "Progreso"
+    },
+    "messages": {
+      "backup_job_created": "Trabajo de respaldo creado exitosamente. Podrás descargarlo una vez completado."
     },
     "counts": {
     "users": "Usuarios ({{count}})",

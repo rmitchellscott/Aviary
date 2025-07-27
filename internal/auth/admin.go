@@ -205,75 +205,6 @@ func CleanupDataHandler(c *gin.Context) {
 	})
 }
 
-// BackupDatabaseHandler initiates database backup (admin only)
-func BackupDatabaseHandler(c *gin.Context) {
-	if !database.IsMultiUserMode() {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Database backup not available in single-user mode"})
-		return
-	}
-
-	_, ok := RequireAdmin(c)
-	if !ok {
-		return
-	}
-
-	// Parse query parameters for export options
-	includeFiles := c.DefaultQuery("include_files", "true") == "true"
-	includeConfigs := c.DefaultQuery("include_configs", "true") == "true"
-	userIDsParam := c.Query("user_ids") // Comma-separated list of UUIDs
-
-	// Parse user IDs if specified
-	var userIDs []uuid.UUID
-	if userIDsParam != "" {
-		for _, idStr := range strings.Split(userIDsParam, ",") {
-			if id, err := uuid.Parse(strings.TrimSpace(idStr)); err == nil {
-				userIDs = append(userIDs, id)
-			}
-		}
-	}
-
-	// Generate backup filename with timestamp
-	timestamp := time.Now().Format("20060102_150405")
-	filename := fmt.Sprintf("aviary_backup_%s.tar.gz", timestamp)
-
-	// Create temporary backup file
-	tempDir := os.TempDir()
-	backupPath := filepath.Join(tempDir, filename)
-
-	// Create exporter
-	dataDir := config.Get("DATA_DIR", "")
-	if dataDir == "" {
-		dataDir = "/data"
-	}
-	exporter := export.NewExporter(database.DB, dataDir)
-
-	// Configure export options
-	exportOptions := export.ExportOptions{
-		IncludeDatabase: true,
-		IncludeFiles:    includeFiles,
-		IncludeConfigs:  includeConfigs,
-		UserIDs:         userIDs,
-	}
-
-	// Perform export
-	if err := exporter.Export(backupPath, exportOptions); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to create backup: " + err.Error(),
-		})
-		return
-	}
-
-	// Clean up backup file after download
-	defer os.Remove(backupPath)
-
-	// Set headers for download
-	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
-	c.Header("Content-Type", "application/gzip")
-	c.Header("Content-Description", "Aviary Backup")
-
-	// Stream file to client
-	c.File(backupPath)
-}
 
 // AnalyzeBackupHandler analyzes a backup file and returns metadata without restoring (admin only)
 func AnalyzeBackupHandler(c *gin.Context) {
@@ -353,25 +284,23 @@ func AnalyzeBackupHandler(c *gin.Context) {
 	})
 }
 
-// RestoreDatabaseHandler initiates database restore (admin only)
-func RestoreDatabaseHandler(c *gin.Context) {
+// UploadRestoreFileHandler uploads a restore file and returns upload ID (admin only)
+func UploadRestoreFileHandler(c *gin.Context) {
 	if !database.IsMultiUserMode() {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Database restore not available in single-user mode"})
 		return
 	}
 
-	_, ok := RequireAdmin(c)
+	user, ok := RequireAdmin(c)
 	if !ok {
 		return
 	}
 
-	// Parse multipart form
-	if err := c.Request.ParseMultipartForm(32 << 20); err != nil { // 32MB max
+	if err := c.Request.ParseMultipartForm(32 << 20); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse multipart form: " + err.Error()})
 		return
 	}
 
-	// Get uploaded file
 	file, header, err := c.Request.FormFile("backup_file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No backup file provided"})
@@ -379,22 +308,6 @@ func RestoreDatabaseHandler(c *gin.Context) {
 	}
 	defer file.Close()
 
-	// Parse import options
-	overwriteFiles := c.PostForm("overwrite_files") == "true"
-	overwriteDatabase := c.PostForm("overwrite_database") == "true"
-	userIDsParam := c.PostForm("user_ids") // Comma-separated list of UUIDs
-
-	// Parse user IDs if specified
-	var userIDs []uuid.UUID
-	if userIDsParam != "" {
-		for _, idStr := range strings.Split(userIDsParam, ",") {
-			if id, err := uuid.Parse(strings.TrimSpace(idStr)); err == nil {
-				userIDs = append(userIDs, id)
-			}
-		}
-	}
-
-	// Validate file type
 	filename := header.Filename
 	if !strings.HasSuffix(filename, ".tar.gz") && !strings.HasSuffix(filename, ".tgz") {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -403,41 +316,124 @@ func RestoreDatabaseHandler(c *gin.Context) {
 		return
 	}
 
-	// Create temporary file for upload
+	// Create database record
+	uploadID := uuid.New()
 	tempDir := os.TempDir()
-	tempFilePath := filepath.Join(tempDir, "restore_"+filename)
+	tempFilePath := filepath.Join(tempDir, "restore_"+uploadID.String()+"_"+filename)
 
 	tempFile, err := os.Create(tempFilePath)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create temporary file"})
 		return
 	}
-	defer os.Remove(tempFilePath)
 	defer tempFile.Close()
 
-	// Copy uploaded file to temp location
 	if _, err := io.Copy(tempFile, file); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save uploaded file"})
 		return
 	}
-	tempFile.Close()
 
-	// Create importer
+	// Get file size
+	fileInfo, err := tempFile.Stat()
+	if err != nil {
+		os.Remove(tempFilePath)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get file info"})
+		return
+	}
+
+	// Save to database
+	restoreUpload := database.RestoreUpload{
+		ID:          uploadID,
+		AdminUserID: user.ID,
+		Filename:    filename,
+		FilePath:    tempFilePath,
+		FileSize:    fileInfo.Size(),
+		Status:      "uploaded",
+		ExpiresAt:   time.Now().Add(24 * time.Hour), // Expire after 24 hours
+	}
+
+	if err := database.DB.Create(&restoreUpload).Error; err != nil {
+		os.Remove(tempFilePath)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save upload record"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"upload_id": uploadID,
+		"filename":  filename,
+		"status":    "uploaded",
+		"file_size": fileInfo.Size(),
+		"expires_at": restoreUpload.ExpiresAt,
+		"message":   "File uploaded successfully. Ready for restore.",
+	})
+}
+
+// RestoreDatabaseHandler initiates database restore from uploaded file (admin only)
+func RestoreDatabaseHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Database restore not available in single-user mode"})
+		return
+	}
+
+	user, ok := RequireAdmin(c)
+	if !ok {
+		return
+	}
+
+	var req struct {
+		UploadID          string   `json:"upload_id" binding:"required"`
+		OverwriteFiles    bool     `json:"overwrite_files"`
+		OverwriteDatabase bool     `json:"overwrite_database"`
+		UserIDs           []string `json:"user_ids"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+		return
+	}
+
+	// Find uploaded file in database
+	uploadID, err := uuid.Parse(req.UploadID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid upload ID"})
+		return
+	}
+
+	var restoreUpload database.RestoreUpload
+	if err := database.DB.Where("id = ? AND admin_user_id = ? AND status = ?", uploadID, user.ID, "uploaded").First(&restoreUpload).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Uploaded file not found or expired"})
+		return
+	}
+
+	// Check if file still exists
+	if _, err := os.Stat(restoreUpload.FilePath); os.IsNotExist(err) {
+		// Clean up database record
+		database.DB.Delete(&restoreUpload)
+		c.JSON(http.StatusNotFound, gin.H{"error": "Uploaded file not found or expired"})
+		return
+	}
+
+	// Parse user IDs
+	var userIDs []uuid.UUID
+	for _, idStr := range req.UserIDs {
+		if id, err := uuid.Parse(strings.TrimSpace(idStr)); err == nil {
+			userIDs = append(userIDs, id)
+		}
+	}
+
 	dataDir := config.Get("DATA_DIR", "")
 	if dataDir == "" {
 		dataDir = "/data"
 	}
 	importer := export.NewImporter(database.DB, dataDir)
 
-	// Configure import options
 	importOptions := export.ImportOptions{
-		OverwriteFiles:    overwriteFiles,
-		OverwriteDatabase: overwriteDatabase,
+		OverwriteFiles:    req.OverwriteFiles,
+		OverwriteDatabase: req.OverwriteDatabase,
 		UserIDs:           userIDs,
 	}
 
-	// Perform import
-	metadata, err := importer.Import(tempFilePath, importOptions)
+	metadata, err := importer.Import(restoreUpload.FilePath, importOptions)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to restore backup: " + err.Error(),
@@ -445,15 +441,86 @@ func RestoreDatabaseHandler(c *gin.Context) {
 		return
 	}
 
+	// Clean up the uploaded file and database record
+	os.Remove(restoreUpload.FilePath)
+	database.DB.Delete(&restoreUpload)
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": fmt.Sprintf("Backup restored successfully from %s", filename),
+		"message": fmt.Sprintf("Backup restored successfully from %s", restoreUpload.Filename),
 		"metadata": gin.H{
 			"aviary_version": metadata.AviaryVersion,
 			"database_type":  metadata.DatabaseType,
 			"users_restored": len(metadata.UsersExported),
 			"export_date":    metadata.ExportTimestamp.Format("2006-01-02 15:04:05"),
 		},
+	})
+}
+
+// GetRestoreUploadsHandler returns pending restore uploads for the admin user
+func GetRestoreUploadsHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Database restore not available in single-user mode"})
+		return
+	}
+
+	user, ok := RequireAdmin(c)
+	if !ok {
+		return
+	}
+
+	var uploads []database.RestoreUpload
+	if err := database.DB.Where("admin_user_id = ? AND status = ? AND expires_at > ?", user.ID, "uploaded", time.Now()).Find(&uploads).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to get restore uploads: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"uploads": uploads,
+	})
+}
+
+// DeleteRestoreUploadHandler deletes a restore upload and its file
+func DeleteRestoreUploadHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Database restore not available in single-user mode"})
+		return
+	}
+
+	user, ok := RequireAdmin(c)
+	if !ok {
+		return
+	}
+
+	uploadIDStr := c.Param("id")
+	uploadID, err := uuid.Parse(uploadIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid upload ID"})
+		return
+	}
+
+	var restoreUpload database.RestoreUpload
+	if err := database.DB.Where("id = ? AND admin_user_id = ?", uploadID, user.ID).First(&restoreUpload).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Restore upload not found"})
+		return
+	}
+
+	// Delete the file
+	if restoreUpload.FilePath != "" {
+		os.Remove(restoreUpload.FilePath)
+	}
+
+	// Delete the database record
+	if err := database.DB.Delete(&restoreUpload).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete restore upload"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Restore upload deleted successfully",
 	})
 }
 
@@ -634,3 +701,4 @@ func DeleteBackupJobHandler(c *gin.Context) {
 		"message": "Backup job deleted successfully",
 	})
 }
+

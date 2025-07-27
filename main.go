@@ -66,6 +66,7 @@ func main() {
 		backupWorker.Start()
 		defer backupWorker.Stop()
 		log.Println("Backup worker started")
+		
 	}
 
 	if err := auth.InitOIDC(); err != nil {
@@ -196,14 +197,16 @@ func main() {
 		admin.PUT("/settings", auth.UpdateSystemSettingHandler)  // PUT /api/admin/settings - update system setting
 		admin.POST("/test-smtp", auth.TestSMTPHandler)           // POST /api/admin/test-smtp - test SMTP config
 		admin.POST("/cleanup", auth.CleanupDataHandler)          // POST /api/admin/cleanup - cleanup old data
-		admin.POST("/backup", auth.BackupDatabaseHandler)        // POST /api/admin/backup - backup database
 		admin.POST("/backup/analyze", auth.AnalyzeBackupHandler) // POST /api/admin/backup/analyze - analyze backup file
-		admin.POST("/restore", auth.RestoreDatabaseHandler)      // POST /api/admin/restore - restore database
-		admin.POST("/backup-job", auth.CreateBackupJobHandler)   // POST /api/admin/backup-job - create background backup job
+			admin.POST("/backup-job", auth.CreateBackupJobHandler)   // POST /api/admin/backup-job - create background backup job
 		admin.GET("/backup-jobs", auth.GetBackupJobsHandler)     // GET /api/admin/backup-jobs - get backup jobs
 		admin.GET("/backup-job/:id", auth.GetBackupJobHandler)   // GET /api/admin/backup-job/:id - get backup job
 		admin.GET("/backup-job/:id/download", auth.DownloadBackupHandler) // GET /api/admin/backup-job/:id/download - download backup
 		admin.DELETE("/backup-job/:id", auth.DeleteBackupJobHandler)      // DELETE /api/admin/backup-job/:id - delete backup job
+		admin.POST("/restore/upload", auth.UploadRestoreFileHandler) // POST /api/admin/restore/upload - upload restore file
+		admin.GET("/restore/uploads", auth.GetRestoreUploadsHandler) // GET /api/admin/restore/uploads - get pending uploads
+		admin.DELETE("/restore/uploads/:id", auth.DeleteRestoreUploadHandler) // DELETE /api/admin/restore/uploads/:id - delete restore upload
+		admin.POST("/restore", auth.RestoreDatabaseHandler)      // POST /api/admin/restore - restore from backup
 	}
 
 	protected.POST("/webhook", webhook.EnqueueHandler)

@@ -98,14 +98,18 @@ Open http://localhost:8000 and pair with your reMarkable account.
 
 ## Data Management
 
-Aviary includes comprehensive backup and restore capabilities:
+Aviary includes comprehensive backup and restore capabilities.
 
+### Backup & Restore Features
 - **Complete system backups**: Database + user files + configurations
-- **Cross-database migration**: Migrate between SQLite and PostgreSQL
+- **Cross-database migration**: Migrate between SQLite and PostgreSQL  
+- **Large backup support**: Background job processing for large datasets
 
+### Migration & Data Safety
 When migrating from single-user to multi-user mode, Aviary automatically:
 - Creates admin user from environment variables
 - Migrates existing cloud pairing, archived PDF files, and API key
+- Runs schema migrations for new features
 
 See [Data Management](DATA_MANAGEMENT.md) for detailed backup and migration procedures.
 

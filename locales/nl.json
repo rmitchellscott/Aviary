@@ -146,6 +146,7 @@
       "test_smtp": "SMTP testen",
       "create_backup": "Backup maken",
       "restore_backup": "Herstellen van backup",
+      "upload_restore": "Upload Herstel",
       "cancel": "Annuleren",
       "restore_database": "Database herstellen"
     },
@@ -202,6 +203,7 @@
       "current_sessions": "Huidige niet-verlopen sessies",
       "backup_description": "Maakt een complete backup inclusief database en gebruikersbestanden als .tar.gz archief",
       "restore_description": "Herstelt database en gebruikersbestanden van backup archief (.tar.gz formaat)",
+      "upload_restore_description": "Upload een backup-bestand om later te herstellen met bevestiging",
       "restore_warning": "Waarschuwing: Herstellen zal alle huidige data volledig overschrijven"
     },
     "badges": {
@@ -215,6 +217,7 @@
       "analyzing": "Analyseren...",
       "resetting": "Resetten...",
       "restoring": "Herstellen...",
+      "uploading": "Uploaden...",
       "loading": "Laden..."
     },
     "dialogs": {
@@ -246,10 +249,47 @@
       "backup_analyze": "Kon backup bestand niet analyseren: ",
       "backup_file_type": "Ongeldig bestandstype. Selecteer een backup archief (.tar.gz of .tgz). Geselecteerd bestand: ",
       "restore_failed": "Kon database niet herstellen",
-      "restore_error": "Kon database niet herstellen: "
+      "restore_error": "Kon database niet herstellen: ",
+      "backup_download": "Download van backup-bestand mislukt"
     },
     "success": {
       "restore_complete": "Database succesvol hersteld"
+    },
+    "backup": {
+      "create_backup": "Backup Maken",
+      "creating_job": "Backup-taak maken...",
+      "backup": "Backup",
+      "download": "Downloaden",
+      "delete_backup_title": "Backup Verwijderen",
+      "delete_error": "Backup verwijderen mislukt",
+      "background_description": "Maakt een backup op de achtergrond die je kunt downloaden zodra deze klaar is",
+      "status": {
+        "pending": "Wachtend",
+        "running": "Actief",
+        "completed": "Voltooid",
+        "failed": "Mislukt"
+      }
+    },
+    "restore": {
+      "create_restore": "Backup Herstellen",
+      "creating_job": "Herstel-taak maken...",
+      "restore": "Herstellen",
+      "job_created": "Herstel-taak succesvol gemaakt. Het herstel zal binnenkort beginnen.",
+      "delete_error": "Herstel verwijderen mislukt",
+      "background_description": "Uploadt en herstelt een backup op de achtergrond met voortgangsregistratie",
+      "status": {
+        "pending": "Wachtend",
+        "running": "Actief",
+        "completed": "Voltooid",
+        "failed": "Mislukt"
+      }
+    },
+    "jobs": {
+      "recent_jobs": "Recente Taken",
+      "progress": "Voortgang"
+    },
+    "messages": {
+      "backup_job_created": "Backup-taak succesvol gemaakt. Je kunt deze downloaden zodra deze klaar is."
     },
     "counts": {
       "users": "Gebruikers ({{count}})",

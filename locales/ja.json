@@ -146,6 +146,7 @@
       "test_smtp": "SMTPテスト",
       "create_backup": "バックアップ作成",
       "restore_backup": "バックアップから復元",
+      "upload_restore": "復元アップロード",
       "cancel": "キャンセル",
       "restore_database": "データベース復元"
     },
@@ -202,6 +203,7 @@
       "current_sessions": "現在の有効なセッション",
       "backup_description": "データベースとユーザーファイルを含む完全なバックアップを.tar.gzアーカイブとして作成",
       "restore_description": "バックアップアーカイブ（.tar.gz形式）からデータベースとユーザーファイルを復元",
+      "upload_restore_description": "確認付きで後で復元するためのバックアップファイルをアップロード",
       "restore_warning": "警告：復元により現在のデータがすべて完全に上書きされます"
     },
     "badges": {
@@ -215,6 +217,7 @@
       "analyzing": "分析中...",
       "resetting": "リセット中...",
       "restoring": "復元中...",
+      "uploading": "アップロード中...",
       "loading": "読み込み中..."
     },
     "dialogs": {
@@ -246,10 +249,47 @@
       "backup_analyze": "バックアップファイルの分析に失敗しました: ",
       "backup_file_type": "無効なファイルタイプ。バックアップアーカイブ（.tar.gzまたは.tgz）を選択してください。選択されたファイル: ",
       "restore_failed": "データベースの復元に失敗しました",
-      "restore_error": "データベースの復元に失敗しました: "
+      "restore_error": "データベースの復元に失敗しました: ",
+      "backup_download": "バックアップファイルのダウンロードに失敗しました"
     },
     "success": {
       "restore_complete": "データベースが正常に復元されました"
+    },
+    "backup": {
+      "create_backup": "バックアップ作成",
+      "creating_job": "バックアップジョブを作成中...",
+      "backup": "バックアップ",
+      "download": "ダウンロード",
+      "delete_backup_title": "バックアップ削除",
+      "delete_error": "バックアップの削除に失敗しました",
+      "background_description": "バックグラウンドでバックアップを作成し、完了後にダウンロードできます",
+      "status": {
+        "pending": "待機中",
+        "running": "実行中",
+        "completed": "完了",
+        "failed": "失敗"
+      }
+    },
+    "restore": {
+      "create_restore": "バックアップ復元",
+      "creating_job": "復元ジョブを作成中...",
+      "restore": "復元",
+      "job_created": "復元ジョブが正常に作成されました。復元処理が間もなく開始されます。",
+      "delete_error": "復元の削除に失敗しました",
+      "background_description": "バックグラウンドでバックアップをアップロードし、進行状況を追跡して復元します",
+      "status": {
+        "pending": "待機中",
+        "running": "実行中",
+        "completed": "完了",
+        "failed": "失敗"
+      }
+    },
+    "jobs": {
+      "recent_jobs": "最近のジョブ",
+      "progress": "進行状況"
+    },
+    "messages": {
+      "backup_job_created": "バックアップジョブが正常に作成されました。完了後にダウンロードできます。"
     },
     "counts": {
       "users": "ユーザー（{{count}}）",

@@ -27,8 +27,9 @@ func MigrateToMultiUser() error {
 	}
 
 	if userCount > 0 {
-		log.Printf("Users already exist, skipping migration")
-		return nil
+		log.Printf("Users already exist, skipping user creation migration")
+		// Still run schema migrations even if users exist
+		return RunMigrations()
 	}
 
 	// Create admin user from environment variables
@@ -107,7 +108,8 @@ func MigrateToMultiUser() error {
 		log.Printf("Warning: failed to set coverpage setting for existing users: %v", err)
 	}
 
-	return nil
+	// Run schema migrations after user creation
+	return RunMigrations()
 }
 
 // MigrateSingleUserData migrates rmapi config and archived files to first admin user

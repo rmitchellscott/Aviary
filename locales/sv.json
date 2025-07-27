@@ -146,6 +146,7 @@
       "test_smtp": "Testa SMTP",
       "create_backup": "Skapa säkerhetskopia",
       "restore_backup": "Återställ från säkerhetskopia",
+      "upload_restore": "Ladda upp återställning",
       "cancel": "Avbryt",
       "restore_database": "Återställ databas"
     },
@@ -202,6 +203,7 @@
       "current_sessions": "Nuvarande ej utgångna sessioner",
       "backup_description": "Skapar en fullständig säkerhetskopia inklusive databas och användarfiler som ett .tar.gz-arkiv",
       "restore_description": "Återställer databas och användarfiler från säkerhetskopiearkiv (.tar.gz-format)",
+      "upload_restore_description": "Ladda upp en säkerhetskopia för att återställa senare med bekräftelse",
       "restore_warning": "Varning: Återställning kommer helt att skriva över all nuvarande data"
     },
     "badges": {
@@ -215,6 +217,7 @@
       "analyzing": "Analyserar...",
       "resetting": "Återställer...",
       "restoring": "Återställer...",
+      "uploading": "Laddar upp...",
       "loading": "Laddar..."
     },
     "dialogs": {
@@ -246,10 +249,47 @@
       "backup_analyze": "Misslyckades att analysera säkerhetskopia: ",
       "backup_file_type": "Ogiltig filtyp. Välj ett säkerhetskopiearkiv (.tar.gz eller .tgz). Vald fil: ",
       "restore_failed": "Misslyckades att återställa databas",
-      "restore_error": "Misslyckades att återställa databas: "
+      "restore_error": "Misslyckades att återställa databas: ",
+      "backup_download": "Misslyckades att ladda ner säkerhetskopia"
     },
     "success": {
       "restore_complete": "Databas återställd framgångsrikt"
+    },
+    "backup": {
+      "create_backup": "Skapa säkerhetskopia",
+      "creating_job": "Skapar säkerhetskopieringsjobb...",
+      "backup": "Säkerhetskopia",
+      "download": "Ladda ner",
+      "delete_backup_title": "Radera säkerhetskopia",
+      "delete_error": "Misslyckades att radera säkerhetskopia",
+      "background_description": "Skapar en säkerhetskopia i bakgrunden som du kan ladda ner när den är klar",
+      "status": {
+        "pending": "Väntande",
+        "running": "Körs",
+        "completed": "Klar",
+        "failed": "Misslyckades"
+      }
+    },
+    "restore": {
+      "create_restore": "Återställ säkerhetskopia",
+      "creating_job": "Skapar återställningsjobb...",
+      "restore": "Återställ",
+      "job_created": "Återställningsjobb skapat framgångsrikt. Återställningen kommer att börja bearbetas inom kort.",
+      "delete_error": "Misslyckades att radera återställning",
+      "background_description": "Laddar upp och återställer en säkerhetskopia i bakgrunden med förloppsövervakning",
+      "status": {
+        "pending": "Väntande",
+        "running": "Körs",
+        "completed": "Klar",
+        "failed": "Misslyckades"
+      }
+    },
+    "jobs": {
+      "recent_jobs": "Senaste jobb",
+      "progress": "Förlopp"
+    },
+    "messages": {
+      "backup_job_created": "Säkerhetskopieringsjobb skapat framgångsrikt. Du kommer att kunna ladda ner det när det är klart."
     },
     "counts": {
       "users": "Användare ({{count}})",

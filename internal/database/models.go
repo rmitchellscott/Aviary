@@ -197,7 +197,22 @@ type BackupJob struct {
 	CreatedAt     time.Time  `json:"created_at"`
 	
 	// Association
-	AdminUser User `gorm:"foreignKey:AdminUserID" json:"-"`
+	AdminUser User `gorm:"foreignKey:AdminUserID;constraint:OnDelete:CASCADE" json:"-"`
+}
+
+// RestoreUpload represents an uploaded restore file waiting for confirmation
+type RestoreUpload struct {
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	AdminUserID uuid.UUID `gorm:"type:uuid;not null;index" json:"admin_user_id"`
+	Filename    string    `gorm:"size:255;not null" json:"filename"`
+	FilePath    string    `gorm:"size:1000;not null" json:"file_path"`
+	FileSize    int64     `json:"file_size"`
+	Status      string    `gorm:"size:50;not null;default:uploaded" json:"status"`
+	ExpiresAt   time.Time `gorm:"not null" json:"expires_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	
+	// Association
+	AdminUser User `gorm:"foreignKey:AdminUserID;constraint:OnDelete:CASCADE" json:"-"`
 }
 
 func (b *BackupJob) BeforeCreate(tx *gorm.DB) error {
@@ -206,6 +221,14 @@ func (b *BackupJob) BeforeCreate(tx *gorm.DB) error {
 	}
 	return nil
 }
+
+func (r *RestoreUpload) BeforeCreate(tx *gorm.DB) error {
+	if r.ID == uuid.Nil {
+		r.ID = uuid.New()
+	}
+	return nil
+}
+
 
 // GetAllModels returns all models for auto-migration
 func GetAllModels() []interface{} {
@@ -218,5 +241,6 @@ func GetAllModels() []interface{} {
 		&SystemSetting{},
 		&LoginAttempt{},
 		&BackupJob{},
+		&RestoreUpload{},
 	}
 }

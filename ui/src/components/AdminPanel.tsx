@@ -103,6 +103,15 @@ interface BackupJob {
   created_at: string;
 }
 
+interface RestoreUpload {
+  id: string;
+  filename: string;
+  file_size: number;
+  status: string;
+  expires_at: string;
+  created_at: string;
+}
+
 interface SystemStatus {
   database: {
     total_users: number;
@@ -146,6 +155,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [backupJobs, setBackupJobs] = useState<BackupJob[]>([]);
+  const [restoreUploads, setRestoreUploads] = useState<RestoreUpload[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -187,8 +197,8 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [restoreConfirmDialog, setRestoreConfirmDialog] = useState<{
     isOpen: boolean;
-    file: File | null;
-  }>({ isOpen: false, file: null });
+    upload: RestoreUpload | null;
+  }>({ isOpen: false, upload: null });
   const [backupCounts, setBackupCounts] = useState<{
     users: number;
     api_keys: number;
@@ -201,12 +211,16 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       fetchUsers();
       fetchAPIKeys();
       fetchBackupJobs();
+      fetchRestoreUploads();
     }
   }, [isOpen]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isOpen && backupJobs.some(job => job.status === 'running' || job.status === 'pending')) {
+    const hasActiveJobs = 
+      backupJobs.some(job => job.status === 'running' || job.status === 'pending');
+      
+    if (isOpen && hasActiveJobs) {
       interval = setInterval(() => {
         fetchBackupJobs();
       }, 2000);
@@ -275,6 +289,21 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       }
     } catch (error) {
       console.error("Failed to fetch backup jobs:", error);
+    }
+  };
+
+  const fetchRestoreUploads = async () => {
+    try {
+      const response = await fetch("/api/admin/restore/uploads", {
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setRestoreUploads(data.uploads || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch restore uploads:", error);
     }
   };
 
@@ -505,47 +534,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     }
   };
 
-  const handleBackupDatabase = async () => {
-    try {
-      setSaving(true);
-      setError(null);
-
-      const response = await fetch("/api/admin/backup", {
-        method: "POST",
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        // Get filename from Content-Disposition header or create default
-        const contentDisposition = response.headers.get("Content-Disposition");
-        let filename = "database_backup.db";
-        if (contentDisposition) {
-          const matches = contentDisposition.match(/filename=([^;]+)/);
-          if (matches && matches[1]) {
-            filename = matches[1].replace(/"/g, "");
-          }
-        }
-
-        // Create blob and download
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || t("admin.errors.backup_create"));
-      }
-    } catch (error) {
-      setError(t("admin.errors.backup_create"));
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const handleDownloadBackup = async (jobId: string) => {
     try {
@@ -613,6 +601,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     }
   };
 
+
   const analyzeBackupFile = async (file: File) => {
     try {
       setSaving(true);
@@ -653,7 +642,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   ) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Validate file type - only check filename extension
       const fileName = file.name.toLowerCase();
       const isTarGz = fileName.endsWith('.tar.gz') || fileName.endsWith('.tgz');
       
@@ -663,39 +651,60 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         return;
       }
       
-      // Analyze the backup file first
-      const isValid = await analyzeBackupFile(file);
-      if (isValid) {
-        setRestoreConfirmDialog({ isOpen: true, file });
+      try {
+        setSaving(true);
+        setError(null);
+
+        const formData = new FormData();
+        formData.append("backup_file", file);
+
+        const response = await fetch("/api/admin/restore/upload", {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        });
+
+        if (response.ok) {
+          await fetchRestoreUploads();
+        } else {
+          const errorData = await response.json();
+          setError(errorData.error || t("admin.errors.restore_failed"));
+        }
+      } catch (error) {
+        setError(t("admin.errors.restore_failed"));
+      } finally {
+        setSaving(false);
       }
     }
-    // Reset input value so same file can be selected again
     event.target.value = "";
   };
 
   const confirmDatabaseRestore = async () => {
-    const file = restoreConfirmDialog.file;
-    if (!file) return;
+    const upload = restoreConfirmDialog.upload;
+    if (!upload) return;
 
     try {
       setSaving(true);
       setError(null);
       setSuccessMessage(null);
 
-      const formData = new FormData();
-      formData.append("backup_file", file);
-      formData.append("overwrite_files", "true");
-      formData.append("overwrite_database", "true");
-
       const response = await fetch("/api/admin/restore", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         credentials: "include",
-        body: formData,
+        body: JSON.stringify({
+          upload_id: upload.id,
+          overwrite_files: true,
+          overwrite_database: true,
+          user_ids: []
+        }),
       });
 
       const result = await response.json();
       if (response.ok) {
-        setRestoreConfirmDialog({ isOpen: false, file: null });
+        setRestoreConfirmDialog({ isOpen: false, upload: null });
         setError(null);
         let message = result.message || "Database restored successfully";
         if (result.metadata) {
@@ -706,6 +715,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         await fetchSystemStatus();
         await fetchUsers();
         await fetchAPIKeys();
+        await fetchRestoreUploads();
       } else {
         setError(result.error || t("admin.errors.restore_failed"));
       }
@@ -716,9 +726,35 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     }
   };
 
+  const handleRestoreUpload = async (upload: RestoreUpload) => {
+    setRestoreConfirmDialog({ isOpen: true, upload });
+  };
+
   const closeRestoreConfirmDialog = () => {
-    setRestoreConfirmDialog({ isOpen: false, file: null });
+    setRestoreConfirmDialog({ isOpen: false, upload: null });
     setBackupCounts(null);
+  };
+
+  const cancelRestoreUpload = async () => {
+    const upload = restoreConfirmDialog.upload;
+    if (!upload) return;
+
+    try {
+      const response = await fetch(`/api/admin/restore/uploads/${upload.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        await fetchRestoreUploads();
+        closeRestoreConfirmDialog();
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Failed to cancel restore");
+      }
+    } catch (error) {
+      setError("Failed to cancel restore");
+    }
   };
 
 
@@ -773,6 +809,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         return t("admin.status.unknown");
     }
   };
+
 
   const getBackupStatusButton = (job: BackupJob) => {
     if (job.status === "completed") {
@@ -1383,80 +1420,84 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       <Database className="h-4 w-4 mr-2" />
                       {saving ? t("admin.backup.creating_job") : t("admin.backup.create_backup")}
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      onClick={handleBackupDatabase}
-                      disabled={saving}
-                      className="w-full"
-                    >
-                      <Database className="h-4 w-4 mr-2" />
-                      {saving ? t("admin.loading_states.creating_backup") : t("admin.backup.instant_backup")}
-                    </Button>
-                  </div>
-                  
-                  {backupJobs.length > 0 && (
-                    <div className="mt-6">
-                      <h4 className="text-sm font-medium mb-3">{t("admin.backup.recent_jobs")}</h4>
-                      <div className="space-y-2">
-                        {backupJobs.slice(0, 5).map((job) => (
-                          <div key={job.id} className="flex items-center justify-between p-3 border rounded-lg">
-                            <div className="text-sm flex-1 min-w-0">
-                              <div className="font-medium">
-                                {formatDate(job.created_at)}
-                              </div>
-                              <div className="text-muted-foreground">
-                                {job.file_size ? formatFileSize(job.file_size) : '—'}
-                              </div>
-                              {job.status === "running" && (
-                                <div className="text-xs text-muted-foreground">
-                                  {t("admin.backup.progress")}: {job.progress}%
-                                </div>
-                              )}
-                              {job.error_message && (
-                                <div className="text-xs text-destructive mt-1 truncate">
-                                  {job.error_message}
-                                </div>
-                              )}
-                            </div>
-                            {getBackupStatusButton(job)}
-                          </div>
-                        ))}
+                    
+                    {restoreUploads.length === 0 ? (
+                      <div className="w-full">
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleRestoreFileSelect}
+                          accept=".tar.gz,.tgz,application/gzip,application/x-gzip,application/x-tar,application/x-compressed-tar"
+                          style={{ display: "none" }}
+                        />
+                        <Button
+                          variant="outline"
+                          size="lg"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={saving}
+                          className="w-full"
+                        >
+                          <Database className="h-4 w-4 mr-2" />
+                          {saving ? t("admin.loading_states.uploading") : t("admin.actions.upload_restore")}
+                        </Button>
                       </div>
-                    </div>
-                  )}
-
-                  <div className="border-t pt-4">
-                    <div className="w-full">
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleRestoreFileSelect}
-                        accept=".tar.gz,.tgz,application/gzip,application/x-gzip,application/x-tar,application/x-compressed-tar"
-                        style={{ display: "none" }}
-                      />
+                    ) : (
                       <Button
-                        variant="outline"
+                        variant="default"
                         size="lg"
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={() => handleRestoreUpload(restoreUploads[0])}
                         disabled={saving}
                         className="w-full"
                       >
                         <Database className="h-4 w-4 mr-2" />
-                        {saving ? t("admin.loading_states.analyzing") : t("admin.actions.restore_backup")}…
+                        {t("admin.actions.restore_backup")}
                       </Button>
-                    </div>
+                    )}
                   </div>
                   
+                  {backupJobs.length > 0 && (
+                    <div className="mt-6">
+                      <h4 className="text-sm font-medium mb-3">{t("admin.jobs.recent_jobs")}</h4>
+                      <div className="space-y-2">
+                        {backupJobs
+                          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                          .slice(0, 8)
+                          .map((job) => (
+                            <div key={job.id} className="flex items-center justify-between p-3 border rounded-lg">
+                              <div className="text-sm flex-1 min-w-0">
+                                <div className="font-medium flex items-center gap-2">
+                                  {formatDate(job.created_at)}
+                                  <span className="text-xs px-1.5 py-0.5 bg-muted rounded text-muted-foreground">
+                                    {t("admin.backup.backup")}
+                                  </span>
+                                </div>
+                                <div className="text-muted-foreground">
+                                  {job.file_size ? formatFileSize(job.file_size) : '—'}
+                                </div>
+                                {job.status === "running" && (
+                                  <div className="text-xs text-muted-foreground">
+                                    {t("admin.jobs.progress")}: {job.progress}%
+                                  </div>
+                                )}
+                                {job.error_message && (
+                                  <div className="text-xs text-destructive mt-1 truncate">
+                                    {job.error_message}
+                                  </div>
+                                )}
+                              </div>
+                              {getBackupStatusButton(job)}
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="text-sm text-muted-foreground space-y-2">
                     <p>
                       <strong>{t("admin.backup.create_backup")}:</strong> {t("admin.backup.background_description")}
                     </p>
                     <p>
-                      <strong>{t("admin.backup.instant_backup")}:</strong> {t("admin.descriptions.backup_description")}
-                    </p>
-                    <p>
-                      <strong>{t("admin.actions.restore_backup")}:</strong> {t("admin.descriptions.restore_description")}
+                      <strong>{t("admin.actions.upload_restore")}:</strong> {t("admin.descriptions.upload_restore_description")}
                     </p>
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <AlertTriangle className="h-4 w-4" />
@@ -1557,28 +1598,9 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             <AlertDialogDescription className="space-y-3">
               <p>
                 {t("admin.dialogs.confirm_restore_description")}
-                <strong>{restoreConfirmDialog.file?.name}</strong>
+                <strong>{restoreConfirmDialog.upload?.filename}</strong>
               </p>
               
-              {backupCounts && (
-                <div className="bg-muted p-3 rounded-md">
-                  <p className="font-medium text-sm mb-2">{t("admin.dialogs.backup_contents")}</p>
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div className="text-center">
-                      <div className="font-semibold text-lg">{backupCounts.users}</div>
-                      <div className="text-muted-foreground">{t("admin.labels.users")}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-semibold text-lg">{backupCounts.api_keys}</div>
-                      <div className="text-muted-foreground">{t("admin.labels.api_keys")}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-semibold text-lg">{backupCounts.documents}</div>
-                      <div className="text-muted-foreground">{t("admin.labels.documents")}</div>
-                    </div>
-                  </div>
-                </div>
-              )}
               
               <p className="text-destructive font-medium">
                 {t("admin.dialogs.restore_warning_text")}
@@ -1597,7 +1619,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={saving}>{t("admin.actions.cancel")}</AlertDialogCancel>
+            <AlertDialogCancel 
+              disabled={saving}
+              onClick={cancelRestoreUpload}
+            >
+              {t("admin.actions.cancel")}
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDatabaseRestore}
               disabled={saving}
