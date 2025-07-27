@@ -253,7 +253,6 @@ func OIDCCallbackHandler(c *gin.Context) {
 		return
 	}
 
-
 	// Determine username - prefer preferred_username, fallback to email, then subject
 	username := claims.PreferredUsername
 	if username == "" {
@@ -360,10 +359,12 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 		updates["email"] = email
 	}
 
-	// Update admin status based on group membership
-	currentAdminStatus := shouldBeAdminFromGroups(groups, false)
-	if user.IsAdmin != currentAdminStatus {
-		updates["is_admin"] = currentAdminStatus
+	// Update admin status based on group membership if enabled
+	if IsOIDCGroupBasedAdminEnabled() {
+		currentAdminStatus := shouldBeAdminFromGroups(groups, false)
+		if user.IsAdmin != currentAdminStatus {
+			updates["is_admin"] = currentAdminStatus
+		}
 	}
 
 	if len(updates) > 0 {
@@ -524,17 +525,17 @@ func OIDCLogoutHandler(c *gin.Context) {
 
 func shouldBeAdminFromGroups(groups []string, isFirstUser bool) bool {
 	adminGroup := config.Get("OIDC_ADMIN_GROUP", "")
-	
+
 	if adminGroup == "" {
 		return isFirstUser
 	}
-	
+
 	for _, group := range groups {
 		if group == adminGroup {
 			return true
 		}
 	}
-	
+
 	return false
 }
 
