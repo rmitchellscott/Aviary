@@ -19,7 +19,7 @@
     "title": "Créer un compte",
     "username": "Nom d'utilisateur",
     "username_help": "Le nom d'utilisateur doit contenir entre 3 et 50 caractères et ne peut contenir que des lettres, des chiffres, des traits de soulignement et des tirets",
-    "email": "Email",
+    "email": "E-mail",
     "password": "Mot de passe",
     "password_help": "Le mot de passe doit contenir au moins 8 caractères",
     "confirm_password": "Confirmer le mot de passe",
@@ -171,7 +171,7 @@
     "labels": {
       "username": "Nom d'utilisateur",
       "user_id": "ID de l'utilisateur",
-      "email": "Email",
+      "email": "E-mail",
       "password": "Mot de passe",
       "role": "Rôle",
       "status": "Statut",
@@ -340,7 +340,7 @@
     },
     "labels": {
       "username": "Nom d'utilisateur",
-      "email": "Email",
+      "email": "E-mail",
       "rmapi_host": "Hôte reMarkable (optionnel)",
       "default_directory": "Répertoire par défaut",
       "cover_page": "Page de couverture",

@@ -19,7 +19,7 @@
     "title": "Crear cuenta",
     "username": "Usuario",
     "username_help": "El nombre de usuario debe tener entre 3 y 50 caracteres y contener solo letras, números, guiones bajos y guiones",
-    "email": "Email",
+    "email": "Correo electrónico",
     "password": "Contraseña",
     "password_help": "La contraseña debe tener al menos 8 caracteres",
     "confirm_password": "Confirmar contraseña",
@@ -171,7 +171,7 @@
     "labels": {
       "username": "Usuario",
       "user_id": "ID de usuario",
-      "email": "Email",
+      "email": "Correo electrónico",
       "password": "Contraseña",
       "role": "Rol",
       "status": "Estado",
@@ -316,7 +316,7 @@
     },
     "labels": {
       "username": "Usuario",
-      "email": "Email",
+      "email": "Correo electrónico",
       "rmapi_host": "Host de reMarkable (opcional)",
       "default_directory": "Directorio Predeterminado",
       "cover_page": "Página de Portada",
