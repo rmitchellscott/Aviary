@@ -121,7 +121,7 @@ export default function HomePage() {
   const [fileError, setFileError] = useState<string | null>(null);
   const DEFAULT_RM_DIR = "default";
   const [folders, setFolders] = useState<string[]>([]);
-  const [foldersLoading, setFoldersLoading] = useState<boolean>(true);
+  const [foldersLoading, setFoldersLoading] = useState<boolean>(false);
   const [rmDir, setRmDir] = useState<string>(DEFAULT_RM_DIR);
   
   // Pairing dialog state
@@ -180,7 +180,10 @@ export default function HomePage() {
 
     (async () => {
       try {
-        setFoldersLoading(true);
+        if (folders.length === 0) {
+          setFoldersLoading(true);
+        }
+        
         const headers: HeadersInit = {
           "Accept-Language": i18n.language,
         };
@@ -198,6 +201,8 @@ export default function HomePage() {
             .filter((f: string) => f !== "");
           setFolders(cleaned);
         }
+        
+        setFoldersLoading(false);
 
         const refreshHeaders: HeadersInit = {
           "Accept-Language": i18n.language,
@@ -221,7 +226,6 @@ export default function HomePage() {
           .catch((err) => console.error("Failed to refresh folders:", err));
       } catch (error) {
         console.error("Failed to fetch folders:", error);
-      } finally {
         setFoldersLoading(false);
       }
     })();
