@@ -32,16 +32,16 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 - **Multi-user mode**: Database-backed user management with admin interface
 - **Advanced auth**: OIDC and proxy authentication support
 - Per-user API key management with expiration tracking
-- Password reset via SMTP
+- Password reset via e-mail
 
 ### Document Processing
 - Webhook endpoint for HTTP integrations
 - Automatic PDF download with realistic browser User-Agent
 - PNG/JPEG to PDF conversion
 - Optional Ghostscript compression
-- Smart upload modes (simple or managed with retention)
+- Smart upload modes (simple or managed with retention via API)
 
-### Data Management
+### Data Management (Mulit-User Mode)
 - SQLite (default) or PostgreSQL database support
 - Complete backup/restore system with cross-database migration
 - Per-user document storage and folder caching
@@ -107,12 +107,11 @@ Aviary includes comprehensive backup and restore capabilities.
 
 ### Migration & Data Safety
 When migrating from single-user to multi-user mode, Aviary automatically:
-- Creates admin user from environment variables
+- Creates initial admin user
 - Migrates existing cloud pairing, archived PDF files, and API key
 - Runs schema migrations for new features
 
-See [Data Management](DATA_MANAGEMENT.md) for detailed backup and migration procedures.
-
+See [Data Management](DATA_MANAGEMENT.md) and [Migration from Single-User Mode](AUTHENTICATION.md#Migration-from-Single-User-Mode) for more details.
 
 ## Integrations
 

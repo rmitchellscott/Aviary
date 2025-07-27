@@ -11,7 +11,7 @@ Aviary provides comprehensive data management capabilities through its built-in 
 - **Database migrations**: SQLite ↔ PostgreSQL
 - **Disaster recovery**: Full system restoration
 
-This system is included for easy of use and to aide in cross-database migrations. You can also backup the system yourself externally to Aviary by:
+This system is included for easy of use and to aide in cross-database migrations. You can also backup the system yourself outside of Aviary by:
 - Backing up the database (SQLite or Postgres)
 - Backing up the storage directory
 
@@ -19,31 +19,13 @@ This system is included for easy of use and to aide in cross-database migrations
 
 ### Creating Backups
 
-Backups are created through the Admin interface or via API calls. The system generates compressed `.tar.gz` archives containing:
-
-- **Database data**: All tables exported as JSON files
-- **User documents**: PDF files and other uploaded documents
-- **User configurations**: rmapi configs and settings
-- **Metadata**: Export information and compatibility data
-
-### Background Job Processing
-
-Aviary supports background backup processing:
-
-- **Background jobs**: Backups are processed as background jobs
-- **Job tracking**: Monitor backup progress through the admin interface
-- **Download when ready**: Completed backups can be downloaded from the jobs panel
-
-### Backup Options
-
-When creating a backup via the Admin Panel, it will always be a full backup.
-
-Via the API, you can choose what to include:
-
-- **Include Database**: All user accounts, API keys, settings, and metadata
-- **Include Files**: User-uploaded documents and PDFs
-- **Include Configs**: rmapi configurations and user-specific settings
-- **User Selection**: Export all users or specific users only
+**Admin Interface**:
+1. Log in as an admin user
+2. Navigate to Admin Panel → System Settings
+3. Click "Backup & Restore"
+4. Click "Create Backup"
+5. Monitor job progress in "Recent Jobs" section
+6. Download completed backups when ready
 
 ### Backup Metadata
 
@@ -160,63 +142,13 @@ ls -la filesystem/documents/*/
 ls -la filesystem/configs/*/
 ```
 
-### Access Backup Interface
-
-**Admin Interface**:
-1. Log in as an admin user
-2. Navigate to Admin Panel → System Settings
-3. Click "Backup & Restore"
-4. Click "Create Backup"
-5. Monitor job progress in "Recent Jobs" section
-6. Download completed backups when ready
-
-**API Access - Background Job**:
-```bash
-curl -X POST http://localhost:8000/api/admin/backup-jobs \
-  -H "Authorization: Bearer your-admin-api-key" \
-  -d '{
-    "includeDatabase": true,
-    "includeFiles": true,
-    "includeConfigs": true
-  }'
-```
-
 ## Restore Operations
-
-### Enhanced Two-Step Restore Process
-
-Aviary uses a two-step restore process:
-
-1. **Upload Phase**: Upload and validate backup files
-2. **Restore Phase**: Confirm and execute restoration
-
-### Restore Workflow
-
-**Step 1: Upload Backup File**
-- Upload `.tar.gz` backup files through admin interface
-- Files are validated and stored temporarily (24-hour expiration)
-- Multiple files can be uploaded and managed
-- File metadata and compatibility are checked
-
-**Step 2: Confirm Restoration**
-- Select uploaded file from pending uploads
-- Configure restore options (overwrite settings, user selection)
-- Confirm and execute restoration process
-- Monitor progress through background job tracking
-
-### Restore Options
-
-- **Overwrite Files**: Replace existing user files
-- **Overwrite Database**: Replace existing database content (⚠️ destructive)
-- **User Selection**: Restore specific users only
-- **Background Processing**: Large restores run as background jobs
 
 ### Restore Process
 
 > [!IMPORTANT]  
 > Restore operations are destructive. Always backup current data first.
 
-**Admin Interface**:
 1. Navigate to Admin Panel → System Settings → Backup & Restore
 2. Click "Upload Restore"
 3. Select and upload your `.tar.gz` backup file
@@ -224,25 +156,6 @@ Aviary uses a two-step restore process:
 5. Click "Restore" on the uploaded file
 6. Confirm
 7. Monitor restoration progress in jobs panel
-
-**API Access - Upload**:
-```bash
-curl -X POST http://localhost:8000/api/admin/restore/upload \
-  -H "Authorization: Bearer your-admin-api-key" \
-  -F "backup_file=@backup.tar.gz"
-```
-
-**API Access - Restore**:
-```bash
-curl -X POST http://localhost:8000/api/admin/restore \
-  -H "Authorization: Bearer your-admin-api-key" \
-  -d '{
-    "upload_id": "uuid-from-upload",
-    "overwrite_files": true,
-    "overwrite_database": true,
-    "user_ids": []
-  }'
-```
 
 ### Restore Validation
 
@@ -259,9 +172,10 @@ The system validates backups during upload:
 
 To migrate from SQLite to PostgreSQL:
 
-1. **Create full backup** from SQLite system
-2. **Set up PostgreSQL** database and configure connection
-3. **Update environment variables**:
+1. **Create backup** from admin interface while running on SQLite
+2. Download backup file
+3. **Set up PostgreSQL** database and configure connection
+4. **Update environment variables**:
    ```bash
    DB_TYPE=postgres
    DB_HOST=your-postgres-host
@@ -270,21 +184,22 @@ To migrate from SQLite to PostgreSQL:
    DB_PASSWORD=your-password
    DB_NAME=aviary
    ```
-4. **Restart Aviary** (creates new PostgreSQL schema)
-5. **Restore backup** through admin interface
+5. **Restart Aviary** (creates new PostgreSQL schema)
+6. **Restore backup** through admin interface
 
 ### PostgreSQL to SQLite
 
 To migrate from PostgreSQL to SQLite:
 
-1. **Create full backup** from PostgreSQL system
-2. **Update environment variables**:
+1. **Create backup** from admin interface while running on PostgreSQL
+2. Download backup file
+3. **Update environment variables**:
    ```bash
    DB_TYPE=sqlite
    # Remove PostgreSQL-specific variables
    ```
-3. **Restart Aviary** (creates new SQLite database)
-4. **Restore backup** through admin interface
+4. **Restart Aviary** (creates new SQLite database)
+5. **Restore backup** through admin interface
 
 ## User Data Structure
 
@@ -304,10 +219,4 @@ To migrate from PostgreSQL to SQLite:
 
 ### Single-User to Multi-User Migration
 
-When enabling multi-user mode (`MULTI_USER=true`), Aviary automatically migrates:
-
-1. **Creates admin user** from `AUTH_USERNAME` and `AUTH_PASSWORD` if present, or from the first user to login
-2. **Migrates rmapi config** from `/root/.config/rmapi/rmapi.conf`
-3. **Moves archived files** from `PDF_DIR` to admin user directory
-4. **Migrates API key** from `API_KEY` environment variable
-5. **Sets user preferences** based on environment variables
+When enabling multi-user mode (`MULTI_USER=true`), Aviary automatically performs a single-user to multi-user migration. For more information, see  [Migration from Single-User Mode](AUTHENTICATION.md#Migration-from-Single-User-Mode).

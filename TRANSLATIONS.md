@@ -80,7 +80,7 @@ Aviary automatically detects the user's preferred language using:
 
 1. **Browser locale**: Detected from `Accept-Language` header
 2. **Fallback**: Defaults to English if the detected language isn't supported
-3. **User preference**: Users can manually switch languages in the UI
+3. **User preference**: Users can manually switch languages in the UI, preference is stored in browser LocalStorage
 
 ## Implementation Details
 
@@ -88,20 +88,6 @@ Aviary automatically detects the user's preferred language using:
 - All user-facing text should be wrapped in translation functions
 - Language switching is persistent per browser session
 - **Note**: Server-side emails (password reset, welcome emails) currently use English-only templates and do not respect user language preferences
-
-## Common Translation Keys
-
-Here are some commonly used translation keys across the application:
-
-| Key | English | Purpose |
-|-----|---------|---------|
-| `common.upload` | "Upload" | Upload buttons |
-| `common.cancel` | "Cancel" | Cancel buttons |
-| `common.save` | "Save" | Save buttons |
-| `common.delete` | "Delete" | Delete buttons |
-| `homepage.title` | "Send to reMarkable" | Main page title |
-| `errors.upload_failed` | "Upload failed" | Upload error messages |
-| `settings.language` | "Language" | Language selection |
 
 ## Testing Translations
 
@@ -124,3 +110,5 @@ This will report:
 - Missing translation keys
 - Extra keys not present in the English template
 - Malformed JSON files
+
+This script runs as a Github Actions check.

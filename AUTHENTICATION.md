@@ -5,7 +5,7 @@ Aviary supports multiple authentication methods that can be configured via envir
 ## Authentication Modes
 
 ### Single-User Mode (Default)
-Traditional environment variable-based authentication for simple deployments, this mode assumes a single reMarkable user.
+Traditional environment variable-based authentication for simple deployments, this mode supports a single reMarkable user.
 
 #### Web UI Authentication
 Set both `AUTH_USERNAME` and `AUTH_PASSWORD` to enable login-protected web interface:
@@ -32,33 +32,38 @@ Use the API key in requests with either header:
 - **API endpoints accept either**: Valid API key OR valid web login session
 
 ### Multi-User Mode
-Database-backed authentication with user management
-
-#### Enabling Multi-User Mode
-Set `MULTI_USER=true` and configure database settings. The first user to register (via Create Account or OIDC) will automatically become the admin user.
-
-Optionally, you can pre-create an admin user by setting:
-```bash
-MULTI_USER=true
-AUTH_USERNAME=admin
-AUTH_PASSWORD=secure-admin-password
-ADMIN_EMAIL=admin@example.com
-```
-
-Or start with no users and let the first registration become admin:
-```bash
-MULTI_USER=true
-# First user registration will become admin
-```
+Muli-user mode uses database-backed authentication with user management.
 
 #### Features
-- **User Registration**: Admin can create/manage user accounts
-- **Per-User API Keys**: Each user can generate multiple API keys with expiration
+- **User Registration**: Optional self-service registration
+- **Per-User API Keys**: Each user can generate multiple API keys with optional expiration
 - **Per-User Settings**: Individual RMAPI_HOST, default directories, and cover page preferences
 - **Password Reset**: Email-based password reset via SMTP
 - **Admin Interface**: User management, system settings, database & storage backup/restore
-- **Database Support**: SQLite (default) or PostgreSQL for production
-- **Per-User Data**: Separate document storage and folder cache per user
+- **Database Support**: SQLite (default) or PostgreSQL
+- **Per-User Data**: Separate archive document storage and folder cache per user
+
+#### Enabling Multi-User Mode
+Set `MULTI_USER=true` and configure database settings. The initial admin user is determined by:
+
+  - The first user to register (via Create Account)
+  - If OIDC is enabled and `OIDC_AUTO_CREATE_USERS=true`, OIDC login will create a user on first login
+  - If `OIDC_ADMIN_GROUP` is set, the first user in that group to login will become the admin user
+  - If `OIDC_ADMIN_GROUP` is not set, the first user (regardless of login method) becomes admin
+
+  Optionally, you can pre-create an admin user by setting:
+  ```bash
+  AUTH_USERNAME=admin
+  AUTH_PASSWORD=secure-admin-password
+  ADMIN_EMAIL=admin@example.com
+```
+#### Migration from Single-User Mode
+
+When enabling multi-user mode, the following happens upon the initial admin user's first login in the background:
+
+1. Existing rmapi configuration (cloud pairing) is migrated to the admin user, if present
+2. Existing archived PDF files are moved to the admin user's directory, if present
+3. Environment-based API key is migrated to the admin user's account, if present
 
 ## Advanced Authentication
 
@@ -99,6 +104,15 @@ OIDC_POST_LOGOUT_REDIRECT_URL=https://aviary.example.com/
 - **OIDC_SUCCESS_REDIRECT_URL**: Where to redirect users after successful login (optional, defaults to "/")
 - **OIDC_POST_LOGOUT_REDIRECT_URL**: Where to redirect users after logout (optional)
 
+#### Token Signing Algorithm Requirements
+
+Aviary requires OIDC providers to use **asymmetric signing algorithms** (like RS256) for ID tokens. Symmetric algorithms like HS256 are not supported for ID token verification.
+
+**Supported algorithms**: RS256, RS384, RS512, ES256, ES384, ES512  
+**Unsupported algorithms**: HS256, HS384, HS512
+
+If your OIDC provider is configured to use HS256 (symmetric signing), you will see a "Failed to verify ID token" error. Configure your provider to use RS256 or another asymmetric algorithm instead.
+
 ### Proxy Authentication
 
 Proxy authentication allows Aviary to trust authentication headers set by a reverse proxy like Traefik, nginx, or Apache. 
@@ -133,8 +147,9 @@ When OIDC is enabled:
 - Users are identified by OIDC subject ID first, then by username, then by email for migration
 - Existing users without OIDC subjects are automatically linked on first OIDC login
 - User information is automatically updated from OIDC claims on each login
-- **Admin Role Assignment**: If `OIDC_ADMIN_GROUP` is configured, users in that group automatically receive admin privileges. Admin status is updated on each login based on current group membership. When no admin group is set, admin privileges are managed through Aviary's UI and are not changed on login
-- If no admin group is configured, the first user becomes admin and admin privileges are managed through Aviary's native user management UI
+- **Admin Role Assignment**: If `OIDC_ADMIN_GROUP` is configured, users in that group automatically receive admin privileges. Admin status is updated on each login based on current group membership. 
+  - With an admin group set, local (non-OIDC) users cannot be promoted to admins
+  - When no admin group is set, admin privileges are managed through Aviary's UI
 
 ### Proxy Authentication User Management
 When proxy authentication is enabled:
@@ -150,17 +165,6 @@ In multi-user mode, you can enable multiple authentication methods simultaneousl
 - **OIDC + Traditional Login**: Users can choose between SSO and username/password
 - **Proxy Auth**: Takes precedence over other methods when enabled
 - **API Keys**: Always available for programmatic access
-
-## Migration from Single-User Mode
-
-When enabling multi-user mode:
-
-1. Set `MULTI_USER=true` in your environment
-2. Optionally set `AUTH_USERNAME` and `AUTH_PASSWORD` to pre-create an admin user, or let the first user registration become admin
-3. If env-based credentials are provided, that user becomes the administrator
-4. Existing rmapi configuration is migrated to the admin user, if present
-5. Existing PDF files are moved to the admin user's directory, if present
-6. Environment-based API key is migrated to the admin user's account, if present
 
 ## API Access
 
@@ -197,6 +201,10 @@ curl --cookie-jar cookies.txt https://aviary.example.com/api/status
 3. **"User not found" error with auto-creation disabled**
    - Set `OIDC_AUTO_CREATE_USERS=true` to automatically create users
    - Or manually create the user account first
+
+4. **"Failed to verify ID token" error**
+   - Incorrect token signing algorithm in OIDC provider
+   - [Token Signing Algorithm Requirements](#token-signing-algorithm-requirements)
 
 4. **Users cannot login on mobile**
    - Some mobile browsers (iOS) require HTTPS for OIDC

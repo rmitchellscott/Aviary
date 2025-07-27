@@ -267,26 +267,3 @@ Ensure the requirements are installed and available in your PATH.
 go generate # Generate the Vite static front-end
 go build -o aviary
 ```
-
-## Production Considerations
-
-### Security
-- Always use HTTPS in production
-- Use strong, randomly generated passwords and API keys
-- Consider using Docker secrets for sensitive environment variables
-- Regularly update to the latest version
-
-### Performance
-- For heavy usage, consider PostgreSQL over SQLite
-- Monitor disk usage in the data directory
-- Set up log rotation if needed
-
-### Backup
-- Regularly backup your data directory
-- For PostgreSQL, use standard PostgreSQL backup tools
-- See [Data Management](DATA_MANAGEMENT.md) for automated backup/restore options
-
-### Monitoring
-- Monitor container logs for errors
-- Set up health checks on the `/api/status` endpoint
-- Monitor disk space in the data directory

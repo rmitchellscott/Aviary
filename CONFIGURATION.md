@@ -100,7 +100,7 @@ For more rmapi-specific configuration, see [their documentation](https://github.
 | OIDC_REDIRECT_URL        | No        |         | OIDC redirect URL |
 | OIDC_SCOPES              | No        |         | OIDC scopes (space-separated) |
 | OIDC_AUTO_CREATE_USERS   | No        | false   | Set to `true` to automatically create users from OIDC claims |
-| OIDC_ADMIN_GROUP         | No        |         | OIDC group name for admin role assignment. Users in this group become admins |
+| OIDC_ADMIN_GROUP         | No        |         | OIDC group name for admin role assignment. Users in this group become admins. Role management via native UI is disabled |
 | OIDC_SUCCESS_REDIRECT_URL | No       |         | URL to redirect to after successful OIDC authentication |
 | OIDC_POST_LOGOUT_REDIRECT_URL | No   |         | URL to redirect to after OIDC logout |
 
@@ -123,17 +123,11 @@ API_KEY=your-secret-api-key-here
 ### Multi-User with SQLite
 ```bash
 MULTI_USER=true
-AUTH_USERNAME=admin
-AUTH_PASSWORD=secure-admin-password
-ADMIN_EMAIL=admin@example.com
 ```
 
 ### Multi-User with PostgreSQL
 ```bash
 MULTI_USER=true
-AUTH_USERNAME=admin
-AUTH_PASSWORD=secure-admin-password
-ADMIN_EMAIL=admin@example.com
 
 DB_TYPE=postgres
 DB_HOST=postgres
@@ -147,9 +141,6 @@ DB_SSLMODE=disable
 ### Production Multi-User with SMTP
 ```bash
 MULTI_USER=true
-AUTH_USERNAME=admin
-AUTH_PASSWORD=secure-admin-password
-ADMIN_EMAIL=admin@example.com
 
 DB_TYPE=postgres
 DB_HOST=postgres

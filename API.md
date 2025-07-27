@@ -106,70 +106,87 @@ curl -X POST http://localhost:8000/api/webhook \
 
 ## Response Format
 
-### Success Response
+### Success Response (HTTP 202 Accepted)
 ```json
 {
-  "success": true,
-  "message": "Document uploaded successfully",
-  "filename": "document.pdf",
-  "size": 1234567
+  "jobId": "550e8400-e29b-41d4-a716-446655440000"
 }
 ```
 
-### Error Response
+The webhook endpoint returns a job ID immediately and processes the document asynchronously. Use the job ID to check the processing status via `/api/status/{jobId}`.
+
+### Error Response (HTTP 4xx/5xx)
 ```json
 {
-  "success": false,
   "error": "Error message describing what went wrong"
 }
 ```
 
-## Status Endpoint
+## Job Status Polling
 
-Check if Aviary is running and configured properly:
+After receiving a job ID from the webhook endpoint, use this endpoint to check the processing status:
 
 ```shell
-curl http://localhost:8000/api/status
+curl http://localhost:8000/api/status/{jobId}
 ```
 
-Response:
+### Status Responses
+
+#### Job Running
 ```json
 {
-  "status": "ok",
-  "version": "1.0.0",
-  "multi_user": false,
-  "authentication_required": true
+  "status": "Running",
+  "message": "backend.status.downloading",
+  "progress": 25,
+  "operation": "downloading"
 }
+```
+
+#### Job Success
+```json
+{
+  "status": "success", 
+  "message": "backend.status.upload_success",
+  "data": {
+    "path": "Books/document.pdf"
+  },
+  "progress": 100,
+  "operation": "uploading"
+}
+```
+
+#### Job Error
+```json
+{
+  "status": "error",
+  "message": "backend.status.download_error", 
+  "progress": 0,
+  "operation": "downloading"
+}
+```
+
+#### Job Not Found
+```json
+{
+  "error": "backend.status.job_not_found"
+}
+```
+
+### WebSocket Status Updates
+
+For real-time updates, use the WebSocket endpoint:
+
+```javascript
+const ws = new WebSocket('ws://localhost:8000/api/status/ws/{jobId}');
+ws.onmessage = (event) => {
+  const job = JSON.parse(event.data);
+  console.log('Job status:', job);
+};
 ```
 
 ## Integrations
 
-### Third-Party Integrations
-
 * [AWS SES](https://github.com/rmitchellscott/aviary-integration-ses) - Lambda to provide emailed PDFs/ePubs to Aviary.
-
-### SMS Integration (Twilio)
-
-You can use the webhook endpoint with Twilio to upload documents via SMS:
-
-1. Configure a Twilio webhook to point to `/api/webhook`
-2. Send SMS messages with URLs to documents
-3. Aviary will automatically download and upload to your reMarkable
-
-### Email Integration
-
-Set up email-to-document workflows by:
-1. Using a service like AWS SES to receive emails
-2. Extract PDF attachments or URLs from email content
-3. POST to the webhook endpoint
-
-### Automation Tools
-
-Integrate with automation platforms:
-- **Zapier**: Create zaps that trigger document uploads
-- **IFTTT**: Set up applets for automated document handling
-- **Home Assistant**: Add document upload automation
-- **Custom Scripts**: Use the API in your own scripts and applications
 
 ## Rate Limiting
 
@@ -183,43 +200,16 @@ For high-volume usage, consider implementing your own rate limiting or batching 
 
 Common error scenarios and responses:
 
-### Invalid URL
+### Invalid JSON Format
 ```json
 {
-  "success": false,
-  "error": "Failed to download document: invalid URL"
+  "error": "Invalid JSON format"
 }
 ```
 
 ### Authentication Required
 ```json
 {
-  "success": false,
   "error": "Authentication required"
 }
 ```
-
-### Invalid Content Type
-```json
-{
-  "success": false,
-  "error": "Unsupported content type: text/html"
-}
-```
-
-### reMarkable Connection Error
-```json
-{
-  "success": false,
-  "error": "Failed to upload to reMarkable: device not paired"
-}
-```
-
-## Best Practices
-
-1. **Always use HTTPS** in production for API requests
-2. **Handle errors gracefully** and implement retry logic for transient failures
-3. **Validate content** before uploading to avoid unnecessary processing
-4. **Use appropriate timeouts** for long-running uploads
-5. **Monitor API usage** if using multi-user mode with usage tracking
-6. **Implement proper logging** in your applications for debugging
