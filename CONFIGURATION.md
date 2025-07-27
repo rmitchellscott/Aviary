@@ -100,6 +100,7 @@ For more rmapi-specific configuration, see [their documentation](https://github.
 | OIDC_REDIRECT_URL        | No        |         | OIDC redirect URL |
 | OIDC_SCOPES              | No        |         | OIDC scopes (space-separated) |
 | OIDC_AUTO_CREATE_USERS   | No        | false   | Set to `true` to automatically create users from OIDC claims |
+| OIDC_ADMIN_GROUP         | No        |         | OIDC group name for admin role assignment. Users in this group become admins |
 | OIDC_SUCCESS_REDIRECT_URL | No       |         | URL to redirect to after successful OIDC authentication |
 | OIDC_POST_LOGOUT_REDIRECT_URL | No   |         | URL to redirect to after OIDC logout |
 

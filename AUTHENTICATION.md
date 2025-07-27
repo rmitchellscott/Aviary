@@ -82,6 +82,7 @@ OIDC_CLIENT_SECRET=your-oidc-client-secret
 OIDC_REDIRECT_URL=https://aviary.example.com/api/auth/oidc/callback
 OIDC_SCOPES=openid,profile,email
 OIDC_AUTO_CREATE_USERS=true
+OIDC_ADMIN_GROUP=aviary-admins
 OIDC_SUCCESS_REDIRECT_URL=https://aviary.example.com/
 OIDC_POST_LOGOUT_REDIRECT_URL=https://aviary.example.com/
 ```
@@ -94,6 +95,7 @@ OIDC_POST_LOGOUT_REDIRECT_URL=https://aviary.example.com/
 - **OIDC_REDIRECT_URL**: The callback URL where users are redirected after authentication (must match provider configuration)
 - **OIDC_SCOPES**: Comma-separated list of OAuth2 scopes to request (defaults to "openid,profile,email")
 - **OIDC_AUTO_CREATE_USERS**: Whether to automatically create user accounts for new OIDC users (true/false)
+- **OIDC_ADMIN_GROUP**: Name of the OIDC group that grants admin privileges. Users must be members of this group to receive admin rights. If not set, the first user becomes admin
 - **OIDC_SUCCESS_REDIRECT_URL**: Where to redirect users after successful login (optional, defaults to "/")
 - **OIDC_POST_LOGOUT_REDIRECT_URL**: Where to redirect users after logout (optional)
 
@@ -131,7 +133,8 @@ When OIDC is enabled:
 - Users are identified by OIDC subject ID first, then by username, then by email for migration
 - Existing users without OIDC subjects are automatically linked on first OIDC login
 - User information is automatically updated from OIDC claims on each login
-- Admin privileges are managed through Aviary's native user management UI
+- **Admin Role Assignment**: If `OIDC_ADMIN_GROUP` is configured, users in that group automatically receive admin privileges. Admin status is updated on each login based on current group membership
+- If no admin group is configured, the first user becomes admin and admin privileges are managed through Aviary's native user management UI
 
 ### Proxy Authentication User Management
 When proxy authentication is enabled:
