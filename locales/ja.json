@@ -295,6 +295,9 @@
       "users": "ユーザー（{{count}}）",
       "all_api_keys": "すべてのAPIキー（{{count}}）"
     },
+    "tooltips": {
+      "oidc_group_managed": "ロールはOIDCグループで管理されています"
+    },
     "never": "なし"
   },
   "settings": {

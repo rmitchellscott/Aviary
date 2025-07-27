@@ -295,6 +295,9 @@
       "users": "Käyttäjät ({{count}})",
       "all_api_keys": "Kaikki API-avaimet ({{count}})"
     },
+    "tooltips": {
+      "oidc_group_managed": "Roolit hallitaan OIDC-ryhmien kautta"
+    },
     "never": "Ei koskaan"
   },
   "settings": {

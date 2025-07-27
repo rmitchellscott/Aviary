@@ -295,6 +295,9 @@
       "users": "用户（{{count}}）",
       "all_api_keys": "所有API密钥（{{count}}）"
     },
+    "tooltips": {
+      "oidc_group_managed": "角色通过OIDC组管理"
+    },
     "never": "从不"
   },
   "settings": {
