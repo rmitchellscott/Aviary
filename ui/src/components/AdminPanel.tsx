@@ -1485,11 +1485,8 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           .map((job) => (
                             <div key={job.id} className="flex items-center justify-between p-3 border rounded-lg">
                               <div className="text-sm flex-1 min-w-0">
-                                <div className="font-medium flex items-center gap-2">
+                                <div className="font-medium">
                                   {formatDate(job.created_at)}
-                                  <span className="text-xs px-1.5 py-0.5 bg-muted rounded text-muted-foreground">
-                                    {t("admin.backup.backup")}
-                                  </span>
                                 </div>
                                 <div className="text-muted-foreground">
                                   {job.file_size ? formatFileSize(job.file_size) : '—'}
