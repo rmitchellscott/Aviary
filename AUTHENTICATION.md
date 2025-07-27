@@ -133,7 +133,7 @@ When OIDC is enabled:
 - Users are identified by OIDC subject ID first, then by username, then by email for migration
 - Existing users without OIDC subjects are automatically linked on first OIDC login
 - User information is automatically updated from OIDC claims on each login
-- **Admin Role Assignment**: If `OIDC_ADMIN_GROUP` is configured, users in that group automatically receive admin privileges. Admin status is updated on each login based on current group membership
+- **Admin Role Assignment**: If `OIDC_ADMIN_GROUP` is configured, users in that group automatically receive admin privileges. Admin status is updated on each login based on current group membership. When no admin group is set, admin privileges are managed through Aviary's UI and are not changed on login
 - If no admin group is configured, the first user becomes admin and admin privileges are managed through Aviary's native user management UI
 
 ### Proxy Authentication User Management
