@@ -1,73 +1,77 @@
 package database
 
 import (
-	"embed"
 	"fmt"
 	"log"
 
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
-	"github.com/golang-migrate/migrate/v4/database/sqlite3"
-	"github.com/golang-migrate/migrate/v4/source/iofs"
+	"github.com/go-gormigrate/gormigrate/v2"
+	"gorm.io/gorm"
 )
 
-//go:embed migrations
-var migrationFS embed.FS
-
-// RunMigrations runs any pending database migrations using golang-migrate
+// RunMigrations runs any pending database migrations using gormigrate
 func RunMigrations() error {
-	config := GetDatabaseConfig()
-
 	log.Println("Running database migrations...")
 
-	// Create source from embedded filesystem
-	d, err := iofs.New(migrationFS, "migrations")
-	if err != nil {
-		return fmt.Errorf("failed to create migration source: %w", err)
-	}
+	// Create migrator with our migrations
+	m := gormigrate.New(DB, gormigrate.DefaultOptions, []*gormigrate.Migration{
+		{
+			ID: "202507270001_add_cascade_foreign_keys",
+			Migrate: func(tx *gorm.DB) error {
+				// Add CASCADE to foreign key constraints to fix restore issues
+				// GORM handles database differences automatically
+				
+				// Drop existing constraint and recreate with CASCADE for backup_jobs
+				if tx.Migrator().HasConstraint(&BackupJob{}, "admin_user_id") {
+					if err := tx.Migrator().DropConstraint(&BackupJob{}, "admin_user_id"); err != nil {
+						log.Printf("Note: Could not drop existing backup_jobs constraint: %v", err)
+					}
+				}
+				if err := tx.Migrator().CreateConstraint(&BackupJob{}, "AdminUser"); err != nil {
+					log.Printf("Warning: Could not create CASCADE constraint for backup_jobs: %v", err)
+				}
+				
+				// Drop existing constraint and recreate with CASCADE for restore_uploads  
+				if tx.Migrator().HasConstraint(&RestoreUpload{}, "admin_user_id") {
+					if err := tx.Migrator().DropConstraint(&RestoreUpload{}, "admin_user_id"); err != nil {
+						log.Printf("Note: Could not drop existing restore_uploads constraint: %v", err)
+					}
+				}
+				if err := tx.Migrator().CreateConstraint(&RestoreUpload{}, "AdminUser"); err != nil {
+					log.Printf("Warning: Could not create CASCADE constraint for restore_uploads: %v", err)
+				}
+				
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				// Remove CASCADE constraints (rollback to non-CASCADE)
+				if tx.Migrator().HasConstraint(&BackupJob{}, "AdminUser") {
+					tx.Migrator().DropConstraint(&BackupJob{}, "AdminUser")
+				}
+				if tx.Migrator().HasConstraint(&RestoreUpload{}, "AdminUser") {
+					tx.Migrator().DropConstraint(&RestoreUpload{}, "AdminUser")
+				}
+				return nil
+			},
+		},
+	})
 
-	// Get underlying *sql.DB
-	sqlDB, err := DB.DB()
-	if err != nil {
-		return fmt.Errorf("failed to get underlying database: %w", err)
-	}
-
-	// Create appropriate database driver
-	var m *migrate.Migrate
-	switch config.Type {
-	case "postgres":
-		pg, err := postgres.WithInstance(sqlDB, &postgres.Config{})
-		if err != nil {
-			return fmt.Errorf("failed to create postgres driver: %w", err)
+	// Set initial schema if this is a fresh database
+	m.InitSchema(func(tx *gorm.DB) error {
+		// AutoMigrate all models to set up initial schema
+		models := GetAllModels()
+		for _, model := range models {
+			if err := tx.AutoMigrate(model); err != nil {
+				return fmt.Errorf("failed to migrate %T: %w", model, err)
+			}
 		}
-		m, err = migrate.NewWithInstance("iofs", d, "postgres", pg)
-
-	case "sqlite":
-		// Use sqlite3.WithInstance with the existing pure-Go sqlite connection
-		sqlite, err := sqlite3.WithInstance(sqlDB, &sqlite3.Config{})
-		if err != nil {
-			return fmt.Errorf("failed to create sqlite driver: %w", err)
-		}
-		m, err = migrate.NewWithInstance("iofs", d, "sqlite3", sqlite)
-
-	default:
-		return fmt.Errorf("unsupported database type: %s", config.Type)
-	}
-	if err != nil {
-		return fmt.Errorf("failed to create migrator: %w", err)
-	}
+		return nil
+	})
 
 	// Run migrations
-	err = m.Up()
-	if err != nil && err != migrate.ErrNoChange {
+	if err := m.Migrate(); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	if err == migrate.ErrNoChange {
-		log.Println("No migrations to run")
-	} else {
-		log.Println("Migrations completed successfully")
-	}
-
+	log.Println("Migrations completed successfully")
 	return nil
 }
