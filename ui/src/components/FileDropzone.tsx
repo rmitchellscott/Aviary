@@ -1,7 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
-import { useDropzone, FileRejection } from 'react-dropzone'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 interface FileDropzoneProps {
@@ -12,15 +11,15 @@ interface FileDropzoneProps {
   multiple?: boolean
 }
 
+const ACCEPT_CONFIG = {
+  'application/pdf': ['.pdf'],
+  'application/epub+zip': ['.epub'],
+  'image/jpeg': ['.jpg', '.jpeg'],
+  'image/png': ['.png'],
+}
+
 /**
- * A ShadCN/Tailwind-themed drag-and-drop box for picking exactly one file.
- * When the user drops or selects a file, it calls onFileSelected(file).
- * If the file is rejected (wrong extension/MIME), it calls onError(msg).
- *
- * - Default: dashed border in `border-input`, transparent background (so it “sits” on bg-card).
- * - Hover: borders change to `border-primary`.
- * - Drag active: `border-primary` + `bg-muted`, text in `text-foreground`.
- * - Disabled: `opacity-50`, `cursor-not-allowed`, still uses `border-input`.
+ * A unified drag-and-drop component with single handler for both visible zone and whole-page drops.
  */
 export function FileDropzone({
   onFileSelected,
@@ -30,18 +29,36 @@ export function FileDropzone({
   multiple = false,
 }: FileDropzoneProps) {
   const { t } = useTranslation()
-  const onDrop = useCallback(
-    (acceptedFiles: File[], fileRejections: FileRejection[]) => {
-      // If any files were rejected, show the first rejection message
-      if (fileRejections.length > 0) {
-        // Show a user-friendly list of allowed types:
-        if (onError) {
-          onError(t('filedrop.invalid_type'))
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [dragActive, setDragActive] = useState(false)
+  
+  // Unified file processing function
+  const processFiles = useCallback(
+    (files: File[]) => {
+      const acceptedFiles: File[] = []
+      const rejectedFiles: File[] = []
+      
+      files.forEach(file => {
+        const acceptedTypes = Object.keys(ACCEPT_CONFIG)
+        const acceptedExtensions = Object.values(ACCEPT_CONFIG).flat()
+        
+        const isValidType = acceptedTypes.includes(file.type)
+        const isValidExtension = acceptedExtensions.some(ext => 
+          file.name.toLowerCase().endsWith(ext)
+        )
+        
+        if (isValidType || isValidExtension) {
+          acceptedFiles.push(file)
+        } else {
+          rejectedFiles.push(file)
         }
+      })
+      
+      if (rejectedFiles.length > 0 && onError) {
+        onError(t('filedrop.invalid_type'))
         return
       }
 
-      // Otherwise, accept files based on multiple mode
       if (acceptedFiles.length > 0) {
         if (multiple) {
           onFilesSelected(acceptedFiles)
@@ -50,74 +67,40 @@ export function FileDropzone({
         }
       }
     },
-    [onFileSelected, onFilesSelected, onError, multiple]
+    [onFileSelected, onFilesSelected, onError, multiple, t]
   )
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    multiple,
-    disabled,
-    accept: {
-      'application/pdf': ['.pdf'],
-      'application/epub+zip': ['.epub'],
-      'image/jpeg': ['.jpg', '.jpeg'],
-      'image/png': ['.png'],
-    },
-  })
-
-  // Track drag events occurring anywhere on the window so the dropzone becomes
-  // active even when a file is dragged outside the element itself.
-  const [windowDragActive, setWindowDragActive] = useState(false)
+  // Single unified handler for all drag/drop events
   useEffect(() => {
     if (disabled) return
 
     let counter = 0
+    
     function handleDragEnter(e: DragEvent) {
       if (Array.from(e.dataTransfer?.types || []).includes('Files')) {
         counter++
-        setWindowDragActive(true)
+        setDragActive(true)
       }
     }
+    
     function handleDragLeave() {
       counter = Math.max(counter - 1, 0)
-      if (counter === 0) setWindowDragActive(false)
+      if (counter === 0) setDragActive(false)
     }
+    
     function handleDragOver(e: DragEvent) {
-      // Prevent default to allow drop
       e.preventDefault()
     }
+    
     function handleDrop(e: DragEvent) {
       e.preventDefault()
       counter = 0
-      setWindowDragActive(false)
+      setDragActive(false)
       
-      // Handle the drop anywhere on the page
       const files = Array.from(e.dataTransfer?.files || [])
       if (files.length > 0) {
-        // Use the same validation logic as react-dropzone
-        const file = files[0]
-        const acceptedTypes = [
-          'application/pdf',
-          'application/epub+zip', 
-          'image/jpeg',
-          'image/png'
-        ]
-        const acceptedExtensions = ['.pdf', '.epub', '.jpg', '.jpeg', '.png']
-        
-        const isValidType = acceptedTypes.includes(file.type)
-        const isValidExtension = acceptedExtensions.some(ext => 
-          file.name.toLowerCase().endsWith(ext)
-        )
-        
-        if (isValidType || isValidExtension) {
-          if (multiple) {
-            onFilesSelected([file])
-          } else {
-            onFileSelected(file)
-          }
-        } else if (onError) {
-          onError(t('filedrop.invalid_type'))
-        }
+        const filesToProcess = multiple ? files : [files[0]]
+        processFiles(filesToProcess)
       }
     }
 
@@ -125,34 +108,54 @@ export function FileDropzone({
     window.addEventListener('dragleave', handleDragLeave)
     window.addEventListener('dragover', handleDragOver)
     window.addEventListener('drop', handleDrop)
+    
     return () => {
       window.removeEventListener('dragenter', handleDragEnter)
       window.removeEventListener('dragleave', handleDragLeave)
       window.removeEventListener('dragover', handleDragOver)
       window.removeEventListener('drop', handleDrop)
     }
-  }, [disabled, onFileSelected, onFilesSelected, onError, t, multiple])
+  }, [disabled, processFiles, multiple])
 
-  const active = isDragActive || windowDragActive
+  // Handle file input click
+  const handleClick = () => {
+    if (!disabled && fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  // Handle file input change
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length > 0) {
+      processFiles(files)
+    }
+    // Reset input value to allow selecting the same file again
+    e.target.value = ''
+  }
 
   return (
     <div
-      {...getRootProps()}
+      onClick={handleClick}
       className={
         'border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ' +
         (disabled
           ? 'opacity-50 cursor-not-allowed border-input'
-          : active
+          : dragActive
           ? 'border-primary bg-muted text-foreground'
           : 'border-input hover:border-primary text-muted-foreground')
       }
     >
-      <input {...getInputProps()} />
-      {active ? (
-        <p className="text-sm">{t('filedrop.instruction')}</p>
-      ) : (
-        <p className="text-sm">{t('filedrop.instruction')}</p>
-      )}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple={multiple}
+        accept={Object.values(ACCEPT_CONFIG).flat().join(',')}
+        onChange={handleFileInputChange}
+        className="hidden"
+        disabled={disabled}
+      />
+      <p className="text-sm">{t('filedrop.instruction')}</p>
     </div>
   )
 }

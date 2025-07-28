@@ -913,7 +913,13 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 		}
 	}
 
-	// Return success with all uploaded paths
+	// Return success with all uploaded paths as JSON array for proper HTML list rendering
+	pathsJSONBytes, err := json.Marshal(uploadedPaths)
+	if err != nil {
+		// Fallback to simple join if JSON marshaling fails
+		return "backend.status.upload_success_multiple", map[string]string{"paths": strings.Join(uploadedPaths, "\n")}, nil
+	}
+	
 	jobStore.UpdateProgress(jobID, 100)
-	return "backend.status.upload_success_multiple", map[string]string{"paths": strings.Join(uploadedPaths, "\n")}, nil
+	return "backend.status.upload_success_multiple", map[string]string{"paths": string(pathsJSONBytes)}, nil
 }

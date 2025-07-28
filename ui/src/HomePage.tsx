@@ -116,6 +116,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [status, setStatus] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const [statusData, setStatusData] = useState<Record<string, string> | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [uploadPhase, setUploadPhase] = useState<'idle' | 'uploading' | 'processing'>('idle');
@@ -293,6 +294,7 @@ export default function HomePage() {
     setLoading(true);
     setMessage("");
     setStatus("");
+    setStatusData(null);
     setUploadProgress(0);
     setUploadPhase('idle');
 
@@ -328,6 +330,7 @@ export default function HomePage() {
         await waitForJobWS(jobId, (st) => {
           setStatus(st.status.toLowerCase());
           setMessage(t(st.message, st.data || {}));
+          setStatusData(st.data || null);
           if (typeof st.progress === "number") {
             setProgress(st.progress);
           }
@@ -343,6 +346,7 @@ export default function HomePage() {
         setProgress(0);
         setUploadProgress(0);
         setUploadPhase('idle');
+        setStatusData(null);
         setLoading(false);
       }
     } else {
@@ -380,6 +384,7 @@ export default function HomePage() {
         await waitForJobWS(jobId, (st) => {
           setStatus(st.status.toLowerCase());
           setMessage(t(st.message, st.data || {}));
+          setStatusData(st.data || null);
           if (typeof st.progress === "number") {
             setProgress(st.progress);
           }
@@ -391,6 +396,7 @@ export default function HomePage() {
       } finally {
         setUrl("");
         setProgress(0);
+        setStatusData(null);
         setLoading(false);
       }
     }
@@ -450,7 +456,7 @@ export default function HomePage() {
                 setUrlMime(null);
               }}
               onFilesSelected={(files) => {
-                setSelectedFiles(files);
+                setSelectedFiles(prev => [...prev, ...files]);
                 if (url) {
                   setUrl("");
                 }
@@ -581,7 +587,32 @@ export default function HomePage() {
               {status === "error" && (
                 <XCircle className="size-4 flex-shrink-0 text-destructive" />
               )}
-              <span className="break-words">{message}</span>
+{(() => {
+                // Check if this is a multiple files success message with JSON paths
+                if (status === "success" && statusData?.paths) {
+                  try {
+                    const paths = JSON.parse(statusData.paths);
+                    if (Array.isArray(paths) && paths.length > 1) {
+                      // Get the translated message template and extract the part before paths
+                      const messageTemplate = t("backend.status.upload_success_multiple", { paths: "{{PATHS_PLACEHOLDER}}" });
+                      const beforePaths = messageTemplate.split("{{PATHS_PLACEHOLDER}}")[0].trim();
+                      return (
+                        <div className="break-words">
+                          <div>{beforePaths}</div>
+                          <ul className="list-disc ml-4 mt-1 space-y-1">
+                            {paths.map((path, index) => (
+                              <li key={index} className="text-sm leading-relaxed">{path}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    }
+                  } catch (e) {
+                    // Fall back to regular text rendering if JSON parsing fails
+                  }
+                }
+                return <span className="break-words whitespace-pre-line">{message}</span>;
+              })()}
             </div>
           )}
           {(uploadPhase === 'uploading' && uploadProgress > 0 && uploadProgress < 100) ||
