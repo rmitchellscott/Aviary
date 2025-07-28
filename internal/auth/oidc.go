@@ -621,3 +621,8 @@ func shouldBeAdminFromGroups(groups []string, isFirstUser bool) bool {
 func IsOIDCGroupBasedAdminEnabled() bool {
 	return config.Get("OIDC_ADMIN_GROUP", "") != ""
 }
+
+// GetOIDCButtonText returns the custom button text for OIDC login, or empty string to use i18n fallback
+func GetOIDCButtonText() string {
+	return config.Get("OIDC_BUTTON_TEXT", "")
+}

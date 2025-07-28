@@ -79,10 +79,14 @@ func ConfigHandler(c *gin.Context) {
 	// Check authentication methods (multi-user mode only)
 	oidcEnabled := false
 	oidcSsoOnly := false
+	oidcButtonText := ""
 	proxyAuthEnabled := false
 	if multiUserMode {
 		oidcEnabled = auth.IsOIDCEnabled()
 		oidcSsoOnly = auth.IsOIDCSsoOnlyEnabled()
+		if oidcEnabled {
+			oidcButtonText = auth.GetOIDCButtonText()
+		}
 		proxyAuthEnabled = auth.IsProxyAuthEnabled()
 	}
 
@@ -96,6 +100,7 @@ func ConfigHandler(c *gin.Context) {
 		"smtpConfigured":   smtpConfigured,
 		"oidcEnabled":      oidcEnabled,
 		"oidcSsoOnly":      oidcSsoOnly,
+		"oidcButtonText":   oidcButtonText,
 		"proxyAuthEnabled": proxyAuthEnabled,
 		"oidcGroupBasedAdmin": auth.IsOIDCGroupBasedAdminEnabled(),
 	}

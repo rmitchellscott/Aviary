@@ -10,6 +10,7 @@ interface Config {
   smtpConfigured: boolean;
   oidcEnabled: boolean;
   oidcSsoOnly: boolean;
+  oidcButtonText: string;
   proxyAuthEnabled: boolean;
   oidcGroupBasedAdmin: boolean;
   rmapi_paired?: boolean;

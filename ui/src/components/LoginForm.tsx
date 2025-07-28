@@ -23,6 +23,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
   const [oidcEnabled, setOidcEnabled] = useState(false);
   const [oidcSsoOnly, setOidcSsoOnly] = useState(false);
+  const [oidcButtonText, setOidcButtonText] = useState("");
   const [proxyAuthEnabled, setProxyAuthEnabled] = useState(false);
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
           setSmtpConfigured(config.smtpConfigured || false);
           setOidcEnabled(config.oidcEnabled || false);
           setOidcSsoOnly(config.oidcSsoOnly || false);
+          setOidcButtonText(config.oidcButtonText || "");
           setProxyAuthEnabled(config.proxyAuthEnabled || false);
         }
         
@@ -122,7 +124,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                 variant={isSsoOnly ? "default" : "outline"}
                 disabled={loading}
               >
-                {t("login.sso_button")}
+                {oidcButtonText || t("login.sso_button")}
               </Button>
               {/* Only show divider if not in SSO-only mode */}
               {!oidcSsoOnly && (
