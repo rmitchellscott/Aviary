@@ -118,6 +118,15 @@ func IsOIDCEnabled() bool {
 	return oidcEnabled
 }
 
+// IsOIDCSsoOnlyEnabled returns true if OIDC SSO-only mode is enabled
+func IsOIDCSsoOnlyEnabled() bool {
+	if !oidcEnabled {
+		return false
+	}
+	ssoOnly := config.Get("OIDC_SSO_ONLY", "")
+	return ssoOnly == "true" || ssoOnly == "1"
+}
+
 // OIDCAuthHandler initiates OIDC authentication flow
 func OIDCAuthHandler(c *gin.Context) {
 	if !oidcEnabled {

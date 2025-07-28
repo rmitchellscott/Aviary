@@ -78,9 +78,11 @@ func ConfigHandler(c *gin.Context) {
 
 	// Check authentication methods (multi-user mode only)
 	oidcEnabled := false
+	oidcSsoOnly := false
 	proxyAuthEnabled := false
 	if multiUserMode {
 		oidcEnabled = auth.IsOIDCEnabled()
+		oidcSsoOnly = auth.IsOIDCSsoOnlyEnabled()
 		proxyAuthEnabled = auth.IsProxyAuthEnabled()
 	}
 
@@ -93,6 +95,7 @@ func ConfigHandler(c *gin.Context) {
 		"rmapi_host":       rmapiHost,
 		"smtpConfigured":   smtpConfigured,
 		"oidcEnabled":      oidcEnabled,
+		"oidcSsoOnly":      oidcSsoOnly,
 		"proxyAuthEnabled": proxyAuthEnabled,
 		"oidcGroupBasedAdmin": auth.IsOIDCGroupBasedAdminEnabled(),
 	}
