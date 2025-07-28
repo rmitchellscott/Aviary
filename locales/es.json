@@ -148,7 +148,7 @@
       "restore_backup": "Restaurar desde Respaldo",
       "upload_restore": "Subir Restauración",
       "cancel": "Cancelar",
-      "restore_database": "Restaurar Base de Datos"
+      "restore_database": "Restaurar"
     },
     "tabs": {
       "overview": "Resumen",
@@ -233,7 +233,8 @@
     "documents": "Todos los documentos de usuario y archivos",
     "pairing": "Toda la configuración de vinculación en la nube",
     "folders": "Todos los caches de carpetas",
-    "settings": "Todas las configuraciones del sistema"
+    "settings": "Todas las configuraciones del sistema",
+    "backups": "Todos los archivos de respaldo almacenados"
     },
     "restore_final_warning": "Esta acción no se puede deshacer. Asegúrate de tener un respaldo actual antes de continuar."
     },
@@ -250,10 +251,33 @@
     "backup_file_type": "Tipo de archivo inválido. Selecciona un archivo de respaldo (.tar.gz o .tgz). Archivo seleccionado: ",
     "restore_failed": "Error al restaurar base de datos",
     "restore_error": "Error al restaurar base de datos: ",
-      "backup_download": "Error al descargar archivo de respaldo"
+    "restore_cancel_failed": "Error al cancelar restauración",
+    "restore_delete_failed": "Error al eliminar carga de restauración",
+    "restore_import_failed": "Error al importar datos de respaldo",
+    "restore_delete_record_failed": "Error al eliminar registro de restauración",
+    "parse_form_failed": "Error al analizar formulario de carga",
+    "create_temp_file_failed": "Error al crear archivo temporal",
+    "save_uploaded_file_failed": "Error al guardar archivo cargado",
+    "backup_analyze_failed": "Error al analizar archivo de respaldo",
+    "get_file_info_failed": "Error al obtener información del archivo",
+    "save_upload_record_failed": "Error al guardar registro de carga",
+    "invalid_request": "Solicitud inválida",
+    "invalid_upload_id": "ID de carga inválido",
+    "upload_not_found": "Carga no encontrada",
+    "create_backup_job_failed": "Error al crear trabajo de respaldo",
+    "get_backup_jobs_failed": "Error al obtener trabajos de respaldo",
+    "invalid_job_id": "ID de trabajo inválido",
+    "backup_job_not_found": "Trabajo de respaldo no encontrado",
+    "delete_backup_job_failed": "Error al eliminar trabajo de respaldo",
+      "backup_download": "Error al descargar archivo de respaldo",
+      "no_backup_file": "No se proporcionó archivo de respaldo",
+      "backup_not_found": "Archivo de respaldo no encontrado",
+      "backup_not_ready": "Respaldo no listo para descarga",
+      "backup_file_unavailable": "Archivo de respaldo no disponible"
     },
     "success": {
-    "restore_complete": "Base de datos restaurada exitosamente"
+    "restore_complete": "Base de datos restaurada exitosamente",
+    "backup_restored": "Respaldo restaurado exitosamente desde {{filename}}"
     },
     "backup": {
       "create_backup": "Crear Respaldo",

@@ -148,7 +148,7 @@
       "restore_backup": "Przywróć z kopii zapasowej",
       "upload_restore": "Prześlij przywracanie",
       "cancel": "Anuluj",
-      "restore_database": "Przywróć bazę danych"
+      "restore_database": "Przywróć"
     },
     "tabs": {
       "overview": "Przegląd",
@@ -233,7 +233,8 @@
         "documents": "Wszystkie dokumenty i pliki użytkowników",
         "pairing": "Całą konfigurację parowania chmury",
         "folders": "Wszystkie pamięci podręczne folderów",
-        "settings": "Wszystkie ustawienia systemu"
+        "settings": "Wszystkie ustawienia systemu",
+        "backups": "Wszystkie zapisane pliki kopii zapasowych"
       },
       "restore_final_warning": "Tej akcji nie można cofnąć. Upewnij się, że masz aktualną kopię zapasową przed kontynuowaniem."
     },
@@ -250,10 +251,33 @@
       "backup_file_type": "Nieprawidłowy typ pliku. Wybierz archiwum kopii zapasowej (.tar.gz lub .tgz). Wybrany plik: ",
       "restore_failed": "Nie udało się przywrócić bazy danych",
       "restore_error": "Nie udało się przywrócić bazy danych: ",
-      "backup_download": "Nie udało się pobrać pliku kopii zapasowej"
+      "restore_cancel_failed": "Nie udało się anulować przywracania",
+      "restore_delete_failed": "Nie udało się usunąć przesyłania przywracania",
+      "restore_import_failed": "Nie udało się zaimportować danych kopii zapasowej",
+      "restore_delete_record_failed": "Nie udało się usunąć rekordu przywracania",
+      "parse_form_failed": "Nie udało się przeanalizować formularza przesyłania",
+      "create_temp_file_failed": "Nie udało się utworzyć pliku tymczasowego",
+      "save_uploaded_file_failed": "Nie udało się zapisać przesłanego pliku",
+      "backup_analyze_failed": "Nie udało się przeanalizować pliku kopii zapasowej",
+      "get_file_info_failed": "Nie udało się pobrać informacji o pliku",
+      "save_upload_record_failed": "Nie udało się zapisać rekordu przesyłania",
+      "invalid_request": "Nieprawidłowe żądanie",
+      "invalid_upload_id": "Nieprawidłowy identyfikator przesyłania",
+      "upload_not_found": "Przesyłanie nie znalezione",
+      "create_backup_job_failed": "Nie udało się utworzyć zadania kopii zapasowej",
+      "get_backup_jobs_failed": "Nie udało się pobrać zadań kopii zapasowej",
+      "invalid_job_id": "Nieprawidłowy identyfikator zadania",
+      "backup_job_not_found": "Zadanie kopii zapasowej nie znalezione",
+      "delete_backup_job_failed": "Nie udało się usunąć zadania kopii zapasowej",
+      "backup_download": "Nie udało się pobrać pliku kopii zapasowej",
+      "no_backup_file": "Nie podano pliku kopii zapasowej",
+      "backup_not_found": "Plik kopii zapasowej nie znaleziony",
+      "backup_not_ready": "Kopia zapasowa nie jest gotowa do pobrania",
+      "backup_file_unavailable": "Plik kopii zapasowej niedostępny"
     },
     "success": {
-      "restore_complete": "Baza danych przywrócona pomyślnie"
+      "restore_complete": "Baza danych przywrócona pomyślnie",
+      "backup_restored": "Kopia zapasowa przywrócona pomyślnie z {{filename}}"
     },
     "backup": {
       "create_backup": "Utwórz kopię zapasową",

@@ -148,7 +148,7 @@
       "restore_backup": "从备份还原",
       "upload_restore": "上传还原",
       "cancel": "取消",
-      "restore_database": "还原数据库"
+      "restore_database": "还原"
     },
     "tabs": {
       "overview": "概览",
@@ -233,7 +233,8 @@
         "documents": "所有用户文档和文件",
         "pairing": "所有云配对配置",
         "folders": "所有文件夹缓存",
-        "settings": "所有系统设置"
+        "settings": "所有系统设置",
+        "backups": "所有已存储的备份文件"
       },
       "restore_final_warning": "此操作无法撤销。请确保在继续之前有当前备份。"
     },
@@ -250,10 +251,33 @@
       "backup_file_type": "无效的文件类型。请选择备份档案（.tar.gz或.tgz）。选择的文件：",
       "restore_failed": "还原数据库失败",
       "restore_error": "还原数据库失败：",
-      "backup_download": "下载备份文件失败"
+      "restore_cancel_failed": "取消还原失败",
+      "restore_delete_failed": "删除还原上传失败",
+      "restore_import_failed": "导入备份数据失败",
+      "restore_delete_record_failed": "删除还原记录失败",
+      "parse_form_failed": "解析上传表单失败",
+      "create_temp_file_failed": "创建临时文件失败",
+      "save_uploaded_file_failed": "保存上传文件失败",
+      "backup_analyze_failed": "分析备份文件失败",
+      "get_file_info_failed": "获取文件信息失败",
+      "save_upload_record_failed": "保存上传记录失败",
+      "invalid_request": "无效请求",
+      "invalid_upload_id": "无效上传ID",
+      "upload_not_found": "找不到上传",
+      "create_backup_job_failed": "创建备份作业失败",
+      "get_backup_jobs_failed": "获取备份作业失败",
+      "invalid_job_id": "无效作业ID",
+      "backup_job_not_found": "找不到备份作业",
+      "delete_backup_job_failed": "删除备份作业失败",
+      "backup_download": "下载备份文件失败",
+      "no_backup_file": "未提供备份文件",
+      "backup_not_found": "找不到备份文件",
+      "backup_not_ready": "备份未准备好下载",
+      "backup_file_unavailable": "备份文件不可用"
     },
     "success": {
-      "restore_complete": "数据库还原成功"
+      "restore_complete": "数据库还原成功",
+      "backup_restored": "备份从{{filename}}还原成功"
     },
     "backup": {
       "create_backup": "创建备份",

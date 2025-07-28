@@ -148,7 +148,7 @@
       "restore_backup": "Ripristina da Backup",
       "upload_restore": "Carica Ripristino",
       "cancel": "Annulla",
-      "restore_database": "Ripristina Database"
+      "restore_database": "Ripristina"
     },
     "tabs": {
       "overview": "Panoramica",
@@ -233,7 +233,8 @@
         "documents": "Tutti i documenti e file utente",
         "pairing": "Tutta la configurazione di collegamento cloud",
         "folders": "Tutte le cache delle cartelle",
-        "settings": "Tutte le impostazioni di sistema"
+        "settings": "Tutte le impostazioni di sistema",
+        "backups": "Tutti i file di backup memorizzati"
       },
       "restore_final_warning": "Questa azione non può essere annullata. Assicurati di avere un backup corrente prima di procedere."
     },
@@ -250,10 +251,33 @@
       "backup_file_type": "Tipo di file non valido. Seleziona un archivio di backup (.tar.gz o .tgz). File selezionato: ",
       "restore_failed": "Impossibile ripristinare il database",
       "restore_error": "Impossibile ripristinare il database: ",
-      "backup_download": "Download del file di backup non riuscito"
+      "restore_cancel_failed": "Impossibile annullare il ripristino",
+      "restore_delete_failed": "Impossibile eliminare il caricamento di ripristino",
+      "restore_import_failed": "Impossibile importare i dati di backup",
+      "restore_delete_record_failed": "Impossibile eliminare il record di ripristino",
+      "parse_form_failed": "Impossibile analizzare il modulo di caricamento",
+      "create_temp_file_failed": "Impossibile creare il file temporaneo",
+      "save_uploaded_file_failed": "Impossibile salvare il file caricato",
+      "backup_analyze_failed": "Impossibile analizzare il file di backup",
+      "get_file_info_failed": "Impossibile ottenere le informazioni del file",
+      "save_upload_record_failed": "Impossibile salvare il record di caricamento",
+      "invalid_request": "Richiesta non valida",
+      "invalid_upload_id": "ID di caricamento non valido",
+      "upload_not_found": "Caricamento non trovato",
+      "create_backup_job_failed": "Impossibile creare il lavoro di backup",
+      "get_backup_jobs_failed": "Impossibile ottenere i lavori di backup",
+      "invalid_job_id": "ID lavoro non valido",
+      "backup_job_not_found": "Lavoro di backup non trovato",
+      "delete_backup_job_failed": "Impossibile eliminare il lavoro di backup",
+      "backup_download": "Download del file di backup non riuscito",
+      "no_backup_file": "Nessun file di backup fornito",
+      "backup_not_found": "File di backup non trovato",
+      "backup_not_ready": "Backup non pronto per il download",
+      "backup_file_unavailable": "File di backup non disponibile"
     },
     "success": {
-      "restore_complete": "Database ripristinato con successo"
+      "restore_complete": "Database ripristinato con successo",
+      "backup_restored": "Backup ripristinato con successo da {{filename}}"
     },
     "backup": {
       "create_backup": "Crea Backup",

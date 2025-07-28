@@ -121,7 +121,7 @@ func UpdateSystemSettingHandler(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error_type": "invalid_request"})
 		return
 	}
 
@@ -220,14 +220,14 @@ func AnalyzeBackupHandler(c *gin.Context) {
 
 	// Parse multipart form
 	if err := c.Request.ParseMultipartForm(32 << 20); err != nil { // 32MB max
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse multipart form: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error_type": "parse_form_failed"})
 		return
 	}
 
 	// Get uploaded file
 	file, header, err := c.Request.FormFile("backup_file")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "No backup file provided"})
+		c.JSON(http.StatusBadRequest, gin.H{"error_type": "no_backup_file"})
 		return
 	}
 	defer file.Close()
@@ -248,7 +248,7 @@ func AnalyzeBackupHandler(c *gin.Context) {
 
 	tempFile, err := os.Create(tempFilePath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create temporary file"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error_type": "create_temp_file_failed"})
 		return
 	}
 	defer os.Remove(tempFilePath)
@@ -256,7 +256,7 @@ func AnalyzeBackupHandler(c *gin.Context) {
 
 	// Copy uploaded file to temp location
 	if _, err := io.Copy(tempFile, file); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save uploaded file"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error_type": "save_uploaded_file_failed"})
 		return
 	}
 	tempFile.Close()
@@ -272,7 +272,65 @@ func AnalyzeBackupHandler(c *gin.Context) {
 	analysis, err := analyzer.AnalyzeBackup(tempFilePath)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to analyze backup: " + err.Error(),
+			"error": err.Error(),
+			"valid": false,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"valid":    true,
+		"metadata": analysis,
+	})
+}
+
+// AnalyzeRestoreUploadHandler analyzes an already uploaded restore file by ID (admin only)
+func AnalyzeRestoreUploadHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Backup analysis not available in single-user mode"})
+		return
+	}
+
+	user, ok := RequireAdmin(c)
+	if !ok {
+		return
+	}
+
+	// Get upload ID from URL parameter
+	uploadIDStr := c.Param("id")
+	uploadID, err := uuid.Parse(uploadIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error_type": "invalid_upload_id"})
+		return
+	}
+
+	// Find uploaded file in database
+	var restoreUpload database.RestoreUpload
+	if err := database.DB.Where("id = ? AND admin_user_id = ? AND status = ?", uploadID, user.ID, "uploaded").First(&restoreUpload).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error_type": "upload_not_found"})
+		return
+	}
+
+	// Check if file still exists
+	if _, err := os.Stat(restoreUpload.FilePath); os.IsNotExist(err) {
+		// Clean up database record
+		database.DB.Delete(&restoreUpload)
+		c.JSON(http.StatusNotFound, gin.H{"error_type": "upload_not_found"})
+		return
+	}
+
+	// Create analyzer
+	dataDir := config.Get("DATA_DIR", "")
+	if dataDir == "" {
+		dataDir = "/data"
+	}
+	analyzer := export.NewAnalyzer(database.DB, dataDir)
+
+	// Analyze backup
+	analysis, err := analyzer.AnalyzeBackup(restoreUpload.FilePath)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
 			"valid": false,
 		})
 		return
@@ -297,13 +355,13 @@ func UploadRestoreFileHandler(c *gin.Context) {
 	}
 
 	if err := c.Request.ParseMultipartForm(32 << 20); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse multipart form: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error_type": "parse_form_failed"})
 		return
 	}
 
 	file, header, err := c.Request.FormFile("backup_file")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "No backup file provided"})
+		c.JSON(http.StatusBadRequest, gin.H{"error_type": "no_backup_file"})
 		return
 	}
 	defer file.Close()
@@ -323,13 +381,13 @@ func UploadRestoreFileHandler(c *gin.Context) {
 
 	tempFile, err := os.Create(tempFilePath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create temporary file"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error_type": "create_temp_file_failed"})
 		return
 	}
 	defer tempFile.Close()
 
 	if _, err := io.Copy(tempFile, file); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save uploaded file"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error_type": "save_uploaded_file_failed"})
 		return
 	}
 
@@ -337,7 +395,7 @@ func UploadRestoreFileHandler(c *gin.Context) {
 	fileInfo, err := tempFile.Stat()
 	if err != nil {
 		os.Remove(tempFilePath)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get file info"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error_type": "get_file_info_failed"})
 		return
 	}
 
@@ -354,7 +412,7 @@ func UploadRestoreFileHandler(c *gin.Context) {
 
 	if err := database.DB.Create(&restoreUpload).Error; err != nil {
 		os.Remove(tempFilePath)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save upload record"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error_type": "save_upload_record_failed"})
 		return
 	}
 
@@ -388,20 +446,20 @@ func RestoreDatabaseHandler(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error_type": "invalid_request"})
 		return
 	}
 
 	// Find uploaded file in database
 	uploadID, err := uuid.Parse(req.UploadID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid upload ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error_type": "invalid_upload_id"})
 		return
 	}
 
 	var restoreUpload database.RestoreUpload
 	if err := database.DB.Where("id = ? AND admin_user_id = ? AND status = ?", uploadID, user.ID, "uploaded").First(&restoreUpload).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Uploaded file not found or expired"})
+		c.JSON(http.StatusNotFound, gin.H{"error_type": "upload_not_found"})
 		return
 	}
 
@@ -409,7 +467,7 @@ func RestoreDatabaseHandler(c *gin.Context) {
 	if _, err := os.Stat(restoreUpload.FilePath); os.IsNotExist(err) {
 		// Clean up database record
 		database.DB.Delete(&restoreUpload)
-		c.JSON(http.StatusNotFound, gin.H{"error": "Uploaded file not found or expired"})
+		c.JSON(http.StatusNotFound, gin.H{"error_type": "upload_not_found"})
 		return
 	}
 
@@ -433,10 +491,10 @@ func RestoreDatabaseHandler(c *gin.Context) {
 		UserIDs:           userIDs,
 	}
 
-	metadata, err := importer.Import(restoreUpload.FilePath, importOptions)
+	_, err = importer.Import(restoreUpload.FilePath, importOptions)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to restore backup: " + err.Error(),
+			"error_type": "restore_import_failed",
 		})
 		return
 	}
@@ -447,13 +505,6 @@ func RestoreDatabaseHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": fmt.Sprintf("Backup restored successfully from %s", restoreUpload.Filename),
-		"metadata": gin.H{
-			"aviary_version": metadata.AviaryVersion,
-			"database_type":  metadata.DatabaseType,
-			"users_restored": len(metadata.UsersExported),
-			"export_date":    metadata.ExportTimestamp.Format("2006-01-02 15:04:05"),
-		},
 	})
 }
 
@@ -497,13 +548,13 @@ func DeleteRestoreUploadHandler(c *gin.Context) {
 	uploadIDStr := c.Param("id")
 	uploadID, err := uuid.Parse(uploadIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid upload ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error_type": "invalid_upload_id"})
 		return
 	}
 
 	var restoreUpload database.RestoreUpload
 	if err := database.DB.Where("id = ? AND admin_user_id = ?", uploadID, user.ID).First(&restoreUpload).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Restore upload not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error_type": "upload_not_found"})
 		return
 	}
 
@@ -514,13 +565,14 @@ func DeleteRestoreUploadHandler(c *gin.Context) {
 
 	// Delete the database record
 	if err := database.DB.Delete(&restoreUpload).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete restore upload"})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error_type": "restore_delete_record_failed",
+		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "Restore upload deleted successfully",
 	})
 }
 
@@ -555,7 +607,7 @@ func CreateBackupJobHandler(c *gin.Context) {
 	job, err := backup.CreateBackupJob(database.DB, user.ID, includeFiles, includeConfigs, userIDs)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to create backup job: " + err.Error(),
+			"error_type": "create_backup_job_failed",
 		})
 		return
 	}
@@ -582,7 +634,7 @@ func GetBackupJobsHandler(c *gin.Context) {
 	jobs, err := backup.GetBackupJobs(database.DB, user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to get backup jobs: " + err.Error(),
+			"error_type": "get_backup_jobs_failed",
 		})
 		return
 	}
@@ -607,13 +659,13 @@ func GetBackupJobHandler(c *gin.Context) {
 	jobIDStr := c.Param("id")
 	jobID, err := uuid.Parse(jobIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid job ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error_type": "invalid_job_id"})
 		return
 	}
 
 	job, err := backup.GetBackupJob(database.DB, jobID, user.ID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Backup job not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error_type": "backup_job_not_found"})
 		return
 	}
 
@@ -635,29 +687,29 @@ func DownloadBackupHandler(c *gin.Context) {
 	jobIDStr := c.Param("id")
 	jobID, err := uuid.Parse(jobIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid job ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error_type": "invalid_job_id"})
 		return
 	}
 
 	job, err := backup.GetBackupJob(database.DB, jobID, user.ID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Backup job not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error_type": "backup_job_not_found"})
 		return
 	}
 
 	if job.Status != "completed" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Backup not ready for download"})
+		c.JSON(http.StatusBadRequest, gin.H{"error_type": "backup_not_ready"})
 		return
 	}
 
 	if job.FilePath == "" || job.Filename == "" {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Backup file not available"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error_type": "backup_file_unavailable"})
 		return
 	}
 
 	// Check if file exists
 	if _, err := os.Stat(job.FilePath); os.IsNotExist(err) {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Backup file not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error_type": "backup_not_found"})
 		return
 	}
 
@@ -685,13 +737,13 @@ func DeleteBackupJobHandler(c *gin.Context) {
 	jobIDStr := c.Param("id")
 	jobID, err := uuid.Parse(jobIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid job ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error_type": "invalid_job_id"})
 		return
 	}
 
 	if err := backup.DeleteBackupJob(database.DB, jobID, user.ID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to delete backup job: " + err.Error(),
+			"error_type": "delete_backup_job_failed",
 		})
 		return
 	}

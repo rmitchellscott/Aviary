@@ -148,7 +148,7 @@
       "restore_backup": "Herstellen van backup",
       "upload_restore": "Upload Herstel",
       "cancel": "Annuleren",
-      "restore_database": "Database herstellen"
+      "restore_database": "Herstellen"
     },
     "tabs": {
       "overview": "Overzicht",
@@ -233,7 +233,8 @@
         "documents": "Alle gebruikersdocumenten en bestanden",
         "pairing": "Alle cloud koppeling configuratie",
         "folders": "Alle map caches",
-        "settings": "Alle systeeminstellingen"
+        "settings": "Alle systeeminstellingen",
+        "backups": "Alle opgeslagen backup bestanden"
       },
       "restore_final_warning": "Deze actie kan niet ongedaan worden gemaakt. Zorg ervoor dat je een huidige backup hebt voordat je doorgaat."
     },
@@ -250,10 +251,33 @@
       "backup_file_type": "Ongeldig bestandstype. Selecteer een backup archief (.tar.gz of .tgz). Geselecteerd bestand: ",
       "restore_failed": "Kon database niet herstellen",
       "restore_error": "Kon database niet herstellen: ",
-      "backup_download": "Download van backup-bestand mislukt"
+      "restore_cancel_failed": "Kon herstel niet annuleren",
+      "restore_delete_failed": "Kon herstel upload niet verwijderen",
+      "restore_import_failed": "Kon backup gegevens niet importeren",
+      "restore_delete_record_failed": "Kon herstel record niet verwijderen",
+      "parse_form_failed": "Kon upload formulier niet parsen",
+      "create_temp_file_failed": "Kon tijdelijk bestand niet maken",
+      "save_uploaded_file_failed": "Kon geüpload bestand niet opslaan",
+      "backup_analyze_failed": "Kon backup bestand niet analyseren",
+      "get_file_info_failed": "Kon bestandsinformatie niet ophalen",
+      "save_upload_record_failed": "Kon upload record niet opslaan",
+      "invalid_request": "Ongeldig verzoek",
+      "invalid_upload_id": "Ongeldige upload ID",
+      "upload_not_found": "Upload niet gevonden",
+      "create_backup_job_failed": "Kon backup-taak niet maken",
+      "get_backup_jobs_failed": "Kon backup-taken niet ophalen",
+      "invalid_job_id": "Ongeldige taak ID",
+      "backup_job_not_found": "Backup-taak niet gevonden",
+      "delete_backup_job_failed": "Kon backup-taak niet verwijderen",
+      "backup_download": "Download van backup-bestand mislukt",
+      "no_backup_file": "Geen backup-bestand opgegeven",
+      "backup_not_found": "Backup-bestand niet gevonden",
+      "backup_not_ready": "Backup niet klaar voor download",
+      "backup_file_unavailable": "Backup-bestand niet beschikbaar"
     },
     "success": {
-      "restore_complete": "Database succesvol hersteld"
+      "restore_complete": "Database succesvol hersteld",
+      "backup_restored": "Backup succesvol hersteld van {{filename}}"
     },
     "backup": {
       "create_backup": "Backup Maken",

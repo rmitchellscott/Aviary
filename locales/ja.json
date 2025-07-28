@@ -148,7 +148,7 @@
       "restore_backup": "バックアップから復元",
       "upload_restore": "復元アップロード",
       "cancel": "キャンセル",
-      "restore_database": "データベース復元"
+      "restore_database": "復元"
     },
     "tabs": {
       "overview": "概要",
@@ -233,7 +233,8 @@
         "documents": "すべてのユーザードキュメントとファイル",
         "pairing": "すべてのクラウドペアリング設定",
         "folders": "すべてのフォルダキャッシュ",
-        "settings": "すべてのシステム設定"
+        "settings": "すべてのシステム設定",
+        "backups": "保存されたすべてのバックアップファイル"
       },
       "restore_final_warning": "この操作は元に戻すことができません。続行する前に最新のバックアップがあることを確認してください。"
     },
@@ -250,10 +251,33 @@
       "backup_file_type": "無効なファイルタイプ。バックアップアーカイブ（.tar.gzまたは.tgz）を選択してください。選択されたファイル: ",
       "restore_failed": "データベースの復元に失敗しました",
       "restore_error": "データベースの復元に失敗しました: ",
-      "backup_download": "バックアップファイルのダウンロードに失敗しました"
+      "restore_cancel_failed": "復元のキャンセルに失敗しました",
+      "restore_delete_failed": "復元アップロードの削除に失敗しました",
+      "restore_import_failed": "バックアップデータのインポートに失敗しました",
+      "restore_delete_record_failed": "復元レコードの削除に失敗しました",
+      "parse_form_failed": "アップロードフォームの解析に失敗しました",
+      "create_temp_file_failed": "一時ファイルの作成に失敗しました",
+      "save_uploaded_file_failed": "アップロードファイルの保存に失敗しました",
+      "backup_analyze_failed": "バックアップファイルの分析に失敗しました",
+      "get_file_info_failed": "ファイル情報の取得に失敗しました",
+      "save_upload_record_failed": "アップロードレコードの保存に失敗しました",
+      "invalid_request": "無効なリクエスト",
+      "invalid_upload_id": "無効なアップロードID",
+      "upload_not_found": "アップロードが見つかりません",
+      "create_backup_job_failed": "バックアップジョブの作成に失敗しました",
+      "get_backup_jobs_failed": "バックアップジョブの取得に失敗しました",
+      "invalid_job_id": "無効なジョブID",
+      "backup_job_not_found": "バックアップジョブが見つかりません",
+      "delete_backup_job_failed": "バックアップジョブの削除に失敗しました",
+      "backup_download": "バックアップファイルのダウンロードに失敗しました",
+      "no_backup_file": "バックアップファイルが提供されていません",
+      "backup_not_found": "バックアップファイルが見つかりません",
+      "backup_not_ready": "バックアップがダウンロードの準備ができていません",
+      "backup_file_unavailable": "バックアップファイルが利用できません"
     },
     "success": {
-      "restore_complete": "データベースが正常に復元されました"
+      "restore_complete": "データベースが正常に復元されました",
+      "backup_restored": "{{filename}}からバックアップが正常に復元されました"
     },
     "backup": {
       "create_backup": "バックアップ作成",

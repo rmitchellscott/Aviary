@@ -148,7 +148,7 @@
       "restore_backup": "Restaurar do backup",
       "upload_restore": "Enviar restauração",
       "cancel": "Cancelar",
-      "restore_database": "Restaurar banco de dados"
+      "restore_database": "Restaurar"
     },
     "tabs": {
       "overview": "Visão geral",
@@ -233,7 +233,8 @@
         "documents": "Todos os documentos e arquivos de usuário",
         "pairing": "Toda a configuração de emparelhamento na nuvem",
         "folders": "Todos os caches de pastas",
-        "settings": "Todas as configurações do sistema"
+        "settings": "Todas as configurações do sistema",
+        "backups": "Todos os arquivos de backup armazenados"
       },
       "restore_final_warning": "Esta ação não pode ser desfeita. Certifique-se de ter um backup atual antes de prosseguir."
     },
@@ -250,10 +251,33 @@
       "backup_file_type": "Tipo de arquivo inválido. Selecione um arquivo de backup (.tar.gz ou .tgz). Arquivo selecionado: ",
       "restore_failed": "Falha ao restaurar banco de dados",
       "restore_error": "Falha ao restaurar banco de dados: ",
-      "backup_download": "Falha ao baixar arquivo de backup"
+      "restore_cancel_failed": "Falha ao cancelar restauração",
+      "restore_delete_failed": "Falha ao excluir upload de restauração",
+      "restore_import_failed": "Falha ao importar dados de backup",
+      "restore_delete_record_failed": "Falha ao excluir registro de restauração",
+      "parse_form_failed": "Falha ao analisar formulário de upload",
+      "create_temp_file_failed": "Falha ao criar arquivo temporário",
+      "save_uploaded_file_failed": "Falha ao salvar arquivo enviado",
+      "backup_analyze_failed": "Falha ao analisar arquivo de backup",
+      "get_file_info_failed": "Falha ao obter informações do arquivo",
+      "save_upload_record_failed": "Falha ao salvar registro de upload",
+      "invalid_request": "Solicitação inválida",
+      "invalid_upload_id": "ID de upload inválido",
+      "upload_not_found": "Upload não encontrado",
+      "create_backup_job_failed": "Falha ao criar trabalho de backup",
+      "get_backup_jobs_failed": "Falha ao obter trabalhos de backup",
+      "invalid_job_id": "ID de trabalho inválido",
+      "backup_job_not_found": "Trabalho de backup não encontrado",
+      "delete_backup_job_failed": "Falha ao excluir trabalho de backup",
+      "backup_download": "Falha ao baixar arquivo de backup",
+      "no_backup_file": "Nenhum arquivo de backup fornecido",
+      "backup_not_found": "Arquivo de backup não encontrado",
+      "backup_not_ready": "Backup não está pronto para download",
+      "backup_file_unavailable": "Arquivo de backup indisponível"
     },
     "success": {
-      "restore_complete": "Banco de dados restaurado com sucesso"
+      "restore_complete": "Banco de dados restaurado com sucesso",
+      "backup_restored": "Backup restaurado com sucesso de {{filename}}"
     },
     "backup": {
       "create_backup": "Criar backup",

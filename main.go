@@ -205,6 +205,7 @@ func main() {
 		admin.DELETE("/backup-job/:id", auth.DeleteBackupJobHandler)      // DELETE /api/admin/backup-job/:id - delete backup job
 		admin.POST("/restore/upload", auth.UploadRestoreFileHandler) // POST /api/admin/restore/upload - upload restore file
 		admin.GET("/restore/uploads", auth.GetRestoreUploadsHandler) // GET /api/admin/restore/uploads - get pending uploads
+		admin.POST("/restore/uploads/:id/analyze", auth.AnalyzeRestoreUploadHandler) // POST /api/admin/restore/uploads/:id/analyze - analyze uploaded restore file
 		admin.DELETE("/restore/uploads/:id", auth.DeleteRestoreUploadHandler) // DELETE /api/admin/restore/uploads/:id - delete restore upload
 		admin.POST("/restore", auth.RestoreDatabaseHandler)      // POST /api/admin/restore - restore from backup
 	}

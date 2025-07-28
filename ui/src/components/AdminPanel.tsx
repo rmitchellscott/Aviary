@@ -527,7 +527,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         await fetchBackupJobs();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || t("admin.errors.backup_create"));
+        setError(errorData.error_type ? t(`admin.errors.${errorData.error_type}`) : t("admin.errors.backup_create"));
       }
     } catch (error) {
       setError(t("admin.errors.backup_create"));
@@ -564,7 +564,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         window.URL.revokeObjectURL(url);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || t("admin.errors.backup_download"));
+        setError(errorData.error_type ? t(`admin.errors.${errorData.error_type}`) : t("admin.errors.backup_download"));
       }
     } catch (error) {
       setError(t("admin.errors.backup_download"));
@@ -594,7 +594,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         closeDeleteBackupDialog();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || t("admin.backup.delete_error"));
+        setError(errorData.error_type ? t(`admin.errors.${errorData.error_type}`) : t("admin.backup.delete_error"));
       }
     } catch (error) {
       setError(t("admin.backup.delete_error"));
@@ -628,7 +628,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         });
         return true;
       } else {
-        setError(result.error || t("admin.errors.backup_invalid"));
+        setError(result.error_type ? t(`admin.errors.${result.error_type}`) : t("admin.errors.backup_invalid"));
         return false;
       }
     } catch (error) {
@@ -670,7 +670,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           await fetchRestoreUploads();
         } else {
           const errorData = await response.json();
-          setError(errorData.error || t("admin.errors.restore_failed"));
+          setError(errorData.error_type ? t(`admin.errors.${errorData.error_type}`) : t("admin.errors.restore_failed"));
         }
       } catch (error) {
         setError(t("admin.errors.restore_failed"));
@@ -708,18 +708,18 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       if (response.ok) {
         setRestoreConfirmDialog({ isOpen: false, upload: null });
         setError(null);
-        let message = result.message || "Database restored successfully";
-        if (result.metadata) {
-          message += ` (${result.metadata.users_restored} users, exported ${result.metadata.export_date})`;
-        }
+        // Extract filename from the uploaded file
+        const filename = restoreConfirmDialog.upload?.filename || 'backup file';
+        const message = t("admin.success.backup_restored", { filename });
         setSuccessMessage(message);
         // Refresh system status after restore
         await fetchSystemStatus();
         await fetchUsers();
         await fetchAPIKeys();
+        await fetchBackupJobs();
         await fetchRestoreUploads();
       } else {
-        setError(result.error || t("admin.errors.restore_failed"));
+        setError(result.error_type ? t(`admin.errors.${result.error_type}`) : t("admin.errors.restore_failed"));
       }
     } catch (error) {
       setError(t("admin.errors.restore_error") + error.message);
@@ -730,6 +730,26 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   const handleRestoreUpload = async (upload: RestoreUpload) => {
     setRestoreConfirmDialog({ isOpen: true, upload });
+    
+    // Analyze the backup to get counts for the dialog
+    try {
+      const response = await fetch(`/api/admin/restore/uploads/${upload.id}/analyze`, {
+        method: "POST",
+        credentials: "include",
+      });
+      
+      const result = await response.json();
+      if (response.ok && result.valid) {
+        setBackupCounts({
+          users: result.metadata.user_count,
+          api_keys: result.metadata.api_key_count,
+          documents: result.metadata.document_count,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to analyze backup:", error);
+      // Still show the dialog even if analysis fails
+    }
   };
 
   const closeRestoreConfirmDialog = () => {
@@ -752,10 +772,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         closeRestoreConfirmDialog();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || "Failed to cancel restore");
+        setError(errorData.error_type ? t(`admin.errors.${errorData.error_type}`) : t("admin.errors.restore_cancel_failed"));
       }
     } catch (error) {
-      setError("Failed to cancel restore");
+      setError(t("admin.errors.restore_cancel_failed"));
     }
   };
 
@@ -1618,6 +1638,25 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 <strong>{restoreConfirmDialog.upload?.filename}</strong>
               </p>
               
+              {backupCounts && (
+                <div className="bg-muted p-3 rounded-md">
+                  <p className="font-medium text-sm mb-2">{t("admin.dialogs.backup_contents")}</p>
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div className="text-center">
+                      <div className="font-semibold text-lg">{backupCounts.users}</div>
+                      <div className="text-muted-foreground">{t("admin.labels.users")}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-semibold text-lg">{backupCounts.api_keys}</div>
+                      <div className="text-muted-foreground">{t("admin.labels.api_keys")}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-semibold text-lg">{backupCounts.documents}</div>
+                      <div className="text-muted-foreground">{t("admin.labels.documents")}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
               
               <p className="text-destructive font-medium">
                 {t("admin.dialogs.restore_warning_text")}
@@ -1629,6 +1668,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 <li>{t("admin.dialogs.restore_warning_items.pairing")}</li>
                 <li>{t("admin.dialogs.restore_warning_items.folders")}</li>
                 <li>{t("admin.dialogs.restore_warning_items.settings")}</li>
+                <li>{t("admin.dialogs.restore_warning_items.backups")}</li>
               </ul>
               <p className="text-destructive font-medium">
                 {t("admin.dialogs.restore_final_warning")}

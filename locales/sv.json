@@ -148,7 +148,7 @@
       "restore_backup": "Återställ från säkerhetskopia",
       "upload_restore": "Ladda upp återställning",
       "cancel": "Avbryt",
-      "restore_database": "Återställ databas"
+      "restore_database": "Återställ"
     },
     "tabs": {
       "overview": "Översikt",
@@ -233,7 +233,8 @@
         "documents": "Alla användardokument och filer",
         "pairing": "All molnparningskonfiguration",
         "folders": "Alla mappbuffer",
-        "settings": "Alla systeminställningar"
+        "settings": "Alla systeminställningar",
+        "backups": "Alla lagrade säkerhetskopior"
       },
       "restore_final_warning": "Denna åtgärd kan inte ångras. Se till att du har en aktuell säkerhetskopia innan du fortsätter."
     },
@@ -250,10 +251,33 @@
       "backup_file_type": "Ogiltig filtyp. Välj ett säkerhetskopiearkiv (.tar.gz eller .tgz). Vald fil: ",
       "restore_failed": "Misslyckades att återställa databas",
       "restore_error": "Misslyckades att återställa databas: ",
-      "backup_download": "Misslyckades att ladda ner säkerhetskopia"
+      "restore_cancel_failed": "Misslyckades att avbryta återställning",
+      "restore_delete_failed": "Misslyckades att radera återställningsuppladdning",
+      "restore_import_failed": "Misslyckades att importera säkerhetskopiedata",
+      "restore_delete_record_failed": "Misslyckades att radera återställningspost",
+      "parse_form_failed": "Misslyckades att tolka uppladdningsformulär",
+      "create_temp_file_failed": "Misslyckades att skapa temporär fil",
+      "save_uploaded_file_failed": "Misslyckades att spara uppladdad fil",
+      "backup_analyze_failed": "Misslyckades att analysera säkerhetskopia",
+      "get_file_info_failed": "Misslyckades att hämta filinformation",
+      "save_upload_record_failed": "Misslyckades att spara uppladdningspost",
+      "invalid_request": "Ogiltig begäran",
+      "invalid_upload_id": "Ogiltigt uppladdnings-ID",
+      "upload_not_found": "Uppladdning hittades inte",
+      "create_backup_job_failed": "Misslyckades att skapa säkerhetskopieringsjobb",
+      "get_backup_jobs_failed": "Misslyckades att hämta säkerhetskopieringsjobb",
+      "invalid_job_id": "Ogiltigt jobb-ID",
+      "backup_job_not_found": "Säkerhetskopieringsjobb hittades inte",
+      "delete_backup_job_failed": "Misslyckades att radera säkerhetskopieringsjobb",
+      "backup_download": "Misslyckades att ladda ner säkerhetskopia",
+      "no_backup_file": "Ingen säkerhetskopia angiven",
+      "backup_not_found": "Säkerhetskopia hittades inte",
+      "backup_not_ready": "Säkerhetskopia inte redo för nedladdning",
+      "backup_file_unavailable": "Säkerhetskopia inte tillgänglig"
     },
     "success": {
-      "restore_complete": "Databas återställd framgångsrikt"
+      "restore_complete": "Databas återställd framgångsrikt",
+      "backup_restored": "Säkerhetskopia återställd framgångsrikt från {{filename}}"
     },
     "backup": {
       "create_backup": "Skapa säkerhetskopia",
