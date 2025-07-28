@@ -61,6 +61,9 @@ import {
   Mail,
   Server,
   AlertTriangle,
+  Loader2,
+  Download,
+  Trash2,
 } from "lucide-react";
 
 interface User {
@@ -834,54 +837,49 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
 
   const getBackupStatusButton = (job: BackupJob) => {
-    if (job.status === "completed") {
+    if (job.status === "completed" || job.status === "failed") {
       return (
         <div className="flex gap-2 shrink-0">
           <Button
             size="sm"
             variant="outline"
             onClick={() => handleDownloadBackup(job.id)}
+            disabled={job.status === "failed"}
           >
-            {t("admin.backup.download")}
+            <Download className="h-4 w-4 sm:hidden" />
+            <span className="hidden sm:inline">{t("admin.backup.download")}</span>
           </Button>
           <Button
             size="sm"
             variant="destructive"
             onClick={() => openDeleteBackupDialog(job)}
-            className="hidden sm:flex"
           >
-            {t("admin.actions.delete")}
+            <Trash2 className="h-4 w-4 sm:hidden" />
+            <span className="hidden sm:inline">{t("admin.actions.delete")}</span>
           </Button>
         </div>
       );
     }
 
-    let text;
-    let variant: "secondary" | "destructive" = "secondary";
+    let content;
 
     switch (job.status) {
       case "pending":
-        text = t("admin.backup.status.pending");
-        break;
       case "running":
-        text = t("admin.backup.status.running");
-        break;
-      case "failed":
-        text = t("admin.backup.status.failed");
-        variant = "destructive";
+        content = <Loader2 className="h-4 w-4 animate-spin" />;
         break;
       default:
-        text = job.status;
+        content = job.status;
     }
 
     return (
       <Button
         size="sm"
-        variant={variant}
+        variant="secondary"
         disabled
         className="shrink-0"
       >
-        {text}
+        {content}
       </Button>
     );
   };
@@ -1509,13 +1507,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                                   {formatDate(job.created_at)}
                                 </div>
                                 <div className="text-muted-foreground">
-                                  {job.file_size ? formatFileSize(job.file_size) : '—'}
+                                  {job.status === "failed" ? t("admin.backup.status.failed") :
+                                   job.file_size ? formatFileSize(job.file_size) : 
+                                   (job.status === "running" || job.status === "pending") ? 
+                                   (job.status === "pending" ? t("admin.backup.status.pending") : t("admin.backup.status.running")) : 
+                                   null}
                                 </div>
-                                {job.status === "running" && (
-                                  <div className="text-xs text-muted-foreground">
-                                    {t("admin.jobs.progress")}: {job.progress}%
-                                  </div>
-                                )}
                                 {job.error_message && (
                                   <div className="text-xs text-destructive mt-1 truncate">
                                     {job.error_message}
