@@ -88,6 +88,8 @@ OIDC_REDIRECT_URL=https://aviary.example.com/api/auth/oidc/callback
 OIDC_SCOPES=openid,profile,email
 OIDC_AUTO_CREATE_USERS=true
 OIDC_ADMIN_GROUP=aviary-admins
+OIDC_SSO_ONLY=true
+OIDC_BUTTON_TEXT="Sign in with Company SSO"
 OIDC_SUCCESS_REDIRECT_URL=https://aviary.example.com/
 OIDC_POST_LOGOUT_REDIRECT_URL=https://aviary.example.com/
 ```
@@ -101,6 +103,8 @@ OIDC_POST_LOGOUT_REDIRECT_URL=https://aviary.example.com/
 - **OIDC_SCOPES**: Comma-separated list of OAuth2 scopes to request (defaults to "openid,profile,email")
 - **OIDC_AUTO_CREATE_USERS**: Whether to automatically create user accounts for new OIDC users (true/false)
 - **OIDC_ADMIN_GROUP**: Name of the OIDC group that grants admin privileges. Users must be members of this group to receive admin rights. If not set, the first user becomes admin
+- **OIDC_SSO_ONLY**: When set to `true`, hides the traditional username/password login form and shows only the OIDC login button (optional, defaults to false)
+- **OIDC_BUTTON_TEXT**: Custom text to override the OIDC login button with (optional)
 - **OIDC_SUCCESS_REDIRECT_URL**: Where to redirect users after successful login (optional, defaults to "/")
 - **OIDC_POST_LOGOUT_REDIRECT_URL**: Where to redirect users after logout (optional)
 - **OIDC_DEBUG**: Logs debug messages about the OIDC lookup and linking process, including raw claims when true (optional)
