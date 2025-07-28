@@ -148,7 +148,7 @@
       "restore_backup": "Gendan fra Backup",
       "upload_restore": "Upload Gendan",
       "cancel": "Annuller",
-      "restore_database": "Gendan Database"
+      "restore_database": "Gendan"
     },
     "tabs": {
       "overview": "Overblik",
@@ -233,7 +233,8 @@
         "documents": "Alle brugerdokumenter og filer",
         "pairing": "Al cloud parring konfiguration",
         "folders": "Alle mappe caches",
-        "settings": "Alle systemindstillinger"
+        "settings": "Alle systemindstillinger",
+        "backups": "Alle gemte backup filer"
       },
       "restore_final_warning": "Denne handling kan ikke fortrydes. Sørg for at have en aktuel backup før du fortsætter."
     },
@@ -250,10 +251,33 @@
       "backup_file_type": "Ugyldig filtype. Vælg venligst et backup arkiv (.tar.gz eller .tgz). Valgt fil: ",
       "restore_failed": "Kunne ikke gendanne database",
       "restore_error": "Kunne ikke gendanne database: ",
-      "backup_download": "Kunne ikke downloade backup fil"
+      "restore_cancel_failed": "Kunne ikke annullere gendannelse",
+      "restore_delete_failed": "Kunne ikke slette gendannelse upload",
+      "restore_import_failed": "Kunne ikke importere backup data",
+      "restore_delete_record_failed": "Kunne ikke slette gendannelse record",
+      "parse_form_failed": "Kunne ikke parse upload formular",
+      "create_temp_file_failed": "Kunne ikke oprette midlertidig fil",
+      "save_uploaded_file_failed": "Kunne ikke gemme uploadet fil",
+      "backup_analyze_failed": "Kunne ikke analysere backup fil",
+      "get_file_info_failed": "Kunne ikke hente fil information",
+      "save_upload_record_failed": "Kunne ikke gemme upload record",
+      "invalid_request": "Ugyldig anmodning",
+      "invalid_upload_id": "Ugyldig upload ID",
+      "upload_not_found": "Upload ikke fundet",
+      "create_backup_job_failed": "Kunne ikke oprette backup job",
+      "get_backup_jobs_failed": "Kunne ikke hente backup jobs",
+      "invalid_job_id": "Ugyldig job ID",
+      "backup_job_not_found": "Backup job ikke fundet",
+      "delete_backup_job_failed": "Kunne ikke slette backup job",
+      "backup_download": "Kunne ikke downloade backup fil",
+      "no_backup_file": "Ingen backup fil angivet",
+      "backup_not_found": "Backup fil ikke fundet",
+      "backup_not_ready": "Backup ikke klar til download",
+      "backup_file_unavailable": "Backup fil ikke tilgængelig"
     },
     "success": {
-      "restore_complete": "Database gendannet succesfuldt"
+      "restore_complete": "Database gendannet succesfuldt",
+      "backup_restored": "Backup gendannet succesfuldt fra {{filename}}"
     },
     "backup": {
       "create_backup": "Opret Backup",

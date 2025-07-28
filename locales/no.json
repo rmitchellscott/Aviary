@@ -148,7 +148,7 @@
       "restore_backup": "Gjenopprett fra sikkerhetskopi",
       "upload_restore": "Last opp gjenoppretting",
       "cancel": "Avbryt",
-      "restore_database": "Gjenopprett database"
+      "restore_database": "Gjenopprett"
     },
     "tabs": {
       "overview": "Oversikt",
@@ -233,7 +233,8 @@
         "documents": "Alle brukerdokumenter og filer",
         "pairing": "All sky-kobling konfigurasjon",
         "folders": "Alle mappe-cacher",
-        "settings": "Alle systeminnstillinger"
+        "settings": "Alle systeminnstillinger",
+        "backups": "Alle lagrede sikkerhetskopifiler"
       },
       "restore_final_warning": "Denne handlingen kan ikke angres. Sørg for at du har en oppdatert sikkerhetskopi før du fortsetter."
     },
@@ -250,10 +251,33 @@
       "backup_file_type": "Ugyldig filtype. Velg et sikkerhetskopi arkiv (.tar.gz eller .tgz). Valgt fil: ",
       "restore_failed": "Kunne ikke gjenopprette database",
       "restore_error": "Kunne ikke gjenopprette database: ",
-      "backup_download": "Kunne ikke laste ned sikkerhetskopi fil"
+      "restore_cancel_failed": "Kunne ikke avbryte gjenoppretting",
+      "restore_delete_failed": "Kunne ikke slette gjenopprettings opplasting",
+      "restore_import_failed": "Kunne ikke importere sikkerhetskopi data",
+      "restore_delete_record_failed": "Kunne ikke slette gjenopprettings post",
+      "parse_form_failed": "Kunne ikke parse opplastings skjema",
+      "create_temp_file_failed": "Kunne ikke opprette midlertidig fil",
+      "save_uploaded_file_failed": "Kunne ikke lagre opplastet fil",
+      "backup_analyze_failed": "Kunne ikke analysere sikkerhetskopi fil",
+      "get_file_info_failed": "Kunne ikke hente fil informasjon",
+      "save_upload_record_failed": "Kunne ikke lagre opplastings post",
+      "invalid_request": "Ugyldig forespørsel",
+      "invalid_upload_id": "Ugyldig opplastings ID",
+      "upload_not_found": "Opplasting ikke funnet",
+      "create_backup_job_failed": "Kunne ikke opprette sikkerhetskopi jobb",
+      "get_backup_jobs_failed": "Kunne ikke hente sikkerhetskopi jobber",
+      "invalid_job_id": "Ugyldig jobb ID",
+      "backup_job_not_found": "Sikkerhetskopi jobb ikke funnet",
+      "delete_backup_job_failed": "Kunne ikke slette sikkerhetskopi jobb",
+      "backup_download": "Kunne ikke laste ned sikkerhetskopi fil",
+      "no_backup_file": "Ingen sikkerhetskopi fil oppgitt",
+      "backup_not_found": "Sikkerhetskopi fil ikke funnet",
+      "backup_not_ready": "Sikkerhetskopi ikke klar for nedlasting",
+      "backup_file_unavailable": "Sikkerhetskopi fil ikke tilgjengelig"
     },
     "success": {
-      "restore_complete": "Database gjenopprettet"
+      "restore_complete": "Database gjenopprettet",
+      "backup_restored": "Sikkerhetskopi gjenopprettet fra {{filename}}"
     },
     "backup": {
       "create_backup": "Opprett sikkerhetskopi",

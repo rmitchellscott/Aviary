@@ -148,7 +148,7 @@
       "restore_backup": "Aus Backup wiederherstellen",
       "upload_restore": "Wiederherstellung hochladen",
       "cancel": "Abbrechen",
-      "restore_database": "Datenbank wiederherstellen"
+      "restore_database": "Wiederherstellen"
     },
     "tabs": {
       "overview": "Übersicht",
@@ -233,7 +233,8 @@
         "documents": "Alle Benutzerdokumente und Dateien",
         "pairing": "Alle Cloud-Kopplungskonfigurationen",
         "folders": "Alle Ordner-Caches",
-        "settings": "Alle Systemeinstellungen"
+        "settings": "Alle Systemeinstellungen",
+        "backups": "Alle gespeicherten Backup-Dateien"
       },
       "restore_final_warning": "Diese Aktion kann nicht rückgängig gemacht werden. Stellen Sie sicher, dass Sie ein aktuelles Backup haben, bevor Sie fortfahren."
     },
@@ -250,10 +251,33 @@
       "backup_file_type": "Ungültiger Dateityp. Bitte wählen Sie ein Backup-Archiv (.tar.gz oder .tgz). Ausgewählte Datei: ",
       "restore_failed": "Datenbankwiederherstellung fehlgeschlagen",
       "restore_error": "Datenbankwiederherstellung fehlgeschlagen: ",
-      "backup_download": "Backup-Datei konnte nicht heruntergeladen werden"
+      "restore_cancel_failed": "Wiederherstellung konnte nicht abgebrochen werden",
+      "restore_delete_failed": "Wiederherstellungs-Upload konnte nicht gelöscht werden",
+      "restore_import_failed": "Backup-Daten konnten nicht importiert werden",
+      "restore_delete_record_failed": "Wiederherstellungs-Datensatz konnte nicht gelöscht werden",
+      "parse_form_failed": "Upload-Formular konnte nicht geparst werden",
+      "create_temp_file_failed": "Temporäre Datei konnte nicht erstellt werden",
+      "save_uploaded_file_failed": "Hochgeladene Datei konnte nicht gespeichert werden",
+      "backup_analyze_failed": "Backup-Datei konnte nicht analysiert werden",
+      "get_file_info_failed": "Dateiinformationen konnten nicht abgerufen werden",
+      "save_upload_record_failed": "Upload-Datensatz konnte nicht gespeichert werden",
+      "invalid_request": "Ungültige Anfrage",
+      "invalid_upload_id": "Ungültige Upload-ID",
+      "upload_not_found": "Upload nicht gefunden",
+      "create_backup_job_failed": "Backup-Job konnte nicht erstellt werden",
+      "get_backup_jobs_failed": "Backup-Jobs konnten nicht abgerufen werden",
+      "invalid_job_id": "Ungültige Job-ID",
+      "backup_job_not_found": "Backup-Job nicht gefunden",
+      "delete_backup_job_failed": "Backup-Job konnte nicht gelöscht werden",
+      "backup_download": "Backup-Datei konnte nicht heruntergeladen werden",
+      "no_backup_file": "Keine Backup-Datei angegeben",
+      "backup_not_found": "Backup-Datei nicht gefunden",
+      "backup_not_ready": "Backup nicht bereit zum Download",
+      "backup_file_unavailable": "Backup-Datei nicht verfügbar"
     },
     "success": {
-      "restore_complete": "Datenbank erfolgreich wiederhergestellt"
+      "restore_complete": "Datenbank erfolgreich wiederhergestellt",
+      "backup_restored": "Backup erfolgreich wiederhergestellt von {{filename}}"
     },
     "backup": {
       "create_backup": "Backup erstellen",

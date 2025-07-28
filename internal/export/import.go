@@ -328,6 +328,11 @@ func (i *Importer) importFilesystem(fsDir string, options ImportOptions) error {
 		}
 	}
 
+	// Clean up existing backup files to prevent orphaned files after restore
+	if err := i.cleanupExistingBackupDirectory(); err != nil {
+		return fmt.Errorf("failed to cleanup existing backup directory: %w", err)
+	}
+
 	// Import documents
 	docsDir := filepath.Join(fsDir, "documents")
 	if _, err := os.Stat(docsDir); err == nil {
@@ -344,6 +349,29 @@ func (i *Importer) importFilesystem(fsDir string, options ImportOptions) error {
 		}
 	}
 
+	return nil
+}
+
+// cleanupExistingBackupDirectory removes all backup files to prevent orphaned files after restore
+func (i *Importer) cleanupExistingBackupDirectory() error {
+	backupDir := filepath.Join(i.dataDir, "backups")
+	
+	// Check if backup directory exists
+	if _, err := os.Stat(backupDir); os.IsNotExist(err) {
+		// No backup directory exists, nothing to clean up
+		return nil
+	}
+	
+	// Remove the entire backup directory and recreate it empty
+	if err := os.RemoveAll(backupDir); err != nil {
+		return fmt.Errorf("failed to remove existing backup directory: %w", err)
+	}
+	
+	// Recreate the empty backup directory with proper permissions
+	if err := os.MkdirAll(backupDir, 0755); err != nil {
+		return fmt.Errorf("failed to recreate backup directory: %w", err)
+	}
+	
 	return nil
 }
 

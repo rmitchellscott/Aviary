@@ -148,7 +148,7 @@
       "restore_backup": "Restore Backup", 
       "upload_restore": "Upload Restore",
       "cancel": "Cancel",
-      "restore_database": "Restore Database"
+      "restore_database": "Restore"
     },
     "tabs": {
       "overview": "Overview",
@@ -233,7 +233,8 @@
         "documents": "All user documents and files",
         "pairing": "All cloud pairing configuration",
         "folders": "All folder caches",
-        "settings": "All system settings"
+        "settings": "All system settings",
+        "backups": "All stored backup files"
       },
       "restore_final_warning": "This action cannot be undone. Make sure you have a current backup before proceeding."
     },
@@ -250,10 +251,33 @@
       "backup_file_type": "Invalid file type. Please select a backup archive (.tar.gz or .tgz). Selected file: ",
       "restore_failed": "Failed to restore database",
       "restore_error": "Failed to restore database: ",
-      "backup_download": "Failed to download backup file"
+      "restore_cancel_failed": "Failed to cancel restore",
+      "restore_delete_failed": "Failed to delete restore upload",
+      "restore_import_failed": "Failed to import backup data",
+      "restore_delete_record_failed": "Failed to delete restore record",
+      "backup_download": "Failed to download backup file",
+      "no_backup_file": "No backup file provided",
+      "backup_not_found": "Backup file not found",
+      "backup_not_ready": "Backup not ready for download",
+      "backup_file_unavailable": "Backup file not available",
+      "parse_form_failed": "Failed to parse upload form",
+      "create_temp_file_failed": "Failed to create temporary file",
+      "save_uploaded_file_failed": "Failed to save uploaded file",
+      "backup_analyze_failed": "Failed to analyze backup file",
+      "get_file_info_failed": "Failed to get file information",
+      "save_upload_record_failed": "Failed to save upload record",
+      "invalid_request": "Invalid request",
+      "invalid_upload_id": "Invalid upload ID",
+      "upload_not_found": "Upload not found or expired",
+      "create_backup_job_failed": "Failed to create backup job",
+      "get_backup_jobs_failed": "Failed to get backup jobs",
+      "invalid_job_id": "Invalid job ID",
+      "backup_job_not_found": "Backup job not found",
+      "delete_backup_job_failed": "Failed to delete backup job"
     },
     "success": {
-      "restore_complete": "Database restored successfully"
+      "restore_complete": "Database restored successfully",
+      "backup_restored": "Backup restored successfully from {{filename}}"
     },
     "backup": {
       "create_backup": "Create Backup",

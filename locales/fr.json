@@ -148,7 +148,7 @@
       "restore_backup": "Restaurer à partir d'une sauvegarde",
       "upload_restore": "Télécharger la Restauration",
       "cancel": "Annuler",
-      "restore_database": "Restaurer la base de données"
+      "restore_database": "Restaurer"
     },
     "tabs": {
       "overview": "Aperçu",
@@ -233,7 +233,8 @@
         "documents": "Tous les documents utilisateur et fichiers",
         "pairing": "Toute la configuration de couplage cloud",
         "folders": "Tous les caches de dossiers",
-        "settings": "Tous les paramètres système"
+        "settings": "Tous les paramètres système",
+        "backups": "Tous les fichiers de sauvegarde stockés"
       },
       "restore_final_warning": "Cette action ne peut pas être annulée. Assurez-vous d'avoir une sauvegarde actuelle avant de continuer."
     },
@@ -250,10 +251,33 @@
       "backup_file_type": "Type de fichier invalide. Veuillez sélectionner une archive de sauvegarde (.tar.gz ou .tgz). Fichier sélectionné : ",
       "restore_failed": "Échec de la restauration de la base de données",
       "restore_error": "Échec de la restauration de la base de données : ",
-      "backup_download": "Échec du téléchargement du fichier de sauvegarde"
+      "restore_cancel_failed": "Échec de l'annulation de la restauration",
+      "restore_delete_failed": "Échec de la suppression du téléchargement de restauration",
+      "restore_import_failed": "Échec de l'importation des données de sauvegarde",
+      "restore_delete_record_failed": "Échec de la suppression de l'enregistrement de restauration",
+      "parse_form_failed": "Échec de l'analyse du formulaire de téléchargement",
+      "create_temp_file_failed": "Échec de la création du fichier temporaire",
+      "save_uploaded_file_failed": "Échec de la sauvegarde du fichier téléchargé",
+      "backup_analyze_failed": "Échec de l'analyse du fichier de sauvegarde",
+      "get_file_info_failed": "Échec de l'obtention des informations du fichier",
+      "save_upload_record_failed": "Échec de la sauvegarde de l'enregistrement de téléchargement",
+      "invalid_request": "Requête invalide",
+      "invalid_upload_id": "ID de téléchargement invalide",
+      "upload_not_found": "Téléchargement introuvable",
+      "create_backup_job_failed": "Échec de la création du travail de sauvegarde",
+      "get_backup_jobs_failed": "Échec de l'obtention des travaux de sauvegarde",
+      "invalid_job_id": "ID de travail invalide",
+      "backup_job_not_found": "Travail de sauvegarde introuvable",
+      "delete_backup_job_failed": "Échec de la suppression du travail de sauvegarde",
+      "backup_download": "Échec du téléchargement du fichier de sauvegarde",
+      "no_backup_file": "Aucun fichier de sauvegarde fourni",
+      "backup_not_found": "Fichier de sauvegarde introuvable",
+      "backup_not_ready": "Sauvegarde non prête pour le téléchargement",
+      "backup_file_unavailable": "Fichier de sauvegarde indisponible"
     },
     "success": {
-      "restore_complete": "Base de données restaurée avec succès"
+      "restore_complete": "Base de données restaurée avec succès",
+      "backup_restored": "Sauvegarde restaurée avec succès depuis {{filename}}"
     },
     "backup": {
       "create_backup": "Créer une Sauvegarde",

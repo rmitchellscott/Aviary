@@ -148,7 +148,7 @@
       "restore_backup": "Palauta varmuuskopiosta",
       "upload_restore": "Lataa Palautus",
       "cancel": "Peruuta",
-      "restore_database": "Palauta tietokanta"
+      "restore_database": "Palauta"
     },
     "tabs": {
       "overview": "Yleiskatsaus",
@@ -233,7 +233,8 @@
         "documents": "Kaikki käyttäjäasiakirjat ja -tiedostot",
         "pairing": "Kaikki pilvikytkentämääritykset",
         "folders": "Kaikki kansiovälimuistit",
-        "settings": "Kaikki järjestelmäasetukset"
+        "settings": "Kaikki järjestelmäasetukset",
+        "backups": "Kaikki tallennetut varmuuskopiotiedostot"
       },
       "restore_final_warning": "Tätä toimintoa ei voi perua. Varmista, että sinulla on ajankohtainen varmuuskopio ennen jatkamista."
     },
@@ -250,10 +251,33 @@
       "backup_file_type": "Virheellinen tiedostotyyppi. Valitse varmuuskopioarkisto (.tar.gz tai .tgz). Valittu tiedosto: ",
       "restore_failed": "Tietokannan palautus epäonnistui",
       "restore_error": "Tietokannan palautus epäonnistui: ",
-      "backup_download": "Varmuuskopiotiedoston lataus epäonnistui"
+      "restore_cancel_failed": "Palautuksen peruuttaminen epäonnistui",
+      "restore_delete_failed": "Palautuslatauksen poistaminen epäonnistui",
+      "restore_import_failed": "Varmuuskopiotietojen tuominen epäonnistui",
+      "restore_delete_record_failed": "Palautustietueen poistaminen epäonnistui",
+      "parse_form_failed": "Latauskaalakkeen jäsentäminen epäonnistui",
+      "create_temp_file_failed": "Väliaikaistiedoston luominen epäonnistui",
+      "save_uploaded_file_failed": "Ladatun tiedoston tallentaminen epäonnistui",
+      "backup_analyze_failed": "Varmuuskopiotiedoston analysointi epäonnistui",
+      "get_file_info_failed": "Tiedostotietojen hakeminen epäonnistui",
+      "save_upload_record_failed": "Lataustietueen tallentaminen epäonnistui",
+      "invalid_request": "Virheellinen pyyntö",
+      "invalid_upload_id": "Virheellinen lataus-ID",
+      "upload_not_found": "Latausta ei löytynyt",
+      "create_backup_job_failed": "Varmuuskopiotyön luominen epäonnistui",
+      "get_backup_jobs_failed": "Varmuuskopiotöiden hakeminen epäonnistui",
+      "invalid_job_id": "Virheellinen työ-ID",
+      "backup_job_not_found": "Varmuuskopiotyötä ei löytynyt",
+      "delete_backup_job_failed": "Varmuuskopiotyön poistaminen epäonnistui",
+      "backup_download": "Varmuuskopiotiedoston lataus epäonnistui",
+      "no_backup_file": "Varmuuskopiotiedostoa ei annettu",
+      "backup_not_found": "Varmuuskopiotiedostoa ei löytynyt",
+      "backup_not_ready": "Varmuuskopio ei ole valmis lataukseen",
+      "backup_file_unavailable": "Varmuuskopiotiedosto ei ole saatavilla"
     },
     "success": {
-      "restore_complete": "Tietokanta palautettu onnistuneesti"
+      "restore_complete": "Tietokanta palautettu onnistuneesti",
+      "backup_restored": "Varmuuskopio palautettu onnistuneesti tiedostosta {{filename}}"
     },
     "backup": {
       "create_backup": "Luo Varmuuskopio",
