@@ -103,6 +103,7 @@ OIDC_POST_LOGOUT_REDIRECT_URL=https://aviary.example.com/
 - **OIDC_ADMIN_GROUP**: Name of the OIDC group that grants admin privileges. Users must be members of this group to receive admin rights. If not set, the first user becomes admin
 - **OIDC_SUCCESS_REDIRECT_URL**: Where to redirect users after successful login (optional, defaults to "/")
 - **OIDC_POST_LOGOUT_REDIRECT_URL**: Where to redirect users after logout (optional)
+- **OIDC_DEBUG**: Logs debug messages about the OIDC lookup and linking process, including raw claims when true (optional)
 
 #### Token Signing Algorithm Requirements
 
@@ -206,7 +207,7 @@ curl --cookie-jar cookies.txt https://aviary.example.com/api/status
    - Incorrect token signing algorithm in OIDC provider
    - [Token Signing Algorithm Requirements](#token-signing-algorithm-requirements)
 
-4. **Users cannot login on mobile**
+5. **Users cannot login on mobile**
    - Some mobile browsers (iOS) require HTTPS for OIDC
    - Enable HTTPS
    - Choose another authentication method

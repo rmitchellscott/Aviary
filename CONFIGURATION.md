@@ -103,6 +103,7 @@ For more rmapi-specific configuration, see [their documentation](https://github.
 | OIDC_ADMIN_GROUP         | No        |         | OIDC group name for admin role assignment. Users in this group become admins. Role management via native UI is disabled |
 | OIDC_SUCCESS_REDIRECT_URL | No       |         | URL to redirect to after successful OIDC authentication |
 | OIDC_POST_LOGOUT_REDIRECT_URL | No   |         | URL to redirect to after OIDC logout |
+| OIDC_DEBUG               | No        | false   | Log debug messages related to OIDC lookup, linking, and claims |
 
 ## Configuration Examples
 
