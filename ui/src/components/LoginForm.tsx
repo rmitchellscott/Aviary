@@ -22,6 +22,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const [smtpConfigured, setSmtpConfigured] = useState(false);
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
   const [oidcEnabled, setOidcEnabled] = useState(false);
+  const [oidcSsoOnly, setOidcSsoOnly] = useState(false);
   const [proxyAuthEnabled, setProxyAuthEnabled] = useState(false);
 
   useEffect(() => {
@@ -41,6 +42,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
           const config = await response.json();
           setSmtpConfigured(config.smtpConfigured || false);
           setOidcEnabled(config.oidcEnabled || false);
+          setOidcSsoOnly(config.oidcSsoOnly || false);
           setProxyAuthEnabled(config.proxyAuthEnabled || false);
         }
         
@@ -93,39 +95,54 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   // Don't show the proxy auth message anymore since we support fallback
   // The form should always be available when proxy auth fails/isn't present
 
+  const isSsoOnly = multiUserMode && oidcEnabled && oidcSsoOnly;
+
+  // Don't render anything until we have config data to prevent flash
+  if (multiUserMode && (oidcEnabled === false && oidcSsoOnly === false && proxyAuthEnabled === false)) {
+    return null;
+  }
+
   return (
-    <div className="bg-background pt-0 pb-8 px-8">
-      <Card className="max-w-md mx-auto bg-card">
-        <CardHeader>
-          <CardTitle className="text-xl">{t("login.title")}</CardTitle>
-        </CardHeader>
-        <CardContent>
+    <div className={`bg-background ${isSsoOnly ? 'h-screen flex items-center justify-center px-4 -mt-32 md:-mt-20' : 'pt-0 pb-8 px-8'}`}>
+      <div className={isSsoOnly ? 'w-full max-w-md' : ''}>
+        <Card className={`${isSsoOnly ? 'w-[95%] mx-auto' : 'max-w-md mx-auto'} bg-card`}>
+          {!isSsoOnly && (
+            <CardHeader>
+              <CardTitle className="text-xl">{t("login.title")}</CardTitle>
+            </CardHeader>
+          )}
+          <CardContent className={isSsoOnly ? 'py-12 px-8' : ''}>
           {/* OIDC Login Button (multi-user mode only) */}
           {multiUserMode && oidcEnabled && (
-            <div className="mb-6">
+            <div className={isSsoOnly ? 'flex flex-col items-center' : 'mb-6'}>
               <Button 
                 type="button" 
                 onClick={() => window.location.href = '/api/auth/oidc/login'}
                 className="w-full"
-                variant="outline"
+                variant={isSsoOnly ? "default" : "outline"}
                 disabled={loading}
               >
                 {t("login.sso_button")}
               </Button>
-              <div className="relative my-4">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
+              {/* Only show divider if not in SSO-only mode */}
+              {!oidcSsoOnly && (
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">
+                      {t("login.or_continue_with")}
+                    </span>
+                  </div>
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">
-                    {t("login.or_continue_with")}
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
           )}
           
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Username/Password form - hidden in SSO-only mode */}
+          {!(multiUserMode && oidcEnabled && oidcSsoOnly) && (
+            <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="username" className="mb-2 block">
                 {t("login.username")}
@@ -185,8 +202,10 @@ export function LoginForm({ onLogin }: LoginFormProps) {
               </Button>
             </div>
           </form>
+          )}
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

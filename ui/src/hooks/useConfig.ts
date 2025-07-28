@@ -9,6 +9,7 @@ interface Config {
   rmapi_host: string;
   smtpConfigured: boolean;
   oidcEnabled: boolean;
+  oidcSsoOnly: boolean;
   proxyAuthEnabled: boolean;
   oidcGroupBasedAdmin: boolean;
   rmapi_paired?: boolean;
