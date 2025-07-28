@@ -986,7 +986,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           </TabsList>
 
           <TabsContent value="overview" className="flex-1 overflow-y-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium">
