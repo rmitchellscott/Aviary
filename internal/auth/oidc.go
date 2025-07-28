@@ -4,7 +4,9 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -24,6 +26,13 @@ var (
 	oidcVerifier *oidc.IDTokenVerifier
 	oidcEnabled  bool
 )
+
+// oidcDebugLog logs OIDC debug messages if OIDC_DEBUG is enabled
+func oidcDebugLog(format string, v ...interface{}) {
+	if config.Get("OIDC_DEBUG", "") == "true" || config.Get("OIDC_DEBUG", "") == "1" {
+		log.Printf("[OIDC DEBUG] "+format, v...)
+	}
+}
 
 type OIDCConfig struct {
 	Issuer       string
@@ -155,6 +164,8 @@ func OIDCCallbackHandler(c *gin.Context) {
 		return
 	}
 
+	oidcDebugLog("OIDC callback handler started")
+
 	// Debug: Log all query parameters and cookies
 	fmt.Printf("OIDC Callback - Query params: %v\n", c.Request.URL.Query())
 	fmt.Printf("OIDC Callback - All cookies: %v\n", c.Request.Cookies())
@@ -253,6 +264,14 @@ func OIDCCallbackHandler(c *gin.Context) {
 		return
 	}
 
+	// Debug log all received claims
+	if claimsJSON, err := json.Marshal(claims); err == nil {
+		oidcDebugLog("Received claims: %s", string(claimsJSON))
+	} else {
+		oidcDebugLog("Received claims (failed to serialize): email=%s, name=%s, preferred_username=%s, subject=%s, email_verified=%t, groups=%v",
+			claims.Email, claims.Name, claims.PreferredUsername, claims.Subject, claims.EmailVerified, claims.Groups)
+	}
+
 	// Determine username - prefer preferred_username, fallback to email, then subject
 	username := claims.PreferredUsername
 	if username == "" {
@@ -290,15 +309,21 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 	var user *database.User
 	var err error
 
+	oidcDebugLog("Starting multi-user authentication for subject: %s, username: %s, email: %s", subject, username, email)
+
 	user, err = database.GetUserByOIDCSubject(subject)
 	if err != nil {
+		oidcDebugLog("No user found with OIDC subject %s, trying username/email lookup", subject)
 		user, err = database.GetUserByUsernameWithoutOIDC(username)
 		if err != nil {
+			oidcDebugLog("No user found with username %s, trying email lookup", username)
 			user, err = database.GetUserByEmailWithoutOIDC(email)
 			if err != nil {
-				fmt.Printf("OIDC: No existing user found, creating new user\n")
+				oidcDebugLog("No existing user found for username %s or email %s, checking auto-creation", username, email)
 				autoCreateUsers := config.Get("OIDC_AUTO_CREATE_USERS", "")
+				oidcDebugLog("OIDC_AUTO_CREATE_USERS setting: %s", autoCreateUsers)
 				if autoCreateUsers != "true" && autoCreateUsers != "1" {
+					oidcDebugLog("Auto-creation disabled, rejecting user creation")
 					return fmt.Errorf("user not found and auto-creation disabled")
 				}
 
@@ -308,9 +333,11 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 					return fmt.Errorf("failed to check user count: %w", err)
 				}
 				firstUser := userCount == 0
+				oidcDebugLog("User count: %d, firstUser: %t", userCount, firstUser)
 
 				// Determine admin status based on OIDC groups or first user
 				isAdmin := shouldBeAdminFromGroups(groups, firstUser)
+				oidcDebugLog("Determined admin status for new user: %t", isAdmin)
 
 				// Check if this would be the first admin user
 				var adminCount int64
@@ -321,32 +348,41 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 
 				// Auto-create user using the existing CreateUser method
 				userService := database.NewUserService(database.DB)
+				oidcDebugLog("Creating new user with username: %s, email: %s, admin: %t", username, email, isAdmin)
 				user, err = userService.CreateUser(username, email, "", isAdmin) // Empty password for OIDC users
 				if err != nil {
+					oidcDebugLog("Failed to create user: %v", err)
 					return fmt.Errorf("failed to create user: %w", err)
 				}
+				oidcDebugLog("Successfully created new user with ID: %s", user.ID)
 
 				// If this is the first admin user, migrate single-user data asynchronously
 				if firstAdminUser && isAdmin {
-					fmt.Printf("First admin user created, migrating single-user data to user ID: %s\n", user.ID)
+					oidcDebugLog("First admin user created, migrating single-user data to user ID: %s", user.ID)
 					go func() {
 						if err := database.MigrateSingleUserData(user.ID); err != nil {
-							fmt.Printf("Warning: failed to migrate single-user data: %v\n", err)
+							oidcDebugLog("Warning: failed to migrate single-user data: %v", err)
 						}
 					}()
 				}
 			} else {
-				fmt.Printf("OIDC: Linked user %s via email\n", user.Username)
+				oidcDebugLog("Found existing user %s via email, linking to OIDC subject %s", user.Username, subject)
 				if err := database.DB.Model(user).Update("oidc_subject", subject).Error; err != nil {
+					oidcDebugLog("Failed to link existing user to OIDC subject: %v", err)
 					return fmt.Errorf("failed to link existing user to OIDC subject: %w", err)
 				}
+				oidcDebugLog("Successfully linked user %s to OIDC subject", user.Username)
 			}
 		} else {
-			fmt.Printf("OIDC: Linked user %s via username\n", user.Username)
+			oidcDebugLog("Found existing user %s via username, linking to OIDC subject %s", user.Username, subject)
 			if err := database.DB.Model(user).Update("oidc_subject", subject).Error; err != nil {
+				oidcDebugLog("Failed to link existing user to OIDC subject: %v", err)
 				return fmt.Errorf("failed to link existing user to OIDC subject: %w", err)
 			}
+			oidcDebugLog("Successfully linked user %s to OIDC subject", user.Username)
 		}
+	} else {
+		oidcDebugLog("Found existing user %s with OIDC subject %s", user.Username, subject)
 	}
 
 	// Update profile information from OIDC claims
@@ -361,25 +397,39 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 
 	// Update admin status based on group membership if enabled
 	if IsOIDCGroupBasedAdminEnabled() {
+		oidcDebugLog("OIDC group-based admin is enabled, checking current admin status")
 		currentAdminStatus := shouldBeAdminFromGroups(groups, false)
+		oidcDebugLog("Current user admin status: %t, calculated admin status: %t", user.IsAdmin, currentAdminStatus)
 		if user.IsAdmin != currentAdminStatus {
+			oidcDebugLog("Admin status change detected: %t -> %t", user.IsAdmin, currentAdminStatus)
 			updates["is_admin"] = currentAdminStatus
+		} else {
+			oidcDebugLog("No admin status change needed")
 		}
+	} else {
+		oidcDebugLog("OIDC group-based admin is disabled, preserving existing admin status: %t", user.IsAdmin)
 	}
 
 	if len(updates) > 0 {
+		oidcDebugLog("Applying user updates: %+v", updates)
 		updates["updated_at"] = time.Now()
 		if err := database.DB.Model(user).Updates(updates).Error; err != nil {
+			oidcDebugLog("Failed to update user: %v", err)
 			return fmt.Errorf("failed to update user: %w", err)
 		}
 		// Refresh user object to reflect updates
 		if err := database.DB.First(user, user.ID).Error; err != nil {
 			return fmt.Errorf("failed to refresh user: %w", err)
 		}
+		oidcDebugLog("Successfully updated user")
+	} else {
+		oidcDebugLog("No user updates needed")
 	}
 
 	// Check if user is active
+	oidcDebugLog("Checking if user %s is active: %t", user.Username, user.IsActive)
 	if !user.IsActive {
+		oidcDebugLog("User account is disabled, rejecting authentication")
 		return fmt.Errorf("account disabled")
 	}
 
@@ -414,6 +464,7 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 	if redirectURL == "" {
 		redirectURL = "/" // Default to home page
 	}
+	oidcDebugLog("OIDC authentication successful for user %s (ID: %s, admin: %t), redirecting to: %s", user.Username, user.ID, user.IsAdmin, redirectURL)
 	c.Redirect(http.StatusFound, redirectURL)
 	return nil
 }
@@ -526,16 +577,21 @@ func OIDCLogoutHandler(c *gin.Context) {
 func shouldBeAdminFromGroups(groups []string, isFirstUser bool) bool {
 	adminGroup := config.Get("OIDC_ADMIN_GROUP", "")
 
+	oidcDebugLog("Checking admin group membership - configured admin group: '%s', user groups: %v, isFirstUser: %t", adminGroup, groups, isFirstUser)
+
 	if adminGroup == "" {
+		oidcDebugLog("No admin group configured, using isFirstUser logic: %t", isFirstUser)
 		return isFirstUser
 	}
 
 	for _, group := range groups {
 		if group == adminGroup {
+			oidcDebugLog("User found in admin group '%s' - granting admin privileges", adminGroup)
 			return true
 		}
 	}
 
+	oidcDebugLog("User not found in admin group '%s' - denying admin privileges", adminGroup)
 	return false
 }
 
