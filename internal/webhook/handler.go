@@ -141,9 +141,7 @@ func enqueueJobForUser(form map[string]string, userID uuid.UUID) string {
 				logMsg += " -> " + data["path"]
 			}
 			manager.LogfWithUser(user, "✅ processPDF success: %s", logMsg)
-			manager.LogfWithUser(user, "🔄 About to call jobStore.Update with success status and data: %+v", data)
 			jobStore.Update(id, "success", msgKey, data)
-			manager.LogfWithUser(user, "✅ jobStore.Update completed successfully")
 		}
 	}()
 
@@ -316,7 +314,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 	if strings.HasPrefix(body, "files:") {
 		return processMultipleFilesForUser(jobID, form, userID)
 	}
-	
+
 	// 2) If "Body" is already a valid local file path, skip download.
 	if fi, statErr := os.Stat(body); statErr == nil && !fi.IsDir() {
 		localPath = body
@@ -754,17 +752,17 @@ func trackDocumentUpload(userID uuid.UUID, localPath, remoteName, rmDir string) 
 
 // processMultipleFilesForUser handles processing multiple files uploaded together
 func processMultipleFilesForUser(jobID string, form map[string]string, userID uuid.UUID) (string, map[string]string, error) {
-	
+
 	body := form["Body"]
 	compress := isTrue(form["compress"])
-	
+
 	// Extract file paths from the "files:" prefix
 	pathsJSON := strings.TrimPrefix(body, "files:")
 	var filePaths []string
 	if err := json.Unmarshal([]byte(pathsJSON), &filePaths); err != nil {
 		return "backend.status.internal_error", nil, fmt.Errorf("failed to parse file paths: %w", err)
 	}
-	
+
 	var (
 		dbUser         *database.User
 		finalPaths     []string
@@ -789,9 +787,25 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 
 	jobStore.UpdateWithOperation(jobID, "Running", "backend.status.using_uploaded_file", nil, "processing")
 
-	// Pre-calculate total pages for accurate progress tracking
+	// Separate files by type and process compressible files first, then EPUBs
+	var compressibleFiles []string
+	var epubFiles []string
+	
+	for _, filePath := range filePaths {
+		ext := strings.ToLower(filepath.Ext(filePath))
+		if ext == ".epub" {
+			epubFiles = append(epubFiles, filePath)
+		} else {
+			compressibleFiles = append(compressibleFiles, filePath)
+		}
+	}
+	
+	// Reorder file paths: compressible files first, then EPUBs
+	orderedPaths := append(compressibleFiles, epubFiles...)
+
+	// Pre-calculate total pages for accurate progress tracking (only for compressible files)
 	if compress {
-		for _, filePath := range filePaths {
+		for _, filePath := range compressibleFiles {
 			ext := strings.ToLower(filepath.Ext(filePath))
 			if ext == ".pdf" {
 				if pages, err := compressor.GetPDFPageCount(filePath); err == nil {
@@ -811,10 +825,10 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 		}
 	}
 
-	// Process each file
-	for _, filePath := range filePaths {
+	// Process each file in the reordered list
+	for _, filePath := range orderedPaths {
 		cleanupPaths = append(cleanupPaths, filePath)
-		
+
 		// Convert images to PDF if needed
 		ext := strings.ToLower(filepath.Ext(filePath))
 		if ext == ".jpg" || ext == ".jpeg" || ext == ".png" {
@@ -840,18 +854,18 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 		// Compress PDF if requested and file is PDF
 		if compress && (strings.ToLower(filepath.Ext(filePath)) == ".pdf") {
 			manager.Logf("🔧 Compressing PDF %q", filePath)
-			
+
 			// Get the expected page count for this file from our pre-calculation
 			expectedPages := 1 // fallback
 			if pages, err := compressor.GetPDFPageCount(filePath); err == nil {
 				expectedPages = pages
 			}
-			
+
 			compressedPath, compErr := compressor.CompressPDFWithProgress(filePath, func(page, total int) {
 				// Calculate overall progress: (all previously processed pages + current progress within this file) / total pages
 				if totalPages > 0 && total > 0 {
 					// Current progress within this file as a fraction of its total pages
-					fileProgressPages := float64(page * expectedPages) / float64(total)
+					fileProgressPages := float64(page*expectedPages) / float64(total)
 					overallProgress := int((float64(processedPages) + fileProgressPages) / float64(totalPages) * 100)
 					jobStore.UpdateProgress(jobID, overallProgress)
 				}
@@ -863,14 +877,27 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 				}
 				return "backend.status.compress_error", nil, compErr
 			}
-			
+
 			// Update processed pages count with the expected pages for this file
 			processedPages += expectedPages
-			
+
 			// Remove uncompressed version
 			os.Remove(filePath)
 			cleanupPaths = append(cleanupPaths, compressedPath)
-			filePath = compressedPath
+			
+			// Rename compressed file to remove "_compressed" suffix (to match single file flow)
+			origPath := strings.TrimSuffix(compressedPath, "_compressed.pdf") + ".pdf"
+			if err := os.Rename(compressedPath, origPath); err != nil {
+				// Clean up any processed files before returning error
+				for _, path := range cleanupPaths {
+					os.Remove(path)
+				}
+				return "backend.status.rename_error", nil, err
+			}
+			
+			// Update cleanup paths and file path
+			cleanupPaths[len(cleanupPaths)-1] = origPath // Replace the last entry
+			filePath = origPath
 		} else if compress {
 			// For non-PDF files (images), still increment processed pages to keep progress accurate
 			processedPages += 1
@@ -882,7 +909,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 	// Upload all processed files
 	var uploadedPaths []string
 	jobStore.UpdateWithOperation(jobID, "Running", "backend.status.uploading", nil, "uploading")
-	
+
 	for _, filePath := range finalPaths {
 		// Use simple upload for each file
 		remoteName, err := manager.SimpleUpload(filePath, rmDir, dbUser)
@@ -893,11 +920,11 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 			}
 			return "backend.status.internal_error", nil, err
 		}
-		
+
 		fullPath := filepath.Join(rmDir, remoteName)
 		fullPath = strings.TrimPrefix(fullPath, "/")
 		uploadedPaths = append(uploadedPaths, fullPath)
-		
+
 		// Track document in database if in multi-user mode
 		if database.IsMultiUserMode() && userID != uuid.Nil {
 			if err := trackDocumentUpload(userID, filePath, remoteName, rmDir); err != nil {
@@ -921,7 +948,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 		// Fallback to simple join if JSON marshaling fails
 		return "backend.status.upload_success_multiple", map[string]string{"paths": strings.Join(uploadedPaths, "\n")}, nil
 	}
-	
+
 	jobStore.UpdateProgress(jobID, 100)
 	return "backend.status.upload_success_multiple", map[string]string{"paths": string(pathsJSONBytes)}, nil
 }

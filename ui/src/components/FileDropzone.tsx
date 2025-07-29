@@ -9,6 +9,7 @@ interface FileDropzoneProps {
   disabled?: boolean
   onError?: (message: string) => void
   multiple?: boolean
+  existingFiles?: File[]
 }
 
 const ACCEPT_CONFIG = {
@@ -27,6 +28,7 @@ export function FileDropzone({
   disabled = false,
   onError,
   multiple = false,
+  existingFiles = [],
 }: FileDropzoneProps) {
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -61,13 +63,15 @@ export function FileDropzone({
 
       if (acceptedFiles.length > 0) {
         if (multiple) {
-          onFilesSelected(acceptedFiles)
+          // Combine existing files with new accepted files
+          const combinedFiles = [...existingFiles, ...acceptedFiles]
+          onFilesSelected(combinedFiles)
         } else {
           onFileSelected(acceptedFiles[0])
         }
       }
     },
-    [onFileSelected, onFilesSelected, onError, multiple, t]
+    [onFileSelected, onFilesSelected, onError, multiple, t, existingFiles]
   )
 
   // Single unified handler for all drag/drop events

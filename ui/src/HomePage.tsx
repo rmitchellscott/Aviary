@@ -117,8 +117,6 @@ export default function HomePage() {
   const [status, setStatus] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [statusData, setStatusData] = useState<Record<string, string> | null>(null);
-  const [lastJobStatusData, setLastJobStatusData] = useState<Record<string, string> | null>(null);
-  const [multipleFilesPaths, setMultipleFilesPaths] = useState<string[] | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [uploadPhase, setUploadPhase] = useState<'idle' | 'uploading' | 'processing'>('idle');
@@ -292,13 +290,23 @@ export default function HomePage() {
       xhr.send(formData);
     });
   };
+
+  // Helper function to handle WebSocket status updates
+  const handleStatusUpdate = (st: JobStatus) => {
+    setStatus(st.status.toLowerCase());
+    setMessage(t(st.message, st.data || {}));
+    setStatusData(st.data || null);
+    if (typeof st.progress === "number") {
+      setProgress(st.progress);
+    }
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     setMessage("");
     setStatus("");
+    // Clear any previous status data when starting new upload
     setStatusData(null);
-    setLastJobStatusData(null); 
-    setMultipleFilesPaths(null);
     setUploadProgress(0);
     setUploadPhase('idle');
 
@@ -331,32 +339,7 @@ export default function HomePage() {
 
         setStatus("running");
         setProgress(0);
-        await waitForJobWS(jobId, (st) => {
-          setStatus(st.status.toLowerCase());
-          setMessage(t(st.message, st.data || {}));
-          setStatusData(st.data || null);
-          // Preserve the last status data for successful jobs, don't clear on interim updates
-          if (st.status === "success" && st.data) {
-            setLastJobStatusData(st.data);
-            // If this is multiple files success, parse and store the paths persistently
-            if (st.data.paths) {
-              try {
-                const paths = JSON.parse(st.data.paths);
-                if (Array.isArray(paths)) {
-                  setMultipleFilesPaths(paths);
-                }
-              } catch (e) {
-                console.error('Failed to parse paths for persistent storage:', e);
-              }
-            }
-          } else if (st.status === "success") {
-            // If success but no data, keep the last data we had
-            // Don't clear lastJobStatusData here
-          }
-          if (typeof st.progress === "number") {
-            setProgress(st.progress);
-          }
-        });
+        await waitForJobWS(jobId, handleStatusUpdate);
       } catch (err: unknown) {
         const msg = getErrorMessage(err);
         setStatus("error");
@@ -368,9 +351,8 @@ export default function HomePage() {
         setProgress(0);
         setUploadProgress(0);
         setUploadPhase('idle');
-        setStatusData(null);
-        setLastJobStatusData(null);
-        setMultipleFilesPaths(null);
+        // Don't clear status data immediately - let it persist to show success message properly
+        // setStatusData(null);
         setLoading(false);
       }
     } else {
@@ -405,32 +387,7 @@ export default function HomePage() {
         setMessage(t("home.job_queued", { id: jobId }));
         setProgress(0);
 
-        await waitForJobWS(jobId, (st) => {
-          setStatus(st.status.toLowerCase());
-          setMessage(t(st.message, st.data || {}));
-          setStatusData(st.data || null);
-          // Preserve the last status data for successful jobs, don't clear on interim updates
-          if (st.status === "success" && st.data) {
-            setLastJobStatusData(st.data);
-            // If this is multiple files success, parse and store the paths persistently
-            if (st.data.paths) {
-              try {
-                const paths = JSON.parse(st.data.paths);
-                if (Array.isArray(paths)) {
-                  setMultipleFilesPaths(paths);
-                }
-              } catch (e) {
-                console.error('Failed to parse paths for persistent storage:', e);
-              }
-            }
-          } else if (st.status === "success") {
-            // If success but no data, keep the last data we had
-            // Don't clear lastJobStatusData here
-          }
-          if (typeof st.progress === "number") {
-            setProgress(st.progress);
-          }
-        });
+        await waitForJobWS(jobId, handleStatusUpdate);
       } catch (err: unknown) {
         const msg = getErrorMessage(err);
         setStatus("error");
@@ -438,9 +395,8 @@ export default function HomePage() {
       } finally {
         setUrl("");
         setProgress(0);
-        setStatusData(null);
-        setLastJobStatusData(null);
-        setMultipleFilesPaths(null);
+        // Don't clear status data immediately - let it persist to show success message properly
+        // setStatusData(null);
         setLoading(false);
       }
     }
@@ -500,7 +456,7 @@ export default function HomePage() {
                 setUrlMime(null);
               }}
               onFilesSelected={(files) => {
-                setSelectedFiles(prev => [...prev, ...files]);
+                setSelectedFiles(files);
                 if (url) {
                   setUrl("");
                 }
@@ -514,6 +470,7 @@ export default function HomePage() {
               }}
               disabled={!!url}
               multiple={true}
+              existingFiles={selectedFiles}
             />
             {selectedFile && (
               <div className="mt-2 flex justify-between items-center">
@@ -525,6 +482,7 @@ export default function HomePage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelectedFile(null)}
+                  disabled={loading}
                 >
                   {t("home.remove")}
                 </Button>
@@ -544,6 +502,7 @@ export default function HomePage() {
                         const newFiles = selectedFiles.filter((_, i) => i !== index);
                         setSelectedFiles(newFiles);
                       }}
+                      disabled={loading}
                     >
                       {t("home.remove")}
                     </Button>
@@ -633,47 +592,32 @@ export default function HomePage() {
               )}
 {(() => {
                 // Check if this is a multiple files success message with structured data
-                const dataToUse = statusData || lastJobStatusData;
-                
-                // First try to use structured data
-                if (status === "success" && dataToUse?.paths) {
+                if (status === "success" && statusData?.paths) {
                   try {
-                    const paths = JSON.parse(dataToUse.paths);
+                    const paths = JSON.parse(statusData.paths);
                     if (Array.isArray(paths) && paths.length >= 1) {
-                      const messageTemplate = t("backend.status.upload_success_multiple", { paths: "{{PATHS_PLACEHOLDER}}" });
-                      const beforePaths = messageTemplate.split("{{PATHS_PLACEHOLDER}}")[0].trim();
+                      const messageTemplate = t("backend.status.upload_success_multiple", { paths: "PATHS_PLACEHOLDER" });
+                      const parts = messageTemplate.split("PATHS_PLACEHOLDER");
+                      const beforePaths = parts[0]?.trim() || "";
+                      const afterPaths = parts[1]?.trim() || "";
                       return (
                         <div className="break-words">
-                          <div>{beforePaths}</div>
+                          {beforePaths && <div className="mb-1">{beforePaths}</div>}
                           <ul className="list-disc ml-4 mt-1 space-y-1">
                             {paths.map((path, index) => (
                               <li key={index} className="text-sm leading-relaxed">{path}</li>
                             ))}
                           </ul>
+                          {afterPaths && <div className="mt-1">{afterPaths}</div>}
                         </div>
                       );
                     }
                   } catch (e) {
-                    console.error('Failed to parse paths JSON:', e, dataToUse?.paths);
+                    console.error('Failed to parse paths JSON:', e, statusData?.paths);
                   }
                 }
                 
-                // Fallback: use persistent paths if we have them and this looks like a multiple file message
-                if (status === "success" && multipleFilesPaths && message.includes("Your documents are available")) {
-                  const messageTemplate = t("backend.status.upload_success_multiple", { paths: "{{PATHS_PLACEHOLDER}}" });
-                  const beforePaths = messageTemplate.split("{{PATHS_PLACEHOLDER}}")[0].trim();
-                  return (
-                    <div className="break-words">
-                      <div>{beforePaths}</div>
-                      <ul className="list-disc ml-4 mt-1 space-y-1">
-                        {multipleFilesPaths.map((path, index) => (
-                          <li key={index} className="text-sm leading-relaxed">{path}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  );
-                }
-                
+                // Default text rendering
                 return <span className="break-words whitespace-pre-line">{message}</span>;
               })()}
             </div>
