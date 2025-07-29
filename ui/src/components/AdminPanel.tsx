@@ -209,6 +209,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     api_keys: number;
     documents: number;
   } | null>(null);
+  const [versionInfo, setVersionInfo] = useState<{
+    version: string;
+    git_commit: string;
+    build_date: string;
+    go_version: string;
+  } | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -217,6 +223,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       fetchAPIKeys();
       fetchBackupJobs();
       fetchRestoreUploads();
+      fetchVersionInfo();
     }
   }, [isOpen]);
 
@@ -309,6 +316,21 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       }
     } catch (error) {
       console.error("Failed to fetch restore uploads:", error);
+    }
+  };
+
+  const fetchVersionInfo = async () => {
+    try {
+      const response = await fetch("/api/version", {
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setVersionInfo(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch version info:", error);
     }
   };
 
@@ -1553,6 +1575,22 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   </Button>
                 </CardContent>
               </Card> */}
+
+              {versionInfo && (
+                <div className="flex justify-center mt-8 pt-4 border-t">
+                  <div className="text-center text-sm text-muted-foreground">
+                    <span>Aviary {versionInfo.version} • </span>
+                    <a 
+                      href="https://github.com/rmitchellscott/aviary" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:underline"
+                    >
+                      GitHub
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>
