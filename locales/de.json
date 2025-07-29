@@ -345,6 +345,7 @@
       "rmapi_host": "reMarkable Host (optional)",
       "default_directory": "Standardverzeichnis",
       "cover_page": "Deckblatt",
+      "conflict_resolution": "Bei Konflikt",
       "current_password": "Aktuelles Passwort",
       "new_password": "Neues Passwort",
       "confirm_new_password": "Neues Passwort bestätigen",
@@ -371,7 +372,10 @@
     "options": {
       "cover_current": "Aktuelle Seite",
       "cover_first": "Erste Seite",
-      "manual": "Manuell"
+      "manual": "Manuell",
+      "conflict_abort": "Abbrechen",
+      "conflict_overwrite": "Überschreiben",
+      "conflict_content_only": "Nur Inhalt"
     },
     "expiry_options": {
       "one_week": "1 Woche",
@@ -393,7 +397,8 @@
       "pdf_conversion_device": "Wählen Sie Ihr reMarkable Gerätemodell für optimale Bild-zu-PDF-Konvertierung. Diese Einstellung betrifft nur Bilddateien (JPEG, PNG), die zu PDF konvertiert werden.",
       "page_resolution": "Seitenauflösung im BREITExHÖHE Format",
       "page_dpi": "Punkte pro Zoll",
-      "default_directory": "Wählen Sie den Standardordner, in den Ihre Dokumente hochgeladen werden"
+      "default_directory": "Wählen Sie den Standardordner, in den Ihre Dokumente hochgeladen werden",
+      "conflict_resolution": "Wählen Sie, was passiert, wenn Sie ein Dokument mit demselben Namen wie ein vorhandenes Dokument hochladen. Nur Inhalt behält Anmerkungen bei und funktioniert nur bei PDFs und Bildern - es wird bei EPUBs abbrechen. Überschreiben ersetzt Dokumente vollständig."
     },
     "status": {
       "active": "aktiv",
@@ -493,7 +498,8 @@
       "rename_error": "Umbenennungsfehler",
       "uploading": "Wird hochgeladen",
       "upload_success": "Ihr Dokument ist auf Ihrem reMarkable unter {{path}} verfügbar",
-      "upload_success_multiple": "Ihre Dokumente sind auf Ihrem reMarkable verfügbar unter:\n{{paths}}"
+      "upload_success_multiple": "Ihre Dokumente sind auf Ihrem reMarkable verfügbar unter:\n{{paths}}",
+      "conflict_entry_exists": "Ein Dokument mit diesem Namen existiert bereits auf Ihrem reMarkable. Ändern Sie Ihre {{conflict_resolution}} Einstellung in {{settings}} oder benennen Sie das Dokument um."
     },
     "errors": {
       "missing_url": "Fehlender URL-Parameter",

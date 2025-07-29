@@ -377,7 +377,8 @@
       "rename_error": "Erreur de renommage",
       "uploading": "Téléchargement vers le serveur",
       "upload_success": "Votre document est disponible sur votre reMarkable à {{path}}",
-      "upload_success_multiple": "Vos documents sont disponibles sur votre reMarkable à :\n{{paths}}"
+      "upload_success_multiple": "Vos documents sont disponibles sur votre reMarkable à :\n{{paths}}",
+      "conflict_entry_exists": "Un document avec ce nom existe déjà sur votre reMarkable. Changez votre paramètre {{conflict_resolution}} dans {{settings}}, ou renommez le document."
     },
     "errors": {
       "missing_url": "Paramètre URL manquant",
@@ -412,6 +413,7 @@
       "rmapi_host": "Hôte reMarkable (optionnel)",
       "default_directory": "Répertoire par défaut",
       "cover_page": "Page de couverture",
+      "conflict_resolution": "En Conflit",
       "current_password": "Mot de passe actuel",
       "new_password": "Nouveau mot de passe",
       "confirm_new_password": "Confirmer le nouveau mot de passe",
@@ -438,7 +440,10 @@
     "options": {
       "cover_current": "Page actuelle",
       "cover_first": "Première page",
-      "manual": "Manuel"
+      "manual": "Manuel",
+      "conflict_abort": "Abandonner",
+      "conflict_overwrite": "Écraser",
+      "conflict_content_only": "Contenu seulement"
     },
     "expiry_options": {
       "one_week": "1 semaine",
@@ -460,7 +465,8 @@
       "pdf_conversion_device": "Choisissez le modèle de votre appareil reMarkable pour une conversion optimale d'image vers PDF. Ce paramètre n'affecte que les fichiers image (JPEG, PNG) convertis en PDF.",
       "page_resolution": "Résolution de page au format LARGEURxHAUTEUR",
       "page_dpi": "Points par pouce",
-      "default_directory": "Choisissez le dossier par défaut où vos documents seront téléchargés"
+      "default_directory": "Choisissez le dossier par défaut où vos documents seront téléchargés",
+      "conflict_resolution": "Choisissez ce qui se passe lors du téléchargement d'un document avec le même nom qu'un document existant. Contenu seulement préserve les annotations et ne fonctionne que pour les PDFs et images - cela Abandonnera pour les EPUBs. Écraser remplace complètement les documents."
     },
     "status": {
       "active": "actif",

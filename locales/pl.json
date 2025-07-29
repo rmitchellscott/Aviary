@@ -345,6 +345,7 @@
       "rmapi_host": "Host reMarkable (opcjonalny)",
       "default_directory": "Domyślny katalog",
       "cover_page": "Strona okładki",
+      "conflict_resolution": "W Konflikcie",
       "current_password": "Bieżące hasło",
       "new_password": "Nowe hasło",
       "confirm_new_password": "Potwierdź nowe hasło",
@@ -371,7 +372,10 @@
     "options": {
       "cover_current": "Bieżąca strona",
       "cover_first": "Pierwsza strona",
-      "manual": "Ręczny"
+      "manual": "Ręczny",
+      "conflict_abort": "Przerwij",
+      "conflict_overwrite": "Nadpisz",
+      "conflict_content_only": "Tylko Zawartość"
     },
     "expiry_options": {
       "one_week": "1 tydzień",
@@ -393,7 +397,8 @@
       "pdf_conversion_device": "Wybierz model swojego urządzenia reMarkable dla optymalnej konwersji obraz-PDF. To ustawienie wpływa tylko na pliki obrazowe (JPEG, PNG) konwertowane do PDF.",
       "page_resolution": "Rozdzielczość strony w formacie SZEROKoŚĆxWYSOKoŚĆ",
       "page_dpi": "Punkty na cal",
-      "default_directory": "Wybierz domyślny folder, do którego będą przesyłane Twoje dokumenty"
+      "default_directory": "Wybierz domyślny folder, do którego będą przesyłane Twoje dokumenty",
+      "conflict_resolution": "Wybierz co się dzieje podczas przesyłania dokumentu o takiej samej nazwie jak istniejący dokument. Tylko Zawartość zachowuje adnotacje i działa tylko dla PDF-ów i obrazów - Przerwie dla EPUB-ów. Nadpisz całkowicie zastępuje dokumenty."
     },
     "status": {
       "active": "aktywny",
@@ -493,7 +498,8 @@
       "rename_error": "Błąd zmiany nazwy",
       "uploading": "Przesyłanie do chmury",
       "upload_success": "Twój dokument jest dostępny na twoim reMarkable w {{path}}",
-      "upload_success_multiple": "Twoje dokumenty są dostępne na twoim reMarkable w:\n{{paths}}"
+      "upload_success_multiple": "Twoje dokumenty są dostępne na twoim reMarkable w:\n{{paths}}",
+      "conflict_entry_exists": "Dokument o tej nazwie już istnieje na twoim reMarkable. Zmień ustawienie {{conflict_resolution}} w {{settings}} lub zmień nazwę dokumentu."
     },
     "errors": {
       "missing_url": "Brakujący parametr URL",

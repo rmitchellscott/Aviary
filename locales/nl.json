@@ -345,6 +345,7 @@
       "rmapi_host": "reMarkable host (optioneel)",
       "default_directory": "Standaardmap",
       "cover_page": "Omslagpagina",
+      "conflict_resolution": "Bij Conflict",
       "current_password": "Huidige wachtwoord",
       "new_password": "Nieuw wachtwoord",
       "confirm_new_password": "Bevestig nieuw wachtwoord",
@@ -371,7 +372,10 @@
     "options": {
       "cover_current": "Huidige pagina",
       "cover_first": "Eerste pagina",
-      "manual": "Handmatig"
+      "manual": "Handmatig",
+      "conflict_abort": "Afbreken",
+      "conflict_overwrite": "Overschrijven",
+      "conflict_content_only": "Alleen Inhoud"
     },
     "expiry_options": {
       "one_week": "1 week",
@@ -393,7 +397,8 @@
       "pdf_conversion_device": "Kies je reMarkable apparaatmodel voor optimale afbeelding-naar-PDF conversie. Deze instelling heeft alleen effect op afbeeldingsbestanden (JPEG, PNG) die naar PDF worden geconverteerd.",
       "page_resolution": "Paginaresolutie in BREEDTExHOOGTE formaat",
       "page_dpi": "Punten per inch",
-      "default_directory": "Kies de standaardmap waar uw documenten worden geüpload"
+      "default_directory": "Kies de standaardmap waar uw documenten worden geüpload",
+      "conflict_resolution": "Kies wat er gebeurt bij het uploaden van een document met dezelfde naam als een bestaand document. Alleen Inhoud behoudt annotaties en werkt alleen voor PDF's en afbeeldingen - het zal Afbreken voor EPUB's. Overschrijven vervangt documenten volledig."
     },
     "status": {
       "active": "actief",
@@ -493,7 +498,8 @@
       "rename_error": "Hernoem fout",
       "uploading": "Uploaden naar cloud",
       "upload_success": "Je document is beschikbaar op je reMarkable op {{path}}",
-      "upload_success_multiple": "Je documenten zijn beschikbaar op je reMarkable op:\n{{paths}}"
+      "upload_success_multiple": "Je documenten zijn beschikbaar op je reMarkable op:\n{{paths}}",
+      "conflict_entry_exists": "Een document met deze naam bestaat al op je reMarkable. Wijzigje {{conflict_resolution}} instelling in {{settings}}, of hernoem het document."
     },
     "errors": {
       "missing_url": "Ontbrekende URL parameter",

@@ -353,7 +353,8 @@
       "rename_error": "Error al renombrar",
       "uploading": "Subiendo",
       "upload_success": "Tu documento está disponible en tu reMarkable en {{path}}",
-      "upload_success_multiple": "Tus documentos están disponibles en tu reMarkable en:\n{{paths}}"
+      "upload_success_multiple": "Tus documentos están disponibles en tu reMarkable en:\n{{paths}}",
+      "conflict_entry_exists": "Ya existe un documento con este nombre en tu reMarkable. Cambia tu configuración de {{conflict_resolution}} en {{settings}}, o renombra el documento."
     },
     "errors": {
       "missing_url": "Falta el parámetro URL",
@@ -388,6 +389,7 @@
       "rmapi_host": "Host de reMarkable (opcional)",
       "default_directory": "Directorio Predeterminado",
       "cover_page": "Página de Portada",
+      "conflict_resolution": "En Conflicto",
       "current_password": "Contraseña Actual",
       "new_password": "Nueva Contraseña",
       "confirm_new_password": "Confirmar Nueva Contraseña",
@@ -414,7 +416,10 @@
     "options": {
       "cover_current": "Página actual",
       "cover_first": "Primera página",
-      "manual": "Manual"
+      "manual": "Manual",
+      "conflict_abort": "Abortar",
+      "conflict_overwrite": "Sobrescribir",
+      "conflict_content_only": "Solo Contenido"
     },
     "expiry_options": {
       "one_week": "1 semana",
@@ -436,7 +441,8 @@
       "pdf_conversion_device": "Elige el modelo de tu dispositivo reMarkable para una conversión óptima de imagen a PDF. Esta configuración solo afecta archivos de imagen (JPEG, PNG) que se convierten a PDF.",
       "page_resolution": "Resolución de página en formato ANCHOxALTO",
       "page_dpi": "Puntos por pulgada",
-      "default_directory": "Elige la carpeta predeterminada donde se cargarán tus documentos"
+      "default_directory": "Elige la carpeta predeterminada donde se cargarán tus documentos",
+      "conflict_resolution": "Elige qué sucede al subir un documento con el mismo nombre que un documento existente. Solo Contenido preserva anotaciones y solo funciona para PDFs e imágenes - Abortará para EPUBs. Sobrescribir reemplaza documentos completamente."
     },
     "status": {
       "active": "activo",
