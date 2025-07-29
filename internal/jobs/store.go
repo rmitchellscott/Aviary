@@ -27,15 +27,26 @@ func NewStore() *Store {
 // Subscribe returns a channel that receives job updates for the given id.
 // The returned function should be called to unsubscribe when done.
 func (s *Store) Subscribe(id string) (<-chan *Job, func()) {
-	ch := make(chan *Job, 1)
+	ch := make(chan *Job, 10) // Increase buffer size to prevent drops
 	s.mu.Lock()
 	s.watchers[id] = append(s.watchers[id], ch)
 	job := s.jobs[id]
 	s.mu.Unlock()
 
 	if job != nil {
-		// send current state
-		ch <- job
+		// send current state (as a copy to prevent mutation issues)
+		jobCopy := &Job{
+			Status:    job.Status,
+			Message:   job.Message,
+			Data:      make(map[string]string),
+			Progress:  job.Progress,
+			Operation: job.Operation,
+		}
+		// Copy the data map
+		for k, v := range job.Data {
+			jobCopy.Data[k] = v
+		}
+		ch <- jobCopy
 	}
 
 	return ch, func() {
@@ -54,11 +65,24 @@ func (s *Store) Subscribe(id string) (<-chan *Job, func()) {
 
 func (s *Store) broadcastLocked(id string) {
 	job := s.jobs[id]
+	// Create a copy of the job to prevent mutation issues
+	jobCopy := &Job{
+		Status:    job.Status,
+		Message:   job.Message,
+		Data:      make(map[string]string),
+		Progress:  job.Progress,
+		Operation: job.Operation,
+	}
+	// Copy the data map
+	for k, v := range job.Data {
+		jobCopy.Data[k] = v
+	}
+	
 	watchers := append([]chan *Job(nil), s.watchers[id]...)
 	// lock held when called
 	for _, ch := range watchers {
 		select {
-		case ch <- job:
+		case ch <- jobCopy:
 		default:
 		}
 	}
