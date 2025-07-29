@@ -1748,7 +1748,11 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               </p>
               <p>
                 <strong>{t('admin.labels.status')}:</strong>{' '}
-                {viewUser.is_active ? t('admin.status.active') : t('admin.status.inactive')}
+                {!viewUser.is_active
+                  ? t('admin.status.inactive')
+                  : viewUser.rmapi_paired
+                  ? t('admin.status.paired')
+                  : t('admin.status.unpaired')}
               </p>
               <p>
                 <strong>{t('admin.labels.created')}:</strong> {formatDate(viewUser.created_at)}
