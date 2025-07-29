@@ -141,7 +141,9 @@ func enqueueJobForUser(form map[string]string, userID uuid.UUID) string {
 				logMsg += " -> " + data["path"]
 			}
 			manager.LogfWithUser(user, "✅ processPDF success: %s", logMsg)
+			manager.LogfWithUser(user, "🔄 About to call jobStore.Update with success status and data: %+v", data)
 			jobStore.Update(id, "success", msgKey, data)
+			manager.LogfWithUser(user, "✅ jobStore.Update completed successfully")
 		}
 	}()
 

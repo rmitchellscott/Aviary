@@ -117,6 +117,8 @@ export default function HomePage() {
   const [status, setStatus] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [statusData, setStatusData] = useState<Record<string, string> | null>(null);
+  const [lastJobStatusData, setLastJobStatusData] = useState<Record<string, string> | null>(null);
+  const [multipleFilesPaths, setMultipleFilesPaths] = useState<string[] | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [uploadPhase, setUploadPhase] = useState<'idle' | 'uploading' | 'processing'>('idle');
@@ -295,6 +297,8 @@ export default function HomePage() {
     setMessage("");
     setStatus("");
     setStatusData(null);
+    setLastJobStatusData(null); 
+    setMultipleFilesPaths(null);
     setUploadProgress(0);
     setUploadPhase('idle');
 
@@ -331,6 +335,24 @@ export default function HomePage() {
           setStatus(st.status.toLowerCase());
           setMessage(t(st.message, st.data || {}));
           setStatusData(st.data || null);
+          // Preserve the last status data for successful jobs, don't clear on interim updates
+          if (st.status === "success" && st.data) {
+            setLastJobStatusData(st.data);
+            // If this is multiple files success, parse and store the paths persistently
+            if (st.data.paths) {
+              try {
+                const paths = JSON.parse(st.data.paths);
+                if (Array.isArray(paths)) {
+                  setMultipleFilesPaths(paths);
+                }
+              } catch (e) {
+                console.error('Failed to parse paths for persistent storage:', e);
+              }
+            }
+          } else if (st.status === "success") {
+            // If success but no data, keep the last data we had
+            // Don't clear lastJobStatusData here
+          }
           if (typeof st.progress === "number") {
             setProgress(st.progress);
           }
@@ -347,6 +369,8 @@ export default function HomePage() {
         setUploadProgress(0);
         setUploadPhase('idle');
         setStatusData(null);
+        setLastJobStatusData(null);
+        setMultipleFilesPaths(null);
         setLoading(false);
       }
     } else {
@@ -385,6 +409,24 @@ export default function HomePage() {
           setStatus(st.status.toLowerCase());
           setMessage(t(st.message, st.data || {}));
           setStatusData(st.data || null);
+          // Preserve the last status data for successful jobs, don't clear on interim updates
+          if (st.status === "success" && st.data) {
+            setLastJobStatusData(st.data);
+            // If this is multiple files success, parse and store the paths persistently
+            if (st.data.paths) {
+              try {
+                const paths = JSON.parse(st.data.paths);
+                if (Array.isArray(paths)) {
+                  setMultipleFilesPaths(paths);
+                }
+              } catch (e) {
+                console.error('Failed to parse paths for persistent storage:', e);
+              }
+            }
+          } else if (st.status === "success") {
+            // If success but no data, keep the last data we had
+            // Don't clear lastJobStatusData here
+          }
           if (typeof st.progress === "number") {
             setProgress(st.progress);
           }
@@ -397,6 +439,8 @@ export default function HomePage() {
         setUrl("");
         setProgress(0);
         setStatusData(null);
+        setLastJobStatusData(null);
+        setMultipleFilesPaths(null);
         setLoading(false);
       }
     }
@@ -588,12 +632,14 @@ export default function HomePage() {
                 <XCircle className="size-4 flex-shrink-0 text-destructive" />
               )}
 {(() => {
-                // Check if this is a multiple files success message with JSON paths
-                if (status === "success" && statusData?.paths) {
+                // Check if this is a multiple files success message with structured data
+                const dataToUse = statusData || lastJobStatusData;
+                
+                // First try to use structured data
+                if (status === "success" && dataToUse?.paths) {
                   try {
-                    const paths = JSON.parse(statusData.paths);
-                    if (Array.isArray(paths) && paths.length > 1) {
-                      // Get the translated message template and extract the part before paths
+                    const paths = JSON.parse(dataToUse.paths);
+                    if (Array.isArray(paths) && paths.length >= 1) {
                       const messageTemplate = t("backend.status.upload_success_multiple", { paths: "{{PATHS_PLACEHOLDER}}" });
                       const beforePaths = messageTemplate.split("{{PATHS_PLACEHOLDER}}")[0].trim();
                       return (
@@ -608,9 +654,26 @@ export default function HomePage() {
                       );
                     }
                   } catch (e) {
-                    // Fall back to regular text rendering if JSON parsing fails
+                    console.error('Failed to parse paths JSON:', e, dataToUse?.paths);
                   }
                 }
+                
+                // Fallback: use persistent paths if we have them and this looks like a multiple file message
+                if (status === "success" && multipleFilesPaths && message.includes("Your documents are available")) {
+                  const messageTemplate = t("backend.status.upload_success_multiple", { paths: "{{PATHS_PLACEHOLDER}}" });
+                  const beforePaths = messageTemplate.split("{{PATHS_PLACEHOLDER}}")[0].trim();
+                  return (
+                    <div className="break-words">
+                      <div>{beforePaths}</div>
+                      <ul className="list-disc ml-4 mt-1 space-y-1">
+                        {multipleFilesPaths.map((path, index) => (
+                          <li key={index} className="text-sm leading-relaxed">{path}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                }
+                
                 return <span className="break-words whitespace-pre-line">{message}</span>;
               })()}
             </div>
