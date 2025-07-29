@@ -111,10 +111,12 @@ export default function HomePage() {
   const [committedUrl, setCommittedUrl] = useState<string>("");
   const [urlMime, setUrlMime] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [compress, setCompress] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [status, setStatus] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const [statusData, setStatusData] = useState<Record<string, string> | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [uploadPhase, setUploadPhase] = useState<'idle' | 'uploading' | 'processing'>('idle');
@@ -128,6 +130,12 @@ export default function HomePage() {
   const [pairingDialogOpen, setPairingDialogOpen] = useState(false);
 
   const isCompressibleFileOrUrl = useMemo(() => {
+    if (selectedFiles.length > 0) {
+      return selectedFiles.some(file => {
+        const lowerName = file.name.toLowerCase();
+        return COMPRESSIBLE_EXTS.some((ext) => lowerName.endsWith(ext));
+      });
+    }
     if (selectedFile) {
       const lowerName = selectedFile.name.toLowerCase();
       return COMPRESSIBLE_EXTS.some((ext) => lowerName.endsWith(ext));
@@ -163,7 +171,7 @@ export default function HomePage() {
       );
     }
     return true;
-  }, [selectedFile, committedUrl, urlMime]);
+  }, [selectedFile, selectedFiles, committedUrl, urlMime]);
 
   useEffect(() => {
     if (!isCompressibleFileOrUrl && compress) {
@@ -282,17 +290,40 @@ export default function HomePage() {
       xhr.send(formData);
     });
   };
+
+  // Helper function to handle WebSocket status updates
+  const handleStatusUpdate = (st: JobStatus) => {
+    setStatus(st.status.toLowerCase());
+    setMessage(t(st.message, st.data || {}));
+    setStatusData(st.data || null);
+    if (typeof st.progress === "number") {
+      setProgress(st.progress);
+    }
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     setMessage("");
     setStatus("");
+    // Clear any previous status data when starting new upload
+    setStatusData(null);
     setUploadProgress(0);
     setUploadPhase('idle');
 
-    if (selectedFile) {
+    if (selectedFile || selectedFiles.length > 0) {
       try {
         const formData = new FormData();
-        formData.append("file", selectedFile);
+        
+        if (selectedFiles.length > 0) {
+          // Multiple files
+          selectedFiles.forEach((file) => {
+            formData.append("files", file);
+          });
+        } else {
+          // Single file (legacy)
+          formData.append("file", selectedFile!);
+        }
+        
         formData.append("compress", compress ? "true" : "false");
         if (rmDir !== DEFAULT_RM_DIR) {
           formData.append("rm_dir", rmDir);
@@ -308,23 +339,20 @@ export default function HomePage() {
 
         setStatus("running");
         setProgress(0);
-        await waitForJobWS(jobId, (st) => {
-          setStatus(st.status.toLowerCase());
-          setMessage(t(st.message, st.data || {}));
-          if (typeof st.progress === "number") {
-            setProgress(st.progress);
-          }
-        });
+        await waitForJobWS(jobId, handleStatusUpdate);
       } catch (err: unknown) {
         const msg = getErrorMessage(err);
         setStatus("error");
         setMessage(t(msg));
       } finally {
         setSelectedFile(null);
+        setSelectedFiles([]);
         setUrl("");
         setProgress(0);
         setUploadProgress(0);
         setUploadPhase('idle');
+        // Don't clear status data immediately - let it persist to show success message properly
+        // setStatusData(null);
         setLoading(false);
       }
     } else {
@@ -359,13 +387,7 @@ export default function HomePage() {
         setMessage(t("home.job_queued", { id: jobId }));
         setProgress(0);
 
-        await waitForJobWS(jobId, (st) => {
-          setStatus(st.status.toLowerCase());
-          setMessage(t(st.message, st.data || {}));
-          if (typeof st.progress === "number") {
-            setProgress(st.progress);
-          }
-        });
+        await waitForJobWS(jobId, handleStatusUpdate);
       } catch (err: unknown) {
         const msg = getErrorMessage(err);
         setStatus("error");
@@ -373,6 +395,8 @@ export default function HomePage() {
       } finally {
         setUrl("");
         setProgress(0);
+        // Don't clear status data immediately - let it persist to show success message properly
+        // setStatusData(null);
         setLoading(false);
       }
     }
@@ -396,6 +420,9 @@ export default function HomePage() {
                 if (selectedFile) {
                   setSelectedFile(null);
                 }
+                if (selectedFiles.length > 0) {
+                  setSelectedFiles([]);
+                }
                 setUrlMime(null);
               }}
               onBlur={async () => {
@@ -408,7 +435,7 @@ export default function HomePage() {
                 }
               }}
               placeholder={t("home.url_placeholder")}
-              disabled={!!selectedFile}
+              disabled={!!selectedFile || selectedFiles.length > 0}
             />
           </div>
 
@@ -423,12 +450,27 @@ export default function HomePage() {
                 if (url) {
                   setUrl("");
                 }
+                if (selectedFiles.length > 0) {
+                  setSelectedFiles([]);
+                }
+                setUrlMime(null);
+              }}
+              onFilesSelected={(files) => {
+                setSelectedFiles(files);
+                if (url) {
+                  setUrl("");
+                }
+                if (selectedFile) {
+                  setSelectedFile(null);
+                }
                 setUrlMime(null);
               }}
               onError={(msg) => {
                 setFileError(msg);
               }}
               disabled={!!url}
+              multiple={true}
+              existingFiles={selectedFiles}
             />
             {selectedFile && (
               <div className="mt-2 flex justify-between items-center">
@@ -440,9 +482,32 @@ export default function HomePage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setSelectedFile(null)}
+                  disabled={loading}
                 >
                   {t("home.remove")}
                 </Button>
+              </div>
+            )}
+            {selectedFiles.length > 0 && (
+              <div className="mt-2 space-y-2">
+                {selectedFiles.map((file, index) => (
+                  <div key={index} className="flex justify-between items-center">
+                    <p className="text-sm text-foreground">
+                      <span className="font-medium">{file.name}</span>
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const newFiles = selectedFiles.filter((_, i) => i !== index);
+                        setSelectedFiles(newFiles);
+                      }}
+                      disabled={loading}
+                    >
+                      {t("home.remove")}
+                    </Button>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -508,7 +573,7 @@ export default function HomePage() {
           <div className="flex justify-end">
             <Button
               onClick={!rmapiPaired ? () => setPairingDialogOpen(true) : handleSubmit}
-              disabled={loading || (!url && !selectedFile && rmapiPaired)}
+              disabled={loading || (!url && !selectedFile && selectedFiles.length === 0 && rmapiPaired)}
             >
               {loading ? t("home.sending") : !rmapiPaired ? t("home.pair") : t("home.send")}
             </Button>
@@ -525,7 +590,36 @@ export default function HomePage() {
               {status === "error" && (
                 <XCircle className="size-4 flex-shrink-0 text-destructive" />
               )}
-              <span className="break-words">{message}</span>
+{(() => {
+                // Check if this is a multiple files success message with structured data
+                if (status === "success" && statusData?.paths) {
+                  try {
+                    const paths = JSON.parse(statusData.paths);
+                    if (Array.isArray(paths) && paths.length >= 1) {
+                      const messageTemplate = t("backend.status.upload_success_multiple", { paths: "PATHS_PLACEHOLDER" });
+                      const parts = messageTemplate.split("PATHS_PLACEHOLDER");
+                      const beforePaths = parts[0]?.trim() || "";
+                      const afterPaths = parts[1]?.trim() || "";
+                      return (
+                        <div className="break-words">
+                          {beforePaths && <div className="mb-1">{beforePaths}</div>}
+                          <ul className="list-disc ml-4 mt-1 space-y-1">
+                            {paths.map((path, index) => (
+                              <li key={index} className="text-sm leading-relaxed">{path}</li>
+                            ))}
+                          </ul>
+                          {afterPaths && <div className="mt-1">{afterPaths}</div>}
+                        </div>
+                      );
+                    }
+                  } catch (e) {
+                    console.error('Failed to parse paths JSON:', e, statusData?.paths);
+                  }
+                }
+                
+                // Default text rendering
+                return <span className="break-words whitespace-pre-line">{message}</span>;
+              })()}
             </div>
           )}
           {(uploadPhase === 'uploading' && uploadProgress > 0 && uploadProgress < 100) ||

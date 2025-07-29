@@ -376,7 +376,8 @@
       "compress_error": "Erreur de compression",
       "rename_error": "Erreur de renommage",
       "uploading": "Téléchargement vers le serveur",
-      "upload_success": "Votre document est disponible sur votre reMarkable à {{path}}"
+      "upload_success": "Votre document est disponible sur votre reMarkable à {{path}}",
+      "upload_success_multiple": "Vos documents sont disponibles sur votre reMarkable à :\n{{paths}}"
     },
     "errors": {
       "missing_url": "Paramètre URL manquant",

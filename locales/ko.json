@@ -492,7 +492,8 @@
       "compress_error": "압축 오류",
       "rename_error": "이름 변경 오류",
       "uploading": "클라우드에 업로드 중",
-      "upload_success": "문서가 reMarkable의 {{path}}에서 사용 가능합니다"
+      "upload_success": "문서가 reMarkable의 {{path}}에서 사용 가능합니다",
+      "upload_success_multiple": "문서들이 reMarkable의 다음 위치에서 사용 가능합니다:\n{{paths}}"
     },
     "errors": {
       "missing_url": "URL 매개변수 누락",

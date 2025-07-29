@@ -492,7 +492,8 @@
       "compress_error": "压缩错误",
       "rename_error": "重命名错误",
       "uploading": "上传到云端",
-      "upload_success": "您的文档在您的reMarkable上的{{path}}可用"
+      "upload_success": "您的文档在您的reMarkable上的{{path}}可用",
+      "upload_success_multiple": "您的文档在您的reMarkable上的以下位置可用:\n{{paths}}"
     },
     "errors": {
       "missing_url": "缺少URL参数",

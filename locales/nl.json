@@ -492,7 +492,8 @@
       "compress_error": "Compressie fout",
       "rename_error": "Hernoem fout",
       "uploading": "Uploaden naar cloud",
-      "upload_success": "Je document is beschikbaar op je reMarkable op {{path}}"
+      "upload_success": "Je document is beschikbaar op je reMarkable op {{path}}",
+      "upload_success_multiple": "Je documenten zijn beschikbaar op je reMarkable op:\n{{paths}}"
     },
     "errors": {
       "missing_url": "Ontbrekende URL parameter",

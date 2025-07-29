@@ -492,7 +492,8 @@
       "compress_error": "Komprimeringsfeil",
       "rename_error": "Omdøpingsfeil",
       "uploading": "Laster opp til sky",
-      "upload_success": "Dokumentet ditt er tilgjengelig på din reMarkable på {{path}}"
+      "upload_success": "Dokumentet ditt er tilgjengelig på din reMarkable på {{path}}",
+      "upload_success_multiple": "Dokumentene dine er tilgjengelige på din reMarkable på:\n{{paths}}"
     },
     "errors": {
       "missing_url": "Manglende URL parameter",
