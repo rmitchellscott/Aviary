@@ -294,7 +294,29 @@ export default function HomePage() {
   // Helper function to handle WebSocket status updates
   const handleStatusUpdate = (st: JobStatus) => {
     setStatus(st.status.toLowerCase());
-    setMessage(t(st.message, st.data || {}));
+    
+    // Resolve nested translation keys in the data object
+    const resolvedData = st.data ? { ...st.data } : {};
+    if (st.data) {
+      Object.keys(st.data).forEach(key => {
+        const value = st.data[key];
+        // If the value looks like a translation key, resolve it
+        if (typeof value === 'string' && value.includes('.') && !value.includes(' ')) {
+          try {
+            const translatedValue = t(value);
+            // Only use the translated value if it's different from the key (meaning it was found)
+            if (translatedValue !== value) {
+              resolvedData[key] = translatedValue;
+            }
+          } catch (e) {
+            // If translation fails, keep the original value
+            resolvedData[key] = value;
+          }
+        }
+      });
+    }
+    
+    setMessage(t(st.message, resolvedData));
     setStatusData(st.data || null);
     if (typeof st.progress === "number") {
       setProgress(st.progress);

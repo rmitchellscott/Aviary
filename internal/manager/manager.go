@@ -172,6 +172,33 @@ func SimpleUpload(path, rmDir string, user *database.User) (string, error) {
 	if coverpageSetting == "first" {
 		args = append(args, "--coverpage=1")
 	}
+
+	// Use user's conflict resolution setting if provided, otherwise fall back to environment variable or default
+	conflictResolution := ""
+	if user != nil {
+		conflictResolution = user.ConflictResolution
+	}
+	if conflictResolution == "" {
+		conflictResolution = config.Get("RMAPI_CONFLICT_RESOLUTION", "abort")
+	}
+
+	// Determine effective conflict resolution based on file type
+	// content_only only works with PDF files, so fallback to abort for other file types
+	effectiveConflictResolution := conflictResolution
+	if conflictResolution == "content_only" {
+		ext := strings.ToLower(filepath.Ext(path))
+		if ext != ".pdf" {
+			effectiveConflictResolution = "abort"
+		}
+	}
+
+	switch effectiveConflictResolution {
+	case "overwrite":
+		args = append(args, "--force")
+	case "content_only":
+		args = append(args, "--content-only") // Only reached for PDFs
+	}
+
 	args = append(args, path, rmDir)
 	cmd := rmapiCmd(user, args...)
 	out, err := cmd.CombinedOutput()
@@ -276,6 +303,33 @@ func RenameAndUpload(path, prefix, rmDir string, user *database.User) (string, e
 	if coverpageSetting == "first" {
 		args = append(args, "--coverpage=1")
 	}
+
+	// Use user's conflict resolution setting if provided, otherwise fall back to environment variable or default
+	conflictResolution := ""
+	if user != nil {
+		conflictResolution = user.ConflictResolution
+	}
+	if conflictResolution == "" {
+		conflictResolution = config.Get("RMAPI_CONFLICT_RESOLUTION", "abort")
+	}
+
+	// Determine effective conflict resolution based on file type
+	// content_only only works with PDF files, so fallback to abort for other file types
+	effectiveConflictResolution := conflictResolution
+	if conflictResolution == "content_only" {
+		ext := strings.ToLower(filepath.Ext(noYearPath))
+		if ext != ".pdf" {
+			effectiveConflictResolution = "abort"
+		}
+	}
+
+	switch effectiveConflictResolution {
+	case "overwrite":
+		args = append(args, "--force")
+	case "content_only":
+		args = append(args, "--content-only") // Only reached for PDFs
+	}
+
 	args = append(args, noYearPath, rmDir)
 	cmd := rmapiCmd(user, args...)
 	out, err := cmd.CombinedOutput()
