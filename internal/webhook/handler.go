@@ -27,6 +27,16 @@ import (
 	"golang.org/x/text/language"
 )
 
+// isConflictError checks if an error is due to rmapi conflict (entry already exists)
+func isConflictError(err error) bool {
+	if err == nil {
+		return false
+	}
+	errStr := strings.ToLower(err.Error())
+	return strings.Contains(errStr, "entry already exists") || 
+		   strings.Contains(errStr, "error: entry already exists")
+}
+
 // keyToMessage converts i18n keys to human-readable messages for logging
 func keyToMessage(key string) string {
 	switch key {
@@ -60,6 +70,8 @@ func keyToMessage(key string) string {
 		return "Invalid prefix"
 	case "backend.status.job_not_found":
 		return "Job not found"
+	case "backend.status.conflict_entry_exists":
+		return "Entry already exists"
 	default:
 		return key // fallback to key if not found
 	}
@@ -427,6 +439,12 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		manager.Logf("📤 Managed archive upload")
 		remoteName, err = manager.RenameAndUpload(localPath, prefix, rmDir, dbUser)
 		if err != nil {
+			if isConflictError(err) {
+				return "backend.status.conflict_entry_exists", map[string]string{
+					"conflict_resolution": "settings.labels.conflict_resolution",
+					"settings": "app.settings",
+				}, err
+			}
 			return "backend.status.internal_error", nil, err
 		}
 
@@ -438,6 +456,12 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		}
 		remoteName, err = manager.SimpleUpload(noYearPath, rmDir, dbUser)
 		if err != nil {
+			if isConflictError(err) {
+				return "backend.status.conflict_entry_exists", map[string]string{
+					"conflict_resolution": "settings.labels.conflict_resolution",
+					"settings": "app.settings",
+				}, err
+			}
 			return "backend.status.internal_error", nil, err
 		}
 		if _, err2 := manager.AppendYearLocal(noYearPath); err2 != nil {
@@ -448,6 +472,12 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		manager.Logf("📤 Archive-only upload")
 		remoteName, err = manager.SimpleUpload(localPath, rmDir, dbUser)
 		if err != nil {
+			if isConflictError(err) {
+				return "backend.status.conflict_entry_exists", map[string]string{
+					"conflict_resolution": "settings.labels.conflict_resolution",
+					"settings": "app.settings",
+				}, err
+			}
 			return "backend.status.internal_error", nil, err
 		}
 
@@ -455,6 +485,12 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		manager.Logf("📤 Simple upload")
 		remoteName, err = manager.SimpleUpload(localPath, rmDir, dbUser)
 		if err != nil {
+			if isConflictError(err) {
+				return "backend.status.conflict_entry_exists", map[string]string{
+					"conflict_resolution": "settings.labels.conflict_resolution",
+					"settings": "app.settings",
+				}, err
+			}
 			return "backend.status.internal_error", nil, err
 		}
 	}
@@ -917,6 +953,12 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 			// Clean up any processed files before returning error
 			for _, path := range cleanupPaths {
 				os.Remove(path)
+			}
+			if isConflictError(err) {
+				return "backend.status.conflict_entry_exists", map[string]string{
+					"conflict_resolution": "settings.labels.conflict_resolution",
+					"settings": "app.settings",
+				}, err
 			}
 			return "backend.status.internal_error", nil, err
 		}

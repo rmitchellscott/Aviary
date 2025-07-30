@@ -39,6 +39,7 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 - Automatic PDF download with realistic browser User-Agent
 - PNG/JPEG to PDF conversion
 - Optional Ghostscript compression
+- Configurable conflict resolution (abort/overwrite/content-only)
 - Smart upload modes (simple or managed with retention via API)
 
 ### Data Management (Mulit-User Mode)

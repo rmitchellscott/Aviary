@@ -149,6 +149,8 @@ func DownloadPDFForUser(urlStr string, tmp bool, prefix string, userID uuid.UUID
 	if strings.TrimSpace(name) == "" {
 		name = filepath.Base(urlStr)
 	}
+	
+	// If we still don't have an extension, try content type detection
 	if filepath.Ext(name) == "" {
 		ct := resp.Header.Get("Content-Type")
 		switch {
@@ -160,6 +162,12 @@ func DownloadPDFForUser(urlStr string, tmp bool, prefix string, userID uuid.UUID
 			name += ".jpg"
 		case strings.HasPrefix(ct, "application/epub+zip"):
 			name += ".epub"
+		default:
+			// Fallback: try to extract extension from original URL
+			originalName := filepath.Base(urlStr)
+			if ext := filepath.Ext(originalName); ext != "" {
+				name = originalName // Use the original filename with extension
+			}
 		}
 	}
 

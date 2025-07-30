@@ -345,6 +345,7 @@
       "rmapi_host": "reMarkable主机（可选）",
       "default_directory": "默认目录",
       "cover_page": "封面页",
+      "conflict_resolution": "冲突时",
       "current_password": "当前密码",
       "new_password": "新密码",
       "confirm_new_password": "确认新密码",
@@ -371,7 +372,10 @@
     "options": {
       "cover_current": "当前页面",
       "cover_first": "第一页",
-      "manual": "手动"
+      "manual": "手动",
+      "conflict_abort": "中止",
+      "conflict_overwrite": "覆盖",
+      "conflict_content_only": "仅内容"
     },
     "expiry_options": {
       "one_week": "1周",
@@ -393,7 +397,8 @@
       "pdf_conversion_device": "选择您的reMarkable设备型号以获得最佳的图像转PDF转换效果。此设置仅影响转换为PDF的图像文件（JPEG、PNG）。",
       "page_resolution": "以宽度x高度格式的页面分辨率",
       "page_dpi": "每英寸点数",
-      "default_directory": "选择您的文档将上传到的默认文件夹"
+      "default_directory": "选择您的文档将上传到的默认文件夹",
+      "conflict_resolution": "选择上传与现有文档同名的文档时发生的情况。仅内容保留注释，仅适用于PDF和图像 - 对于EPUB将中止。覆盖完全替换文档。"
     },
     "status": {
       "active": "活动",
@@ -493,7 +498,8 @@
       "rename_error": "重命名错误",
       "uploading": "上传到云端",
       "upload_success": "您的文档在您的reMarkable上的{{path}}可用",
-      "upload_success_multiple": "您的文档在您的reMarkable上的以下位置可用:\n{{paths}}"
+      "upload_success_multiple": "您的文档在您的reMarkable上的以下位置可用:\n{{paths}}",
+      "conflict_entry_exists": "您的reMarkable上已存在此名称的文档。请在{{settings}}中更改您的{{conflict_resolution}}设置，或重命名文档。"
     },
     "errors": {
       "missing_url": "缺少URL参数",

@@ -353,7 +353,8 @@
       "rename_error": "Errore di rinominazione",
       "uploading": "Caricamento in corso",
       "upload_success": "Il tuo documento è disponibile sul tuo reMarkable in {{path}}",
-      "upload_success_multiple": "I tuoi documenti sono disponibili sul tuo reMarkable in:\n{{paths}}"
+      "upload_success_multiple": "I tuoi documenti sono disponibili sul tuo reMarkable in:\n{{paths}}",
+      "conflict_entry_exists": "Un documento con questo nome esiste già sul tuo reMarkable. Cambia la tua impostazione {{conflict_resolution}} in {{settings}}, o rinomina il documento."
     },
     "errors": {
       "missing_url": "Parametro URL mancante",
@@ -388,6 +389,7 @@
       "rmapi_host": "Host reMarkable (opzionale)",
       "default_directory": "Directory Predefinita",
       "cover_page": "Pagina di Copertina",
+      "conflict_resolution": "In Conflitto",
       "current_password": "Password Attuale",
       "new_password": "Nuova Password",
       "confirm_new_password": "Conferma Nuova Password",
@@ -414,7 +416,10 @@
     "options": {
       "cover_current": "Pagina corrente",
       "cover_first": "Prima pagina",
-      "manual": "Manuale"
+      "manual": "Manuale",
+      "conflict_abort": "Interrompi",
+      "conflict_overwrite": "Sovrascrivi",
+      "conflict_content_only": "Solo Contenuto"
     },
     "expiry_options": {
       "one_week": "1 settimana",
@@ -436,7 +441,8 @@
       "pdf_conversion_device": "Scegli il modello del tuo dispositivo reMarkable per una conversione ottimale da immagine a PDF. Questa impostazione influisce solo sui file immagine (JPEG, PNG) convertiti in PDF.",
       "page_resolution": "Risoluzione pagina nel formato LARGHEZZAxALTEZZA",
       "page_dpi": "Punti per pollice",
-      "default_directory": "Scegli la cartella predefinita dove verranno caricati i tuoi documenti"
+      "default_directory": "Scegli la cartella predefinita dove verranno caricati i tuoi documenti",
+      "conflict_resolution": "Scegli cosa succede quando carichi un documento con lo stesso nome di un documento esistente. Solo Contenuto preserva le annotazioni e funziona solo per PDF e immagini - Interromperà per gli EPUB. Sovrascrivi sostituisce completamente i documenti."
     },
     "status": {
       "active": "attivo",

@@ -345,6 +345,7 @@
       "rmapi_host": "reMarkable-värd (valfritt)",
       "default_directory": "Standardkatalog",
       "cover_page": "Omslagssida",
+      "conflict_resolution": "Vid Konflikt",
       "current_password": "Nuvarande lösenord",
       "new_password": "Nytt lösenord",
       "confirm_new_password": "Bekräfta nytt lösenord",
@@ -371,7 +372,10 @@
     "options": {
       "cover_current": "Nuvarande sida",
       "cover_first": "Första sidan",
-      "manual": "Manuell"
+      "manual": "Manuell",
+      "conflict_abort": "Avbryt",
+      "conflict_overwrite": "Skriv över",
+      "conflict_content_only": "Endast Innehåll"
     },
     "expiry_options": {
       "one_week": "1 vecka",
@@ -393,7 +397,8 @@
       "pdf_conversion_device": "Välj din reMarkable enhetsmodell för optimal bild-till-PDF konvertering. Den här inställningen påverkar endast bildfiler (JPEG, PNG) som konverteras till PDF.",
       "page_resolution": "Sidupplösning i BREDDxHÖJD format",
       "page_dpi": "Punkter per tum",
-      "default_directory": "Välj standardmappen där dina dokument kommer att laddas upp"
+      "default_directory": "Välj standardmappen där dina dokument kommer att laddas upp",
+      "conflict_resolution": "Välj vad som händer när du laddar upp ett dokument med samma namn som ett befintligt dokument. Endast Innehåll bevarar anteckningar och fungerar bara för PDF:er och bilder - det kommer att Avbryta för EPUB:er. Skriv över ersätter dokument helt."
     },
     "status": {
       "active": "aktiv",
@@ -493,7 +498,8 @@
       "rename_error": "Namnbytesfel",
       "uploading": "Laddar upp till molnet",
       "upload_success": "Ditt dokument är tillgängligt på din reMarkable på {{path}}",
-      "upload_success_multiple": "Dina dokument är tillgängliga på din reMarkable på:\n{{paths}}"
+      "upload_success_multiple": "Dina dokument är tillgängliga på din reMarkable på:\n{{paths}}",
+      "conflict_entry_exists": "Ett dokument med detta namn finns redan på din reMarkable. Ändra din {{conflict_resolution}} inställning i {{settings}}, eller byt namn på dokumentet."
     },
     "errors": {
       "missing_url": "Saknad URL-parameter",

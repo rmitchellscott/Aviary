@@ -345,6 +345,7 @@
       "rmapi_host": "reMarkable-isäntä (valinnainen)",
       "default_directory": "Oletuskansio",
       "cover_page": "Kansilehti",
+      "conflict_resolution": "Konfliktissa",
       "current_password": "Nykyinen salasana",
       "new_password": "Uusi salasana",
       "confirm_new_password": "Vahvista uusi salasana",
@@ -371,7 +372,10 @@
     "options": {
       "cover_current": "Nykyinen sivu",
       "cover_first": "Ensimmäinen sivu",
-      "manual": "Manuaalinen"
+      "manual": "Manuaalinen",
+      "conflict_abort": "Keskeytä",
+      "conflict_overwrite": "Korvaa",
+      "conflict_content_only": "Vain sisältö"
     },
     "expiry_options": {
       "one_week": "1 viikko",
@@ -393,7 +397,8 @@
       "pdf_conversion_device": "Valitse reMarkable-laitteesi malli optimaaliseen kuva-PDF-muunnokseen. Tämä asetus vaikuttaa vain kuvatiedostoihin (JPEG, PNG), jotka muunnetaan PDF:ksi.",
       "page_resolution": "Sivun resoluutio LEVEYSxKORKEUS muodossa",
       "page_dpi": "Pistettä tuumaa kohti",
-      "default_directory": "Valitse oletuskansio, johon asiakirjasi ladataan"
+      "default_directory": "Valitse oletuskansio, johon asiakirjasi ladataan",
+      "conflict_resolution": "Valitse mitä tapahtuu kun lataat asiakirjan samalla nimellä kuin olemassa oleva asiakirja. Vain sisältö säilyttää merkinnät ja toimii vain PDF:ille ja kuville - se Keskeytää EPUB:ille. Korvaa korvaa asiakirjat kokonaan."
     },
     "status": {
       "active": "aktiivinen",
@@ -493,7 +498,8 @@
       "rename_error": "Uudelleennimeämisvirhe",
       "uploading": "Ladataan pilveen",
       "upload_success": "Asiakirjasi on saatavilla reMarkablessa polussa {{path}}",
-      "upload_success_multiple": "Asiakirjasi ovat saatavilla reMarkablessa:\n{{paths}}"
+      "upload_success_multiple": "Asiakirjasi ovat saatavilla reMarkablessa:\n{{paths}}",
+      "conflict_entry_exists": "Asiakirja tällä nimellä on jo olemassa reMarkablessa. Muuta {{conflict_resolution}} asetustasi {{settings}}issa tai nimeä asiakirja uudelleen."
     },
     "errors": {
       "missing_url": "Puuttuva URL-parametri",

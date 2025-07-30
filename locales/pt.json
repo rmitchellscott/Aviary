@@ -345,6 +345,7 @@
       "rmapi_host": "Host reMarkable (opcional)",
       "default_directory": "Diretório Padrão",
       "cover_page": "Página de Capa",
+      "conflict_resolution": "Em Conflito",
       "current_password": "Senha Atual",
       "new_password": "Nova Senha",
       "confirm_new_password": "Confirmar Nova Senha",
@@ -371,7 +372,10 @@
     "options": {
       "cover_current": "Página atual",
       "cover_first": "Primeira página",
-      "manual": "Manual"
+      "manual": "Manual",
+      "conflict_abort": "Abortar",
+      "conflict_overwrite": "Sobrescrever",
+      "conflict_content_only": "Apenas Conteúdo"
     },
     "expiry_options": {
       "one_week": "1 semana",
@@ -393,7 +397,8 @@
       "pdf_conversion_device": "Escolha o modelo do seu dispositivo reMarkable para conversão ótima de imagem para PDF. Esta configuração afeta apenas arquivos de imagem (JPEG, PNG) convertidos para PDF.",
       "page_resolution": "Resolução da página no formato LARGURAxALTURA",
       "page_dpi": "Pontos por polegada",
-      "default_directory": "Escolha a pasta padrão onde seus documentos serão enviados"
+      "default_directory": "Escolha a pasta padrão onde seus documentos serão enviados",
+      "conflict_resolution": "Escolha o que acontece ao enviar um documento com o mesmo nome que um documento existente. Apenas Conteúdo preserva anotações e funciona apenas para PDFs e imagens - irá Abortar para EPUBs. Sobrescrever substitui documentos completamente."
     },
     "status": {
       "active": "ativo",
@@ -493,7 +498,8 @@
       "rename_error": "Erro de renomeação",
       "uploading": "Enviando para a nuvem",
       "upload_success": "Seu documento está disponível no seu reMarkable em {{path}}",
-      "upload_success_multiple": "Seus documentos estão disponíveis no seu reMarkable em:\n{{paths}}"
+      "upload_success_multiple": "Seus documentos estão disponíveis no seu reMarkable em:\n{{paths}}",
+      "conflict_entry_exists": "Um documento com este nome já existe no seu reMarkable. Altere sua configuração de {{conflict_resolution}} em {{settings}}, ou renomeie o documento."
     },
     "errors": {
       "missing_url": "Parâmetro URL ausente",

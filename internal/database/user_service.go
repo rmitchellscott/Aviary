@@ -42,21 +42,25 @@ func (s *UserService) CreateUser(username, email, password string, isAdmin bool)
 		coverpageSetting = "first"
 	}
 
+	// Set conflict resolution based on server's RMAPI_CONFLICT_RESOLUTION environment variable
+	conflictResolution := config.Get("RMAPI_CONFLICT_RESOLUTION", "abort")
+
 	// Set default RMAPI host from environment variable
 	rmapiHost := config.Get("RMAPI_HOST", "")
 
 	user := &User{
-		ID:               uuid.New(),
-		Username:         username,
-		Email:            email,
-		Password:         string(hashedPassword),
-		IsAdmin:          isAdmin,
-		IsActive:         true,
-		RmapiHost:        rmapiHost,
-		DefaultRmdir:     "/",
-		CoverpageSetting: coverpageSetting,
-		CreatedAt:        time.Now(),
-		UpdatedAt:        time.Now(),
+		ID:                 uuid.New(),
+		Username:           username,
+		Email:              email,
+		Password:           string(hashedPassword),
+		IsAdmin:            isAdmin,
+		IsActive:           true,
+		RmapiHost:          rmapiHost,
+		DefaultRmdir:       "/",
+		CoverpageSetting:   coverpageSetting,
+		ConflictResolution: conflictResolution,
+		CreatedAt:          time.Now(),
+		UpdatedAt:          time.Now(),
 	}
 
 	if err := s.db.Create(user).Error; err != nil {

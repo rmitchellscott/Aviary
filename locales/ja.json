@@ -345,6 +345,7 @@
       "rmapi_host": "reMarkableホスト（オプション）",
       "default_directory": "デフォルトディレクトリ",
       "cover_page": "カバーページ",
+      "conflict_resolution": "競合時",
       "current_password": "現在のパスワード",
       "new_password": "新しいパスワード",
       "confirm_new_password": "新しいパスワードを確認",
@@ -371,7 +372,10 @@
     "options": {
       "cover_current": "現在のページ",
       "cover_first": "最初のページ",
-      "manual": "手動"
+      "manual": "手動",
+      "conflict_abort": "中止",
+      "conflict_overwrite": "上書き",
+      "conflict_content_only": "コンテンツのみ"
     },
     "expiry_options": {
       "one_week": "1週間",
@@ -393,7 +397,8 @@
       "pdf_conversion_device": "最適な画像かPDFへの変換のためにreMarkableデバイスモデルを選択してください。この設定はPDFに変換される画像ファイル（JPEG、PNG）のみに影響します。",
       "page_resolution": "幅x高さ形式のページ解像度",
       "page_dpi": "1インチあたりのドット数",
-      "default_directory": "ドキュメントがアップロードされるデフォルトフォルダを選択してください"
+      "default_directory": "ドキュメントがアップロードされるデフォルトフォルダを選択してください",
+      "conflict_resolution": "既存の文書と同じ名前の文書をアップロードするときに何が起こるかを選択します。コンテンツのみは注釈を保持し、PDFと画像にのみ機能します - EPUBでは中止されます。上書きは文書を完全に置き換えます。"
     },
     "status": {
       "active": "アクティブ",
@@ -493,7 +498,8 @@
       "rename_error": "名前変更エラー",
       "uploading": "クラウドにアップロード中",
       "upload_success": "ドキュメントはreMarkableの{{path}}で利用可能です",
-      "upload_success_multiple": "ドキュメントはreMarkableの以下の場所で利用可能です:\n{{paths}}"
+      "upload_success_multiple": "ドキュメントはreMarkableの以下の場所で利用可能です:\n{{paths}}",
+      "conflict_entry_exists": "この名前の文書は既にあなたのreMarkableに存在します。{{settings}}で{{conflict_resolution}}設定を変更するか、文書の名前を変更してください。"
     },
     "errors": {
       "missing_url": "URLパラメータが不足しています",

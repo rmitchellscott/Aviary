@@ -123,6 +123,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [userRmapiHost, setUserRmapiHost] = useState("");
   const [defaultRmdir, setDefaultRmdir] = useState("/");
   const [coverpageSetting, setCoverpageSetting] = useState("current");
+  const [conflictResolution, setConflictResolution] = useState("abort");
   const [devicePreset, setDevicePreset] = useState("remarkable_1_2");
   const [manualPageResolution, setManualPageResolution] = useState("");
   const [manualPageDPI, setManualPageDPI] = useState("");
@@ -133,6 +134,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     userRmapiHost: "",
     defaultRmdir: "/",
     coverpageSetting: "current",
+    conflictResolution: "abort",
     devicePreset: "remarkable_1_2",
     manualPageResolution: "",
     manualPageDPI: ""
@@ -182,6 +184,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       const userRmapiHost = user.rmapi_host || "";
       const defaultRmdir = user.default_rmdir || "/";
       const coverpageSetting = user.coverpage_setting || "current";
+      const conflictResolution = user.conflict_resolution || "abort";
       const detectedPreset = getDevicePresetFromUser(user.page_resolution, user.page_dpi);
       const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
       const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
@@ -191,6 +194,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setUserRmapiHost(userRmapiHost);
       setDefaultRmdir(defaultRmdir);
       setCoverpageSetting(coverpageSetting);
+      setConflictResolution(conflictResolution);
       setDevicePreset(detectedPreset);
       setManualPageResolution(manualResolution);
       setManualPageDPI(manualDPI);
@@ -201,6 +205,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         userRmapiHost,
         defaultRmdir,
         coverpageSetting,
+        conflictResolution,
         devicePreset: detectedPreset,
         manualPageResolution: manualResolution,
         manualPageDPI: manualDPI
@@ -265,6 +270,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       userRmapiHost !== originalValues.userRmapiHost ||
       defaultRmdir !== originalValues.defaultRmdir ||
       coverpageSetting !== originalValues.coverpageSetting ||
+      conflictResolution !== originalValues.conflictResolution ||
       devicePreset !== originalValues.devicePreset ||
       manualPageResolution !== originalValues.manualPageResolution ||
       manualPageDPI !== originalValues.manualPageDPI
@@ -288,6 +294,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           rmapi_host: userRmapiHost,
           default_rmdir: defaultRmdir,
           coverpage_setting: coverpageSetting,
+          conflict_resolution: conflictResolution,
           ...pageSettings,
         }),
       });
@@ -672,7 +679,33 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       </p>
                     </div>
 
-                    <div className="md:col-span-2">
+                    <div>
+                      <Label htmlFor="conflict-resolution">{t("settings.labels.conflict_resolution")}</Label>
+                      <Select 
+                        value={conflictResolution} 
+                        onValueChange={setConflictResolution}
+                      >
+                        <SelectTrigger id="conflict-resolution" className="mt-2">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="abort">
+                            {t("settings.options.conflict_abort")}
+                          </SelectItem>
+                          <SelectItem value="overwrite">
+                            {t("settings.options.conflict_overwrite")}
+                          </SelectItem>
+                          <SelectItem value="content_only">
+                            {t("settings.options.conflict_content_only")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {t("settings.help.conflict_resolution")}
+                      </p>
+                    </div>
+
+                    <div>
                       <Label htmlFor="device-preset">{t("settings.labels.pdf_conversion_device")}</Label>
                       <Select 
                         value={devicePreset} 
@@ -696,39 +729,39 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       <p className="text-sm text-muted-foreground mt-1">
                         {t("settings.help.pdf_conversion_device")}
                       </p>
-                      
-                      {devicePreset === "manual" && (
-                        <div className="mt-4 space-y-4 p-4 bg-muted/50 rounded-md border">
-                          <div>
-                            <Label htmlFor="manual-resolution">{t("settings.labels.page_resolution")}</Label>
-                            <Input
-                              id="manual-resolution"
-                              value={manualPageResolution}
-                              onChange={(e) => setManualPageResolution(e.target.value)}
-                              placeholder={t('settings.placeholders.page_resolution')}
-                              className="mt-2"
-                            />
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {t("settings.help.page_resolution")}
-                            </p>
-                          </div>
-                          <div>
-                            <Label htmlFor="manual-dpi">{t("settings.labels.page_dpi")}</Label>
-                            <Input
-                              id="manual-dpi"
-                              type="number"
-                              value={manualPageDPI}
-                              onChange={(e) => setManualPageDPI(e.target.value)}
-                              placeholder={t('settings.placeholders.page_dpi')}
-                              className="mt-2"
-                            />
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {t("settings.help.page_dpi")}
-                            </p>
-                          </div>
-                        </div>
-                      )}
                     </div>
+                    
+                    {devicePreset === "manual" && (
+                      <div className="md:col-span-2 mt-4 space-y-4 p-4 bg-muted/50 rounded-md border">
+                        <div>
+                          <Label htmlFor="manual-resolution">{t("settings.labels.page_resolution")}</Label>
+                          <Input
+                            id="manual-resolution"
+                            value={manualPageResolution}
+                            onChange={(e) => setManualPageResolution(e.target.value)}
+                            placeholder={t('settings.placeholders.page_resolution')}
+                            className="mt-2"
+                          />
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {t("settings.help.page_resolution")}
+                          </p>
+                        </div>
+                        <div>
+                          <Label htmlFor="manual-dpi">{t("settings.labels.page_dpi")}</Label>
+                          <Input
+                            id="manual-dpi"
+                            type="number"
+                            value={manualPageDPI}
+                            onChange={(e) => setManualPageDPI(e.target.value)}
+                            placeholder={t('settings.placeholders.page_dpi')}
+                            className="mt-2"
+                          />
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {t("settings.help.page_dpi")}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex justify-end">

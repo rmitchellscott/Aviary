@@ -32,14 +32,15 @@ func GetPostPairingCallback() PostPairingCallback {
 
 // UpdateUserRequest represents a user update request
 type UpdateUserRequest struct {
-	Email            *string  `json:"email,omitempty" binding:"omitempty,email"`
-	RmapiHost        *string  `json:"rmapi_host,omitempty"`
-	DefaultRmdir     *string  `json:"default_rmdir,omitempty"`
-	CoverpageSetting *string  `json:"coverpage_setting,omitempty"`
-	PageResolution   *string  `json:"page_resolution,omitempty"`
-	PageDPI          *float64 `json:"page_dpi,omitempty"`
-	IsAdmin          *bool    `json:"is_admin,omitempty"`
-	IsActive         *bool    `json:"is_active,omitempty"`
+	Email              *string  `json:"email,omitempty" binding:"omitempty,email"`
+	RmapiHost          *string  `json:"rmapi_host,omitempty"`
+	DefaultRmdir       *string  `json:"default_rmdir,omitempty"`
+	CoverpageSetting   *string  `json:"coverpage_setting,omitempty"`
+	ConflictResolution *string  `json:"conflict_resolution,omitempty"`
+	PageResolution     *string  `json:"page_resolution,omitempty"`
+	PageDPI            *float64 `json:"page_dpi,omitempty"`
+	IsAdmin            *bool    `json:"is_admin,omitempty"`
+	IsActive           *bool    `json:"is_active,omitempty"`
 }
 
 // UpdatePasswordRequest represents a password update request
@@ -150,17 +151,20 @@ func GetUsersHandler(c *gin.Context) {
 	response := make([]UserResponse, len(users))
 	for i, user := range users {
 		response[i] = UserResponse{
-			ID:               user.ID,
-			Username:         user.Username,
-			Email:            user.Email,
-			IsAdmin:          user.IsAdmin,
-			IsActive:         user.IsActive,
-			RmapiHost:        user.RmapiHost,
-			RmapiPaired:      isUserPaired(user.ID),
-			DefaultRmdir:     user.DefaultRmdir,
-			CoverpageSetting: user.CoverpageSetting,
-			CreatedAt:        user.CreatedAt,
-			LastLogin:        user.LastLogin,
+			ID:                 user.ID,
+			Username:           user.Username,
+			Email:              user.Email,
+			IsAdmin:            user.IsAdmin,
+			IsActive:           user.IsActive,
+			RmapiHost:          user.RmapiHost,
+			RmapiPaired:        isUserPaired(user.ID),
+			DefaultRmdir:       user.DefaultRmdir,
+			CoverpageSetting:   user.CoverpageSetting,
+			ConflictResolution: user.ConflictResolution,
+			PageResolution:     user.PageResolution,
+			PageDPI:            user.PageDPI,
+			CreatedAt:          user.CreatedAt,
+			LastLogin:          user.LastLogin,
 		}
 	}
 
@@ -206,17 +210,20 @@ func GetUserHandler(c *gin.Context) {
 	}
 
 	response := UserResponse{
-		ID:               user.ID,
-		Username:         user.Username,
-		Email:            user.Email,
-		IsAdmin:          user.IsAdmin,
-		IsActive:         user.IsActive,
-		RmapiHost:        user.RmapiHost,
-		RmapiPaired:      isUserPaired(user.ID),
-		DefaultRmdir:     user.DefaultRmdir,
-		CoverpageSetting: user.CoverpageSetting,
-		CreatedAt:        user.CreatedAt,
-		LastLogin:        user.LastLogin,
+		ID:                 user.ID,
+		Username:           user.Username,
+		Email:              user.Email,
+		IsAdmin:            user.IsAdmin,
+		IsActive:           user.IsActive,
+		RmapiHost:          user.RmapiHost,
+		RmapiPaired:        isUserPaired(user.ID),
+		DefaultRmdir:       user.DefaultRmdir,
+		CoverpageSetting:   user.CoverpageSetting,
+		ConflictResolution: user.ConflictResolution,
+		PageResolution:     user.PageResolution,
+		PageDPI:            user.PageDPI,
+		CreatedAt:          user.CreatedAt,
+		LastLogin:          user.LastLogin,
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -263,6 +270,9 @@ func UpdateUserHandler(c *gin.Context) {
 	}
 	if req.CoverpageSetting != nil && *req.CoverpageSetting != "" {
 		updates["coverpage_setting"] = *req.CoverpageSetting
+	}
+	if req.ConflictResolution != nil && *req.ConflictResolution != "" {
+		updates["conflict_resolution"] = *req.ConflictResolution
 	}
 	if req.PageResolution != nil {
 		updates["page_resolution"] = *req.PageResolution
@@ -377,6 +387,10 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 
 	if req.CoverpageSetting != nil && *req.CoverpageSetting != "" {
 		updates["coverpage_setting"] = *req.CoverpageSetting
+	}
+
+	if req.ConflictResolution != nil && *req.ConflictResolution != "" {
+		updates["conflict_resolution"] = *req.ConflictResolution
 	}
 
 	if req.PageResolution != nil {
