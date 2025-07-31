@@ -339,6 +339,38 @@ func copyFile(src, dst string) error {
 	return os.Chmod(dst, sourceInfo.Mode())
 }
 
+// addFileToTar adds a single file to the tar archive
+func addFileToTar(tarWriter *tar.Writer, filePath, nameInArchive string) error {
+	// Open the file
+	file, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Get file info
+	info, err := file.Stat()
+	if err != nil {
+		return err
+	}
+
+	// Create tar header
+	header, err := tar.FileInfoHeader(info, "")
+	if err != nil {
+		return err
+	}
+	header.Name = nameInArchive
+
+	// Write header
+	if err := tarWriter.WriteHeader(header); err != nil {
+		return err
+	}
+
+	// Write file contents
+	_, err = io.Copy(tarWriter, file)
+	return err
+}
+
 func createTarGz(sourceDir, outputPath string) error {
 	// Create output file
 	outFile, err := os.Create(outputPath)
@@ -355,6 +387,14 @@ func createTarGz(sourceDir, outputPath string) error {
 	tarWriter := tar.NewWriter(gzWriter)
 	defer tarWriter.Close()
 
+	// First, add metadata.json if it exists
+	metadataPath := filepath.Join(sourceDir, "metadata.json")
+	if _, err := os.Stat(metadataPath); err == nil {
+		if err := addFileToTar(tarWriter, metadataPath, "metadata.json"); err != nil {
+			return fmt.Errorf("failed to add metadata.json: %w", err)
+		}
+	}
+
 	// Walk through source directory
 	return filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -369,6 +409,11 @@ func createTarGz(sourceDir, outputPath string) error {
 
 		// Skip the root directory itself
 		if relPath == "." {
+			return nil
+		}
+
+		// Skip metadata.json as we've already added it
+		if relPath == "metadata.json" {
 			return nil
 		}
 

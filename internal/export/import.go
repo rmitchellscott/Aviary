@@ -41,7 +41,7 @@ func (i *Importer) Import(archivePath string, options ImportOptions) (*ExportMet
 	defer os.RemoveAll(tempDir)
 
 	// Extract archive
-	if err := extractTarGz(archivePath, tempDir); err != nil {
+	if err := ExtractTarGz(archivePath, tempDir); err != nil {
 		return nil, fmt.Errorf("failed to extract archive: %w", err)
 	}
 
@@ -634,7 +634,7 @@ func mapUserRecord(data map[string]interface{}, user *database.User) error {
 	return nil
 }
 
-func extractTarGz(archivePath, destDir string) error {
+func ExtractTarGz(archivePath, destDir string) error {
 	// Open archive file
 	file, err := os.Open(archivePath)
 	if err != nil {
