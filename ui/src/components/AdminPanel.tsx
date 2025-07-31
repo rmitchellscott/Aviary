@@ -67,6 +67,37 @@ import {
   Trash2,
 } from "lucide-react";
 
+/**
+ * Compare two semver version strings
+ * Returns: 1 if v1 > v2, -1 if v1 < v2, 0 if equal
+ * Returns null if either version is invalid
+ */
+function compareSemver(v1: string | null | undefined, v2: string | null | undefined): number | null {
+  if (!v1 || !v2) return null;
+  
+  // Remove 'v' prefix if present
+  const clean1 = v1.replace(/^v/, '');
+  const clean2 = v2.replace(/^v/, '');
+  
+  // Parse version parts
+  const parts1 = clean1.split('.').map(p => parseInt(p, 10));
+  const parts2 = clean2.split('.').map(p => parseInt(p, 10));
+  
+  // Validate parsed parts
+  if (parts1.length < 3 || parts2.length < 3 || 
+      parts1.some(isNaN) || parts2.some(isNaN)) {
+    return null;
+  }
+  
+  // Compare major, minor, patch
+  for (let i = 0; i < 3; i++) {
+    if (parts1[i] > parts2[i]) return 1;
+    if (parts1[i] < parts2[i]) return -1;
+  }
+  
+  return 0;
+}
+
 interface User {
   id: string;
   username: string;
@@ -210,6 +241,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     api_keys: number;
     documents: number;
   } | null>(null);
+  const [backupVersion, setBackupVersion] = useState<string | null>(null);
   const [versionInfo, setVersionInfo] = useState<{
     version: string;
     git_commit: string;
@@ -818,6 +850,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           api_keys: result.metadata.api_key_count,
           documents: result.metadata.document_count,
         });
+        setBackupVersion(result.metadata.aviary_version || null);
       }
     } catch (error) {
       console.error("Failed to analyze backup:", error);
@@ -828,6 +861,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const closeRestoreConfirmDialog = () => {
     setRestoreConfirmDialog({ isOpen: false, upload: null });
     setBackupCounts(null);
+    setBackupVersion(null);
   };
 
   const cancelRestoreUpload = async () => {
@@ -1742,7 +1776,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               {backupCounts && (
                 <div className="bg-muted p-3 rounded-md">
                   <p className="font-medium text-sm mb-2">{t("admin.dialogs.backup_contents")}</p>
-                  <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div className="grid grid-cols-3 gap-4 text-sm mb-4">
                     <div className="text-center">
                       <div className="font-semibold text-lg">{backupCounts.users}</div>
                       <div className="text-muted-foreground">{t("admin.labels.users")}</div>
@@ -1756,8 +1790,39 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       <div className="text-muted-foreground">{t("admin.labels.documents")}</div>
                     </div>
                   </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="text-center">
+                      <div className="font-semibold text-lg">
+                        {backupVersion ? backupVersion.replace(/^v/, '') : t("admin.dialogs.version_unknown")}
+                      </div>
+                      <div className="text-muted-foreground">{t("admin.dialogs.backup_version")}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-semibold text-lg">
+                        {versionInfo?.version ? versionInfo.version.replace(/^v/, '') : t("admin.dialogs.version_unknown")}
+                      </div>
+                      <div className="text-muted-foreground">{t("admin.dialogs.current_version")}</div>
+                    </div>
+                  </div>
                 </div>
               )}
+              
+              {(() => {
+                const comparison = compareSemver(backupVersion, versionInfo?.version);
+                if (comparison === 1) {
+                  return (
+                    <div className="bg-destructive/10 border border-destructive/20 p-3 rounded-md">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+                        <p className="text-sm text-destructive font-medium">
+                          {t("admin.dialogs.version_warning")}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
               
               <p className="text-destructive font-medium">
                 {t("admin.dialogs.restore_warning_text")}
