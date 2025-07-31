@@ -79,17 +79,14 @@ function compareSemver(v1: string | null | undefined, v2: string | null | undefi
   const clean1 = v1.replace(/^v/, '');
   const clean2 = v2.replace(/^v/, '');
   
-  // Parse version parts
   const parts1 = clean1.split('.').map(p => parseInt(p, 10));
   const parts2 = clean2.split('.').map(p => parseInt(p, 10));
   
-  // Validate parsed parts
   if (parts1.length < 3 || parts2.length < 3 || 
       parts1.some(isNaN) || parts2.some(isNaN)) {
     return null;
   }
   
-  // Compare major, minor, patch
   for (let i = 0; i < 3; i++) {
     if (parts1[i] > parts2[i]) return 1;
     if (parts1[i] < parts2[i]) return -1;
@@ -204,11 +201,9 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
-  // Settings
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
   const [maxApiKeys, setMaxApiKeys] = useState("10");
 
-  // Modal states
   const [resetPasswordDialog, setResetPasswordDialog] = useState<{
     isOpen: boolean;
     user: User | null;
@@ -220,11 +215,9 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [newPasswordValue, setNewPasswordValue] = useState("");
   const [deleting, setDeleting] = useState(false);
 
-  // Details dialogs for mobile
   const [viewUser, setViewUser] = useState<User | null>(null);
   const [viewKey, setViewKey] = useState<APIKey | null>(null);
 
-  // Delete backup confirmation
   const [deleteBackupDialog, setDeleteBackupDialog] = useState<{
     isOpen: boolean;
     job: BackupJob | null;
@@ -249,7 +242,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     go_version: string;
   } | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [uploadPhase, setUploadPhase] = useState<'idle' | 'uploading' | 'processing'>('idle');
+  const [uploadPhase, setUploadPhase] = useState<'idle' | 'uploading' | 'validating'>('idle');
   const [downloadingJobId, setDownloadingJobId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -755,7 +748,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       }
       
       try {
-        setSaving(true);
         setError(null);
         setUploadProgress(0);
         setUploadPhase('idle');
@@ -766,19 +758,46 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         setUploadPhase('uploading');
         const response = await uploadRestoreFileWithProgress(formData);
         
-        setUploadPhase('processing');
-        setUploadProgress(100);
-
         if (response.ok) {
+          const responseData = await response.json();
+          const uploadId = responseData.upload_id;
+          
+          setUploadPhase('validating');
+          setUploadProgress(100);
+          
+          if (uploadId) {
+            try {
+              const analyzeResponse = await fetch(`/api/admin/restore/uploads/${uploadId}/analyze`, {
+                method: "POST",
+                credentials: "include",
+              });
+              
+              const analyzeResult = await analyzeResponse.json();
+              if (analyzeResponse.ok && analyzeResult.valid) {
+                setBackupCounts({
+                  users: analyzeResult.metadata.user_count,
+                  api_keys: analyzeResult.metadata.api_key_count,
+                  documents: analyzeResult.metadata.document_count,
+                });
+                setBackupVersion(analyzeResult.metadata.aviary_version || null);
+              }
+            } catch (error) {
+              console.error("Failed to analyze backup during upload:", error);
+            }
+          }
+          
           await fetchRestoreUploads();
+          
+          setUploadProgress(0);
+          setUploadPhase('idle');
         } else {
           const errorData = await response.json();
           setError(errorData.error_type ? t(`admin.errors.${errorData.error_type}`) : t("admin.errors.restore_failed"));
+          setUploadProgress(0);
+          setUploadPhase('idle');
         }
       } catch (error) {
         setError(t("admin.errors.restore_failed"));
-      } finally {
-        setSaving(false);
         setUploadProgress(0);
         setUploadPhase('idle');
       }
@@ -835,27 +854,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   const handleRestoreUpload = async (upload: RestoreUpload) => {
     setRestoreConfirmDialog({ isOpen: true, upload });
-    
-    // Analyze the backup to get counts for the dialog
-    try {
-      const response = await fetch(`/api/admin/restore/uploads/${upload.id}/analyze`, {
-        method: "POST",
-        credentials: "include",
-      });
-      
-      const result = await response.json();
-      if (response.ok && result.valid) {
-        setBackupCounts({
-          users: result.metadata.user_count,
-          api_keys: result.metadata.api_key_count,
-          documents: result.metadata.document_count,
-        });
-        setBackupVersion(result.metadata.aviary_version || null);
-      }
-    } catch (error) {
-      console.error("Failed to analyze backup:", error);
-      // Still show the dialog even if analysis fails
-    }
   };
 
   const closeRestoreConfirmDialog = () => {
@@ -1587,13 +1585,15 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           variant="outline"
                           size="lg"
                           onClick={() => fileInputRef.current?.click()}
-                          disabled={saving}
+                          disabled={saving || uploadPhase !== 'idle'}
                           className="w-full"
                         >
                           <Database className="h-4 w-4 mr-2" />
-                          {uploadPhase === 'uploading' ? t("admin.loading_states.uploading") : t("admin.actions.upload_restore")}
+                          {uploadPhase === 'uploading' ? t("admin.loading_states.uploading") : 
+                           uploadPhase === 'validating' ? t("admin.loading_states.validating") :
+                           t("admin.actions.upload_restore")}
                         </Button>
-                        {uploadPhase === 'uploading' && uploadProgress > 0 && uploadProgress < 100 && (
+                        {uploadPhase === 'uploading' && (
                           <Progress
                             value={uploadProgress}
                             durationMs={200}
@@ -1606,7 +1606,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         variant="default"
                         size="lg"
                         onClick={() => handleRestoreUpload(restoreUploads[0])}
-                        disabled={saving}
+                        disabled={false}
                         className="w-full"
                       >
                         <Database className="h-4 w-4 mr-2" />

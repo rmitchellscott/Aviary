@@ -121,14 +121,12 @@ export function FileDropzone({
     }
   }, [disabled, processFiles, multiple])
 
-  // Handle file input click
   const handleClick = () => {
     if (!disabled && fileInputRef.current) {
       fileInputRef.current.click()
     }
   }
 
-  // Handle file input change
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     if (files.length > 0) {

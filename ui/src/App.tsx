@@ -22,10 +22,7 @@ function AppContent() {
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   
-  // Check if we're on a password reset page
   const isPasswordResetPage = window.location.pathname === '/reset-password' || window.location.search.includes('token=');
-  
-  // Check if we're on a registration page
   const isRegistrationPage = window.location.pathname === '/register';
 
   if (isPasswordResetPage) {

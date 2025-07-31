@@ -218,6 +218,7 @@
       "resetting": "リセット中...",
       "restoring": "復元中...",
       "uploading": "アップロード中...",
+      "validating": "検証中...",
       "loading": "読み込み中..."
     },
     "dialogs": {
@@ -237,8 +238,8 @@
         "backups": "保存されたすべてのバックアップファイル"
       },
       "restore_final_warning": "この操作は元に戻すことができません。続行する前に最新のバックアップがあることを確認してください。",
-      "backup_version": "バックアップバージョン：",
-      "current_version": "現在のバージョン：",
+      "backup_version": "バックアップバージョン",
+      "current_version": "現在のバージョン",
       "version_unknown": "不明",
       "version_warning": "警告：このバックアップはより新しいバージョンのAviaryで作成されました。復元に失敗したり、予期しない動作を引き起こす可能性があります。"
     },

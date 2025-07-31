@@ -218,6 +218,7 @@
       "resetting": "Nulstiller...",
       "restoring": "Gendanner...",
       "uploading": "Uploader...",
+      "validating": "Validerer...",
       "loading": "Indlæser..."
     },
     "dialogs": {
@@ -237,8 +238,8 @@
         "backups": "Alle gemte backup filer"
       },
       "restore_final_warning": "Denne handling kan ikke fortrydes. Sørg for at have en aktuel backup før du fortsætter.",
-      "backup_version": "Backup Version:",
-      "current_version": "Nuværende Version:",
+      "backup_version": "Backup Version",
+      "current_version": "Nuværende Version",
       "version_unknown": "Ukendt",
       "version_warning": "Advarsel: Denne backup blev oprettet med en nyere version af Aviary. Gendannelse kan fejle eller forårsage uventet adfærd."
     },

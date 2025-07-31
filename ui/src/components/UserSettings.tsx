@@ -117,7 +117,6 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Profile form
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [userRmapiHost, setUserRmapiHost] = useState("");
@@ -140,35 +139,28 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     manualPageDPI: ""
   });
   
-  // Folder cache
   const [folders, setFolders] = useState<string[]>([]);
   const [foldersLoading, setFoldersLoading] = useState(false);
 
-  // Password form
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Account deletion form
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
 
-  // API key form
   const [newKeyName, setNewKeyName] = useState("");
   const [newKeyExpiry, setNewKeyExpiry] = useState("");
   const [showNewKey, setShowNewKey] = useState<string | null>(null);
 
-  // Dialog states
   const [pairingDialogOpen, setPairingDialogOpen] = useState(false);
   const [deleteAccountDialog, setDeleteAccountDialog] = useState(false);
 
-  // Delete API key dialog
   const [deleteKeyDialog, setDeleteKeyDialog] = useState<{
     isOpen: boolean;
     key: APIKey | null;
   }>({ isOpen: false, key: null });
 
-  // API key details dialog (mobile)
   const [viewKey, setViewKey] = useState<APIKey | null>(null);
 
   useEffect(() => {

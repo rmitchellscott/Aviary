@@ -218,6 +218,7 @@
       "resetting": "Nollataan...",
       "restoring": "Palautetaan...",
       "uploading": "Ladataan...",
+      "validating": "Tarkistetaan...",
       "loading": "Ladataan..."
     },
     "dialogs": {
@@ -237,8 +238,8 @@
         "backups": "Kaikki tallennetut varmuuskopiotiedostot"
       },
       "restore_final_warning": "Tätä toimintoa ei voi perua. Varmista, että sinulla on ajankohtainen varmuuskopio ennen jatkamista.",
-      "backup_version": "Varmuuskopion Versio:",
-      "current_version": "Nykyinen Versio:",
+      "backup_version": "Varmuuskopion Versio",
+      "current_version": "Nykyinen Versio",
       "version_unknown": "Tuntematon",
       "version_warning": "Varoitus: Tämä varmuuskopio on luotu uudemmalla Aviary-versiolla. Palautus saattaa epäonnistua tai aiheuttaa odottamatonta käyttäytymistä."
     },

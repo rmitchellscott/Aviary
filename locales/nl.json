@@ -218,6 +218,7 @@
       "resetting": "Resetten...",
       "restoring": "Herstellen...",
       "uploading": "Uploaden...",
+      "validating": "Valideren...",
       "loading": "Laden..."
     },
     "dialogs": {
@@ -237,8 +238,8 @@
         "backups": "Alle opgeslagen backup bestanden"
       },
       "restore_final_warning": "Deze actie kan niet ongedaan worden gemaakt. Zorg ervoor dat je een huidige backup hebt voordat je doorgaat.",
-      "backup_version": "Backup Versie:",
-      "current_version": "Huidige Versie:",
+      "backup_version": "Backup Versie",
+      "current_version": "Huidige Versie",
       "version_unknown": "Onbekend",
       "version_warning": "Waarschuwing: Deze backup is gemaakt met een nieuwere versie van Aviary. Herstellen kan mislukken of onverwacht gedrag veroorzaken."
     },

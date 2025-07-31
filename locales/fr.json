@@ -218,6 +218,7 @@
       "resetting": "Réinitialisation...",
       "restoring": "Restauration...",
       "uploading": "Téléchargement...",
+      "validating": "Validation...",
       "loading": "Chargement..."
     },
     "dialogs": {
@@ -237,8 +238,8 @@
         "backups": "Tous les fichiers de sauvegarde stockés"
       },
       "restore_final_warning": "Cette action ne peut pas être annulée. Assurez-vous d'avoir une sauvegarde actuelle avant de continuer.",
-      "backup_version": "Version de Sauvegarde :",
-      "current_version": "Version Actuelle :",
+      "backup_version": "Version de Sauvegarde",
+      "current_version": "Version Actuelle",
       "version_unknown": "Inconnue",
       "version_warning": "Attention : Cette sauvegarde a été créée avec une version plus récente d'Aviary. La restauration peut échouer ou causer un comportement inattendu."
     },

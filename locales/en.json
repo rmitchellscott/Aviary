@@ -218,6 +218,7 @@
       "resetting": "Resetting...",
       "restoring": "Restoring...",
       "uploading": "Uploading...",
+      "validating": "Validating...",
       "loading": "Loading..."
     },
     "dialogs": {
@@ -237,8 +238,8 @@
         "backups": "All stored backup files"
       },
       "restore_final_warning": "This action cannot be undone. Make sure you have a current backup before proceeding.",
-      "backup_version": "Backup Version:",
-      "current_version": "Current Version:",
+      "backup_version": "Backup Version",
+      "current_version": "Current Version",
       "version_unknown": "Unknown",
       "version_warning": "Warning: This backup was created with a newer version of Aviary. Restoring may fail or cause unexpected behavior."
     },

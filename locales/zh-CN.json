@@ -218,6 +218,7 @@
       "resetting": "重置中...",
       "restoring": "还原中...",
       "uploading": "上传中...",
+      "validating": "验证中...",
       "loading": "加载中..."
     },
     "dialogs": {
@@ -237,8 +238,8 @@
         "backups": "所有已存储的备份文件"
       },
       "restore_final_warning": "此操作无法撤销。请确保在继续之前有当前备份。",
-      "backup_version": "备份版本：",
-      "current_version": "当前版本：",
+      "backup_version": "备份版本",
+      "current_version": "当前版本",
       "version_unknown": "未知",
       "version_warning": "警告：此备份是使用较新版本的 Aviary 创建的。恢复可能失败或导致意外行为。"
     },

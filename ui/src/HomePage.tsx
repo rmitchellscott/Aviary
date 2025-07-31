@@ -337,7 +337,6 @@ export default function HomePage() {
         const formData = new FormData();
         
         if (selectedFiles.length > 0) {
-          // Multiple files
           selectedFiles.forEach((file) => {
             formData.append("files", file);
           });
@@ -357,7 +356,7 @@ export default function HomePage() {
         
         setUploadPhase('processing');
         setMessage(t("home.job_queued", { id: jobId }));
-        setUploadProgress(100); // Upload complete
+        setUploadProgress(100);
 
         setStatus("running");
         setProgress(0);

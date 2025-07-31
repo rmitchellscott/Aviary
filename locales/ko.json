@@ -218,6 +218,7 @@
       "resetting": "재설정 중...",
       "restoring": "복원 중...",
       "uploading": "업로드 중...",
+      "validating": "검증 중...",
       "loading": "로딩 중..."
     },
     "dialogs": {
@@ -237,8 +238,8 @@
         "backups": "저장된 모든 백업 파일"
       },
       "restore_final_warning": "이 작업은 되돌릴 수 없습니다. 계속하기 전에 최신 백업이 있는지 확인하세요.",
-      "backup_version": "백업 버전:",
-      "current_version": "현재 버전:",
+      "backup_version": "백업 버전",
+      "current_version": "현재 버전",
       "version_unknown": "알 수 없음",
       "version_warning": "경고: 이 백업은 더 새로운 버전의 Aviary로 생성되었습니다. 복원이 실패하거나 예상치 못한 동작을 일으킬 수 있습니다."
     },

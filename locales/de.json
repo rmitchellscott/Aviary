@@ -218,6 +218,7 @@
       "resetting": "Zurücksetzen...",
       "restoring": "Wiederherstellen...",
       "uploading": "Hochladen...",
+      "validating": "Validierung...",
       "loading": "Laden..."
     },
     "dialogs": {
@@ -237,8 +238,8 @@
         "backups": "Alle gespeicherten Backup-Dateien"
       },
       "restore_final_warning": "Diese Aktion kann nicht rückgängig gemacht werden. Stellen Sie sicher, dass Sie ein aktuelles Backup haben, bevor Sie fortfahren.",
-      "backup_version": "Backup-Version:",
-      "current_version": "Aktuelle Version:",
+      "backup_version": "Backup-Version",
+      "current_version": "Aktuelle Version",
       "version_unknown": "Unbekannt",
       "version_warning": "Warnung: Dieses Backup wurde mit einer neueren Version von Aviary erstellt. Die Wiederherstellung kann fehlschlagen oder unerwartetes Verhalten verursachen."
     },

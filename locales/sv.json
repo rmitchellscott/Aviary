@@ -218,6 +218,7 @@
       "resetting": "Återställer...",
       "restoring": "Återställer...",
       "uploading": "Laddar upp...",
+      "validating": "Validerar...",
       "loading": "Laddar..."
     },
     "dialogs": {
@@ -237,8 +238,8 @@
         "backups": "Alla lagrade säkerhetskopior"
       },
       "restore_final_warning": "Denna åtgärd kan inte ångras. Se till att du har en aktuell säkerhetskopia innan du fortsätter.",
-      "backup_version": "Backup Version:",
-      "current_version": "Nuvarande Version:",
+      "backup_version": "Backup Version",
+      "current_version": "Nuvarande Version",
       "version_unknown": "Okänd",
       "version_warning": "Varning: Denna backup skapades med en nyare version av Aviary. Återställning kan misslyckas eller orsaka oväntat beteende."
     },

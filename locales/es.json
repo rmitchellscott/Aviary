@@ -218,6 +218,7 @@
       "resetting": "Restableciendo...",
       "restoring": "Restaurando...",
       "uploading": "Subiendo...",
+      "validating": "Validando...",
       "loading": "Cargando..."
     },
     "dialogs": {
@@ -237,8 +238,8 @@
     "backups": "Todos los archivos de respaldo almacenados"
     },
     "restore_final_warning": "Esta acción no se puede deshacer. Asegúrate de tener un respaldo actual antes de continuar.",
-    "backup_version": "Versión de Respaldo:",
-    "current_version": "Versión Actual:",
+    "backup_version": "Versión de Respaldo",
+    "current_version": "Versión Actual",
     "version_unknown": "Desconocida",
     "version_warning": "Advertencia: Este respaldo fue creado con una versión más reciente de Aviary. La restauración puede fallar o causar comportamiento inesperado."
     },
