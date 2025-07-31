@@ -236,7 +236,11 @@
         "settings": "Todas as configurações do sistema",
         "backups": "Todos os arquivos de backup armazenados"
       },
-      "restore_final_warning": "Esta ação não pode ser desfeita. Certifique-se de ter um backup atual antes de prosseguir."
+      "restore_final_warning": "Esta ação não pode ser desfeita. Certifique-se de ter um backup atual antes de prosseguir.",
+      "backup_version": "Versão do Backup:",
+      "current_version": "Versão Atual:",
+      "version_unknown": "Desconhecida",
+      "version_warning": "Aviso: Este backup foi criado com uma versão mais recente do Aviary. A restauração pode falhar ou causar comportamento inesperado."
     },
     "errors": {
       "create_user": "Falha ao criar usuário",
