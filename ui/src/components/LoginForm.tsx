@@ -25,6 +25,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const [oidcSsoOnly, setOidcSsoOnly] = useState(false);
   const [oidcButtonText, setOidcButtonText] = useState("");
   const [proxyAuthEnabled, setProxyAuthEnabled] = useState(false);
+  const [configLoading, setConfigLoading] = useState(true);
 
   useEffect(() => {
     // Focus the username field when component mounts
@@ -58,11 +59,16 @@ export function LoginForm({ onLogin }: LoginFormProps) {
         }
       } catch (error) {
         console.error("Failed to fetch config:", error);
+      } finally {
+        setConfigLoading(false);
       }
     };
 
     if (multiUserMode) {
       fetchConfig();
+    } else {
+      // Not in multi-user mode, no need to load config
+      setConfigLoading(false);
     }
   }, [multiUserMode]);
 
@@ -100,7 +106,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const isSsoOnly = multiUserMode && oidcEnabled && oidcSsoOnly;
 
   // Don't render anything until we have config data to prevent flash
-  if (multiUserMode && (oidcEnabled === false && oidcSsoOnly === false && proxyAuthEnabled === false)) {
+  if (multiUserMode && configLoading) {
     return null;
   }
 
