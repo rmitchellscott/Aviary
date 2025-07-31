@@ -54,6 +54,8 @@ func InitOIDC() error {
 		return nil // OIDC not configured, which is fine
 	}
 
+	log.Printf("[STARTUP] Initializing OIDC provider with issuer: %s", issuer)
+
 	if redirectURL == "" {
 		redirectURL = "/api/auth/oidc/callback"
 	}
@@ -82,11 +84,7 @@ func InitOIDC() error {
 			break
 		}
 
-		if i == 0 {
-			fmt.Printf("OIDC provider not ready, retrying in %v (attempt %d/%d)...\n", retryDelay, i+1, maxRetries)
-		} else if i%5 == 0 {
-			fmt.Printf("Still waiting for OIDC provider (attempt %d/%d)...\n", i+1, maxRetries)
-		}
+		log.Printf("[STARTUP] OIDC provider not ready, retrying in %v (attempt %d/%d)...", retryDelay, i+1, maxRetries)
 
 		time.Sleep(retryDelay)
 	}
@@ -109,6 +107,8 @@ func InitOIDC() error {
 	oidcVerifier = provider.Verifier(oidcConfig)
 	oidcProvider = provider
 	oidcEnabled = true
+
+	log.Printf("[STARTUP] OIDC provider initialized successfully")
 
 	return nil
 }
@@ -176,13 +176,13 @@ func OIDCCallbackHandler(c *gin.Context) {
 	oidcDebugLog("OIDC callback handler started")
 
 	// Debug: Log all query parameters and cookies
-	fmt.Printf("OIDC Callback - Query params: %v\n", c.Request.URL.Query())
-	fmt.Printf("OIDC Callback - All cookies: %v\n", c.Request.Cookies())
+	oidcDebugLog("OIDC Callback - Query params: %v", c.Request.URL.Query())
+	oidcDebugLog("OIDC Callback - All cookies: %v", c.Request.Cookies())
 
 	// Verify state parameter
 	state := c.Query("state")
 	storedState, err := c.Cookie("oidc_state")
-	fmt.Printf("OIDC Callback - State from query: %s, State from cookie: %s, Cookie error: %v\n", state, storedState, err)
+	oidcDebugLog("OIDC Callback - State from query: %s, State from cookie: %s, Cookie error: %v", state, storedState, err)
 
 	if err != nil || state != storedState {
 		// More detailed error for debugging

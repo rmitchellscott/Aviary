@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -497,6 +498,25 @@ func RestoreDatabaseHandler(c *gin.Context) {
 			"error_type": "restore_import_failed",
 		})
 		return
+	}
+
+	// Run database migrations after successful restore
+	log.Printf("[RESTORE] Running database migrations after restore...")
+	
+	// Run GORM auto-migrations to update schema
+	if err := database.RunAutoMigrations("RESTORE"); err != nil {
+		log.Printf("Warning: GORM auto-migration failed after restore: %v", err)
+		// Don't fail the restore - migrations can be run manually if needed
+	} else {
+		log.Printf("[RESTORE] GORM auto-migration completed successfully")
+	}
+
+	// Run custom migrations
+	if err := database.RunMigrations("RESTORE"); err != nil {
+		log.Printf("Warning: Custom migrations failed after restore: %v", err)
+		// Don't fail the restore - migrations can be run manually if needed
+	} else {
+		log.Printf("[RESTORE] Custom migrations completed successfully")
 	}
 
 	// Clean up the uploaded file and database record
