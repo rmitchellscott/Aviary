@@ -236,7 +236,11 @@
         "settings": "Alle systeminnstillinger",
         "backups": "Alle lagrede sikkerhetskopifiler"
       },
-      "restore_final_warning": "Denne handlingen kan ikke angres. Sørg for at du har en oppdatert sikkerhetskopi før du fortsetter."
+      "restore_final_warning": "Denne handlingen kan ikke angres. Sørg for at du har en oppdatert sikkerhetskopi før du fortsetter.",
+      "backup_version": "Backup Versjon:",
+      "current_version": "Nåværende Versjon:",
+      "version_unknown": "Ukjent",
+      "version_warning": "Advarsel: Denne backupen ble opprettet med en nyere versjon av Aviary. Gjenoppretting kan mislykkes eller forårsake uventet oppførsel."
     },
     "errors": {
       "create_user": "Kunne ikke opprette bruker",

@@ -236,7 +236,11 @@
         "settings": "Tutte le impostazioni di sistema",
         "backups": "Tutti i file di backup memorizzati"
       },
-      "restore_final_warning": "Questa azione non può essere annullata. Assicurati di avere un backup corrente prima di procedere."
+      "restore_final_warning": "Questa azione non può essere annullata. Assicurati di avere un backup corrente prima di procedere.",
+      "backup_version": "Versione Backup:",
+      "current_version": "Versione Corrente:",
+      "version_unknown": "Sconosciuta",
+      "version_warning": "Attenzione: Questo backup è stato creato con una versione più recente di Aviary. Il ripristino potrebbe fallire o causare comportamenti imprevisti."
     },
     "errors": {
       "create_user": "Impossibile creare l'utente",

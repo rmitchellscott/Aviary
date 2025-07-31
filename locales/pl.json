@@ -236,7 +236,11 @@
         "settings": "Wszystkie ustawienia systemu",
         "backups": "Wszystkie zapisane pliki kopii zapasowych"
       },
-      "restore_final_warning": "Tej akcji nie można cofnąć. Upewnij się, że masz aktualną kopię zapasową przed kontynuowaniem."
+      "restore_final_warning": "Tej akcji nie można cofnąć. Upewnij się, że masz aktualną kopię zapasową przed kontynuowaniem.",
+      "backup_version": "Wersja Kopii Zapasowej:",
+      "current_version": "Bieżąca Wersja:",
+      "version_unknown": "Nieznana",
+      "version_warning": "Ostrzeżenie: Ta kopia zapasowa została utworzona z nowszą wersją Aviary. Przywracanie może się nie powieść lub spowodować nieoczekiwane zachowanie."
     },
     "errors": {
       "create_user": "Nie udało się utworzyć użytkownika",
