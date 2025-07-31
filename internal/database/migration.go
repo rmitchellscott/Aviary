@@ -27,9 +27,9 @@ func MigrateToMultiUser() error {
 	}
 
 	if userCount > 0 {
-		log.Printf("Users already exist, skipping user creation migration")
+		log.Printf("[STARTUP] Users already exist, skipping user creation migration")
 		// Still run schema migrations even if users exist
-		return RunMigrations()
+		return RunMigrations("STARTUP")
 	}
 
 	// Create admin user from environment variables
@@ -38,7 +38,7 @@ func MigrateToMultiUser() error {
 	email := config.Get("ADMIN_EMAIL", "")
 
 	if username == "" || password == "" {
-		log.Printf("AUTH_USERNAME and AUTH_PASSWORD not set - first user will become admin")
+		log.Printf("[STARTUP] AUTH_USERNAME and AUTH_PASSWORD not set - first user will become admin")
 		return nil
 	}
 
@@ -51,7 +51,7 @@ func MigrateToMultiUser() error {
 		return fmt.Errorf("failed to create admin user: %w", err)
 	}
 
-	log.Printf("Admin user created: %s (ID: %s)", adminUser.Username, adminUser.ID)
+	log.Printf("[STARTUP] Admin user created: %s (ID: %s)", adminUser.Username, adminUser.ID)
 
 	// Set default rmapi settings if available
 	if rmapiHost := config.Get("RMAPI_HOST", ""); rmapiHost != "" {
@@ -109,7 +109,7 @@ func MigrateToMultiUser() error {
 	}
 
 	// Run schema migrations after user creation
-	return RunMigrations()
+	return RunMigrations("STARTUP")
 }
 
 // MigrateSingleUserData migrates rmapi config and archived files to first admin user

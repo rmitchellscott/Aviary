@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -83,7 +84,7 @@ func (i *Importer) importDatabase(dbDir string, options ImportOptions) error {
 		"users",
 		"system_settings",
 		"api_keys",
-		"user_sessions", 
+		"user_sessions",
 		"documents",
 		"user_folders_cache",
 		"login_attempts",
@@ -91,7 +92,7 @@ func (i *Importer) importDatabase(dbDir string, options ImportOptions) error {
 
 	for _, tableName := range importOrder {
 		jsonFile := filepath.Join(dbDir, tableName+".json")
-		
+
 		// Skip if file doesn't exist
 		if _, err := os.Stat(jsonFile); os.IsNotExist(err) {
 			continue
@@ -125,7 +126,7 @@ func (i *Importer) cleanupExistingUserDirectories(options ImportOptions) error {
 		}
 
 		userID := entry.Name()
-		
+
 		// Validate UUID format
 		if _, err := uuid.Parse(userID); err != nil {
 			continue
@@ -235,7 +236,7 @@ func (i *Importer) importUserBatch(records []map[string]interface{}) error {
 	var batch []database.User
 	for _, record := range records {
 		var user database.User
-		
+
 		// Handle User struct fields manually to preserve password hash integrity
 		if err := mapUserRecord(record, &user); err != nil {
 			return fmt.Errorf("failed to map user record: %w", err)
@@ -355,23 +356,23 @@ func (i *Importer) importFilesystem(fsDir string, options ImportOptions) error {
 // cleanupExistingBackupDirectory removes all backup files to prevent orphaned files after restore
 func (i *Importer) cleanupExistingBackupDirectory() error {
 	backupDir := filepath.Join(i.dataDir, "backups")
-	
+
 	// Check if backup directory exists
 	if _, err := os.Stat(backupDir); os.IsNotExist(err) {
 		// No backup directory exists, nothing to clean up
 		return nil
 	}
-	
+
 	// Remove the entire backup directory and recreate it empty
 	if err := os.RemoveAll(backupDir); err != nil {
 		return fmt.Errorf("failed to remove existing backup directory: %w", err)
 	}
-	
+
 	// Recreate the empty backup directory with proper permissions
 	if err := os.MkdirAll(backupDir, 0755); err != nil {
 		return fmt.Errorf("failed to recreate backup directory: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -389,12 +390,12 @@ func (i *Importer) importUserFiles(sourceDir, subDir string, options ImportOptio
 		}
 
 		userID := entry.Name()
-		
+
 		// Validate UUID format
 		if _, err := uuid.Parse(userID); err != nil {
 			continue
 		}
-		
+
 		// Skip if not in the list of users to import
 		if len(options.UserIDs) > 0 {
 			found := false
@@ -444,7 +445,7 @@ func (i *Importer) clearUserForeignKeyReferences() error {
 	if err := i.db.Model(&database.SystemSetting{}).Where("updated_by IS NOT NULL").Update("updated_by", nil).Error; err != nil {
 		return fmt.Errorf("failed to clear system_settings.updated_by references: %w", err)
 	}
-	fmt.Println("Import: Cleared system_settings.updated_by references to allow user table clearing")
+	log.Printf("[RESTORE] Cleared system_settings.updated_by references to allow user table clearing")
 	return nil
 }
 
@@ -452,12 +453,12 @@ func (i *Importer) clearUserForeignKeyReferences() error {
 func (i *Importer) clearTableWithConstraintHandling(tableName string, model interface{}) error {
 	// For users table, always clear foreign key references first
 	if tableName == "users" {
-		fmt.Println("Import: Clearing foreign key references before deleting users")
+		log.Printf("[RESTORE] Clearing foreign key references before deleting users")
 		if err := i.clearUserForeignKeyReferences(); err != nil {
 			return fmt.Errorf("failed to clear foreign key references: %w", err)
 		}
 	}
-	
+
 	// Clear the table
 	return i.db.Where("1 = 1").Delete(model).Error
 }
@@ -465,14 +466,14 @@ func (i *Importer) clearTableWithConstraintHandling(tableName string, model inte
 func (i *Importer) validateMetadata(metadata *ExportMetadata) error {
 	// Add validation logic here
 	currentConfig := database.GetDatabaseConfig()
-	
+
 	// Log warnings for version differences
 	if metadata.AviaryVersion != "dev" {
-		fmt.Printf("Import: Importing backup from Aviary version %s\n", metadata.AviaryVersion)
+		log.Printf("[RESTORE] Importing backup from Aviary version %s", metadata.AviaryVersion)
 	}
-	
+
 	if metadata.DatabaseType != currentConfig.Type {
-		fmt.Printf("Import: Warning - Backup database type (%s) differs from current (%s)\n", 
+		log.Printf("[RESTORE] Backup database type (%s) differs from current (%s)",
 			metadata.DatabaseType, currentConfig.Type)
 	}
 
@@ -511,7 +512,7 @@ func hasUserIDInTable(tableName string) bool {
 
 func filterRecordsByUserID(records []map[string]interface{}, userIDs []uuid.UUID) []map[string]interface{} {
 	var filtered []map[string]interface{}
-	
+
 	userIDStrs := make(map[string]bool)
 	for _, id := range userIDs {
 		userIDStrs[id.String()] = true
@@ -547,12 +548,12 @@ func mapToStruct(data map[string]interface{}, result interface{}) error {
 	if err != nil {
 		return fmt.Errorf("failed to marshal data: %w", err)
 	}
-	
+
 	// Use standard unmarshal without strict validation - this allows unknown fields
 	if err := json.Unmarshal(jsonBytes, result); err != nil {
 		return fmt.Errorf("failed to unmarshal data: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -564,7 +565,7 @@ func mapUserRecord(data map[string]interface{}, user *database.User) error {
 			user.ID = id
 		}
 	}
-	
+
 	// Handle string fields directly to avoid encoding issues
 	if username, ok := data["username"].(string); ok {
 		user.Username = username
@@ -572,12 +573,12 @@ func mapUserRecord(data map[string]interface{}, user *database.User) error {
 	if email, ok := data["email"].(string); ok {
 		user.Email = email
 	}
-	
+
 	// CRITICAL: Handle password hash directly to avoid corruption
 	if password, ok := data["password"].(string); ok {
 		user.Password = password // Direct assignment preserves exact hash
 	}
-	
+
 	// Handle boolean fields
 	if isAdmin, ok := data["is_admin"].(bool); ok {
 		user.IsAdmin = isAdmin
@@ -586,7 +587,7 @@ func mapUserRecord(data map[string]interface{}, user *database.User) error {
 		user.IsActive = isActive
 	}
 	// Skip email_verified field (removed from model)
-	
+
 	// Handle optional string fields
 	if rmapiHost, ok := data["rmapi_host"].(string); ok {
 		user.RmapiHost = rmapiHost
@@ -601,12 +602,12 @@ func mapUserRecord(data map[string]interface{}, user *database.User) error {
 		user.ResetToken = resetToken
 	}
 	// Skip verification_token field (removed from model)
-	
+
 	// Handle integer fields
 	if folderRefreshPercent, ok := data["folder_refresh_percent"].(float64); ok {
 		user.FolderRefreshPercent = int(folderRefreshPercent)
 	}
-	
+
 	// Handle time fields
 	if createdAtStr, ok := data["created_at"].(string); ok {
 		if createdAt, err := time.Parse(time.RFC3339, createdAtStr); err == nil {
@@ -628,8 +629,8 @@ func mapUserRecord(data map[string]interface{}, user *database.User) error {
 			user.ResetTokenExpires = resetExpires
 		}
 	}
-	
-	fmt.Printf("Import: Mapped user %s\n", user.Username)
+
+	log.Printf("[RESTORE] Mapped user %s", user.Username)
 	return nil
 }
 
@@ -691,9 +692,9 @@ func extractTarGz(archivePath, destDir string) error {
 				outFile.Close()
 				return err
 			}
-			
+
 			outFile.Close()
-			
+
 			// Set file permissions
 			if err := os.Chmod(destPath, os.FileMode(header.Mode)); err != nil {
 				return err
@@ -707,7 +708,7 @@ func extractTarGz(archivePath, destDir string) error {
 // Enhanced copy function with logging and validation
 func copyDirectoryContentsWithLogging(src, dst string, overwrite bool) (int, error) {
 	fileCount := 0
-	
+
 	err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("walk error at %s: %w", path, err)
@@ -750,7 +751,7 @@ func copyFileWithValidation(src, dst string) error {
 	if err != nil {
 		return fmt.Errorf("source file not accessible: %w", err)
 	}
-	
+
 	if srcInfo.IsDir() {
 		return fmt.Errorf("source is a directory, expected file")
 	}

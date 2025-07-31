@@ -64,7 +64,7 @@ func Initialize() error {
 	}
 
 	// Run auto-migration
-	if err := runMigrations(); err != nil {
+	if err := runMigrations("STARTUP"); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
@@ -73,7 +73,7 @@ func Initialize() error {
 		return fmt.Errorf("failed to initialize system settings: %w", err)
 	}
 
-	log.Printf("Database initialized successfully (type: %s)", config.Type)
+	log.Printf("[STARTUP] Database initialized successfully (type: %s)", config.Type)
 	return nil
 }
 
@@ -136,7 +136,9 @@ func initSQLite(config *DatabaseConfig) (*gorm.DB, error) {
 }
 
 // runMigrations runs GORM auto-migration for all models
-func runMigrations() error {
+func runMigrations(logPrefix string) error {
+	log.Printf("[%s] Running GORM auto-migrations...", logPrefix)
+	
 	models := GetAllModels()
 
 	// Force migration of all models
@@ -151,7 +153,13 @@ func runMigrations() error {
 		log.Printf("Warning: failed to create unique index for folder cache: %v", err)
 	}
 
+	log.Printf("[%s] GORM auto-migration completed successfully", logPrefix)
 	return nil
+}
+
+// RunAutoMigrations runs GORM auto-migration for all models (public wrapper)
+func RunAutoMigrations(logPrefix string) error {
+	return runMigrations(logPrefix)
 }
 
 // initializeSystemSettings creates default system settings if they don't exist

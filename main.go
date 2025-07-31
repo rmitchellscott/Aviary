@@ -34,7 +34,7 @@ var embeddedUI embed.FS
 
 func main() {
 	_ = godotenv.Load()
-	log.Printf("Starting %s", version.String())
+	log.Printf("[STARTUP] Starting %s", version.String())
 
 	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
 		fmt.Println(version.String())
@@ -65,7 +65,7 @@ func main() {
 		backupWorker := backup.NewWorker(database.DB)
 		backupWorker.Start()
 		defer backupWorker.Stop()
-		log.Println("Backup worker started")
+		log.Printf("[STARTUP] Backup worker started")
 		
 	}
 
@@ -262,6 +262,6 @@ func main() {
 		})
 	}
 
-	log.Printf("Listening on %s…", addr)
+	log.Printf("[STARTUP] Listening on %s…", addr)
 	log.Fatal(http.ListenAndServe(addr, router))
 }
