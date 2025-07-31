@@ -325,7 +325,7 @@
       "all_api_keys": "Kaikki API-avaimet ({{count}})"
     },
     "tooltips": {
-      "oidc_group_managed": "Roolit hallitaan OIDC-ryhmien kautta"
+      "oidc_managed": "Hallitaan OIDC:n kautta"
     },
     "never": "Ei koskaan"
   },

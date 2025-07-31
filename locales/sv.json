@@ -325,7 +325,7 @@
       "all_api_keys": "Alla API-nycklar ({{count}})"
     },
     "tooltips": {
-      "oidc_group_managed": "Roller hanteras via OIDC-grupper"
+      "oidc_managed": "Hanteras via OIDC"
     },
     "never": "Aldrig"
   },

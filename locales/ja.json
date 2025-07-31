@@ -325,7 +325,7 @@
       "all_api_keys": "すべてのAPIキー（{{count}}）"
     },
     "tooltips": {
-      "oidc_group_managed": "ロールはOIDCグループで管理されています"
+      "oidc_managed": "OIDCで管理されています"
     },
     "never": "なし"
   },

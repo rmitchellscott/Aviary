@@ -325,7 +325,7 @@
       "all_api_keys": "所有API密钥（{{count}}）"
     },
     "tooltips": {
-      "oidc_group_managed": "角色通过OIDC组管理"
+      "oidc_managed": "通过OIDC管理"
     },
     "never": "从不"
   },
