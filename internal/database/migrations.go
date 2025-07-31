@@ -9,8 +9,8 @@ import (
 )
 
 // RunMigrations runs any pending database migrations using gormigrate
-func RunMigrations() error {
-	log.Println("Running database migrations...")
+func RunMigrations(logPrefix string) error {
+	log.Printf("[%s] Running database migrations...", logPrefix)
 
 	// Create migrator with our migrations
 	m := gormigrate.New(DB, gormigrate.DefaultOptions, []*gormigrate.Migration{
@@ -72,6 +72,6 @@ func RunMigrations() error {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	log.Println("Migrations completed successfully")
+	log.Printf("[%s] Migrations completed successfully", logPrefix)
 	return nil
 }
