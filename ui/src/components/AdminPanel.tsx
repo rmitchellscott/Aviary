@@ -37,6 +37,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
+import { Progress } from "@/components/ui/progress";
 import {
   Table,
   TableBody,
@@ -215,6 +216,9 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     build_date: string;
     go_version: string;
   } | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadPhase, setUploadPhase] = useState<'idle' | 'uploading' | 'processing'>('idle');
+  const [downloadingJobId, setDownloadingJobId] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -564,6 +568,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   const handleDownloadBackup = async (jobId: string) => {
     try {
+      setDownloadingJobId(jobId);
       const response = await fetch(`/api/admin/backup-job/${jobId}/download`, {
         credentials: "include",
       });
@@ -593,6 +598,8 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       }
     } catch (error) {
       setError(t("admin.errors.backup_download"));
+    } finally {
+      setDownloadingJobId(null);
     }
   };
 
@@ -628,6 +635,43 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     }
   };
 
+
+  const uploadRestoreFileWithProgress = async (formData: FormData): Promise<Response> => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = (event.loaded / event.total) * 100;
+          setUploadProgress(percentComplete);
+        }
+      });
+      
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          const response = new Response(xhr.responseText, {
+            status: xhr.status,
+            statusText: xhr.statusText,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          resolve(response);
+        } else {
+          reject(new Error(xhr.responseText || `HTTP ${xhr.status}`));
+        }
+      });
+      
+      xhr.addEventListener('error', () => {
+        reject(new Error('Upload failed'));
+      });
+      
+      xhr.open('POST', '/api/admin/restore/upload');
+      xhr.withCredentials = true;
+      
+      xhr.send(formData);
+    });
+  };
 
   const analyzeBackupFile = async (file: File) => {
     try {
@@ -681,15 +725,17 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       try {
         setSaving(true);
         setError(null);
+        setUploadProgress(0);
+        setUploadPhase('idle');
 
         const formData = new FormData();
         formData.append("backup_file", file);
 
-        const response = await fetch("/api/admin/restore/upload", {
-          method: "POST",
-          credentials: "include",
-          body: formData,
-        });
+        setUploadPhase('uploading');
+        const response = await uploadRestoreFileWithProgress(formData);
+        
+        setUploadPhase('processing');
+        setUploadProgress(100);
 
         if (response.ok) {
           await fetchRestoreUploads();
@@ -701,6 +747,8 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         setError(t("admin.errors.restore_failed"));
       } finally {
         setSaving(false);
+        setUploadProgress(0);
+        setUploadPhase('idle');
       }
     }
     event.target.value = "";
@@ -786,21 +834,26 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     const upload = restoreConfirmDialog.upload;
     if (!upload) return;
 
+    // Immediately clear restore uploads for instant UI feedback
+    setRestoreUploads([]);
+    closeRestoreConfirmDialog();
+
     try {
       const response = await fetch(`/api/admin/restore/uploads/${upload.id}`, {
         method: "DELETE",
         credentials: "include",
       });
 
-      if (response.ok) {
-        await fetchRestoreUploads();
-        closeRestoreConfirmDialog();
-      } else {
+      if (!response.ok) {
         const errorData = await response.json();
         setError(errorData.error_type ? t(`admin.errors.${errorData.error_type}`) : t("admin.errors.restore_cancel_failed"));
       }
+      // Always refresh to get accurate state
+      await fetchRestoreUploads();
     } catch (error) {
       setError(t("admin.errors.restore_cancel_failed"));
+      // Re-fetch to restore state in case of error
+      await fetchRestoreUploads();
     }
   };
 
@@ -866,10 +919,16 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             size="sm"
             variant="outline"
             onClick={() => handleDownloadBackup(job.id)}
-            disabled={job.status === "failed"}
+            disabled={job.status === "failed" || downloadingJobId === job.id}
           >
-            <Download className="h-4 w-4 sm:hidden" />
-            <span className="hidden sm:inline">{t("admin.backup.download")}</span>
+            {downloadingJobId === job.id ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <Download className="h-4 w-4 sm:hidden" />
+                <span className="hidden sm:inline">{t("admin.backup.download")}</span>
+              </>
+            )}
           </Button>
           <Button
             size="sm"
@@ -1498,8 +1557,15 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           className="w-full"
                         >
                           <Database className="h-4 w-4 mr-2" />
-                          {saving ? t("admin.loading_states.uploading") : t("admin.actions.upload_restore")}
+                          {uploadPhase === 'uploading' ? t("admin.loading_states.uploading") : t("admin.actions.upload_restore")}
                         </Button>
+                        {uploadPhase === 'uploading' && uploadProgress > 0 && uploadProgress < 100 && (
+                          <Progress
+                            value={uploadProgress}
+                            durationMs={200}
+                            className="mt-2"
+                          />
+                        )}
                       </div>
                     ) : (
                       <Button
