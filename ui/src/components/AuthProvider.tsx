@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 
+const AUTH_CHECK_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
+
 interface User {
   id: string
   username: string
@@ -69,7 +71,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Only trust localStorage if we recently checked
       const expiry = parseInt(localStorage.getItem('authExpiry') || '0', 10)
       const lastCheck = parseInt(localStorage.getItem('lastAuthCheck') || '0', 10)
-      const recentCheck = Date.now() - lastCheck < 5 * 60 * 1000 // 5 minutes
+      const recentCheck = Date.now() - lastCheck < AUTH_CHECK_EXPIRY_MS
       
       return recentCheck && expiry > Date.now()
     }

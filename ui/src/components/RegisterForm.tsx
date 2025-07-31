@@ -21,7 +21,6 @@ export function RegisterForm() {
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
 
   useEffect(() => {
-    // Check if registration is enabled
     const checkRegistrationStatus = async () => {
       try {
         const response = await fetch("/api/auth/registration-status", {

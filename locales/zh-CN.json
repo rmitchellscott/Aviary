@@ -218,6 +218,7 @@
       "resetting": "重置中...",
       "restoring": "还原中...",
       "uploading": "上传中...",
+      "validating": "验证中...",
       "loading": "加载中..."
     },
     "dialogs": {

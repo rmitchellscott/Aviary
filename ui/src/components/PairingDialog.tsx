@@ -42,7 +42,6 @@ export function PairingDialog({
   const handleSubmit = async () => {
     const trimmedCode = code.trim();
     
-    // Validate code format (8 characters)
     if (trimmedCode.length !== 8) {
       setError(t("pairing.code_error"));
       return;
