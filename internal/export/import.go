@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/database"
+	"github.com/rmitchellscott/aviary/internal/logging"
 	"gorm.io/gorm"
 )
 
@@ -445,7 +445,7 @@ func (i *Importer) clearUserForeignKeyReferences() error {
 	if err := i.db.Model(&database.SystemSetting{}).Where("updated_by IS NOT NULL").Update("updated_by", nil).Error; err != nil {
 		return fmt.Errorf("failed to clear system_settings.updated_by references: %w", err)
 	}
-	log.Printf("[RESTORE] Cleared system_settings.updated_by references to allow user table clearing")
+	logging.Logf("[RESTORE] Cleared system_settings.updated_by references to allow user table clearing")
 	return nil
 }
 
@@ -453,7 +453,7 @@ func (i *Importer) clearUserForeignKeyReferences() error {
 func (i *Importer) clearTableWithConstraintHandling(tableName string, model interface{}) error {
 	// For users table, always clear foreign key references first
 	if tableName == "users" {
-		log.Printf("[RESTORE] Clearing foreign key references before deleting users")
+		logging.Logf("[RESTORE] Clearing foreign key references before deleting users")
 		if err := i.clearUserForeignKeyReferences(); err != nil {
 			return fmt.Errorf("failed to clear foreign key references: %w", err)
 		}
@@ -469,11 +469,11 @@ func (i *Importer) validateMetadata(metadata *ExportMetadata) error {
 
 	// Log warnings for version differences
 	if metadata.AviaryVersion != "dev" {
-		log.Printf("[RESTORE] Importing backup from Aviary version %s", metadata.AviaryVersion)
+		logging.Logf("[RESTORE] Importing backup from Aviary version %s", metadata.AviaryVersion)
 	}
 
 	if metadata.DatabaseType != currentConfig.Type {
-		log.Printf("[RESTORE] Backup database type (%s) differs from current (%s)",
+		logging.Logf("[RESTORE] Backup database type (%s) differs from current (%s)",
 			metadata.DatabaseType, currentConfig.Type)
 	}
 
@@ -630,7 +630,7 @@ func mapUserRecord(data map[string]interface{}, user *database.User) error {
 		}
 	}
 
-	log.Printf("[RESTORE] Mapped user %s", user.Username)
+	logging.Logf("[RESTORE] Mapped user %s", user.Username)
 	return nil
 }
 

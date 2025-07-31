@@ -21,6 +21,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/downloader"
 	"github.com/rmitchellscott/aviary/internal/handlers"
+	"github.com/rmitchellscott/aviary/internal/logging"
 	"github.com/rmitchellscott/aviary/internal/manager"
 	"github.com/rmitchellscott/aviary/internal/version"
 	"github.com/rmitchellscott/aviary/internal/webhook"
@@ -34,7 +35,7 @@ var embeddedUI embed.FS
 
 func main() {
 	_ = godotenv.Load()
-	log.Printf("[STARTUP] Starting %s", version.String())
+	logging.Logf("[STARTUP] Starting %s", version.String())
 
 	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
 		fmt.Println(version.String())
@@ -65,7 +66,7 @@ func main() {
 		backupWorker := backup.NewWorker(database.DB)
 		backupWorker.Start()
 		defer backupWorker.Stop()
-		log.Printf("[STARTUP] Backup worker started")
+		logging.Logf("[STARTUP] Backup worker started")
 		
 	}
 
@@ -85,7 +86,7 @@ func main() {
 	// In single-user mode, just log a warning if not paired - allow UI pairing
 	if !database.IsMultiUserMode() {
 		if !auth.CheckSingleUserPaired() {
-			log.Printf("Warning: No valid rmapi.conf detected. You can pair through the web interface or run 'aviary pair' from the command line.")
+			logging.Logf("[WARNING] No valid rmapi.conf detected. You can pair through the web interface or run 'aviary pair' from the command line.")
 		}
 	}
 
@@ -99,11 +100,11 @@ func main() {
 	auth.SetPostPairingCallback(func(userID string, singleUserMode bool) {
 		if singleUserMode {
 			if err := manager.RefreshFolderCache(); err != nil {
-				log.Printf("Failed to refresh folder cache after pairing: %v", err)
+				logging.Logf("[WARNING] Failed to refresh folder cache after pairing: %v", err)
 			}
 		} else {
 			if err := manager.RefreshUserFolderCache(userID); err != nil {
-				log.Printf("Failed to refresh folder cache after pairing for user %s: %v", userID, err)
+				logging.Logf("[WARNING] Failed to refresh folder cache after pairing for user %s: %v", userID, err)
 			}
 		}
 	})
@@ -256,12 +257,12 @@ func main() {
 			http.ServeFileFS(c.Writer, c.Request, uiFS, p)
 		})
 	} else {
-		log.Println("DISABLE_UI is set → running in API-only mode (no UI).")
+		logging.Logf("[STARTUP] DISABLE_UI is set → running in API-only mode (no UI).")
 		router.NoRoute(func(c *gin.Context) {
 			c.AbortWithStatus(http.StatusNotFound)
 		})
 	}
 
-	log.Printf("[STARTUP] Listening on %s…", addr)
+	logging.Logf("[STARTUP] Listening on %s…", addr)
 	log.Fatal(http.ListenAndServe(addr, router))
 }

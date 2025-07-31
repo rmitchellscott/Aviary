@@ -2,15 +2,15 @@ package database
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/go-gormigrate/gormigrate/v2"
+	"github.com/rmitchellscott/aviary/internal/logging"
 	"gorm.io/gorm"
 )
 
 // RunMigrations runs any pending database migrations using gormigrate
 func RunMigrations(logPrefix string) error {
-	log.Printf("[%s] Running database migrations...", logPrefix)
+	logging.Logf("[%s] Running database migrations...", logPrefix)
 
 	// Create migrator with our migrations
 	m := gormigrate.New(DB, gormigrate.DefaultOptions, []*gormigrate.Migration{
@@ -23,21 +23,21 @@ func RunMigrations(logPrefix string) error {
 				// Drop existing constraint and recreate with CASCADE for backup_jobs
 				if tx.Migrator().HasConstraint(&BackupJob{}, "admin_user_id") {
 					if err := tx.Migrator().DropConstraint(&BackupJob{}, "admin_user_id"); err != nil {
-						log.Printf("Note: Could not drop existing backup_jobs constraint: %v", err)
+						logging.Logf("[INFO] Could not drop existing backup_jobs constraint: %v", err)
 					}
 				}
 				if err := tx.Migrator().CreateConstraint(&BackupJob{}, "AdminUser"); err != nil {
-					log.Printf("Warning: Could not create CASCADE constraint for backup_jobs: %v", err)
+					logging.Logf("[WARNING] Could not create CASCADE constraint for backup_jobs: %v", err)
 				}
 				
 				// Drop existing constraint and recreate with CASCADE for restore_uploads  
 				if tx.Migrator().HasConstraint(&RestoreUpload{}, "admin_user_id") {
 					if err := tx.Migrator().DropConstraint(&RestoreUpload{}, "admin_user_id"); err != nil {
-						log.Printf("Note: Could not drop existing restore_uploads constraint: %v", err)
+						logging.Logf("[INFO] Could not drop existing restore_uploads constraint: %v", err)
 					}
 				}
 				if err := tx.Migrator().CreateConstraint(&RestoreUpload{}, "AdminUser"); err != nil {
-					log.Printf("Warning: Could not create CASCADE constraint for restore_uploads: %v", err)
+					logging.Logf("[WARNING] Could not create CASCADE constraint for restore_uploads: %v", err)
 				}
 				
 				return nil
@@ -72,6 +72,6 @@ func RunMigrations(logPrefix string) error {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	log.Printf("[%s] Migrations completed successfully", logPrefix)
+	logging.Logf("[%s] Migrations completed successfully", logPrefix)
 	return nil
 }

@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -10,6 +9,7 @@ import (
 	"github.com/glebarez/sqlite"
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/config"
+	"github.com/rmitchellscott/aviary/internal/logging"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -73,7 +73,7 @@ func Initialize() error {
 		return fmt.Errorf("failed to initialize system settings: %w", err)
 	}
 
-	log.Printf("[STARTUP] Database initialized successfully (type: %s)", config.Type)
+	logging.Logf("[STARTUP] Database initialized successfully (type: %s)", config.Type)
 	return nil
 }
 
@@ -137,7 +137,7 @@ func initSQLite(config *DatabaseConfig) (*gorm.DB, error) {
 
 // runMigrations runs GORM auto-migration for all models
 func runMigrations(logPrefix string) error {
-	log.Printf("[%s] Running GORM auto-migrations...", logPrefix)
+	logging.Logf("[%s] Running GORM auto-migrations...", logPrefix)
 	
 	models := GetAllModels()
 
@@ -150,10 +150,10 @@ func runMigrations(logPrefix string) error {
 
 	// Add unique constraint for FolderCache
 	if err := DB.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_user_folder_path ON user_folders_cache (user_id, folder_path)").Error; err != nil {
-		log.Printf("Warning: failed to create unique index for folder cache: %v", err)
+		logging.Logf("[WARNING] failed to create unique index for folder cache: %v", err)
 	}
 
-	log.Printf("[%s] GORM auto-migration completed successfully", logPrefix)
+	logging.Logf("[%s] GORM auto-migration completed successfully", logPrefix)
 	return nil
 }
 

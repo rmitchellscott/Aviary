@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -17,6 +16,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
+	"github.com/rmitchellscott/aviary/internal/logging"
 	"golang.org/x/oauth2"
 )
 
@@ -30,7 +30,7 @@ var (
 // oidcDebugLog logs OIDC debug messages if OIDC_DEBUG is enabled
 func oidcDebugLog(format string, v ...interface{}) {
 	if config.Get("OIDC_DEBUG", "") == "true" || config.Get("OIDC_DEBUG", "") == "1" {
-		log.Printf("[OIDC DEBUG] "+format, v...)
+		logging.Logf("[OIDC DEBUG] "+format, v...)
 	}
 }
 
@@ -54,7 +54,7 @@ func InitOIDC() error {
 		return nil // OIDC not configured, which is fine
 	}
 
-	log.Printf("[STARTUP] Initializing OIDC provider with issuer: %s", issuer)
+	logging.Logf("[STARTUP] Initializing OIDC provider with issuer: %s", issuer)
 
 	if redirectURL == "" {
 		redirectURL = "/api/auth/oidc/callback"
@@ -84,7 +84,7 @@ func InitOIDC() error {
 			break
 		}
 
-		log.Printf("[STARTUP] OIDC provider not ready, retrying in %v (attempt %d/%d)...", retryDelay, i+1, maxRetries)
+		logging.Logf("[STARTUP] OIDC provider not ready, retrying in %v (attempt %d/%d)...", retryDelay, i+1, maxRetries)
 
 		time.Sleep(retryDelay)
 	}
@@ -108,7 +108,7 @@ func InitOIDC() error {
 	oidcProvider = provider
 	oidcEnabled = true
 
-	log.Printf("[STARTUP] OIDC provider initialized successfully")
+	logging.Logf("[STARTUP] OIDC provider initialized successfully")
 
 	return nil
 }
