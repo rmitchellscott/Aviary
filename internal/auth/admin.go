@@ -579,6 +579,13 @@ func RestoreDatabaseHandler(c *gin.Context) {
 		// Don't fail the restore - migrations can be run manually if needed
 	}
 
+	// Clean up any associated extraction job before deleting the upload
+	if extractionJob, err := restore.GetExtractionJobByUpload(database.DB, uploadID, user.ID); err == nil {
+		if cleanupErr := restore.CleanupExtractionJob(database.DB, extractionJob.ID, user.ID); cleanupErr != nil {
+			logging.Logf("[WARNING] Failed to cleanup extraction job %s: %v", extractionJob.ID, cleanupErr)
+		}
+	}
+	
 	// Clean up the uploaded file and database record
 	os.Remove(restoreUpload.FilePath)
 	database.DB.Delete(&restoreUpload)

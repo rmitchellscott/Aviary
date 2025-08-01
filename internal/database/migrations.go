@@ -62,12 +62,17 @@ func RunMigrations(logPrefix string) error {
 				}
 				
 				// Ensure foreign key constraints are created with CASCADE
-				if err := tx.Migrator().CreateConstraint(&RestoreExtractionJob{}, "AdminUser"); err != nil {
-					logging.Logf("[WARNING] Could not create CASCADE constraint for restore_extraction_jobs.admin_user_id: %v", err)
+				// Check if constraint already exists before creating (in case auto-migration already created it)
+				if !tx.Migrator().HasConstraint(&RestoreExtractionJob{}, "fk_restore_extraction_jobs_admin_user") {
+					if err := tx.Migrator().CreateConstraint(&RestoreExtractionJob{}, "AdminUser"); err != nil {
+						logging.Logf("[WARNING] Could not create CASCADE constraint for restore_extraction_jobs.admin_user_id: %v", err)
+					}
 				}
 				
-				if err := tx.Migrator().CreateConstraint(&RestoreExtractionJob{}, "RestoreUpload"); err != nil {
-					logging.Logf("[WARNING] Could not create CASCADE constraint for restore_extraction_jobs.restore_upload_id: %v", err)
+				if !tx.Migrator().HasConstraint(&RestoreExtractionJob{}, "fk_restore_extraction_jobs_restore_upload") {
+					if err := tx.Migrator().CreateConstraint(&RestoreExtractionJob{}, "RestoreUpload"); err != nil {
+						logging.Logf("[WARNING] Could not create CASCADE constraint for restore_extraction_jobs.restore_upload_id: %v", err)
+					}
 				}
 				
 				return nil
