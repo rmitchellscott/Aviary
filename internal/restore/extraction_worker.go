@@ -19,11 +19,11 @@ import (
 )
 
 type ExtractionWorker struct {
-	db            *gorm.DB
-	dataDir       string
-	mu            sync.RWMutex
-	running       bool
-	quit          chan struct{}
+	db             *gorm.DB
+	dataDir        string
+	mu             sync.RWMutex
+	running        bool
+	quit           chan struct{}
 	emptyPollCount int
 }
 
@@ -36,7 +36,7 @@ func NewExtractionWorker(db *gorm.DB) *ExtractionWorker {
 	if dataDir == "" {
 		dataDir = "/data"
 	}
-	
+
 	return &ExtractionWorker{
 		db:      db,
 		dataDir: dataDir,
@@ -59,11 +59,11 @@ func (w *ExtractionWorker) Start() {
 func (w *ExtractionWorker) Stop() {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	
+
 	if !w.running {
 		return
 	}
-	
+
 	w.running = false
 	close(w.quit)
 }
@@ -94,7 +94,7 @@ func (w *ExtractionWorker) processPendingJobs() {
 		w.emptyPollCount++
 		emptyPolls := w.emptyPollCount
 		w.mu.Unlock()
-		
+
 		// Auto-shutdown after 15 empty polls (30 seconds with 2s interval)
 		if emptyPolls >= 15 {
 			logging.Logf("[INFO] Extraction worker shutting down after %d empty polls", emptyPolls)
@@ -120,12 +120,12 @@ func (w *ExtractionWorker) processJob(job database.RestoreExtractionJob) {
 	job.StartedAt = &now
 	job.Progress = 0
 	job.StatusMessage = "Starting extraction..."
-	
+
 	if err := w.db.Save(&job).Error; err != nil {
 		logging.Logf("[ERROR] Failed to update extraction job status: %v", err)
 		return
 	}
-	
+
 	// Check for timeout (if job has been running for more than 30 minutes)
 	if job.StartedAt != nil && time.Since(*job.StartedAt) > 30*time.Minute {
 		w.failJob(job, "Extraction timed out after 30 minutes")
@@ -140,7 +140,8 @@ func (w *ExtractionWorker) processJob(job database.RestoreExtractionJob) {
 	}
 
 	// Create temporary extraction directory
-	extractDir := filepath.Join(w.dataDir, "temp", "extractions", job.ID.String())
+	tempDir := filepath.Join(os.TempDir(), "aviary-extractions")
+	extractDir := filepath.Join(tempDir, job.ID.String())
 	if err := os.MkdirAll(extractDir, 0755); err != nil {
 		w.failJob(job, fmt.Sprintf("Failed to create extraction directory: %v", err))
 		return
@@ -153,8 +154,22 @@ func (w *ExtractionWorker) processJob(job database.RestoreExtractionJob) {
 
 	// Extract the tar.gz file
 	if err := w.extractTarGz(upload.FilePath, extractDir, &job); err != nil {
-		// Clean up on failure
 		os.RemoveAll(extractDir)
+		if strings.Contains(err.Error(), "cancelled") {
+			// Job was cancelled, clean it up
+			now := time.Now()
+			job.Status = "cancelled"
+			job.CompletedAt = &now
+			job.Progress = 0
+			job.StatusMessage = "Extraction cancelled by user"
+			w.db.Save(&job)
+
+			// Clean up the cancelled job after acknowledging cancellation
+			if cleanupErr := CleanupExtractionJob(w.db, job.ID, job.AdminUserID); cleanupErr != nil {
+				logging.Logf("[WARNING] Failed to cleanup cancelled job %s: %v", job.ID, cleanupErr)
+			}
+			return
+		}
 		w.failJob(job, fmt.Sprintf("Extraction failed: %v", err))
 		return
 	}
@@ -166,7 +181,7 @@ func (w *ExtractionWorker) processJob(job database.RestoreExtractionJob) {
 	job.StatusMessage = "Extraction completed"
 	job.ExtractedPath = extractDir
 	job.CompletedAt = &completedAt
-	
+
 	if err := w.db.Save(&job).Error; err != nil {
 		logging.Logf("[ERROR] Failed to mark extraction job as completed: %v", err)
 	}
@@ -175,38 +190,51 @@ func (w *ExtractionWorker) processJob(job database.RestoreExtractionJob) {
 }
 
 func (w *ExtractionWorker) extractTarGz(archivePath, destDir string, job *database.RestoreExtractionJob) error {
+	// Check if job was cancelled before starting
+	var currentJob database.RestoreExtractionJob
+	if err := w.db.First(&currentJob, job.ID).Error; err != nil {
+		return fmt.Errorf("job not found: %w", err)
+	}
+	if currentJob.Status == "cancelled" {
+		return fmt.Errorf("extraction cancelled")
+	}
 	// Channel for async progress updates (buffered to avoid blocking)
 	type progressUpdate struct {
 		progress int
 		message  string
 	}
 	progressChan := make(chan progressUpdate, 10)
-	
+
 	// Goroutine to handle DB updates asynchronously
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		lastSavedProgress := -1
-		
+
 		for update := range progressChan {
-			// Calculate scaled progress
 			scaledProgress := 10 + (update.progress * 80 / 100)
-			
-			// Only save to DB if progress changed by at least 5% or at completion
-			if scaledProgress - lastSavedProgress >= 5 || update.progress == 100 || update.progress == 0 {
+
+			if scaledProgress-lastSavedProgress >= 5 || update.progress == 100 || update.progress == 0 {
+				// Check if job was cancelled
+				var currentJob database.RestoreExtractionJob
+				if err := w.db.First(&currentJob, job.ID).Error; err == nil && currentJob.Status == "cancelled" {
+					logging.Logf("[INFO] Extraction job %s was cancelled", job.ID)
+					return
+				}
+
 				job.Progress = scaledProgress
 				job.StatusMessage = update.message
-				
+
 				if err := w.db.Save(job).Error; err != nil {
 					logging.Logf("[WARNING] Failed to update extraction progress: %v", err)
 				}
-				
+
 				lastSavedProgress = scaledProgress
 			}
 		}
 	}()
-	
+
 	// Extract with non-blocking progress updates
 	err := ExtractTarGzWithProgress(archivePath, destDir, func(progress int, message string) {
 		// Send progress update without blocking extraction
@@ -217,11 +245,11 @@ func (w *ExtractionWorker) extractTarGz(archivePath, destDir string, job *databa
 			// Channel full, skip this update to avoid blocking extraction
 		}
 	})
-	
+
 	// Close channel and wait for final updates to complete
 	close(progressChan)
 	wg.Wait()
-	
+
 	return err
 }
 
@@ -232,11 +260,11 @@ func (w *ExtractionWorker) failJob(job database.RestoreExtractionJob, errorMsg s
 	job.CompletedAt = &now
 	job.Progress = 0
 	job.StatusMessage = "Extraction failed"
-	
+
 	if err := w.db.Save(&job).Error; err != nil {
 		logging.Logf("[ERROR] Failed to mark extraction job as failed: %v", err)
 	}
-	
+
 	logging.Logf("[ERROR] Extraction job %s failed: %s", job.ID, errorMsg)
 }
 
@@ -304,7 +332,8 @@ func CreateCompletedExtractionJob(db *gorm.DB, adminUserID, restoreUploadID uuid
 	}
 
 	// Move extracted files to proper extraction job directory
-	finalExtractionDir := filepath.Join(dataDir, "temp", "extractions", job.ID.String())
+	tempDir := filepath.Join(os.TempDir(), "aviary-extractions")
+	finalExtractionDir := filepath.Join(tempDir, job.ID.String())
 	if err := os.Rename(extractionPath, finalExtractionDir); err != nil {
 		// If move fails, cleanup the job and return error
 		db.Delete(&job)
@@ -348,24 +377,27 @@ func GetExtractionJobByUpload(db *gorm.DB, uploadID uuid.UUID, adminUserID uuid.
 	return &job, nil
 }
 
-// CleanupExtractionJob removes the extraction files and job record
+// CleanupExtractionJob marks the extraction job as cancelled for graceful cleanup
 func CleanupExtractionJob(db *gorm.DB, jobID uuid.UUID, adminUserID uuid.UUID) error {
 	var job database.RestoreExtractionJob
 	if err := db.Where("id = ? AND admin_user_id = ?", jobID, adminUserID).First(&job).Error; err != nil {
 		return err
 	}
 
-	// Clean up extracted files if they exist
-	if job.ExtractedPath != "" {
-		if err := os.RemoveAll(job.ExtractedPath); err != nil {
-			logging.Logf("[WARNING] Failed to remove extraction directory %s: %v", job.ExtractedPath, err)
-		} else {
-			logging.Logf("[INFO] Cleaned up extraction directory: %s", job.ExtractedPath)
+	if job.Status == "completed" || job.Status == "failed" || job.Status == "cancelled" {
+		if job.ExtractedPath != "" {
+			if err := os.RemoveAll(job.ExtractedPath); err != nil {
+				logging.Logf("[WARNING] Failed to remove extraction directory %s: %v", job.ExtractedPath, err)
+			} else {
+				logging.Logf("[INFO] Cleaned up extraction directory: %s", job.ExtractedPath)
+			}
 		}
+		return db.Delete(&job).Error
 	}
 
-	// Delete the job record
-	return db.Delete(&job).Error
+	job.Status = "cancelled"
+	job.StatusMessage = "Extraction cancelled by user"
+	return db.Save(&job).Error
 }
 
 // CleanupExpiredExtractions removes old extraction jobs and their files
@@ -384,7 +416,7 @@ func CleanupExpiredExtractions(db *gorm.DB) error {
 				logging.Logf("[WARNING] Failed to remove old extraction directory %s: %v", job.ExtractedPath, err)
 			}
 		}
-		
+
 		// Delete job record
 		if err := db.Delete(&job).Error; err != nil {
 			logging.Logf("[WARNING] Failed to delete old extraction job %s: %v", job.ID, err)
@@ -406,7 +438,7 @@ func ExtractTarGzWithProgress(archivePath, destDir string, progressCallback func
 		return fmt.Errorf("failed to stat archive: %w", err)
 	}
 	totalSize := stat.Size()
-	
+
 	// Open archive file
 	file, err := os.Open(archivePath)
 	if err != nil {
@@ -502,7 +534,7 @@ type ProgressReader struct {
 func (pr *ProgressReader) Read(p []byte) (int, error) {
 	n, err := pr.Reader.Read(p)
 	pr.ReadBytes += int64(n)
-	
+
 	if pr.OnProgress != nil && pr.TotalSize > 0 {
 		progress := int((pr.ReadBytes * 100) / pr.TotalSize)
 		if progress > 100 {
@@ -510,7 +542,7 @@ func (pr *ProgressReader) Read(p []byte) (int, error) {
 		}
 		pr.OnProgress(progress, fmt.Sprintf("Reading archive... %d%%", progress))
 	}
-	
+
 	return n, err
 }
 
@@ -518,12 +550,12 @@ func (pr *ProgressReader) Read(p []byte) (int, error) {
 func EnsureWorkerRunning(db *gorm.DB) {
 	globalExtractionWorkerMu.Lock()
 	defer globalExtractionWorkerMu.Unlock()
-	
+
 	// If worker exists and is running, nothing to do
 	if globalExtractionWorker != nil && globalExtractionWorker.IsRunning() {
 		return
 	}
-	
+
 	// Create and start new worker
 	globalExtractionWorker = NewExtractionWorker(db)
 	globalExtractionWorker.Start()
@@ -541,21 +573,21 @@ func (w *ExtractionWorker) IsRunning() bool {
 func GetWorkerStatus() map[string]interface{} {
 	globalExtractionWorkerMu.Lock()
 	defer globalExtractionWorkerMu.Unlock()
-	
+
 	if globalExtractionWorker == nil {
 		return map[string]interface{}{
-			"exists": false,
+			"exists":  false,
 			"running": false,
 		}
 	}
-	
+
 	globalExtractionWorker.mu.RLock()
 	status := map[string]interface{}{
-		"exists": true,
-		"running": globalExtractionWorker.running,
+		"exists":           true,
+		"running":          globalExtractionWorker.running,
 		"empty_poll_count": globalExtractionWorker.emptyPollCount,
 	}
 	globalExtractionWorker.mu.RUnlock()
-	
+
 	return status
 }
