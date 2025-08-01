@@ -227,7 +227,6 @@
       "reset_password_description": "Resetuj hasło dla użytkownika: ",
       "confirm_restore_title": "Potwierdź przywracanie danych",
       "confirm_restore_description": "Zamierzasz przywrócić z pliku kopii zapasowej: ",
-      "backup_contents": "Zawartość kopii zapasowej:",
       "restore_warning_text": "To trwale nadpisze wszystkie bieżące dane, w tym:",
       "restore_warning_items": {
         "accounts": "Wszystkie konta użytkowników i ustawienia",

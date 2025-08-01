@@ -1797,10 +1797,8 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 {t("admin.dialogs.confirm_restore_description")}
                 <strong>{restoreConfirmDialog.upload?.filename}</strong>
               </p>
-              
               {backupCounts && (
                 <div className="bg-muted p-3 rounded-md">
-                  <p className="font-medium text-sm mb-2">{t("admin.dialogs.backup_contents")}</p>
                   <div className="grid grid-cols-3 gap-4 text-sm mb-4">
                     <div className="text-center">
                       <div className="font-semibold text-lg">{backupCounts.users}</div>

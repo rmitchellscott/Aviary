@@ -227,7 +227,6 @@
       "reset_password_description": "Reset het wachtwoord voor gebruiker: ",
       "confirm_restore_title": "Bevestig data herstel",
       "confirm_restore_description": "Je gaat herstellen van backup bestand: ",
-      "backup_contents": "Backup inhoud:",
       "restore_warning_text": "Dit zal permanent alle huidige data overschrijven inclusief:",
       "restore_warning_items": {
         "accounts": "Alle gebruikersaccounts en instellingen",

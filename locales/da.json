@@ -227,7 +227,6 @@
       "reset_password_description": "Nulstil adgangskoden for bruger: ",
       "confirm_restore_title": "Bekræft Data Gendannelse",
       "confirm_restore_description": "Du er ved at gendanne fra backup fil: ",
-      "backup_contents": "Backup Indhold:",
       "restore_warning_text": "Dette vil permanent overskrive alle nuværende data inklusive:",
       "restore_warning_items": {
         "accounts": "Alle brugerkonti og indstillinger",

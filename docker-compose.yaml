@@ -6,6 +6,8 @@
 services:
   aviary:
     image: ghcr.io/rmitchellscott/aviary:latest
+    tmpfs:
+      - /tmp
     ports:
       - "8000:8000"
     environment:

@@ -61,6 +61,10 @@ func main() {
 			log.Fatalf("Failed to migrate to multi-user mode: %v", err)
 		}
 
+		if err := auth.CleanupOrphanedRestoreUploads(); err != nil {
+			logging.Logf("[WARNING] Failed to cleanup orphaned restore uploads during startup: %v", err)
+		}
+
 		manager.InitializeUserFolderCache(database.DB)
 
 		// Check if continuous worker mode is enabled

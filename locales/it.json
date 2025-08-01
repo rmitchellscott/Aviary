@@ -227,7 +227,6 @@
       "reset_password_description": "Reimposta la password per l'utente: ",
       "confirm_restore_title": "Conferma ripristino dati",
       "confirm_restore_description": "Stai per ripristinare dal file di backup: ",
-      "backup_contents": "Contenuti backup:",
       "restore_warning_text": "Questo sovrascriverà permanentemente tutti i dati correnti inclusi:",
       "restore_warning_items": {
         "accounts": "Tutti gli account utente e impostazioni",

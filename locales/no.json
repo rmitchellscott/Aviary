@@ -227,7 +227,6 @@
       "reset_password_description": "Tilbakestill passordet for bruker: ",
       "confirm_restore_title": "Bekreft data gjenoppretting",
       "confirm_restore_description": "Du er i ferd med å gjenopprette fra sikkerhetskopi fil: ",
-      "backup_contents": "Sikkerhetskopi innhold:",
       "restore_warning_text": "Dette vil permanent overskrive alle nåværende data inkludert:",
       "restore_warning_items": {
         "accounts": "Alle brukerkontoer og innstillinger",

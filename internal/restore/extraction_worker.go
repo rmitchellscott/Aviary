@@ -3,6 +3,7 @@ package restore
 import (
 	"archive/tar"
 	"compress/gzip"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -25,6 +26,9 @@ type ExtractionWorker struct {
 	running        bool
 	quit           chan struct{}
 	emptyPollCount int
+	// Track active jobs and their cancellation contexts
+	activeJobs   map[uuid.UUID]context.CancelFunc
+	activeJobsMu sync.RWMutex
 }
 
 // Global worker instance for on-demand management
@@ -38,9 +42,10 @@ func NewExtractionWorker(db *gorm.DB) *ExtractionWorker {
 	}
 
 	return &ExtractionWorker{
-		db:      db,
-		dataDir: dataDir,
-		quit:    make(chan struct{}),
+		db:         db,
+		dataDir:    dataDir,
+		quit:       make(chan struct{}),
+		activeJobs: make(map[uuid.UUID]context.CancelFunc),
 	}
 }
 
@@ -66,6 +71,18 @@ func (w *ExtractionWorker) Stop() {
 
 	w.running = false
 	close(w.quit)
+}
+
+// CancelJob cancels a specific extraction job by its ID
+func (w *ExtractionWorker) CancelJob(jobID uuid.UUID) {
+	w.activeJobsMu.RLock()
+	cancel, exists := w.activeJobs[jobID]
+	w.activeJobsMu.RUnlock()
+
+	if exists {
+		logging.Logf("[RESTORE] Cancelling extraction job %s", jobID)
+		cancel()
+	}
 }
 
 func (w *ExtractionWorker) run() {
@@ -97,7 +114,7 @@ func (w *ExtractionWorker) processPendingJobs() {
 
 		// Auto-shutdown after 15 empty polls (30 seconds with 2s interval)
 		if emptyPolls >= 15 {
-			logging.Logf("[INFO] Extraction worker shutting down after %d empty polls", emptyPolls)
+			logging.Logf("[RESTORE] Extraction worker shutting down after %d empty polls", emptyPolls)
 			w.Stop()
 			return
 		}
@@ -115,6 +132,22 @@ func (w *ExtractionWorker) processPendingJobs() {
 }
 
 func (w *ExtractionWorker) processJob(job database.RestoreExtractionJob) {
+	// Create a context for this job
+	ctx, cancel := context.WithCancel(context.Background())
+
+	// Register the job as active
+	w.activeJobsMu.Lock()
+	w.activeJobs[job.ID] = cancel
+	w.activeJobsMu.Unlock()
+
+	// Ensure cleanup on exit
+	defer func() {
+		w.activeJobsMu.Lock()
+		delete(w.activeJobs, job.ID)
+		w.activeJobsMu.Unlock()
+		cancel()
+	}()
+
 	now := time.Now()
 	job.Status = "extracting"
 	job.StartedAt = &now
@@ -153,25 +186,24 @@ func (w *ExtractionWorker) processJob(job database.RestoreExtractionJob) {
 	w.db.Save(&job)
 
 	// Extract the tar.gz file
-	if err := w.extractTarGz(upload.FilePath, extractDir, &job); err != nil {
+	if err := w.extractTarGz(ctx, upload.FilePath, extractDir, &job); err != nil {
 		os.RemoveAll(extractDir)
 		if strings.Contains(err.Error(), "cancelled") {
-			// Job was cancelled, clean it up
-			now := time.Now()
-			job.Status = "cancelled"
-			job.CompletedAt = &now
-			job.Progress = 0
-			job.StatusMessage = "Extraction cancelled by user"
-			w.db.Save(&job)
-
-			// Clean up the cancelled job after acknowledging cancellation
-			if cleanupErr := CleanupExtractionJob(w.db, job.ID, job.AdminUserID); cleanupErr != nil {
-				logging.Logf("[WARNING] Failed to cleanup cancelled job %s: %v", job.ID, cleanupErr)
-			}
+			// Job was cancelled, just return - CleanupExtractionJob already handled the database side
+			logging.Logf("[RESTORE] Extraction job %s was cancelled, exiting cleanly", job.ID)
 			return
 		}
 		w.failJob(job, fmt.Sprintf("Extraction failed: %v", err))
 		return
+	}
+
+	// Check if context was cancelled before marking as completed
+	select {
+	case <-ctx.Done():
+		// Context was cancelled, job should have been handled above
+		logging.Logf("[RESTORE] Extraction job %s was cancelled during completion", job.ID)
+		return
+	default:
 	}
 
 	// Mark as completed
@@ -183,13 +215,29 @@ func (w *ExtractionWorker) processJob(job database.RestoreExtractionJob) {
 	job.CompletedAt = &completedAt
 
 	if err := w.db.Save(&job).Error; err != nil {
+		// Check if it's a foreign key violation (parent upload deleted)
+		if strings.Contains(err.Error(), "fk_restore_extraction_jobs_restore_upload") {
+			logging.Logf("[RESTORE] Extraction job %s parent upload deleted, cleaning up extracted files", job.ID)
+			// Clean up the extracted files since the parent is gone
+			if extractDir != "" {
+				os.RemoveAll(extractDir)
+			}
+			return
+		}
 		logging.Logf("[ERROR] Failed to mark extraction job as completed: %v", err)
 	}
 
-	logging.Logf("[INFO] Extraction job %s completed successfully, extracted to: %s", job.ID, extractDir)
+	logging.Logf("[RESTORE] Extraction job %s completed successfully, extracted to: %s", job.ID, extractDir)
 }
 
-func (w *ExtractionWorker) extractTarGz(archivePath, destDir string, job *database.RestoreExtractionJob) error {
+func (w *ExtractionWorker) extractTarGz(ctx context.Context, archivePath, destDir string, job *database.RestoreExtractionJob) error {
+	// Check if context is already cancelled
+	select {
+	case <-ctx.Done():
+		return fmt.Errorf("extraction cancelled")
+	default:
+	}
+
 	// Check if job was cancelled before starting
 	var currentJob database.RestoreExtractionJob
 	if err := w.db.First(&currentJob, job.ID).Error; err != nil {
@@ -212,31 +260,48 @@ func (w *ExtractionWorker) extractTarGz(archivePath, destDir string, job *databa
 		defer wg.Done()
 		lastSavedProgress := -1
 
-		for update := range progressChan {
-			scaledProgress := 10 + (update.progress * 80 / 100)
-
-			if scaledProgress-lastSavedProgress >= 5 || update.progress == 100 || update.progress == 0 {
-				// Check if job was cancelled
-				var currentJob database.RestoreExtractionJob
-				if err := w.db.First(&currentJob, job.ID).Error; err == nil && currentJob.Status == "cancelled" {
-					logging.Logf("[INFO] Extraction job %s was cancelled", job.ID)
+		for {
+			select {
+			case <-ctx.Done():
+				// Context cancelled, exit gracefully
+				logging.Logf("[RESTORE] Extraction job %s context cancelled, stopping progress updates", job.ID)
+				return
+			case update, ok := <-progressChan:
+				if !ok {
+					// Channel closed, we're done
 					return
 				}
 
-				job.Progress = scaledProgress
-				job.StatusMessage = update.message
+				scaledProgress := 10 + (update.progress * 80 / 100)
 
-				if err := w.db.Save(job).Error; err != nil {
-					logging.Logf("[WARNING] Failed to update extraction progress: %v", err)
+				if scaledProgress-lastSavedProgress >= 5 || update.progress == 100 || update.progress == 0 {
+					// Check if job was cancelled
+					var currentJob database.RestoreExtractionJob
+					if err := w.db.First(&currentJob, job.ID).Error; err == nil && currentJob.Status == "cancelled" {
+						logging.Logf("[RESTORE] Extraction job %s was cancelled", job.ID)
+						return
+					}
+
+					job.Progress = scaledProgress
+					job.StatusMessage = update.message
+
+					if err := w.db.Save(job).Error; err != nil {
+						// Check if it's a foreign key violation (parent upload deleted)
+						if strings.Contains(err.Error(), "fk_restore_extraction_jobs_restore_upload") {
+							logging.Logf("[RESTORE] Extraction job %s parent upload deleted, stopping updates", job.ID)
+							return
+						}
+						logging.Logf("[WARNING] Failed to update extraction progress: %v", err)
+					}
+
+					lastSavedProgress = scaledProgress
 				}
-
-				lastSavedProgress = scaledProgress
 			}
 		}
 	}()
 
 	// Extract with non-blocking progress updates
-	err := ExtractTarGzWithProgress(archivePath, destDir, func(progress int, message string) {
+	err := ExtractTarGzWithProgress(ctx, archivePath, destDir, func(progress int, message string) {
 		// Send progress update without blocking extraction
 		select {
 		case progressChan <- progressUpdate{progress, message}:
@@ -294,7 +359,7 @@ func CreateExtractionJob(db *gorm.DB, adminUserID, restoreUploadID uuid.UUID) (*
 		return nil, fmt.Errorf("failed to create extraction job: %w", err)
 	}
 
-	logging.Logf("[INFO] Created extraction job %s for upload %s", job.ID, restoreUploadID)
+	logging.Logf("[RESTORE] Created extraction job %s for upload %s", job.ID, restoreUploadID)
 	return &job, nil
 }
 
@@ -353,7 +418,7 @@ func CreateCompletedExtractionJob(db *gorm.DB, adminUserID, restoreUploadID uuid
 		return nil, fmt.Errorf("failed to update extraction job: %w", err)
 	}
 
-	logging.Logf("[INFO] Created completed extraction job %s for upload %s, reused files from: %s", job.ID, restoreUploadID, finalExtractionDir)
+	logging.Logf("[RESTORE] Created completed extraction job %s for upload %s, reused files from: %s", job.ID, restoreUploadID, finalExtractionDir)
 	return &job, nil
 }
 
@@ -377,27 +442,45 @@ func GetExtractionJobByUpload(db *gorm.DB, uploadID uuid.UUID, adminUserID uuid.
 	return &job, nil
 }
 
-// CleanupExtractionJob marks the extraction job as cancelled for graceful cleanup
+// CleanupExtractionJob cancels the extraction job immediately and cleans up
 func CleanupExtractionJob(db *gorm.DB, jobID uuid.UUID, adminUserID uuid.UUID) error {
 	var job database.RestoreExtractionJob
 	if err := db.Where("id = ? AND admin_user_id = ?", jobID, adminUserID).First(&job).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			// Job doesn't exist, nothing to clean up - this is normal after FK violations
+			logging.Logf("[RESTORE] Extraction job %s not found, assuming already cleaned up", jobID)
+			return nil
+		}
 		return err
 	}
 
-	if job.Status == "completed" || job.Status == "failed" || job.Status == "cancelled" {
-		if job.ExtractedPath != "" {
-			if err := os.RemoveAll(job.ExtractedPath); err != nil {
-				logging.Logf("[WARNING] Failed to remove extraction directory %s: %v", job.ExtractedPath, err)
-			} else {
-				logging.Logf("[INFO] Cleaned up extraction directory: %s", job.ExtractedPath)
-			}
+	// If job is in progress, cancel it immediately
+	if job.Status == "extracting" || job.Status == "pending" {
+		// Cancel the active job context
+		CancelJobGlobal(jobID)
+
+		// Mark as cancelled
+		job.Status = "cancelled"
+		job.StatusMessage = "Extraction cancelled by user"
+		if err := db.Save(&job).Error; err != nil {
+			logging.Logf("[WARNING] Failed to mark job as cancelled: %v", err)
 		}
-		return db.Delete(&job).Error
+
+		// Wait a short time for worker to acknowledge cancellation
+		time.Sleep(100 * time.Millisecond)
 	}
 
-	job.Status = "cancelled"
-	job.StatusMessage = "Extraction cancelled by user"
-	return db.Save(&job).Error
+	// Clean up files if they exist
+	if job.ExtractedPath != "" {
+		if err := os.RemoveAll(job.ExtractedPath); err != nil {
+			logging.Logf("[WARNING] Failed to remove extraction directory %s: %v", job.ExtractedPath, err)
+		} else {
+			logging.Logf("[RESTORE] Cleaned up extraction directory: %s", job.ExtractedPath)
+		}
+	}
+
+	// Delete the job record
+	return db.Delete(&job).Error
 }
 
 // CleanupExpiredExtractions removes old extraction jobs and their files
@@ -424,14 +507,14 @@ func CleanupExpiredExtractions(db *gorm.DB) error {
 	}
 
 	if len(oldJobs) > 0 {
-		logging.Logf("[INFO] Cleaned up %d expired extraction jobs", len(oldJobs))
+		logging.Logf("[RESTORE] Cleaned up %d expired extraction jobs", len(oldJobs))
 	}
 
 	return nil
 }
 
 // ExtractTarGzWithProgress extracts a tar.gz archive with progress reporting
-func ExtractTarGzWithProgress(archivePath, destDir string, progressCallback func(int, string)) error {
+func ExtractTarGzWithProgress(ctx context.Context, archivePath, destDir string, progressCallback func(int, string)) error {
 	// Get file size for progress calculation
 	stat, err := os.Stat(archivePath)
 	if err != nil {
@@ -466,6 +549,13 @@ func ExtractTarGzWithProgress(archivePath, destDir string, progressCallback func
 	fileCount := 0
 	// Extract files
 	for {
+		// Check if context is cancelled
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("extraction cancelled")
+		default:
+		}
+
 		header, err := tarReader.Next()
 		if err == io.EOF {
 			break
@@ -559,7 +649,17 @@ func EnsureWorkerRunning(db *gorm.DB) {
 	// Create and start new worker
 	globalExtractionWorker = NewExtractionWorker(db)
 	globalExtractionWorker.Start()
-	logging.Logf("[INFO] Extraction worker started on-demand")
+	logging.Logf("[RESTORE] Extraction worker started on-demand")
+}
+
+// CancelJobGlobal cancels a job on the global worker instance
+func CancelJobGlobal(jobID uuid.UUID) {
+	globalExtractionWorkerMu.Lock()
+	defer globalExtractionWorkerMu.Unlock()
+
+	if globalExtractionWorker != nil {
+		globalExtractionWorker.CancelJob(jobID)
+	}
 }
 
 // IsRunning returns true if the worker is currently running

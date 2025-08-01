@@ -227,7 +227,6 @@
       "reset_password_description": "ユーザーのパスワードをリセット: ",
       "confirm_restore_title": "データ復元の確認",
       "confirm_restore_description": "以下のバックアップファイルから復元しようとしています: ",
-      "backup_contents": "バックアップ内容:",
       "restore_warning_text": "これにより以下を含むすべての現在のデータが永久に上書きされます:",
       "restore_warning_items": {
         "accounts": "すべてのユーザーアカウントと設定",

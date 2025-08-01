@@ -227,7 +227,6 @@
       "reset_password_description": "Nollaa salasana käyttäjälle: ",
       "confirm_restore_title": "Vahvista tietojen palautus",
       "confirm_restore_description": "Olet palauttamassa varmuuskopiotiedostosta: ",
-      "backup_contents": "Varmuuskopion sisältö:",
       "restore_warning_text": "Tämä korvaa pysyvästi kaikki nykyiset tiedot mukaan lukien:",
       "restore_warning_items": {
         "accounts": "Kaikki käyttäjätilit ja asetukset",

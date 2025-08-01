@@ -227,7 +227,6 @@
       "reset_password_description": "사용자의 비밀번호 재설정: ",
       "confirm_restore_title": "데이터 복원 확인",
       "confirm_restore_description": "백업 파일에서 복원하려고 합니다: ",
-      "backup_contents": "백업 내용:",
       "restore_warning_text": "다음을 포함한 모든 현재 데이터가 영구적으로 덮어쓰기됩니다:",
       "restore_warning_items": {
         "accounts": "모든 사용자 계정 및 설정",
