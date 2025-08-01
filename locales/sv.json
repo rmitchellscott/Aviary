@@ -227,7 +227,6 @@
       "reset_password_description": "Återställ lösenordet för användare: ",
       "confirm_restore_title": "Bekräfta dataåterställning",
       "confirm_restore_description": "Du är på väg att återställa från säkerhetskopian: ",
-      "backup_contents": "Säkerhetskopieinnehåll:",
       "restore_warning_text": "Detta kommer permanent att skriva över all nuvarande data inklusive:",
       "restore_warning_items": {
         "accounts": "Alla användarkonton och inställningar",

@@ -227,7 +227,6 @@
       "reset_password_description": "Réinitialiser le mot de passe pour l'utilisateur : ",
       "confirm_restore_title": "Confirmer la restauration des données",
       "confirm_restore_description": "Vous êtes sur le point de restaurer à partir du fichier de sauvegarde : ",
-      "backup_contents": "Contenu de la sauvegarde :",
       "restore_warning_text": "Cela écrasera définitivement toutes les données actuelles, y compris :",
       "restore_warning_items": {
         "accounts": "Tous les comptes utilisateur et paramètres",

@@ -195,16 +195,17 @@ func CleanupDataHandler(c *gin.Context) {
 		return
 	}
 
-	// Perform cleanup
 	if err := database.CleanupOldData(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to cleanup data"})
 		return
 	}
 
-	// Cleanup expired extraction jobs
 	if err := restore.CleanupExpiredExtractions(database.DB); err != nil {
 		logging.Logf("[WARNING] Failed to cleanup expired extraction jobs: %v", err)
-		// Don't fail the whole cleanup if extraction cleanup fails
+	}
+
+	if err := CleanupOrphanedRestoreUploads(); err != nil {
+		logging.Logf("[WARNING] Failed to cleanup orphaned restore uploads: %v", err)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -347,7 +348,7 @@ func AnalyzeRestoreUploadHandler(c *gin.Context) {
 	var extractionJob *database.RestoreExtractionJob
 	if analysis.ExtractionPath != "" {
 		// Analysis already extracted files, create completed extraction job
-		logging.Logf("[INFO] Analysis already extracted files, reusing extraction from: %s", analysis.ExtractionPath)
+		logging.Logf("[RESTORE] Analysis already extracted files, reusing extraction from: %s", analysis.ExtractionPath)
 		extractionJob, err = restore.CreateCompletedExtractionJob(database.DB, user.ID, uploadID, analysis.ExtractionPath)
 		if err != nil {
 			logging.Logf("[WARNING] Failed to create completed extraction job for upload %s: %v", uploadID, err)
@@ -378,7 +379,7 @@ func AnalyzeRestoreUploadHandler(c *gin.Context) {
 	// Include extraction job ID if created successfully
 	if extractionJob != nil {
 		response["extraction_job_id"] = extractionJob.ID
-		logging.Logf("[INFO] Started extraction job %s for upload %s", extractionJob.ID, uploadID)
+		logging.Logf("[RESTORE] Started extraction job %s for upload %s", extractionJob.ID, uploadID)
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -537,13 +538,13 @@ func RestoreDatabaseHandler(c *gin.Context) {
 	extractionJob, err := restore.GetExtractionJobByUpload(database.DB, uploadID, user.ID)
 	if err == nil && extractionJob.Status == "completed" && extractionJob.ExtractedPath != "" {
 		// Use pre-extracted files for faster restore
-		logging.Logf("[INFO] Using pre-extracted files from job %s: %s", extractionJob.ID, extractionJob.ExtractedPath)
+		logging.Logf("[RESTORE] Using pre-extracted files from job %s: %s", extractionJob.ID, extractionJob.ExtractedPath)
 		_, err = importer.ImportFromExtractedDirectory(extractionJob.ExtractedPath, importOptions)
 	} else {
 		// Check if extraction is still in progress
 		if err == nil && (extractionJob.Status == "pending" || extractionJob.Status == "extracting") {
 			// Wait for extraction to complete (with timeout)
-			logging.Logf("[INFO] Waiting for extraction job %s to complete...", extractionJob.ID)
+			logging.Logf("[RESTORE] Waiting for extraction job %s to complete...", extractionJob.ID)
 			extractedPath, waitErr := waitForExtractionCompletion(extractionJob, 5*time.Minute)
 			if waitErr != nil {
 				logging.Logf("[WARNING] Extraction wait failed, falling back to direct import: %v", waitErr)
@@ -551,7 +552,7 @@ func RestoreDatabaseHandler(c *gin.Context) {
 				_, err = importer.Import(restoreUpload.FilePath, importOptions)
 			} else {
 				// Use the completed extraction
-				logging.Logf("[INFO] Using pre-extracted files after wait: %s", extractedPath)
+				logging.Logf("[RESTORE] Using pre-extracted files after wait: %s", extractedPath)
 				_, err = importer.ImportFromExtractedDirectory(extractedPath, importOptions)
 			}
 		} else {
@@ -585,7 +586,7 @@ func RestoreDatabaseHandler(c *gin.Context) {
 			logging.Logf("[WARNING] Failed to cleanup extraction job %s: %v", extractionJob.ID, cleanupErr)
 		}
 	}
-	
+
 	// Clean up the uploaded file and database record
 	os.Remove(restoreUpload.FilePath)
 	database.DB.Delete(&restoreUpload)
@@ -625,8 +626,35 @@ func GetRestoreUploadsHandler(c *gin.Context) {
 		return
 	}
 
+	var validUploads []database.RestoreUpload
+	cleanedCount := 0
+	
+	for _, upload := range uploads {
+		if _, err := os.Stat(upload.FilePath); os.IsNotExist(err) {
+			if deleteErr := database.DB.Delete(&upload).Error; deleteErr != nil {
+				logging.Logf("[WARNING] Failed to cleanup orphaned restore upload %s: %v", upload.ID, deleteErr)
+				continue
+			}
+			
+			if extractionJob, err := restore.GetExtractionJobByUpload(database.DB, upload.ID, upload.AdminUserID); err == nil {
+				if cleanupErr := restore.CleanupExtractionJob(database.DB, extractionJob.ID, upload.AdminUserID); cleanupErr != nil {
+					logging.Logf("[WARNING] Failed to cleanup extraction job %s for orphaned upload %s: %v", extractionJob.ID, upload.ID, cleanupErr)
+				}
+			}
+			
+			logging.Logf("[CLEANUP] Removed orphaned restore upload during fetch: %s (file: %s)", upload.ID, upload.FilePath)
+			cleanedCount++
+		} else {
+			validUploads = append(validUploads, upload)
+		}
+	}
+
+	if cleanedCount > 0 {
+		logging.Logf("[CLEANUP] Cleaned up %d orphaned restore upload(s) during fetch", cleanedCount)
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"uploads": uploads,
+		"uploads": validUploads,
 	})
 }
 
@@ -908,6 +936,42 @@ func DeleteBackupJobHandler(c *gin.Context) {
 	})
 }
 
+func CleanupOrphanedRestoreUploads() error {
+	if !database.IsMultiUserMode() {
+		return nil
+	}
+
+	var uploads []database.RestoreUpload
+	if err := database.DB.Find(&uploads).Error; err != nil {
+		return fmt.Errorf("failed to fetch restore uploads: %w", err)
+	}
+
+	cleanedCount := 0
+	for _, upload := range uploads {
+		if _, err := os.Stat(upload.FilePath); os.IsNotExist(err) {
+			if deleteErr := database.DB.Delete(&upload).Error; deleteErr != nil {
+				logging.Logf("[WARNING] Failed to cleanup orphaned restore upload %s: %v", upload.ID, deleteErr)
+				continue
+			}
+			
+			if extractionJob, err := restore.GetExtractionJobByUpload(database.DB, upload.ID, upload.AdminUserID); err == nil {
+				if cleanupErr := restore.CleanupExtractionJob(database.DB, extractionJob.ID, upload.AdminUserID); cleanupErr != nil {
+					logging.Logf("[WARNING] Failed to cleanup extraction job %s for orphaned upload %s: %v", extractionJob.ID, upload.ID, cleanupErr)
+				}
+			}
+			
+			logging.Logf("[CLEANUP] Removed orphaned restore upload: %s (file: %s)", upload.ID, upload.FilePath)
+			cleanedCount++
+		}
+	}
+
+	if cleanedCount > 0 {
+		logging.Logf("[CLEANUP] Cleaned up %d orphaned restore upload(s)", cleanedCount)
+	}
+
+	return nil
+}
+
 // waitForExtractionCompletion waits for an extraction job to complete with timeout
 func waitForExtractionCompletion(job *database.RestoreExtractionJob, timeout time.Duration) (string, error) {
 	startTime := time.Now()
@@ -930,7 +994,7 @@ func waitForExtractionCompletion(job *database.RestoreExtractionJob, timeout tim
 			switch job.Status {
 			case "completed":
 				if job.ExtractedPath != "" {
-					logging.Logf("[INFO] Extraction job %s completed, using extracted path: %s", job.ID, job.ExtractedPath)
+					logging.Logf("[RESTORE] Extraction job %s completed, using extracted path: %s", job.ID, job.ExtractedPath)
 					return job.ExtractedPath, nil
 				}
 				return "", fmt.Errorf("extraction completed but no extracted path available")

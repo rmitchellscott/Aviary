@@ -227,7 +227,6 @@
       "reset_password_description": "重置用户密码：",
       "confirm_restore_title": "确认数据还原",
       "confirm_restore_description": "您即将从备份文件还原：",
-      "backup_contents": "备份内容：",
       "restore_warning_text": "这将永久覆盖所有当前数据，包括：",
       "restore_warning_items": {
         "accounts": "所有用户账户和设置",

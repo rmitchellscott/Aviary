@@ -227,7 +227,6 @@
       "reset_password_description": "Redefinir a senha para o usuário: ",
       "confirm_restore_title": "Confirmar restauração de dados",
       "confirm_restore_description": "Você está prestes a restaurar do arquivo de backup: ",
-      "backup_contents": "Conteúdo do backup:",
       "restore_warning_text": "Isso substituirá permanentemente todos os dados atuais, incluindo:",
       "restore_warning_items": {
         "accounts": "Todas as contas de usuário e configurações",

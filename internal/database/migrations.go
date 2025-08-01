@@ -19,27 +19,27 @@ func RunMigrations(logPrefix string) error {
 			Migrate: func(tx *gorm.DB) error {
 				// Add CASCADE to foreign key constraints to fix restore issues
 				// GORM handles database differences automatically
-				
+
 				// Drop existing constraint and recreate with CASCADE for backup_jobs
 				if tx.Migrator().HasConstraint(&BackupJob{}, "admin_user_id") {
 					if err := tx.Migrator().DropConstraint(&BackupJob{}, "admin_user_id"); err != nil {
-						logging.Logf("[INFO] Could not drop existing backup_jobs constraint: %v", err)
+						logging.Logf("[MIGRATE] Could not drop existing backup_jobs constraint: %v", err)
 					}
 				}
 				if err := tx.Migrator().CreateConstraint(&BackupJob{}, "AdminUser"); err != nil {
 					logging.Logf("[WARNING] Could not create CASCADE constraint for backup_jobs: %v", err)
 				}
-				
-				// Drop existing constraint and recreate with CASCADE for restore_uploads  
+
+				// Drop existing constraint and recreate with CASCADE for restore_uploads
 				if tx.Migrator().HasConstraint(&RestoreUpload{}, "admin_user_id") {
 					if err := tx.Migrator().DropConstraint(&RestoreUpload{}, "admin_user_id"); err != nil {
-						logging.Logf("[INFO] Could not drop existing restore_uploads constraint: %v", err)
+						logging.Logf("[MIGRATE] Could not drop existing restore_uploads constraint: %v", err)
 					}
 				}
 				if err := tx.Migrator().CreateConstraint(&RestoreUpload{}, "AdminUser"); err != nil {
 					logging.Logf("[WARNING] Could not create CASCADE constraint for restore_uploads: %v", err)
 				}
-				
+
 				return nil
 			},
 			Rollback: func(tx *gorm.DB) error {
@@ -60,7 +60,7 @@ func RunMigrations(logPrefix string) error {
 				if err := tx.AutoMigrate(&RestoreExtractionJob{}); err != nil {
 					return fmt.Errorf("failed to create restore_extraction_jobs table: %w", err)
 				}
-				
+
 				// Ensure foreign key constraints are created with CASCADE
 				// Check if constraint already exists before creating (in case auto-migration already created it)
 				if !tx.Migrator().HasConstraint(&RestoreExtractionJob{}, "fk_restore_extraction_jobs_admin_user") {
@@ -68,13 +68,13 @@ func RunMigrations(logPrefix string) error {
 						logging.Logf("[WARNING] Could not create CASCADE constraint for restore_extraction_jobs.admin_user_id: %v", err)
 					}
 				}
-				
+
 				if !tx.Migrator().HasConstraint(&RestoreExtractionJob{}, "fk_restore_extraction_jobs_restore_upload") {
 					if err := tx.Migrator().CreateConstraint(&RestoreExtractionJob{}, "RestoreUpload"); err != nil {
 						logging.Logf("[WARNING] Could not create CASCADE constraint for restore_extraction_jobs.restore_upload_id: %v", err)
 					}
 				}
-				
+
 				return nil
 			},
 			Rollback: func(tx *gorm.DB) error {

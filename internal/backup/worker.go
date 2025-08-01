@@ -17,11 +17,11 @@ import (
 )
 
 type Worker struct {
-	db            *gorm.DB
-	dataDir       string
-	mu            sync.RWMutex
-	running       bool
-	quit          chan struct{}
+	db             *gorm.DB
+	dataDir        string
+	mu             sync.RWMutex
+	running        bool
+	quit           chan struct{}
 	emptyPollCount int
 }
 
@@ -34,7 +34,7 @@ func NewWorker(db *gorm.DB) *Worker {
 	if dataDir == "" {
 		dataDir = "/data"
 	}
-	
+
 	return &Worker{
 		db:      db,
 		dataDir: dataDir,
@@ -57,11 +57,11 @@ func (w *Worker) Start() {
 func (w *Worker) Stop() {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	
+
 	if !w.running {
 		return
 	}
-	
+
 	w.running = false
 	close(w.quit)
 }
@@ -92,10 +92,10 @@ func (w *Worker) processPendingJobs() {
 		w.emptyPollCount++
 		emptyPolls := w.emptyPollCount
 		w.mu.Unlock()
-		
+
 		// Auto-shutdown after 6 empty polls (30 seconds with 5s interval)
 		if emptyPolls >= 6 {
-			logging.Logf("[INFO] Backup worker shutting down after %d empty polls", emptyPolls)
+			logging.Logf("[BACKUP] Backup worker shutting down after %d empty polls", emptyPolls)
 			w.Stop()
 			return
 		}
@@ -117,7 +117,7 @@ func (w *Worker) processJob(job database.BackupJob) {
 	job.Status = "running"
 	job.StartedAt = &now
 	job.Progress = 0
-	
+
 	if err := w.db.Save(&job).Error; err != nil {
 		return
 	}
@@ -133,7 +133,7 @@ func (w *Worker) processJob(job database.BackupJob) {
 	backupPath := filepath.Join(backupDir, filename)
 
 	exporter := export.NewExporter(w.db, w.dataDir)
-	
+
 	var userIDs []uuid.UUID
 	if job.UserIDs != "" {
 		for _, idStr := range strings.Split(job.UserIDs, ",") {
@@ -166,7 +166,7 @@ func (w *Worker) processJob(job database.BackupJob) {
 
 	completedAt := time.Now()
 	expiresAt := completedAt.Add(24 * time.Hour)
-	
+
 	job.Status = "completed"
 	job.Progress = 100
 	job.FilePath = backupPath
@@ -174,7 +174,7 @@ func (w *Worker) processJob(job database.BackupJob) {
 	job.FileSize = stat.Size()
 	job.CompletedAt = &completedAt
 	job.ExpiresAt = &expiresAt
-	
+
 	w.db.Save(&job)
 }
 
@@ -264,16 +264,16 @@ func DeleteBackupJob(db *gorm.DB, jobID uuid.UUID, adminUserID uuid.UUID) error 
 func EnsureWorkerRunning(db *gorm.DB) {
 	globalWorkerMu.Lock()
 	defer globalWorkerMu.Unlock()
-	
+
 	// If worker exists and is running, nothing to do
 	if globalWorker != nil && globalWorker.IsRunning() {
 		return
 	}
-	
+
 	// Create and start new worker
 	globalWorker = NewWorker(db)
 	globalWorker.Start()
-	logging.Logf("[INFO] Backup worker started on-demand")
+	logging.Logf("[BACKUP] Backup worker started on-demand")
 }
 
 // IsRunning returns true if the worker is currently running
@@ -287,21 +287,21 @@ func (w *Worker) IsRunning() bool {
 func GetWorkerStatus() map[string]interface{} {
 	globalWorkerMu.Lock()
 	defer globalWorkerMu.Unlock()
-	
+
 	if globalWorker == nil {
 		return map[string]interface{}{
-			"exists": false,
+			"exists":  false,
 			"running": false,
 		}
 	}
-	
+
 	globalWorker.mu.RLock()
 	status := map[string]interface{}{
-		"exists": true,
-		"running": globalWorker.running,
+		"exists":           true,
+		"running":          globalWorker.running,
 		"empty_poll_count": globalWorker.emptyPollCount,
 	}
 	globalWorker.mu.RUnlock()
-	
+
 	return status
 }

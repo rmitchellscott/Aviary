@@ -227,7 +227,6 @@
     "reset_password_description": "Restablecer la contraseña para el usuario: ",
     "confirm_restore_title": "Confirmar Restauración de Datos",
     "confirm_restore_description": "Estás a punto de restaurar desde el archivo de respaldo: ",
-    "backup_contents": "Contenido del Respaldo:",
     "restore_warning_text": "Esto sobrescribirá permanentemente todos los datos actuales incluyendo:",
     "restore_warning_items": {
     "accounts": "Todas las cuentas de usuario y configuraciones",

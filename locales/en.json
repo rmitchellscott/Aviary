@@ -227,7 +227,6 @@
       "reset_password_description": "Reset the password for user: ",
       "confirm_restore_title": "Confirm Data Restore",
       "confirm_restore_description": "You are about to restore from backup file: ",
-      "backup_contents": "Backup Contents:",
       "restore_warning_text": "This will permanently overwrite all current data including:",
       "restore_warning_items": {
         "accounts": "All user accounts and settings",

@@ -227,7 +227,6 @@
       "reset_password_description": "Passwort zurücksetzen für Benutzer: ",
       "confirm_restore_title": "Datenwiederherstellung bestätigen",
       "confirm_restore_description": "Sie sind dabei, aus der Backup-Datei wiederherzustellen: ",
-      "backup_contents": "Backup-Inhalte:",
       "restore_warning_text": "Dies wird alle aktuellen Daten dauerhaft überschreiben, einschließlich:",
       "restore_warning_items": {
         "accounts": "Alle Benutzerkonten und Einstellungen",
