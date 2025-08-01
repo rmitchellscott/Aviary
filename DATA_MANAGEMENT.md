@@ -149,6 +149,9 @@ ls -la filesystem/configs/*/
 > [!IMPORTANT]  
 > Restore operations are destructive. Always backup current data first.
 
+> [!NOTE]  
+> Uploaded restore files and extracted archives are stored in temporary system storage (`/tmp`) and are automatically cleaned up after restoration or when cancelled.
+
 1. Navigate to Admin Panel → System Settings → Backup & Restore
 2. Click "Upload Restore"
 3. Select and upload your `.tar.gz` backup file

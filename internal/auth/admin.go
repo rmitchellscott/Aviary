@@ -591,7 +591,7 @@ func RestoreDatabaseHandler(c *gin.Context) {
 	database.DB.Delete(&restoreUpload)
 
 	// Clean up ALL extraction temp directories
-	extractionsDir := filepath.Join(dataDir, "temp", "extractions")
+	extractionsDir := filepath.Join(os.TempDir(), "aviary-extractions")
 	if _, err := os.Stat(extractionsDir); err == nil {
 		if err := os.RemoveAll(extractionsDir); err != nil {
 			logging.Logf("[WARNING] Failed to cleanup extractions directory %s: %v", extractionsDir, err)
