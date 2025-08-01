@@ -53,6 +53,30 @@ func RunMigrations(logPrefix string) error {
 				return nil
 			},
 		},
+		{
+			ID: "202508010001_add_restore_extraction_jobs",
+			Migrate: func(tx *gorm.DB) error {
+				// Create the restore_extraction_jobs table
+				if err := tx.AutoMigrate(&RestoreExtractionJob{}); err != nil {
+					return fmt.Errorf("failed to create restore_extraction_jobs table: %w", err)
+				}
+				
+				// Ensure foreign key constraints are created with CASCADE
+				if err := tx.Migrator().CreateConstraint(&RestoreExtractionJob{}, "AdminUser"); err != nil {
+					logging.Logf("[WARNING] Could not create CASCADE constraint for restore_extraction_jobs.admin_user_id: %v", err)
+				}
+				
+				if err := tx.Migrator().CreateConstraint(&RestoreExtractionJob{}, "RestoreUpload"); err != nil {
+					logging.Logf("[WARNING] Could not create CASCADE constraint for restore_extraction_jobs.restore_upload_id: %v", err)
+				}
+				
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				// Drop the restore_extraction_jobs table
+				return tx.Migrator().DropTable(&RestoreExtractionJob{})
+			},
+		},
 	})
 
 	// Set initial schema if this is a fresh database

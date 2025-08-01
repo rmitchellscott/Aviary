@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/database"
+	"github.com/rmitchellscott/aviary/internal/logging"
 	"github.com/rmitchellscott/aviary/internal/version"
 	"gorm.io/gorm"
 )
@@ -26,6 +27,8 @@ type ExportMetadata struct {
 	TotalDocuments  int64     `json:"total_documents"`
 	TotalSizeBytes  int64     `json:"total_size_bytes"`
 	ExportedTables  []string  `json:"exported_tables"`
+	TotalUsers      int       `json:"total_users"`     // Total number of users in backup
+	TotalAPIKeys    int       `json:"total_api_keys"`  // Total number of API keys in backup
 }
 
 // ExportOptions configures what to include in the export
@@ -157,6 +160,22 @@ func (e *Exporter) exportDatabase(dbDir string, metadata *ExportMetadata, option
 	}
 
 	metadata.ExportedTables = exportedTables
+	
+	// Count total users and API keys for metadata
+	var userCount int64
+	var apiKeyCount int64
+	
+	// Count all users (not just exported ones)
+	if err := database.DB.Model(&database.User{}).Count(&userCount).Error; err != nil {
+		logging.Logf("[WARNING] Failed to count users for metadata: %v", err)
+	}
+	metadata.TotalUsers = int(userCount)
+	
+	// Count all API keys
+	if err := database.DB.Model(&database.APIKey{}).Count(&apiKeyCount).Error; err != nil {
+		logging.Logf("[WARNING] Failed to count API keys for metadata: %v", err)
+	}
+	metadata.TotalAPIKeys = int(apiKeyCount)
 	
 	return nil
 }

@@ -23,6 +23,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/handlers"
 	"github.com/rmitchellscott/aviary/internal/logging"
 	"github.com/rmitchellscott/aviary/internal/manager"
+	"github.com/rmitchellscott/aviary/internal/restore"
 	"github.com/rmitchellscott/aviary/internal/version"
 	"github.com/rmitchellscott/aviary/internal/webhook"
 )
@@ -61,12 +62,23 @@ func main() {
 		}
 
 		manager.InitializeUserFolderCache(database.DB)
-		
-		// Start backup worker for background backup processing
-		backupWorker := backup.NewWorker(database.DB)
-		backupWorker.Start()
-		defer backupWorker.Stop()
-		logging.Logf("[STARTUP] Backup worker started")
+
+		// Check if continuous worker mode is enabled
+		if config.Get("WORKERS_ALWAYS_ON", "") == "true" {
+			// Legacy continuous mode for high-frequency usage scenarios
+			backupWorker := backup.NewWorker(database.DB)
+			backupWorker.Start()
+			defer backupWorker.Stop()
+			
+			extractionWorker := restore.NewExtractionWorker(database.DB)
+			extractionWorker.Start()
+			defer extractionWorker.Stop()
+			
+			logging.Logf("[STARTUP] Background workers started in continuous mode (WORKERS_ALWAYS_ON=true)")
+		} else {
+			// Default on-demand mode for resource efficiency
+			logging.Logf("[STARTUP] Background workers configured for on-demand startup (set WORKERS_ALWAYS_ON=true for continuous mode)")
+		}
 		
 	}
 
@@ -207,6 +219,7 @@ func main() {
 		admin.POST("/restore/upload", auth.UploadRestoreFileHandler) // POST /api/admin/restore/upload - upload restore file
 		admin.GET("/restore/uploads", auth.GetRestoreUploadsHandler) // GET /api/admin/restore/uploads - get pending uploads
 		admin.POST("/restore/uploads/:id/analyze", auth.AnalyzeRestoreUploadHandler) // POST /api/admin/restore/uploads/:id/analyze - analyze uploaded restore file
+		admin.GET("/restore/uploads/:id/extraction-status", auth.GetExtractionStatusHandler) // GET /api/admin/restore/uploads/:id/extraction-status - get extraction progress
 		admin.DELETE("/restore/uploads/:id", auth.DeleteRestoreUploadHandler) // DELETE /api/admin/restore/uploads/:id - delete restore upload
 		admin.POST("/restore", auth.RestoreDatabaseHandler)      // POST /api/admin/restore - restore from backup
 	}

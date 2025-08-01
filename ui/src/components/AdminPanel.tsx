@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useUserData } from "@/hooks/useUserData";
 import { useConfig } from "@/hooks/useConfig";
+import { useAuth } from "@/components/AuthProvider";
 import { UserDeleteDialog } from "@/components/UserDeleteDialog";
 import {
   Dialog,
@@ -185,6 +186,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const { t } = useTranslation();
   const { user: currentUser } = useUserData();
   const { config } = useConfig();
+  const { logout } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
@@ -272,6 +274,16 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       if (interval) clearInterval(interval);
     };
   }, [isOpen, backupJobs]);
+
+  const fetchWithSessionCheck = async (url: string, options?: RequestInit) => {
+    const response = await fetch(url, options);
+    if (response.status === 401) {
+      logout();
+      window.location.href = '/';
+      throw new Error('Session expired after restore. Please log in again.');
+    }
+    return response;
+  };
 
   const fetchSystemStatus = async () => {
     try {
@@ -836,16 +848,24 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       if (response.ok) {
         setRestoreConfirmDialog({ isOpen: false, upload: null });
         setError(null);
-        // Extract filename from the uploaded file
         const filename = restoreConfirmDialog.upload?.filename || 'backup file';
         const message = t("admin.success.backup_restored", { filename });
         setSuccessMessage(message);
-        // Refresh system status after restore
-        await fetchSystemStatus();
-        await fetchUsers();
-        await fetchAPIKeys();
-        await fetchBackupJobs();
-        await fetchRestoreUploads();
+        try {
+          await fetchWithSessionCheck("/api/admin/status", { credentials: "include" });
+          await fetchWithSessionCheck("/api/users", { credentials: "include" });
+          await fetchWithSessionCheck("/api/admin/api-keys", { credentials: "include" });
+          await fetchWithSessionCheck("/api/admin/backup-jobs", { credentials: "include" });
+          await fetchWithSessionCheck("/api/admin/restore/uploads", { credentials: "include" });
+          
+          await fetchSystemStatus();
+          await fetchUsers();
+          await fetchAPIKeys();
+          await fetchBackupJobs();
+          await fetchRestoreUploads();
+        } catch (error) {
+          return;
+        }
       } else {
         setError(result.error_type ? t(`admin.errors.${result.error_type}`) : t("admin.errors.restore_failed"));
       }

@@ -230,6 +230,32 @@ func (r *RestoreUpload) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+// RestoreExtractionJob represents a background tar extraction operation for restore
+type RestoreExtractionJob struct {
+	ID              uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	AdminUserID     uuid.UUID `gorm:"type:uuid;not null;index" json:"admin_user_id"`
+	RestoreUploadID uuid.UUID `gorm:"type:uuid;not null;index" json:"restore_upload_id"`
+	Status          string    `gorm:"size:50;not null;default:pending" json:"status"`
+	Progress        int       `gorm:"default:0" json:"progress"`
+	StatusMessage   string    `gorm:"type:text" json:"status_message,omitempty"`
+	ErrorMessage    string    `gorm:"type:text" json:"error_message,omitempty"`
+	ExtractedPath   string    `gorm:"size:1000" json:"extracted_path,omitempty"`
+	StartedAt       *time.Time `json:"started_at,omitempty"`
+	CompletedAt     *time.Time `json:"completed_at,omitempty"`
+	CreatedAt       time.Time  `json:"created_at"`
+	
+	// Associations
+	AdminUser     User          `gorm:"foreignKey:AdminUserID;constraint:OnDelete:CASCADE" json:"-"`
+	RestoreUpload RestoreUpload `gorm:"foreignKey:RestoreUploadID;constraint:OnDelete:CASCADE" json:"-"`
+}
+
+func (r *RestoreExtractionJob) BeforeCreate(tx *gorm.DB) error {
+	if r.ID == uuid.Nil {
+		r.ID = uuid.New()
+	}
+	return nil
+}
+
 
 // GetAllModels returns all models for auto-migration
 func GetAllModels() []interface{} {
@@ -243,5 +269,6 @@ func GetAllModels() []interface{} {
 		&LoginAttempt{},
 		&BackupJob{},
 		&RestoreUpload{},
+		&RestoreExtractionJob{},
 	}
 }

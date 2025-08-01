@@ -16,6 +16,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/export"
 	"github.com/rmitchellscott/aviary/internal/logging"
+	"github.com/rmitchellscott/aviary/internal/restore"
 	"github.com/rmitchellscott/aviary/internal/smtp"
 )
 
@@ -94,7 +95,7 @@ func GetSystemStatusHandler(c *gin.Context) {
 		"settings": gin.H{
 			"registration_enabled":  registrationEnabled,
 			"max_api_keys_per_user": maxAPIKeys,
-			},
+		},
 		"auth": gin.H{
 			"oidc_enabled":       oidcEnabled,
 			"proxy_auth_enabled": proxyAuthEnabled,
@@ -200,12 +201,17 @@ func CleanupDataHandler(c *gin.Context) {
 		return
 	}
 
+	// Cleanup expired extraction jobs
+	if err := restore.CleanupExpiredExtractions(database.DB); err != nil {
+		logging.Logf("[WARNING] Failed to cleanup expired extraction jobs: %v", err)
+		// Don't fail the whole cleanup if extraction cleanup fails
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "Data cleanup completed successfully",
 	})
 }
-
 
 // AnalyzeBackupHandler analyzes a backup file and returns metadata without restoring (admin only)
 func AnalyzeBackupHandler(c *gin.Context) {
@@ -337,10 +343,45 @@ func AnalyzeRestoreUploadHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
+	// Check if analysis already extracted files (for old backup format)
+	var extractionJob *database.RestoreExtractionJob
+	if analysis.ExtractionPath != "" {
+		// Analysis already extracted files, create completed extraction job
+		logging.Logf("[INFO] Analysis already extracted files, reusing extraction from: %s", analysis.ExtractionPath)
+		extractionJob, err = restore.CreateCompletedExtractionJob(database.DB, user.ID, uploadID, analysis.ExtractionPath)
+		if err != nil {
+			logging.Logf("[WARNING] Failed to create completed extraction job for upload %s: %v", uploadID, err)
+			// Fall back to creating pending extraction job
+			extractionJob, err = restore.CreateExtractionJob(database.DB, user.ID, uploadID)
+			if err == nil {
+				restore.EnsureWorkerRunning(database.DB)
+			}
+		}
+	} else {
+		// Analysis used fast path, create normal extraction job
+		extractionJob, err = restore.CreateExtractionJob(database.DB, user.ID, uploadID)
+		if err != nil {
+			logging.Logf("[WARNING] Failed to create extraction job for upload %s: %v", uploadID, err)
+			// Don't fail the analysis - just log the warning
+			// The restore can still work synchronously if needed
+		} else {
+			// Start extraction worker on-demand to process the job
+			restore.EnsureWorkerRunning(database.DB)
+		}
+	}
+
+	response := gin.H{
 		"valid":    true,
 		"metadata": analysis,
-	})
+	}
+
+	// Include extraction job ID if created successfully
+	if extractionJob != nil {
+		response["extraction_job_id"] = extractionJob.ID
+		logging.Logf("[INFO] Started extraction job %s for upload %s", extractionJob.ID, uploadID)
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 // UploadRestoreFileHandler uploads a restore file and returns upload ID (admin only)
@@ -418,12 +459,12 @@ func UploadRestoreFileHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"upload_id": uploadID,
-		"filename":  filename,
-		"status":    "uploaded",
-		"file_size": fileInfo.Size(),
+		"upload_id":  uploadID,
+		"filename":   filename,
+		"status":     "uploaded",
+		"file_size":  fileInfo.Size(),
 		"expires_at": restoreUpload.ExpiresAt,
-		"message":   "File uploaded successfully. Ready for restore.",
+		"message":    "File uploaded successfully. Ready for restore.",
 	})
 }
 
@@ -492,7 +533,32 @@ func RestoreDatabaseHandler(c *gin.Context) {
 		UserIDs:           userIDs,
 	}
 
-	_, err = importer.Import(restoreUpload.FilePath, importOptions)
+	// Check if we have a completed extraction job for this upload
+	extractionJob, err := restore.GetExtractionJobByUpload(database.DB, uploadID, user.ID)
+	if err == nil && extractionJob.Status == "completed" && extractionJob.ExtractedPath != "" {
+		// Use pre-extracted files for faster restore
+		logging.Logf("[INFO] Using pre-extracted files from job %s: %s", extractionJob.ID, extractionJob.ExtractedPath)
+		_, err = importer.ImportFromExtractedDirectory(extractionJob.ExtractedPath, importOptions)
+	} else {
+		// Check if extraction is still in progress
+		if err == nil && (extractionJob.Status == "pending" || extractionJob.Status == "extracting") {
+			// Wait for extraction to complete (with timeout)
+			logging.Logf("[INFO] Waiting for extraction job %s to complete...", extractionJob.ID)
+			extractedPath, waitErr := waitForExtractionCompletion(extractionJob, 5*time.Minute)
+			if waitErr != nil {
+				logging.Logf("[WARNING] Extraction wait failed, falling back to direct import: %v", waitErr)
+				// Fall back to traditional sync method
+				_, err = importer.Import(restoreUpload.FilePath, importOptions)
+			} else {
+				// Use the completed extraction
+				logging.Logf("[INFO] Using pre-extracted files after wait: %s", extractedPath)
+				_, err = importer.ImportFromExtractedDirectory(extractedPath, importOptions)
+			}
+		} else {
+			// No extraction job or it failed - use original archive
+			_, err = importer.Import(restoreUpload.FilePath, importOptions)
+		}
+	}
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error_type": "restore_import_failed",
@@ -516,6 +582,16 @@ func RestoreDatabaseHandler(c *gin.Context) {
 	// Clean up the uploaded file and database record
 	os.Remove(restoreUpload.FilePath)
 	database.DB.Delete(&restoreUpload)
+
+	// Clean up ALL extraction temp directories
+	extractionsDir := filepath.Join(dataDir, "temp", "extractions")
+	if _, err := os.Stat(extractionsDir); err == nil {
+		if err := os.RemoveAll(extractionsDir); err != nil {
+			logging.Logf("[WARNING] Failed to cleanup extractions directory %s: %v", extractionsDir, err)
+		} else {
+			logging.Logf("[RESTORE] Cleaned up extraction temp directory: %s", extractionsDir)
+		}
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -572,6 +648,13 @@ func DeleteRestoreUploadHandler(c *gin.Context) {
 		return
 	}
 
+	// Clean up any associated extraction job
+	if extractionJob, err := restore.GetExtractionJobByUpload(database.DB, uploadID, user.ID); err == nil {
+		if cleanupErr := restore.CleanupExtractionJob(database.DB, extractionJob.ID, user.ID); cleanupErr != nil {
+			logging.Logf("[WARNING] Failed to cleanup extraction job %s: %v", extractionJob.ID, cleanupErr)
+		}
+	}
+
 	// Delete the file
 	if restoreUpload.FilePath != "" {
 		os.Remove(restoreUpload.FilePath)
@@ -587,6 +670,53 @@ func DeleteRestoreUploadHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
+	})
+}
+
+// GetExtractionStatusHandler returns the status of a restore extraction job
+func GetExtractionStatusHandler(c *gin.Context) {
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Extraction status not available in single-user mode"})
+		return
+	}
+
+	user, ok := RequireAdmin(c)
+	if !ok {
+		return
+	}
+
+	// Get upload ID from URL parameter
+	uploadIDStr := c.Param("id")
+	uploadID, err := uuid.Parse(uploadIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error_type": "invalid_upload_id"})
+		return
+	}
+
+	// Find extraction job for this upload
+	extractionJob, err := restore.GetExtractionJobByUpload(database.DB, uploadID, user.ID)
+	if err != nil {
+		// No extraction job found - this is normal if extraction hasn't started
+		c.JSON(http.StatusOK, gin.H{
+			"status":     "not_started",
+			"progress":   0,
+			"message":    "Extraction not yet started",
+			"job_exists": false,
+		})
+		return
+	}
+
+	// Return job status
+	c.JSON(http.StatusOK, gin.H{
+		"job_id":         extractionJob.ID,
+		"status":         extractionJob.Status,
+		"progress":       extractionJob.Progress,
+		"message":        extractionJob.StatusMessage,
+		"error":          extractionJob.ErrorMessage,
+		"started_at":     extractionJob.StartedAt,
+		"completed_at":   extractionJob.CompletedAt,
+		"extracted_path": extractionJob.ExtractedPath,
+		"job_exists":     true,
 	})
 }
 
@@ -625,6 +755,9 @@ func CreateBackupJobHandler(c *gin.Context) {
 		})
 		return
 	}
+
+	// Start backup worker on-demand to process the job
+	backup.EnsureWorkerRunning(database.DB)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -768,3 +901,40 @@ func DeleteBackupJobHandler(c *gin.Context) {
 	})
 }
 
+// waitForExtractionCompletion waits for an extraction job to complete with timeout
+func waitForExtractionCompletion(job *database.RestoreExtractionJob, timeout time.Duration) (string, error) {
+	startTime := time.Now()
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			// Check if timeout exceeded
+			if time.Since(startTime) > timeout {
+				return "", fmt.Errorf("extraction timeout after %v", timeout)
+			}
+
+			// Refresh job status from database
+			if err := database.DB.First(job, job.ID).Error; err != nil {
+				return "", fmt.Errorf("failed to refresh job status: %w", err)
+			}
+
+			switch job.Status {
+			case "completed":
+				if job.ExtractedPath != "" {
+					logging.Logf("[INFO] Extraction job %s completed, using extracted path: %s", job.ID, job.ExtractedPath)
+					return job.ExtractedPath, nil
+				}
+				return "", fmt.Errorf("extraction completed but no extracted path available")
+			case "failed":
+				return "", fmt.Errorf("extraction failed: %s", job.ErrorMessage)
+			case "pending", "extracting":
+				// Continue waiting
+				continue
+			default:
+				return "", fmt.Errorf("unknown extraction status: %s", job.Status)
+			}
+		}
+	}
+}

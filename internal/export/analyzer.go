@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/rmitchellscott/aviary/internal/logging"
 	"gorm.io/gorm"
@@ -28,6 +29,7 @@ type BackupAnalysis struct {
 	UsersExported   []string               `json:"users_exported"`
 	Errors          []string               `json:"errors,omitempty"`
 	Warnings        []string               `json:"warnings,omitempty"`
+	ExtractionPath  string                 `json:"extraction_path,omitempty"` // Path if already extracted during analysis
 }
 
 // Analyzer handles analyzing backup files
@@ -101,9 +103,17 @@ func (a *Analyzer) tryFastAnalysis(archivePath string) (*BackupAnalysis, error) 
 		TotalSizeBytes:  metadata.TotalSizeBytes,
 		ExportedTables:  metadata.ExportedTables,
 		UsersExported:   metadata.UsersExported,
+		UserCount:       metadata.TotalUsers,    // Use from metadata if available
+		APIKeyCount:     metadata.TotalAPIKeys,  // Use from metadata if available
 	}
 
-	// We can't get database counts from just metadata, but that's OK for fast analysis
+	// Check if this is an old backup without user/API key counts
+	if metadata.TotalUsers == 0 && metadata.TotalAPIKeys == 0 && len(metadata.ExportedTables) > 0 {
+		// Old backup format - add warning and return nil to trigger full extraction
+		logging.Logf("[ANALYZE] Old backup format detected (missing user/API key counts), falling back to full extraction")
+		return nil, nil
+	}
+
 	return analysis, nil
 }
 
@@ -122,22 +132,32 @@ func (a *Analyzer) AnalyzeBackup(archivePath string) (*BackupAnalysis, error) {
 	}
 	// If fast analysis didn't work (old archive format or error), fall back to full extraction
 
-	// Create temporary directory for extraction
-	tempDir, err := os.MkdirTemp("", "aviary-analyze-*")
-	if err != nil {
-		return nil, fmt.Errorf("failed to create temp directory: %w", err)
+	// Create permanent extraction directory for reuse (instead of temp directory)
+	extractionsDir := filepath.Join(a.dataDir, "temp", "extractions")
+	if err := os.MkdirAll(extractionsDir, 0755); err != nil {
+		return nil, fmt.Errorf("failed to create extractions directory: %w", err)
 	}
-	defer os.RemoveAll(tempDir)
+	
+	// Generate unique directory name for this analysis
+	extractionID := fmt.Sprintf("analyze-%d", time.Now().UnixNano())
+	extractionDir := filepath.Join(extractionsDir, extractionID)
+	
+	// Cleanup function for error cases
+	cleanup := func() {
+		os.RemoveAll(extractionDir)
+	}
 
-	// Extract entire archive for analysis (eliminates double extraction)
-	if err := ExtractTarGz(archivePath, tempDir); err != nil {
+	// Extract entire archive for analysis
+	if err := ExtractTarGz(archivePath, extractionDir); err != nil {
+		cleanup()
 		return nil, fmt.Errorf("failed to extract archive: %w", err)
 	}
 
 	// Read metadata
-	metadataPath := filepath.Join(tempDir, "metadata.json")
+	metadataPath := filepath.Join(extractionDir, "metadata.json")
 	var metadata ExportMetadata
 	if err := readJSON(metadataPath, &metadata); err != nil {
+		cleanup()
 		return &BackupAnalysis{
 			Valid:  false,
 			Errors: []string{"Failed to read metadata.json: " + err.Error()},
@@ -154,10 +174,11 @@ func (a *Analyzer) AnalyzeBackup(archivePath string) (*BackupAnalysis, error) {
 		TotalSizeBytes:  metadata.TotalSizeBytes,
 		ExportedTables:  metadata.ExportedTables,
 		UsersExported:   metadata.UsersExported,
+		ExtractionPath:  extractionDir, // Set extraction path for reuse
 	}
 
 	// Analyze database files
-	dbDir := filepath.Join(tempDir, "database")
+	dbDir := filepath.Join(extractionDir, "database")
 	if stat, err := os.Stat(dbDir); err == nil && stat.IsDir() {
 		if err := a.analyzeDatabaseFiles(dbDir, analysis); err != nil {
 			analysis.Warnings = append(analysis.Warnings, "Failed to analyze database files: "+err.Error())
@@ -167,7 +188,15 @@ func (a *Analyzer) AnalyzeBackup(archivePath string) (*BackupAnalysis, error) {
 	}
 
 	// Validate backup structure
-	a.validateBackupStructure(tempDir, analysis)
+	a.validateBackupStructure(extractionDir, analysis)
+
+	// If analysis failed, cleanup the extraction directory
+	if !analysis.Valid {
+		cleanup()
+		analysis.ExtractionPath = "" // Clear extraction path if invalid
+	} else {
+		logging.Logf("[ANALYZE] Full extraction completed, preserved at: %s", extractionDir)
+	}
 
 	return analysis, nil
 }

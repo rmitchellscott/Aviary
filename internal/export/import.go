@@ -76,6 +76,39 @@ func (i *Importer) Import(archivePath string, options ImportOptions) (*ExportMet
 	return &metadata, nil
 }
 
+// ImportFromExtractedDirectory imports from an already-extracted directory
+func (i *Importer) ImportFromExtractedDirectory(extractedDir string, options ImportOptions) (*ExportMetadata, error) {
+	// Read metadata
+	metadataPath := filepath.Join(extractedDir, "metadata.json")
+	var metadata ExportMetadata
+	if err := readJSON(metadataPath, &metadata); err != nil {
+		return nil, fmt.Errorf("failed to read metadata: %w", err)
+	}
+
+	// Validate compatibility
+	if err := i.validateMetadata(&metadata); err != nil {
+		return nil, fmt.Errorf("backup validation failed: %w", err)
+	}
+
+	// Import database if present
+	dbDir := filepath.Join(extractedDir, "database")
+	if _, err := os.Stat(dbDir); err == nil {
+		if err := i.importDatabase(dbDir, options); err != nil {
+			return nil, fmt.Errorf("failed to import database: %w", err)
+		}
+	}
+
+	// Import filesystem if present
+	fsDir := filepath.Join(extractedDir, "filesystem")
+	if _, err := os.Stat(fsDir); err == nil {
+		if err := i.importFilesystem(fsDir, options); err != nil {
+			return nil, fmt.Errorf("failed to import filesystem: %w", err)
+		}
+	}
+
+	return &metadata, nil
+}
+
 // importDatabase imports all JSON files back to database tables
 func (i *Importer) importDatabase(dbDir string, options ImportOptions) error {
 	// Get the import order - dependencies first
