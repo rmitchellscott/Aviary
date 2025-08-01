@@ -12,16 +12,22 @@ import (
 	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/export"
+	"github.com/rmitchellscott/aviary/internal/logging"
 	"gorm.io/gorm"
 )
 
 type Worker struct {
-	db      *gorm.DB
-	dataDir string
-	mu      sync.RWMutex
-	running bool
-	quit    chan struct{}
+	db            *gorm.DB
+	dataDir       string
+	mu            sync.RWMutex
+	running       bool
+	quit          chan struct{}
+	emptyPollCount int
 }
+
+// Global worker instance for on-demand management
+var globalWorker *Worker
+var globalWorkerMu sync.Mutex
 
 func NewWorker(db *gorm.DB) *Worker {
 	dataDir := config.Get("DATA_DIR", "")
@@ -79,6 +85,27 @@ func (w *Worker) processPendingJobs() {
 	if err := w.db.Where("status = ?", "pending").Order("created_at ASC").Find(&jobs).Error; err != nil {
 		return
 	}
+
+	if len(jobs) == 0 {
+		// No jobs found, increment empty poll counter
+		w.mu.Lock()
+		w.emptyPollCount++
+		emptyPolls := w.emptyPollCount
+		w.mu.Unlock()
+		
+		// Auto-shutdown after 6 empty polls (30 seconds with 5s interval)
+		if emptyPolls >= 6 {
+			logging.Logf("[INFO] Backup worker shutting down after %d empty polls", emptyPolls)
+			w.Stop()
+			return
+		}
+		return
+	}
+
+	// Reset empty poll counter when jobs are found
+	w.mu.Lock()
+	w.emptyPollCount = 0
+	w.mu.Unlock()
 
 	for _, job := range jobs {
 		w.processJob(job)
@@ -231,4 +258,50 @@ func DeleteBackupJob(db *gorm.DB, jobID uuid.UUID, adminUserID uuid.UUID) error 
 
 	// Delete the job record
 	return db.Delete(&job).Error
+}
+
+// EnsureWorkerRunning starts the backup worker if it's not already running
+func EnsureWorkerRunning(db *gorm.DB) {
+	globalWorkerMu.Lock()
+	defer globalWorkerMu.Unlock()
+	
+	// If worker exists and is running, nothing to do
+	if globalWorker != nil && globalWorker.IsRunning() {
+		return
+	}
+	
+	// Create and start new worker
+	globalWorker = NewWorker(db)
+	globalWorker.Start()
+	logging.Logf("[INFO] Backup worker started on-demand")
+}
+
+// IsRunning returns true if the worker is currently running
+func (w *Worker) IsRunning() bool {
+	w.mu.RLock()
+	defer w.mu.RUnlock()
+	return w.running
+}
+
+// GetWorkerStatus returns the current status of the global worker for debugging
+func GetWorkerStatus() map[string]interface{} {
+	globalWorkerMu.Lock()
+	defer globalWorkerMu.Unlock()
+	
+	if globalWorker == nil {
+		return map[string]interface{}{
+			"exists": false,
+			"running": false,
+		}
+	}
+	
+	globalWorker.mu.RLock()
+	status := map[string]interface{}{
+		"exists": true,
+		"running": globalWorker.running,
+		"empty_poll_count": globalWorker.emptyPollCount,
+	}
+	globalWorker.mu.RUnlock()
+	
+	return status
 }

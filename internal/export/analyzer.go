@@ -3,12 +3,14 @@ package export
 import (
 	"archive/tar"
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
+	"github.com/rmitchellscott/aviary/internal/logging"
 	"gorm.io/gorm"
 )
 
@@ -27,6 +29,7 @@ type BackupAnalysis struct {
 	UsersExported   []string               `json:"users_exported"`
 	Errors          []string               `json:"errors,omitempty"`
 	Warnings        []string               `json:"warnings,omitempty"`
+	ExtractionPath  string                 `json:"extraction_path,omitempty"` // Path if already extracted during analysis
 }
 
 // Analyzer handles analyzing backup files
@@ -43,24 +46,118 @@ func NewAnalyzer(db *gorm.DB, dataDir string) *Analyzer {
 	}
 }
 
+// tryFastAnalysis attempts to read metadata.json if it's the first file in the archive
+func (a *Analyzer) tryFastAnalysis(archivePath string) (*BackupAnalysis, error) {
+	file, err := os.Open(archivePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	gzReader, err := gzip.NewReader(file)
+	if err != nil {
+		return nil, err
+	}
+	defer gzReader.Close()
+
+	tarReader := tar.NewReader(gzReader)
+
+	var header *tar.Header
+	for {
+		h, err := tarReader.Next()
+		if err != nil {
+			return nil, err
+		}
+		
+		if strings.HasPrefix(h.Name, "._") {
+			continue
+		}
+		
+		header = h
+		break
+	}
+
+	if header.Name != "metadata.json" {
+		logging.Logf("[ANALYZE] Archive uses old format (first file: %s), falling back to full extraction", header.Name)
+		return nil, nil
+	}
+
+	logging.Logf("[ANALYZE] Found metadata.json as first file, parsing from fast path")
+	
+	// Parse metadata directly from the tar stream
+	var metadata ExportMetadata
+	if err := json.NewDecoder(tarReader).Decode(&metadata); err != nil {
+		return nil, fmt.Errorf("failed to decode metadata: %w", err)
+	}
+	
+	logging.Logf("[ANALYZE] Successfully parsed metadata.json from fast path")
+
+	// Create analysis from metadata
+	analysis := &BackupAnalysis{
+		Valid:           true,
+		AviaryVersion:   metadata.AviaryVersion,
+		GitCommit:       metadata.GitCommit,
+		ExportTimestamp: metadata.ExportTimestamp.Format("2006-01-02 15:04:05 UTC"),
+		DatabaseType:    metadata.DatabaseType,
+		DocumentCount:   metadata.TotalDocuments,
+		TotalSizeBytes:  metadata.TotalSizeBytes,
+		ExportedTables:  metadata.ExportedTables,
+		UsersExported:   metadata.UsersExported,
+		UserCount:       metadata.TotalUsers,    // Use from metadata if available
+		APIKeyCount:     metadata.TotalAPIKeys,  // Use from metadata if available
+	}
+
+	// Check if this is an old backup without user/API key counts
+	if metadata.TotalUsers == 0 && metadata.TotalAPIKeys == 0 && len(metadata.ExportedTables) > 0 {
+		// Old backup format - add warning and return nil to trigger full extraction
+		logging.Logf("[ANALYZE] Old backup format detected (missing user/API key counts), falling back to full extraction")
+		return nil, nil
+	}
+
+	return analysis, nil
+}
+
 // AnalyzeBackup analyzes a backup file and returns metadata without restoring
 func (a *Analyzer) AnalyzeBackup(archivePath string) (*BackupAnalysis, error) {
-	// Create temporary directory for extraction
-	tempDir, err := os.MkdirTemp("", "aviary-analyze-*")
-	if err != nil {
-		return nil, fmt.Errorf("failed to create temp directory: %w", err)
+	logging.Logf("[ANALYZE] Attempting fast analysis for archive: %s", archivePath)
+	
+	// Try fast analysis first (for new archives with metadata.json first)
+	if analysis, err := a.tryFastAnalysis(archivePath); err == nil && analysis != nil {
+		logging.Logf("[ANALYZE] Fast analysis succeeded - using metadata.json from archive start")
+		return analysis, nil
+	} else if err != nil {
+		logging.Logf("[ANALYZE] Fast analysis failed, falling back to full extraction: %v", err)
+	} else {
+		logging.Logf("[ANALYZE] Fast analysis returned nil (old archive format), falling back to full extraction")
 	}
-	defer os.RemoveAll(tempDir)
+	// If fast analysis didn't work (old archive format or error), fall back to full extraction
 
-	// Extract only metadata and database files for analysis
-	if err := a.extractForAnalysis(archivePath, tempDir); err != nil {
+	// Create permanent extraction directory for reuse (instead of temp directory)
+	extractionsDir := filepath.Join(a.dataDir, "temp", "extractions")
+	if err := os.MkdirAll(extractionsDir, 0755); err != nil {
+		return nil, fmt.Errorf("failed to create extractions directory: %w", err)
+	}
+	
+	// Generate unique directory name for this analysis
+	extractionID := fmt.Sprintf("analyze-%d", time.Now().UnixNano())
+	extractionDir := filepath.Join(extractionsDir, extractionID)
+	
+	// Cleanup function for error cases
+	cleanup := func() {
+		os.RemoveAll(extractionDir)
+	}
+
+	// Extract entire archive for analysis
+	if err := ExtractTarGz(archivePath, extractionDir); err != nil {
+		cleanup()
 		return nil, fmt.Errorf("failed to extract archive: %w", err)
 	}
 
 	// Read metadata
-	metadataPath := filepath.Join(tempDir, "metadata.json")
+	metadataPath := filepath.Join(extractionDir, "metadata.json")
 	var metadata ExportMetadata
 	if err := readJSON(metadataPath, &metadata); err != nil {
+		cleanup()
 		return &BackupAnalysis{
 			Valid:  false,
 			Errors: []string{"Failed to read metadata.json: " + err.Error()},
@@ -77,10 +174,11 @@ func (a *Analyzer) AnalyzeBackup(archivePath string) (*BackupAnalysis, error) {
 		TotalSizeBytes:  metadata.TotalSizeBytes,
 		ExportedTables:  metadata.ExportedTables,
 		UsersExported:   metadata.UsersExported,
+		ExtractionPath:  extractionDir, // Set extraction path for reuse
 	}
 
 	// Analyze database files
-	dbDir := filepath.Join(tempDir, "database")
+	dbDir := filepath.Join(extractionDir, "database")
 	if stat, err := os.Stat(dbDir); err == nil && stat.IsDir() {
 		if err := a.analyzeDatabaseFiles(dbDir, analysis); err != nil {
 			analysis.Warnings = append(analysis.Warnings, "Failed to analyze database files: "+err.Error())
@@ -90,77 +188,19 @@ func (a *Analyzer) AnalyzeBackup(archivePath string) (*BackupAnalysis, error) {
 	}
 
 	// Validate backup structure
-	a.validateBackupStructure(tempDir, analysis)
+	a.validateBackupStructure(extractionDir, analysis)
+
+	// If analysis failed, cleanup the extraction directory
+	if !analysis.Valid {
+		cleanup()
+		analysis.ExtractionPath = "" // Clear extraction path if invalid
+	} else {
+		logging.Logf("[ANALYZE] Full extraction completed, preserved at: %s", extractionDir)
+	}
 
 	return analysis, nil
 }
 
-// extractForAnalysis extracts only the metadata and database files (not the large filesystem files)
-func (a *Analyzer) extractForAnalysis(archivePath, destDir string) error {
-	file, err := os.Open(archivePath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	gzReader, err := gzip.NewReader(file)
-	if err != nil {
-		return err
-	}
-	defer gzReader.Close()
-
-	tarReader := tar.NewReader(gzReader)
-
-	for {
-		header, err := tarReader.Next()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return err
-		}
-
-		// Only extract metadata and database directory files for analysis
-		if header.Name == "metadata.json" || strings.HasPrefix(header.Name, "database/") {
-			destPath := filepath.Join(destDir, header.Name)
-
-			// Security check
-			if !strings.HasPrefix(destPath, filepath.Clean(destDir)+string(os.PathSeparator)) {
-				return fmt.Errorf("invalid file path: %s", header.Name)
-			}
-
-			switch header.Typeflag {
-			case tar.TypeDir:
-				if err := os.MkdirAll(destPath, os.FileMode(header.Mode)); err != nil {
-					return err
-				}
-
-			case tar.TypeReg:
-				if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
-					return err
-				}
-
-				outFile, err := os.Create(destPath)
-				if err != nil {
-					return err
-				}
-
-				if _, err := io.Copy(outFile, tarReader); err != nil {
-					outFile.Close()
-					return err
-				}
-				outFile.Close()
-			}
-		} else {
-			// Skip filesystem files for analysis (they can be very large)
-			if _, err := io.Copy(io.Discard, tarReader); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
 
 // analyzeDatabaseFiles analyzes the database JSON files to get counts
 func (a *Analyzer) analyzeDatabaseFiles(dbDir string, analysis *BackupAnalysis) error {

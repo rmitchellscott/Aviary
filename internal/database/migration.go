@@ -3,13 +3,13 @@ package database
 import (
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/config"
+	"github.com/rmitchellscott/aviary/internal/logging"
 )
 
 // MigrateToMultiUser handles the migration from single-user to multi-user mode
@@ -27,7 +27,7 @@ func MigrateToMultiUser() error {
 	}
 
 	if userCount > 0 {
-		log.Printf("[STARTUP] Users already exist, skipping user creation migration")
+		logging.Logf("[STARTUP] Users already exist, skipping user creation migration")
 		// Still run schema migrations even if users exist
 		return RunMigrations("STARTUP")
 	}
@@ -38,7 +38,7 @@ func MigrateToMultiUser() error {
 	email := config.Get("ADMIN_EMAIL", "")
 
 	if username == "" || password == "" {
-		log.Printf("[STARTUP] AUTH_USERNAME and AUTH_PASSWORD not set - first user will become admin")
+		logging.Logf("[STARTUP] AUTH_USERNAME and AUTH_PASSWORD not set - first user will become admin")
 		return nil
 	}
 
@@ -51,7 +51,7 @@ func MigrateToMultiUser() error {
 		return fmt.Errorf("failed to create admin user: %w", err)
 	}
 
-	log.Printf("[STARTUP] Admin user created: %s (ID: %s)", adminUser.Username, adminUser.ID)
+	logging.Logf("[STARTUP] Admin user created: %s (ID: %s)", adminUser.Username, adminUser.ID)
 
 	// Set default rmapi settings if available
 	if rmapiHost := config.Get("RMAPI_HOST", ""); rmapiHost != "" {
@@ -59,7 +59,7 @@ func MigrateToMultiUser() error {
 			"rmapi_host": rmapiHost,
 		})
 		if err != nil {
-			log.Printf("Warning: failed to set RMAPI_HOST for admin user: %v", err)
+			logging.Logf("[WARNING] failed to set RMAPI_HOST for admin user: %v", err)
 		}
 	}
 
@@ -68,7 +68,7 @@ func MigrateToMultiUser() error {
 			"default_rmdir": rmTargetDir,
 		})
 		if err != nil {
-			log.Printf("Warning: failed to set default_rmdir for admin user: %v", err)
+			logging.Logf("[WARNING] failed to set default_rmdir for admin user: %v", err)
 		}
 	}
 
@@ -81,31 +81,31 @@ func MigrateToMultiUser() error {
 		"coverpage_setting": coverpageSetting,
 	})
 	if err != nil {
-		log.Printf("Warning: failed to set coverpage_setting for admin user: %v", err)
+		logging.Logf("[WARNING] failed to set coverpage_setting for admin user: %v", err)
 	}
 
 	// Migrate API key from environment to database
 	if envApiKey := config.Get("API_KEY", ""); envApiKey != "" {
-		log.Printf("Migrating API_KEY environment variable to database for admin user")
+		logging.Logf("[STARTUP] Migrating API_KEY environment variable to database for admin user")
 		apiKeyService := NewAPIKeyService(DB)
 		_, err := apiKeyService.CreateAPIKeyFromValue(adminUser.ID, "Migrated from API_KEY env var", envApiKey, nil)
 		if err != nil {
-			log.Printf("Warning: failed to migrate API_KEY to database: %v", err)
+			logging.Logf("[WARNING] failed to migrate API_KEY to database: %v", err)
 		} else {
-			log.Printf("Successfully migrated API_KEY to database with never-expiring key")
+			logging.Logf("[STARTUP] Successfully migrated API_KEY to database with never-expiring key")
 		}
 	}
 
 	// Migrate single-user data (rmapi config and files) asynchronously
 	go func() {
 		if err := MigrateSingleUserData(adminUser.ID); err != nil {
-			log.Printf("Warning: failed to migrate single-user data during startup: %v", err)
+			logging.Logf("[WARNING] failed to migrate single-user data during startup: %v", err)
 		}
 	}()
 
 	// Ensure all existing users have coverpage setting set
 	if err := ensureUsersHaveCoverpageSetting(); err != nil {
-		log.Printf("Warning: failed to set coverpage setting for existing users: %v", err)
+		logging.Logf("[WARNING] failed to set coverpage setting for existing users: %v", err)
 	}
 
 	// Run schema migrations after user creation
@@ -116,12 +116,12 @@ func MigrateToMultiUser() error {
 func MigrateSingleUserData(adminUserID uuid.UUID) error {
 	// Copy rmapi config from root to user directory
 	if err := migrateRmapiConfig(adminUserID); err != nil {
-		log.Printf("Warning: failed to migrate rmapi config: %v", err)
+		logging.Logf("[WARNING] failed to migrate rmapi config: %v", err)
 	}
 
 	// Migrate archived files to user directory
 	if err := migrateArchivedFiles(adminUserID); err != nil {
-		log.Printf("Warning: failed to migrate archived files: %v", err)
+		logging.Logf("[WARNING] failed to migrate archived files: %v", err)
 	}
 
 	return nil
@@ -152,22 +152,22 @@ func CleanupOldData() error {
 
 	// Clean up expired sessions
 	if err := userService.CleanupExpiredSessions(); err != nil {
-		log.Printf("Warning: failed to cleanup expired sessions: %v", err)
+		logging.Logf("[WARNING] failed to cleanup expired sessions: %v", err)
 	}
 
 	// Clean up expired reset tokens
 	if err := userService.CleanupExpiredResetTokens(); err != nil {
-		log.Printf("Warning: failed to cleanup expired reset tokens: %v", err)
+		logging.Logf("[WARNING] failed to cleanup expired reset tokens: %v", err)
 	}
 
 	// Clean up expired API keys
 	if err := apiKeyService.CleanupExpiredAPIKeys(); err != nil {
-		log.Printf("Warning: failed to cleanup expired API keys: %v", err)
+		logging.Logf("[WARNING] failed to cleanup expired API keys: %v", err)
 	}
 
 	// Clean up old login attempts (older than 30 days)
 	if err := DB.Where("attempted_at < ?", time.Now().AddDate(0, 0, -30)).Delete(&LoginAttempt{}).Error; err != nil {
-		log.Printf("Warning: failed to cleanup old login attempts: %v", err)
+		logging.Logf("[WARNING] failed to cleanup old login attempts: %v", err)
 	}
 
 	return nil
@@ -224,7 +224,7 @@ func migrateRmapiConfig(adminUserID uuid.UUID) error {
 	// Check if single-user rmapi.conf exists at /root/.config/rmapi/rmapi.conf
 	rootRmapiPath := "/root/.config/rmapi/rmapi.conf"
 	if _, err := os.Stat(rootRmapiPath); os.IsNotExist(err) {
-		log.Printf("No single-user rmapi.conf found to migrate at %s", rootRmapiPath)
+		logging.Logf("[STARTUP] No single-user rmapi.conf found to migrate at %s", rootRmapiPath)
 		return nil
 	}
 
@@ -240,7 +240,7 @@ func migrateRmapiConfig(adminUserID uuid.UUID) error {
 
 	// Check if user already has rmapi config
 	if _, err := os.Stat(userRmapiPath); err == nil {
-		log.Printf("User already has rmapi config, skipping migration")
+		logging.Logf("[STARTUP] User already has rmapi config, skipping migration")
 		return nil
 	}
 
@@ -254,7 +254,7 @@ func migrateRmapiConfig(adminUserID uuid.UUID) error {
 		return fmt.Errorf("failed to copy rmapi config: %w", err)
 	}
 
-	log.Printf("Successfully migrated rmapi.conf from root to user directory: %s", userRmapiPath)
+	logging.Logf("[STARTUP] Successfully migrated rmapi.conf from root to user directory: %s", userRmapiPath)
 	return nil
 }
 
@@ -268,7 +268,7 @@ func migrateArchivedFiles(adminUserID uuid.UUID) error {
 
 	// Check if source directory exists
 	if _, err := os.Stat(sourceDir); os.IsNotExist(err) {
-		log.Printf("No archived files directory found to migrate: %s", sourceDir)
+		logging.Logf("[STARTUP] No archived files directory found to migrate: %s", sourceDir)
 		return nil
 	}
 
@@ -318,7 +318,7 @@ func migrateArchivedFiles(adminUserID uuid.UUID) error {
 		return fmt.Errorf("failed to migrate archived files: %w", err)
 	}
 
-	log.Printf("Successfully migrated archived files from %s to %s", sourceDir, destDir)
+	logging.Logf("[STARTUP] Successfully migrated archived files from %s to %s", sourceDir, destDir)
 	return nil
 }
 
@@ -370,7 +370,7 @@ func ensureUsersHaveCoverpageSetting() error {
 	}
 
 	if result.RowsAffected > 0 {
-		log.Printf("Updated coverpage setting to '%s' for %d existing users", coverpageSetting, result.RowsAffected)
+		logging.Logf("[STARTUP] Updated coverpage setting to '%s' for %d existing users", coverpageSetting, result.RowsAffected)
 	}
 
 	return nil

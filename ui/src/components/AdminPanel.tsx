@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useUserData } from "@/hooks/useUserData";
 import { useConfig } from "@/hooks/useConfig";
+import { useAuth } from "@/components/AuthProvider";
 import { UserDeleteDialog } from "@/components/UserDeleteDialog";
 import {
   Dialog,
@@ -185,13 +186,16 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const { t } = useTranslation();
   const { user: currentUser } = useUserData();
   const { config } = useConfig();
+  const { logout } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [backupJobs, setBackupJobs] = useState<BackupJob[]>([]);
   const [restoreUploads, setRestoreUploads] = useState<RestoreUpload[]>([]);
   const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [creatingBackup, setCreatingBackup] = useState(false);
+  const [restoringBackup, setRestoringBackup] = useState(false);
+  const saving = creatingBackup || restoringBackup;
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   // SMTP test state
@@ -242,7 +246,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     go_version: string;
   } | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
-  const [uploadPhase, setUploadPhase] = useState<'idle' | 'uploading' | 'validating'>('idle');
+  const [uploadPhase, setUploadPhase] = useState<'idle' | 'uploading' | 'extracting' | 'validating'>('idle');
   const [downloadingJobId, setDownloadingJobId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -270,6 +274,16 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       if (interval) clearInterval(interval);
     };
   }, [isOpen, backupJobs]);
+
+  const fetchWithSessionCheck = async (url: string, options?: RequestInit) => {
+    const response = await fetch(url, options);
+    if (response.status === 401) {
+      logout();
+      window.location.href = '/';
+      throw new Error('Session expired after restore. Please log in again.');
+    }
+    return response;
+  };
 
   const fetchSystemStatus = async () => {
     try {
@@ -567,7 +581,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   const handleCreateBackupJob = async () => {
     try {
-      setSaving(true);
+      setCreatingBackup(true);
       setError(null);
 
       const response = await fetch("/api/admin/backup-job", {
@@ -586,7 +600,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     } catch (error) {
       setError(t("admin.errors.backup_create"));
     } finally {
-      setSaving(false);
+      setCreatingBackup(false);
     }
   };
 
@@ -762,11 +776,13 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           const responseData = await response.json();
           const uploadId = responseData.upload_id;
           
-          setUploadPhase('validating');
+          setUploadPhase('extracting');
           setUploadProgress(100);
           
           if (uploadId) {
             try {
+              setUploadPhase('validating');
+              
               const analyzeResponse = await fetch(`/api/admin/restore/uploads/${uploadId}/analyze`, {
                 method: "POST",
                 credentials: "include",
@@ -810,7 +826,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     if (!upload) return;
 
     try {
-      setSaving(true);
+      setRestoringBackup(true);
       setError(null);
       setSuccessMessage(null);
 
@@ -832,23 +848,31 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       if (response.ok) {
         setRestoreConfirmDialog({ isOpen: false, upload: null });
         setError(null);
-        // Extract filename from the uploaded file
         const filename = restoreConfirmDialog.upload?.filename || 'backup file';
         const message = t("admin.success.backup_restored", { filename });
         setSuccessMessage(message);
-        // Refresh system status after restore
-        await fetchSystemStatus();
-        await fetchUsers();
-        await fetchAPIKeys();
-        await fetchBackupJobs();
-        await fetchRestoreUploads();
+        try {
+          await fetchWithSessionCheck("/api/admin/status", { credentials: "include" });
+          await fetchWithSessionCheck("/api/users", { credentials: "include" });
+          await fetchWithSessionCheck("/api/admin/api-keys", { credentials: "include" });
+          await fetchWithSessionCheck("/api/admin/backup-jobs", { credentials: "include" });
+          await fetchWithSessionCheck("/api/admin/restore/uploads", { credentials: "include" });
+          
+          await fetchSystemStatus();
+          await fetchUsers();
+          await fetchAPIKeys();
+          await fetchBackupJobs();
+          await fetchRestoreUploads();
+        } catch (error) {
+          return;
+        }
       } else {
         setError(result.error_type ? t(`admin.errors.${result.error_type}`) : t("admin.errors.restore_failed"));
       }
     } catch (error) {
       setError(t("admin.errors.restore_error") + error.message);
     } finally {
-      setSaving(false);
+      setRestoringBackup(false);
     }
   };
 
@@ -1565,11 +1589,11 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       variant="outline"
                       size="lg"
                       onClick={handleCreateBackupJob}
-                      disabled={saving}
+                      disabled={creatingBackup}
                       className="w-full"
                     >
                       <Database className="h-4 w-4 mr-2" />
-                      {saving ? t("admin.backup.creating_job") : t("admin.backup.create_backup")}
+                      {creatingBackup ? t("admin.backup.creating_job") : t("admin.backup.create_backup")}
                     </Button>
                     
                     {restoreUploads.length === 0 ? (
@@ -1590,6 +1614,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         >
                           <Database className="h-4 w-4 mr-2" />
                           {uploadPhase === 'uploading' ? t("admin.loading_states.uploading") : 
+                           uploadPhase === 'extracting' ? t("admin.loading_states.extracting") :
                            uploadPhase === 'validating' ? t("admin.loading_states.validating") :
                            t("admin.actions.upload_restore")}
                         </Button>
@@ -1606,11 +1631,11 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         variant="default"
                         size="lg"
                         onClick={() => handleRestoreUpload(restoreUploads[0])}
-                        disabled={false}
+                        disabled={restoringBackup}
                         className="w-full"
                       >
                         <Database className="h-4 w-4 mr-2" />
-                        {t("admin.actions.restore_backup")}
+                        {restoringBackup ? t("admin.loading_states.restoring") : t("admin.actions.restore_backup")}
                       </Button>
                     )}
                   </div>
@@ -1843,17 +1868,17 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel 
-              disabled={saving}
+              disabled={restoringBackup}
               onClick={cancelRestoreUpload}
             >
               {t("admin.actions.cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDatabaseRestore}
-              disabled={saving}
+              disabled={restoringBackup}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {saving ? t("admin.loading_states.restoring") : t("admin.actions.restore_database")}
+              {restoringBackup ? t("admin.loading_states.restoring") : t("admin.actions.restore_database")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

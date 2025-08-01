@@ -5,13 +5,13 @@ package converter
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/rmitchellscott/aviary/internal/config"
+	"github.com/rmitchellscott/aviary/internal/logging"
 )
 
 // defaultRemarkable2Resolution and defaultRemarkable2DPI are Remarkable 2’s
@@ -106,8 +106,8 @@ func ConvertImageToPDF(imgPath string) (string, error) {
 	outPDF := filepath.Join(filepath.Dir(imgPath), base+".pdf")
 
 	// --- LOGGING FOR DIAGNOSIS: print computed values ----
-	log.Printf("ConvertImageToPDF: input image = %s", imgPath)
-	log.Printf("ConvertImageToPDF: target resolution = %dx%d px, DPI = %.2f", resWpx, resHpx, dpi)
+	logging.Logf("[CONVERT] ConvertImageToPDF: input image = %s", imgPath)
+	logging.Logf("[CONVERT] ConvertImageToPDF: target resolution = %dx%d px, DPI = %.2f", resWpx, resHpx, dpi)
 
 	// 4. Use ImageMagick’s "convert" to:
 	//    a) Set image density to DPI (so PDF metadata knows dpi)
@@ -132,7 +132,7 @@ func ConvertImageToPDF(imgPath string) (string, error) {
 		"-quality", "100",
 		outPDF,
 	}
-	log.Printf("ConvertImageToPDF: running ImageMagick convert with args: %v", args)
+	logging.Logf("[CONVERT] ConvertImageToPDF: running ImageMagick convert with args: %v", args)
 	cmd := exec.Command("convert", args...)
 
 	// Capture combined stdout+stderr so we can log if conversion fails:
@@ -142,11 +142,11 @@ func ConvertImageToPDF(imgPath string) (string, error) {
 
 	if outputErr := cmd.Run(); outputErr != nil {
 		// Dump the full convert output for diagnosis:
-		log.Printf("ConvertImageToPDF: ImageMagick output:\n%s", buf.String())
+		logging.Logf("[CONVERT] ConvertImageToPDF: ImageMagick output:\n%s", buf.String())
 		return "", fmt.Errorf("imagemagick convert failed (exit: %v): %s", outputErr, buf.String())
 	}
 
-	log.Printf("ConvertImageToPDF: successfully created PDF = %s", outPDF)
+	logging.Logf("[CONVERT] ConvertImageToPDF: successfully created PDF = %s", outPDF)
 	return outPDF, nil
 }
 
@@ -186,8 +186,8 @@ func ConvertImageToPDFWithSettings(imgPath, resolution string, dpi float64) (str
 	outPDF := filepath.Join(filepath.Dir(imgPath), base+".pdf")
 
 	// --- LOGGING FOR DIAGNOSIS: print computed values ----
-	log.Printf("ConvertImageToPDFWithSettings: input image = %s", imgPath)
-	log.Printf("ConvertImageToPDFWithSettings: target resolution = %dx%d px, DPI = %.2f", resWpx, resHpx, finalDPI)
+	logging.Logf("[CONVERT] ConvertImageToPDFWithSettings: input image = %s", imgPath)
+	logging.Logf("[CONVERT] ConvertImageToPDFWithSettings: target resolution = %dx%d px, DPI = %.2f", resWpx, resHpx, finalDPI)
 
 	// 4. Use ImageMagick's "convert" with the same logic as ConvertImageToPDF
 	args := []string{
@@ -200,7 +200,7 @@ func ConvertImageToPDFWithSettings(imgPath, resolution string, dpi float64) (str
 		"-quality", "100",
 		outPDF,
 	}
-	log.Printf("ConvertImageToPDFWithSettings: running ImageMagick convert with args: %v", args)
+	logging.Logf("[CONVERT] ConvertImageToPDFWithSettings: running ImageMagick convert with args: %v", args)
 	cmd := exec.Command("convert", args...)
 
 	// Capture combined stdout+stderr so we can log if conversion fails:
@@ -210,10 +210,10 @@ func ConvertImageToPDFWithSettings(imgPath, resolution string, dpi float64) (str
 
 	if outputErr := cmd.Run(); outputErr != nil {
 		// Dump the full convert output for diagnosis:
-		log.Printf("ConvertImageToPDFWithSettings: ImageMagick output:\n%s", buf.String())
+		logging.Logf("[CONVERT] ConvertImageToPDFWithSettings: ImageMagick output:\n%s", buf.String())
 		return "", fmt.Errorf("imagemagick convert failed (exit: %v): %s", outputErr, buf.String())
 	}
 
-	log.Printf("ConvertImageToPDFWithSettings: successfully created PDF = %s", outPDF)
+	logging.Logf("[CONVERT] ConvertImageToPDFWithSettings: successfully created PDF = %s", outPDF)
 	return outPDF, nil
 }

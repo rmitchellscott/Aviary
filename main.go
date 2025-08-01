@@ -21,7 +21,9 @@ import (
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/downloader"
 	"github.com/rmitchellscott/aviary/internal/handlers"
+	"github.com/rmitchellscott/aviary/internal/logging"
 	"github.com/rmitchellscott/aviary/internal/manager"
+	"github.com/rmitchellscott/aviary/internal/restore"
 	"github.com/rmitchellscott/aviary/internal/version"
 	"github.com/rmitchellscott/aviary/internal/webhook"
 )
@@ -34,7 +36,7 @@ var embeddedUI embed.FS
 
 func main() {
 	_ = godotenv.Load()
-	log.Printf("[STARTUP] Starting %s", version.String())
+	logging.Logf("[STARTUP] Starting %s", version.String())
 
 	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
 		fmt.Println(version.String())
@@ -60,12 +62,23 @@ func main() {
 		}
 
 		manager.InitializeUserFolderCache(database.DB)
-		
-		// Start backup worker for background backup processing
-		backupWorker := backup.NewWorker(database.DB)
-		backupWorker.Start()
-		defer backupWorker.Stop()
-		log.Printf("[STARTUP] Backup worker started")
+
+		// Check if continuous worker mode is enabled
+		if config.Get("WORKERS_ALWAYS_ON", "") == "true" {
+			// Legacy continuous mode for high-frequency usage scenarios
+			backupWorker := backup.NewWorker(database.DB)
+			backupWorker.Start()
+			defer backupWorker.Stop()
+			
+			extractionWorker := restore.NewExtractionWorker(database.DB)
+			extractionWorker.Start()
+			defer extractionWorker.Stop()
+			
+			logging.Logf("[STARTUP] Background workers started in continuous mode (WORKERS_ALWAYS_ON=true)")
+		} else {
+			// Default on-demand mode for resource efficiency
+			logging.Logf("[STARTUP] Background workers configured for on-demand startup (set WORKERS_ALWAYS_ON=true for continuous mode)")
+		}
 		
 	}
 
@@ -85,7 +98,7 @@ func main() {
 	// In single-user mode, just log a warning if not paired - allow UI pairing
 	if !database.IsMultiUserMode() {
 		if !auth.CheckSingleUserPaired() {
-			log.Printf("Warning: No valid rmapi.conf detected. You can pair through the web interface or run 'aviary pair' from the command line.")
+			logging.Logf("[WARNING] No valid rmapi.conf detected. You can pair through the web interface or run 'aviary pair' from the command line.")
 		}
 	}
 
@@ -99,11 +112,11 @@ func main() {
 	auth.SetPostPairingCallback(func(userID string, singleUserMode bool) {
 		if singleUserMode {
 			if err := manager.RefreshFolderCache(); err != nil {
-				log.Printf("Failed to refresh folder cache after pairing: %v", err)
+				logging.Logf("[WARNING] Failed to refresh folder cache after pairing: %v", err)
 			}
 		} else {
 			if err := manager.RefreshUserFolderCache(userID); err != nil {
-				log.Printf("Failed to refresh folder cache after pairing for user %s: %v", userID, err)
+				logging.Logf("[WARNING] Failed to refresh folder cache after pairing for user %s: %v", userID, err)
 			}
 		}
 	})
@@ -206,6 +219,7 @@ func main() {
 		admin.POST("/restore/upload", auth.UploadRestoreFileHandler) // POST /api/admin/restore/upload - upload restore file
 		admin.GET("/restore/uploads", auth.GetRestoreUploadsHandler) // GET /api/admin/restore/uploads - get pending uploads
 		admin.POST("/restore/uploads/:id/analyze", auth.AnalyzeRestoreUploadHandler) // POST /api/admin/restore/uploads/:id/analyze - analyze uploaded restore file
+		admin.GET("/restore/uploads/:id/extraction-status", auth.GetExtractionStatusHandler) // GET /api/admin/restore/uploads/:id/extraction-status - get extraction progress
 		admin.DELETE("/restore/uploads/:id", auth.DeleteRestoreUploadHandler) // DELETE /api/admin/restore/uploads/:id - delete restore upload
 		admin.POST("/restore", auth.RestoreDatabaseHandler)      // POST /api/admin/restore - restore from backup
 	}
@@ -256,12 +270,12 @@ func main() {
 			http.ServeFileFS(c.Writer, c.Request, uiFS, p)
 		})
 	} else {
-		log.Println("DISABLE_UI is set → running in API-only mode (no UI).")
+		logging.Logf("[STARTUP] DISABLE_UI is set → running in API-only mode (no UI).")
 		router.NoRoute(func(c *gin.Context) {
 			c.AbortWithStatus(http.StatusNotFound)
 		})
 	}
 
-	log.Printf("[STARTUP] Listening on %s…", addr)
+	logging.Logf("[STARTUP] Listening on %s…", addr)
 	log.Fatal(http.ListenAndServe(addr, router))
 }
