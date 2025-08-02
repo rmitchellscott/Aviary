@@ -2,8 +2,11 @@ package database
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/go-gormigrate/gormigrate/v2"
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/logging"
 	"gorm.io/gorm"
 )
@@ -80,6 +83,79 @@ func RunMigrations(logPrefix string) error {
 			Rollback: func(tx *gorm.DB) error {
 				// Drop the restore_extraction_jobs table
 				return tx.Migrator().DropTable(&RestoreExtractionJob{})
+			},
+		},
+		{
+			ID: "202508020001_add_rmapi_config_to_users",
+			Migrate: func(tx *gorm.DB) error {
+				// Add rmapi_config column to users table
+				if !tx.Migrator().HasColumn(&User{}, "rmapi_config") {
+					if err := tx.Migrator().AddColumn(&User{}, "rmapi_config"); err != nil {
+						return fmt.Errorf("failed to add rmapi_config column: %w", err)
+					}
+					logging.Logf("[MIGRATE] Added rmapi_config column to users table")
+				}
+
+				// Only migrate in multi-user mode and if we're not in a test environment
+				if !IsMultiUserMode() {
+					logging.Logf("[MIGRATE] Skipping rmapi config migration - not in multi-user mode")
+					return nil
+				}
+
+				// Migrate existing filesystem configs to database
+				dataDir := config.Get("DATA_DIR", "")
+				if dataDir == "" {
+					dataDir = "/data"
+				}
+
+				usersDir := filepath.Join(dataDir, "users")
+				if _, err := os.Stat(usersDir); os.IsNotExist(err) {
+					logging.Logf("[MIGRATE] No users directory found, skipping config migration")
+					return nil
+				}
+
+				// Get all users
+				var users []User
+				if err := tx.Find(&users).Error; err != nil {
+					return fmt.Errorf("failed to get users for config migration: %w", err)
+				}
+
+				migratedCount := 0
+				for _, user := range users {
+					// Skip if user already has config in database
+					if user.RmapiConfig != "" {
+						continue
+					}
+
+					// Check for filesystem config
+					configPath := filepath.Join(usersDir, user.ID.String(), "rmapi", "rmapi.conf")
+					if _, err := os.Stat(configPath); os.IsNotExist(err) {
+						continue
+					}
+
+					// Read filesystem config
+					configContent, err := os.ReadFile(configPath)
+					if err != nil {
+						logging.Logf("[MIGRATE] Warning: failed to read config for user %s: %v", user.Username, err)
+						continue
+					}
+
+					// Update user with config content
+					if err := tx.Model(&user).Update("rmapi_config", string(configContent)).Error; err != nil {
+						logging.Logf("[MIGRATE] Warning: failed to save config for user %s: %v", user.Username, err)
+						continue
+					}
+
+					migratedCount++
+					logging.Logf("[MIGRATE] Migrated rmapi config for user %s", user.Username)
+				}
+
+				logging.Logf("[MIGRATE] Migrated %d rmapi configs from filesystem to database", migratedCount)
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				// Remove rmapi_config column
+				return tx.Migrator().DropColumn(&User{}, "rmapi_config")
 			},
 		},
 	})

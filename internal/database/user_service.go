@@ -268,3 +268,8 @@ func (s *UserService) DeleteUser(userID uuid.UUID) error {
 		return nil
 	})
 }
+
+// SaveUserRmapiConfig saves the rmapi configuration content to the database
+func (s *UserService) SaveUserRmapiConfig(userID uuid.UUID, configContent string) error {
+	return s.db.Model(&User{}).Where("id = ?", userID).Update("rmapi_config", configContent).Error
+}

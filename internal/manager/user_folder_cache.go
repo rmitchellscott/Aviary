@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
+	"github.com/rmitchellscott/aviary/internal/rmapi"
 	"gorm.io/gorm"
 )
 
@@ -72,7 +73,7 @@ func (s *UserFolderCacheService) getUserNextRefresh(user *database.User) time.Ti
 // GetUserFolders returns the cached folders for a user, refreshing if necessary
 func (s *UserFolderCacheService) GetUserFolders(userID uuid.UUID, force bool) ([]string, error) {
 	// Check if user is paired before attempting to get folders
-	if !IsUserPaired(userID) {
+	if !rmapi.IsUserPaired(userID) {
 		return nil, fmt.Errorf("user %s not paired", userID)
 	}
 
@@ -275,7 +276,7 @@ func (s *UserFolderCacheService) refreshActiveUserCaches() {
 			time.Sleep(time.Duration(delay) * s.rateLimitDelay)
 
 			// Check if user is paired before attempting refresh
-			if !IsUserPaired(uid) {
+			if !rmapi.IsUserPaired(uid) {
 				// Skip refresh for unpaired users (will be logged as error)
 				return
 			}

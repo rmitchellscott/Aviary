@@ -25,6 +25,7 @@ type User struct {
 	ConflictResolution string `gorm:"column:conflict_resolution;default:abort" json:"conflict_resolution"`
 	PageResolution string `gorm:"column:page_resolution" json:"page_resolution,omitempty"`
 	PageDPI float64 `gorm:"column:page_dpi" json:"page_dpi,omitempty"`
+	RmapiConfig string `gorm:"column:rmapi_config;type:text" json:"-"` // Never return config in JSON
 	
 	// Password reset
 	ResetToken        string    `gorm:"index" json:"-"`

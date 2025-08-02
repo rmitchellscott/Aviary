@@ -12,6 +12,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/database"
+	"github.com/rmitchellscott/aviary/internal/rmapi"
 	"github.com/rmitchellscott/aviary/internal/smtp"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -189,7 +190,7 @@ func RegisterHandler(c *gin.Context) {
 		IsAdmin:            newUser.IsAdmin,
 		IsActive:           newUser.IsActive,
 		RmapiHost:          newUser.RmapiHost,
-		RmapiPaired:        isUserPaired(newUser.ID),
+		RmapiPaired:        rmapi.IsUserPaired(newUser.ID),
 		DefaultRmdir:       newUser.DefaultRmdir,
 		CoverpageSetting:   newUser.CoverpageSetting,
 		ConflictResolution: newUser.ConflictResolution,
@@ -294,7 +295,7 @@ func MultiUserLoginHandler(c *gin.Context) {
 			IsAdmin:            user.IsAdmin,
 			IsActive:           user.IsActive,
 			RmapiHost:          user.RmapiHost,
-			RmapiPaired:        isUserPaired(user.ID),
+			RmapiPaired:        rmapi.IsUserPaired(user.ID),
 			DefaultRmdir:       user.DefaultRmdir,
 			CoverpageSetting:   user.CoverpageSetting,
 			ConflictResolution: user.ConflictResolution,
@@ -401,7 +402,7 @@ func GetCurrentUserHandler(c *gin.Context) {
 		IsAdmin:            user.IsAdmin,
 		IsActive:           user.IsActive,
 		RmapiHost:          user.RmapiHost,
-		RmapiPaired:        isUserPaired(user.ID),
+		RmapiPaired:        rmapi.IsUserPaired(user.ID),
 		DefaultRmdir:       user.DefaultRmdir,
 		CoverpageSetting:   user.CoverpageSetting,
 		ConflictResolution: user.ConflictResolution,
@@ -477,7 +478,7 @@ func MultiUserCheckAuthHandler(c *gin.Context) {
 			IsAdmin:            user.IsAdmin,
 			IsActive:           user.IsActive,
 			RmapiHost:          user.RmapiHost,
-			RmapiPaired:        isUserPaired(user.ID),
+			RmapiPaired:        rmapi.IsUserPaired(user.ID),
 			DefaultRmdir:       user.DefaultRmdir,
 			CoverpageSetting:   user.CoverpageSetting,
 			ConflictResolution: user.ConflictResolution,

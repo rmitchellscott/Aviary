@@ -219,7 +219,7 @@ func GetDatabaseStats() (map[string]interface{}, error) {
 	return stats, nil
 }
 
-// migrateRmapiConfig copies the root rmapi.conf file to the admin user's directory
+// migrateRmapiConfig migrates the root rmapi.conf file to the admin user's database
 func migrateRmapiConfig(adminUserID uuid.UUID) error {
 	// Check if single-user rmapi.conf exists at /root/.config/rmapi/rmapi.conf
 	rootRmapiPath := "/root/.config/rmapi/rmapi.conf"
@@ -228,33 +228,29 @@ func migrateRmapiConfig(adminUserID uuid.UUID) error {
 		return nil
 	}
 
-	// Get the user's rmapi config path using local logic to avoid import cycle
-	baseDir := config.Get("DATA_DIR", "")
-	if baseDir == "" {
-		baseDir = "/data"
+	// Check if user already has rmapi config in database
+	var user User
+	if err := DB.Select("rmapi_config").Where("id = ?", adminUserID).First(&user).Error; err != nil {
+		return fmt.Errorf("failed to check existing rmapi config: %w", err)
 	}
-
-	userDir := filepath.Join(baseDir, "users", adminUserID.String())
-	cfgDir := filepath.Join(userDir, "rmapi")
-	userRmapiPath := filepath.Join(cfgDir, "rmapi.conf")
-
-	// Check if user already has rmapi config
-	if _, err := os.Stat(userRmapiPath); err == nil {
-		logging.Logf("[STARTUP] User already has rmapi config, skipping migration")
+	
+	if user.RmapiConfig != "" {
+		logging.Logf("[STARTUP] User already has rmapi config in database, skipping migration")
 		return nil
 	}
 
-	// Ensure the rmapi config directory exists
-	if err := os.MkdirAll(cfgDir, 0755); err != nil {
-		return fmt.Errorf("failed to create rmapi config directory: %w", err)
+	// Read config content directly from source
+	configContent, err := os.ReadFile(rootRmapiPath)
+	if err != nil {
+		return fmt.Errorf("failed to read rmapi config from %s: %w", rootRmapiPath, err)
 	}
 
-	// Copy the file
-	if err := copyFile(rootRmapiPath, userRmapiPath); err != nil {
-		return fmt.Errorf("failed to copy rmapi config: %w", err)
+	// Save config content to database
+	if err := SaveUserRmapiConfig(adminUserID, string(configContent)); err != nil {
+		return fmt.Errorf("failed to save rmapi config to database during migration: %w", err)
 	}
 
-	logging.Logf("[STARTUP] Successfully migrated rmapi.conf from root to user directory: %s", userRmapiPath)
+	logging.Logf("[STARTUP] Successfully migrated rmapi.conf from %s to database for admin user", rootRmapiPath)
 	return nil
 }
 

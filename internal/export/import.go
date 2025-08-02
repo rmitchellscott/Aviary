@@ -381,6 +381,11 @@ func (i *Importer) importFilesystem(fsDir string, options ImportOptions) error {
 		if err := i.importUserFiles(configsDir, "rmapi", options); err != nil {
 			return fmt.Errorf("failed to import configs: %w", err)
 		}
+
+		// After importing configs to filesystem, also populate database
+		if err := i.populateDatabaseConfigsFromFilesystem(options); err != nil {
+			logging.Logf("[RESTORE] Warning: failed to populate database configs: %v", err)
+		}
 	}
 
 	return nil
@@ -634,6 +639,9 @@ func mapUserRecord(data map[string]interface{}, user *database.User) error {
 	if resetToken, ok := data["reset_token"].(string); ok {
 		user.ResetToken = resetToken
 	}
+	if rmapiConfig, ok := data["rmapi_config"].(string); ok {
+		user.RmapiConfig = rmapiConfig
+	}
 	// Skip verification_token field (removed from model)
 
 	// Handle integer fields
@@ -820,6 +828,68 @@ func copyFileWithValidation(src, dst string) error {
 	// Copy permissions
 	if err := os.Chmod(dst, srcInfo.Mode()); err != nil {
 		return fmt.Errorf("failed to set file permissions: %w", err)
+	}
+
+	return nil
+}
+
+// populateDatabaseConfigsFromFilesystem reads restored rmapi configs from filesystem
+// and populates the database rmapi_config field for users
+func (i *Importer) populateDatabaseConfigsFromFilesystem(options ImportOptions) error {
+	// Only populate in multi-user mode
+	if !database.IsMultiUserMode() {
+		return nil
+	}
+
+	// Get list of users to process
+	var users []database.User
+	query := database.DB
+	
+	if len(options.UserIDs) > 0 {
+		query = query.Where("id IN ?", options.UserIDs)
+	}
+	
+	if err := query.Find(&users).Error; err != nil {
+		return fmt.Errorf("failed to get users: %w", err)
+	}
+
+	populatedCount := 0
+	for _, user := range users {
+		userID := user.ID.String()
+		
+		// Check for restored filesystem config
+		configPath := filepath.Join(i.dataDir, "users", userID, "rmapi", "rmapi.conf")
+		if _, err := os.Stat(configPath); os.IsNotExist(err) {
+			continue
+		}
+
+		// Read config content
+		configContent, err := os.ReadFile(configPath)
+		if err != nil {
+			logging.Logf("[RESTORE] Warning: failed to read config for user %s: %v", user.Username, err)
+			continue
+		}
+
+		// Update user with config content in database
+		if err := database.DB.Model(&user).Update("rmapi_config", string(configContent)).Error; err != nil {
+			logging.Logf("[RESTORE] Warning: failed to save config to database for user %s: %v", user.Username, err)
+			continue
+		}
+
+		// Clean up filesystem rmapi directory after successful database save
+		rmapiDir := filepath.Join(i.dataDir, "users", userID, "rmapi")
+		if err := os.RemoveAll(rmapiDir); err != nil {
+			logging.Logf("[RESTORE] Warning: failed to cleanup rmapi directory for user %s: %v", user.Username, err)
+		} else {
+			logging.Logf("[RESTORE] Cleaned up filesystem rmapi config for user %s", user.Username)
+		}
+
+		populatedCount++
+		logging.Logf("[RESTORE] Populated database config for user %s", user.Username)
+	}
+
+	if populatedCount > 0 {
+		logging.Logf("[RESTORE] Populated %d rmapi configs from filesystem to database", populatedCount)
 	}
 
 	return nil

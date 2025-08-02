@@ -6,7 +6,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/config"
+	"github.com/rmitchellscott/aviary/internal/rmapi"
 )
 
 // folderCache stores the cached folder listing
@@ -62,7 +64,7 @@ func StartFolderCache() {
 // RefreshFolderCache manually triggers a folder cache refresh (single-user mode)
 func RefreshFolderCache() error {
 	// Check if single user is paired before attempting refresh
-	if !IsSingleUserPaired() {
+	if !rmapi.IsUserPaired(uuid.Nil) {
 		return fmt.Errorf("single user not paired")
 	}
 	return refreshFolderCache()
@@ -72,7 +74,7 @@ func RefreshFolderCache() error {
 // in the global cache.
 func refreshFolderCache() error {
 	// Check if single user is paired before attempting refresh
-	if !IsSingleUserPaired() {
+	if !rmapi.IsUserPaired(uuid.Nil) {
 		return fmt.Errorf("single user not paired")
 	}
 
