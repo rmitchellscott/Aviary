@@ -195,7 +195,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [loading, setLoading] = useState(false);
   const [creatingBackup, setCreatingBackup] = useState(false);
   const [restoringBackup, setRestoringBackup] = useState(false);
-  const saving = creatingBackup || restoringBackup;
+  const [testingSMTP, setTestingSMTP] = useState(false);
+  const [creatingUser, setCreatingUser] = useState(false);
+  const [resettingPassword, setResettingPassword] = useState(false);
+  const [analyzingBackup, setAnalyzingBackup] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   // SMTP test state
@@ -379,7 +382,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   const createUser = async () => {
     try {
-      setSaving(true);
+      setCreatingUser(true);
       setError(null);
 
       const response = await fetch("/api/auth/register", {
@@ -408,7 +411,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     } catch (error) {
       setError(t("admin.errors.create_user"));
     } finally {
-      setSaving(false);
+      setCreatingUser(false);
     }
   };
 
@@ -502,7 +505,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     }
 
     try {
-      setSaving(true);
+      setResettingPassword(true);
       const response = await fetch(
         `/api/users/${resetPasswordDialog.user.id}/reset-password`,
         {
@@ -525,7 +528,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     } catch (error) {
       setError(t("admin.errors.reset_password"));
     } finally {
-      setSaving(false);
+      setResettingPassword(false);
     }
   };
 
@@ -550,7 +553,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   const testSMTP = async () => {
     try {
-      setSaving(true);
+      setTestingSMTP(true);
       setError(null);
       setSmtpTestResult(null);
 
@@ -575,7 +578,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       setTimeout(() => setSmtpTestResult(null), 3000);
       setError(t("admin.errors.smtp_test_network"));
     } finally {
-      setSaving(false);
+      setTestingSMTP(false);
     }
   };
 
@@ -714,7 +717,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   const analyzeBackupFile = async (file: File) => {
     try {
-      setSaving(true);
+      setAnalyzingBackup(true);
       setError(null);
       setBackupCounts(null);
 
@@ -743,7 +746,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       setError(t("admin.errors.backup_analyze") + error.message);
       return false;
     } finally {
-      setSaving(false);
+      setAnalyzingBackup(false);
     }
   };
 
@@ -1204,7 +1207,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     >
                       {getSMTPStatusText(systemStatus.smtp.status)}
                     </Badge>
-                    <Button size="sm" onClick={testSMTP} disabled={saving || !systemStatus.smtp.configured}>
+                    <Button size="sm" onClick={testSMTP} disabled={testingSMTP || !systemStatus.smtp.configured}>
                       {t("admin.actions.test_smtp")}
                     </Button>
                   </div>
@@ -1273,7 +1276,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' && newUsername && newEmail && newPassword && !saving) {
+                          if (e.key === 'Enter' && newUsername && newEmail && newPassword && !creatingUser) {
                             createUser();
                           }
                         }}
@@ -1287,7 +1290,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     <Button
                       onClick={createUser}
                       disabled={
-                        saving || !newUsername || !newEmail || !newPassword
+                        creatingUser || !newUsername || !newEmail || !newPassword
                       }
                     >
                       <Plus className="h-4 w-4 mr-2" />
@@ -1609,7 +1612,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           variant="outline"
                           size="lg"
                           onClick={() => fileInputRef.current?.click()}
-                          disabled={saving || uploadPhase !== 'idle'}
+                          disabled={analyzingBackup || uploadPhase !== 'idle'}
                           className="w-full"
                         >
                           <Database className="h-4 w-4 mr-2" />
@@ -1747,7 +1750,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 value={newPasswordValue}
                 onChange={(e) => setNewPasswordValue(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && newPasswordValue.length >= 8 && !saving) {
+                  if (e.key === 'Enter' && newPasswordValue.length >= 8 && !resettingPassword) {
                     confirmResetPassword();
                   }
                 }}
@@ -1763,9 +1766,9 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </Button>
             <Button
               onClick={confirmResetPassword}
-              disabled={saving || newPasswordValue.length < 8}
+              disabled={resettingPassword || newPasswordValue.length < 8}
             >
-              {saving ? t("admin.loading_states.resetting") : t("admin.actions.reset_password")}
+              {resettingPassword ? t("admin.loading_states.resetting") : t("admin.actions.reset_password")}
             </Button>
           </DialogFooter>
         </DialogContent>
