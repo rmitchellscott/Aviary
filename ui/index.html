@@ -4,19 +4,62 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Aviary</title>
+    <meta name="theme-color" id="themeColor" content="#FFFFFF"/>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" />
     <style>
       :root { --font-geist-sans: system-ui, sans-serif; --font-geist-mono: monospace; }
     </style>
     <script>
       (function() {
+        function updateThemeColor(isDark) {
+          const themeColor = isDark ? '#000000' : '#FFFFFF';
+          const themeColorMeta = document.getElementById('themeColor');
+          if (themeColorMeta) {
+            themeColorMeta.setAttribute('content', themeColor);
+          }
+        }
+
         const stored = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const theme = stored === 'light' || stored === 'dark'
           ? stored
           : (prefersDark ? 'dark' : 'light');
-        if (theme === 'dark') {
+        
+        const isDark = theme === 'dark';
+        if (isDark) {
           document.documentElement.classList.add('dark');
         }
+        updateThemeColor(isDark);
+
+        // Listen for system theme changes when using auto/default
+        if (!stored || (stored !== 'light' && stored !== 'dark')) {
+          window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            const systemDark = e.matches;
+            if (systemDark) {
+              document.documentElement.classList.add('dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+            }
+            updateThemeColor(systemDark);
+          });
+        }
+
+        // Watch for any changes to the dark class (from ThemeSwitcher or other sources)
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+              const isDark = document.documentElement.classList.contains('dark');
+              updateThemeColor(isDark);
+            }
+          });
+        });
+
+        observer.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['class']
+        });
+
         try {
           const ac = localStorage.getItem('authConfigured');
           if (ac === 'true') {
@@ -42,5 +85,18 @@
   <body class="antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+    </script>
   </body>
 </html>
