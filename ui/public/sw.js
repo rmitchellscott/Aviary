@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aviary-v1';
+const CACHE_NAME = `aviary-${__BUILD_TIME__}`;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
