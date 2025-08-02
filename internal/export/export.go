@@ -146,8 +146,16 @@ func (e *Exporter) exportDatabase(dbDir string, metadata *ExportMetadata, option
 			query = query.Where("user_id IN ?", options.UserIDs)
 		}
 		
-		if err := query.Model(model).Find(&records).Error; err != nil {
-			return fmt.Errorf("failed to export table %s: %w", tableName, err)
+		// Special handling for users table to include rmapi_config field (has json:"-" tag)
+		if tableName == "users" {
+			// Use Select to explicitly include rmapi_config field despite json:"-" tag
+			if err := query.Model(model).Select("*").Find(&records).Error; err != nil {
+				return fmt.Errorf("failed to export table %s: %w", tableName, err)
+			}
+		} else {
+			if err := query.Model(model).Find(&records).Error; err != nil {
+				return fmt.Errorf("failed to export table %s: %w", tableName, err)
+			}
 		}
 
 		// Write to JSON file

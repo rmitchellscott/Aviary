@@ -4,10 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/auth"
 	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/manager"
+	"github.com/rmitchellscott/aviary/internal/rmapi"
 	"github.com/rmitchellscott/aviary/internal/smtp"
 )
 
@@ -73,7 +75,7 @@ func ConfigHandler(c *gin.Context) {
 		// We don't include it here as it requires user context
 	} else {
 		// In single-user mode, check the global rmapi.conf file
-		rmapiPaired = auth.CheckSingleUserPaired()
+		rmapiPaired = rmapi.IsUserPaired(uuid.Nil)
 	}
 
 	// Check authentication methods (multi-user mode only)

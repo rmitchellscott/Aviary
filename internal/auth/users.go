@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
+	"github.com/rmitchellscott/aviary/internal/rmapi"
 )
 
 // PostPairingCallback is called after successful pairing
@@ -64,21 +65,6 @@ type AdminResetPasswordRequest struct {
 type SelfDeleteRequest struct {
 	CurrentPassword string `json:"current_password" binding:"required"`
 	Confirmation    string `json:"confirmation" binding:"required"`
-}
-
-func isUserPaired(id uuid.UUID) bool {
-	// In DRY_RUN mode, always consider users as paired
-	if config.Get("DRY_RUN", "") != "" {
-		return true
-	}
-
-	baseDir := config.Get("DATA_DIR", "")
-	if baseDir == "" {
-		baseDir = "/data"
-	}
-	cfgPath := filepath.Join(baseDir, "users", id.String(), "rmapi", "rmapi.conf")
-	info, err := os.Stat(cfgPath)
-	return err == nil && info.Size() > 0
 }
 
 // filterEnv removes environment variables with the given prefix from the slice
@@ -158,7 +144,7 @@ func GetUsersHandler(c *gin.Context) {
 			IsAdmin:            user.IsAdmin,
 			IsActive:           user.IsActive,
 			RmapiHost:          user.RmapiHost,
-			RmapiPaired:        isUserPaired(user.ID),
+			RmapiPaired:        rmapi.IsUserPaired(user.ID),
 			DefaultRmdir:       user.DefaultRmdir,
 			CoverpageSetting:   user.CoverpageSetting,
 			ConflictResolution: user.ConflictResolution,
@@ -217,7 +203,7 @@ func GetUserHandler(c *gin.Context) {
 		IsAdmin:            user.IsAdmin,
 		IsActive:           user.IsActive,
 		RmapiHost:          user.RmapiHost,
-		RmapiPaired:        isUserPaired(user.ID),
+		RmapiPaired:        rmapi.IsUserPaired(user.ID),
 		DefaultRmdir:       user.DefaultRmdir,
 		CoverpageSetting:   user.CoverpageSetting,
 		ConflictResolution: user.ConflictResolution,
@@ -527,6 +513,11 @@ func PairRMAPIHandler(c *gin.Context) {
 		return
 	}
 
+	// After successful pairing, save config to database
+	if configContent, err := os.ReadFile(cfgPath); err == nil {
+		database.SaveUserRmapiConfig(user.ID, string(configContent))
+	}
+
 	// Call post-pairing callback if set (async for folder cache refresh)
 	if postPairingCallback != nil {
 		go postPairingCallback(user.ID.String(), false) // false = multi-user mode
@@ -553,6 +544,9 @@ func UnpairRMAPIHandler(c *gin.Context) {
 	}
 	cfgPath := filepath.Join(baseDir, "users", user.ID.String(), "rmapi", "rmapi.conf")
 	_ = os.Remove(cfgPath)
+
+	// Also clear database config
+	database.SaveUserRmapiConfig(user.ID, "")
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }

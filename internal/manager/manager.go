@@ -13,6 +13,7 @@ import (
 
 	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
+	"github.com/rmitchellscott/aviary/internal/rmapi"
 )
 
 // ExecCommand is exec.Command by default, but can be overridden in tests.
@@ -68,6 +69,35 @@ func rmapiCmd(user *database.User, args ...string) *exec.Cmd {
 	}
 	cmd.Env = env
 	return cmd
+}
+
+// rmapiCmdWithCleanup builds an exec.Cmd to run rmapi with user-specific configuration
+// and returns a cleanup function that should be called after the command completes.
+func rmapiCmdWithCleanup(user *database.User, args ...string) (*exec.Cmd, func()) {
+	cmd := ExecCommand("rmapi", args...)
+	env := os.Environ()
+	var tempConfigPath string
+	
+	if user != nil {
+		if user.RmapiHost != "" {
+			env = append(env, "RMAPI_HOST="+user.RmapiHost)
+		} else {
+			// Remove server-level RMAPI_HOST to use official cloud
+			env = filterEnv(env, "RMAPI_HOST")
+		}
+		if cfg, err := GetUserRmapiConfigPath(user.ID); err == nil {
+			env = append(env, "RMAPI_CONFIG="+cfg)
+			tempConfigPath = cfg
+		}
+	}
+	cmd.Env = env
+	
+	// Return cleanup function
+	cleanup := func() {
+		cleanupTempConfigFile(tempConfigPath)
+	}
+	
+	return cmd, cleanup
 }
 
 func Logf(format string, v ...interface{}) {
@@ -200,7 +230,8 @@ func SimpleUpload(path, rmDir string, user *database.User) (string, error) {
 	}
 
 	args = append(args, path, rmDir)
-	cmd := rmapiCmd(user, args...)
+	cmd, cleanup := rmapi.NewCommand(user, args...)
+	defer cleanup()
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		raw := strings.TrimSpace(string(out))
@@ -331,7 +362,8 @@ func RenameAndUpload(path, prefix, rmDir string, user *database.User) (string, e
 	}
 
 	args = append(args, noYearPath, rmDir)
-	cmd := rmapiCmd(user, args...)
+	cmd, cleanup := rmapi.NewCommand(user, args...)
+	defer cleanup()
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		raw := strings.TrimSpace(string(out))
@@ -369,7 +401,8 @@ func CleanupOld(prefix, rmDir string, retentionDays int, user *database.User) er
 	}
 
 	// 1) List remote files
-	proc := rmapiCmd(user, "ls", rmDir)
+	proc, cleanup := rmapi.NewCommand(user, "ls", rmDir)
+	defer cleanup()
 	out, err := proc.Output()
 	if err != nil {
 		return err
@@ -426,7 +459,9 @@ func CleanupOld(prefix, rmDir string, retentionDays int, user *database.User) er
 		if fileDate.Before(cutoff) {
 			Logf("Removing %s (dated %s < %s)",
 				fname, fileDate.Format("2006-01-02"), cutoff.Format("2006-01-02"))
-			rmapiCmd(user, "rm", filepath.Join(rmDir, fname)).Run()
+			rmCmd, rmCleanup := rmapi.NewCommand(user, "rm", filepath.Join(rmDir, fname))
+			rmCmd.Run()
+			rmCleanup()
 		}
 	}
 
