@@ -127,19 +127,15 @@ func PairHandler(c *gin.Context) {
 		return
 	}
 
-	// Get user data directory and create rmapi config directory
-	userDataDir, err := GetUserDataDir(user.ID)
+	// Create temporary directory for rmapi pairing process
+	tempDir, err := os.MkdirTemp("", "rmapi-pair-*")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to determine config path"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create temp directory"})
 		return
 	}
+	defer os.RemoveAll(tempDir)
 	
-	cfgDir := filepath.Join(userDataDir, "rmapi")
-	if err := os.MkdirAll(cfgDir, 0755); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create config directory"})
-		return
-	}
-	cfgPath := filepath.Join(cfgDir, "rmapi.conf")
+	cfgPath := filepath.Join(tempDir, "rmapi.conf")
 
 	// Run rmapi cd command with user-specific configuration
 	cmd := exec.Command("rmapi", "cd")
@@ -185,14 +181,7 @@ func UnpairHandler(c *gin.Context) {
 		return
 	}
 
-	// Remove filesystem config file
-	userDataDir, err := GetUserDataDir(user.ID)
-	if err == nil {
-		cfgPath := filepath.Join(userDataDir, "rmapi", "rmapi.conf")
-		os.Remove(cfgPath)
-	}
-
-	// Clear database config
+	// Clear database config (no filesystem operations needed)
 	SaveUserConfig(user.ID, "")
 
 	c.JSON(http.StatusOK, gin.H{"success": true})

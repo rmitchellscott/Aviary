@@ -26,6 +26,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/manager"
 	"github.com/rmitchellscott/aviary/internal/restore"
 	"github.com/rmitchellscott/aviary/internal/rmapi"
+	"github.com/rmitchellscott/aviary/internal/storage"
 	"github.com/rmitchellscott/aviary/internal/version"
 	"github.com/rmitchellscott/aviary/internal/webhook"
 )
@@ -39,6 +40,11 @@ var embeddedUI embed.FS
 func main() {
 	_ = godotenv.Load()
 	logging.Logf("[STARTUP] Starting %s", version.String())
+
+	// Initialize storage backend early
+	if err := storage.InitializeStorage(); err != nil {
+		log.Fatalf("Failed to initialize storage: %v", err)
+	}
 
 	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
 		fmt.Println(version.String())

@@ -17,7 +17,7 @@ You can start Aviary without an rmapi.conf file and pair through the web interfa
 4. Enter the 8-character code as prompted
 5. The pairing will be completed automatically
 
-**Note:** In single-user mode, both methods write to the same location (`/root/.config/rmapi/rmapi.conf`). In multi-user mode, each user has their own pairing status managed through their profile settings.
+**Note:** In single-user mode, both methods write to the same location (`/root/.config/rmapi/rmapi.conf`). This file is always stored in the filesystem regardless of storage backend configuration, so you must mount `/root/.config/rmapi/` as a volume for persistence. In multi-user mode, each user has their own pairing status stored in the database.
 
 #### Method 2: Command Line Pairing (Recommended for stateless setups)
 Get your device and user token file (rmapi.conf) by running:

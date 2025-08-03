@@ -7,6 +7,7 @@ import (
 
 	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
+	"github.com/rmitchellscott/aviary/internal/logging"
 )
 
 // ExecCommand is exec.Command by default, but can be overridden in tests
@@ -19,7 +20,7 @@ func init() {
 			if len(args) > 0 {
 				cmdStr += " " + strings.Join(args, " ")
 			}
-			// Log dry run command (would need logging import)
+			logging.Logf("[DRY RUN] would run: %s", cmdStr)
 			return exec.Command("true")
 		}
 	}
@@ -31,7 +32,7 @@ func NewCommand(user *database.User, args ...string) (*exec.Cmd, func()) {
 	cmd := ExecCommand("rmapi", args...)
 	env := os.Environ()
 	var tempConfigPath string
-	
+
 	if user != nil {
 		// Set user-specific RMAPI_HOST
 		if user.RmapiHost != "" {
@@ -40,21 +41,21 @@ func NewCommand(user *database.User, args ...string) (*exec.Cmd, func()) {
 			// Remove server-level RMAPI_HOST to use official cloud
 			env = filterEnv(env, "RMAPI_HOST")
 		}
-		
+
 		// Set user-specific config path
 		if cfg, err := GetUserConfigPath(user.ID); err == nil {
 			env = append(env, "RMAPI_CONFIG="+cfg)
 			tempConfigPath = cfg
 		}
 	}
-	
+
 	cmd.Env = env
-	
+
 	// Return cleanup function
 	cleanup := func() {
 		CleanupTempConfigFile(tempConfigPath)
 	}
-	
+
 	return cmd, cleanup
 }
 
@@ -63,7 +64,7 @@ func NewCommand(user *database.User, args ...string) (*exec.Cmd, func()) {
 func NewSimpleCommand(user *database.User, args ...string) *exec.Cmd {
 	cmd := ExecCommand("rmapi", args...)
 	env := os.Environ()
-	
+
 	if user != nil {
 		if user.RmapiHost != "" {
 			env = append(env, "RMAPI_HOST="+user.RmapiHost)
@@ -74,7 +75,7 @@ func NewSimpleCommand(user *database.User, args ...string) *exec.Cmd {
 			env = append(env, "RMAPI_CONFIG="+cfg)
 		}
 	}
-	
+
 	cmd.Env = env
 	return cmd
 }

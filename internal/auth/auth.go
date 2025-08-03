@@ -17,7 +17,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/rmitchellscott/aviary/internal/config"
-	"github.com/rmitchellscott/aviary/internal/database"
 	"golang.org/x/term"
 	"golang.org/x/time/rate"
 )
@@ -351,57 +350,3 @@ func RunPair(stdout, stderr io.Writer) error {
 	return nil
 }
 
-// HandlePairRequest handles pairing for both single-user and multi-user modes
-func HandlePairRequest(c *gin.Context) {
-	if database.IsMultiUserMode() {
-		// In multi-user mode, delegate to the existing handler
-		PairRMAPIHandler(c)
-		return
-	}
-
-	// Single-user mode pairing
-	var req struct {
-		Code string `json:"code" binding:"required"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	// Ensure the rmapi config directory exists
-	home, err := os.UserHomeDir()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to determine home directory"})
-		return
-	}
-
-	cfgDir := filepath.Join(home, ".config", "rmapi")
-	if err := os.MkdirAll(cfgDir, 0755); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create config directory"})
-		return
-	}
-
-	cfgPath := filepath.Join(cfgDir, "rmapi.conf")
-
-	// Run rmapi pairing command
-	cmd := exec.Command("rmapi", "cd")
-	cmd.Stdin = strings.NewReader(req.Code + "\n")
-	env := os.Environ()
-	env = append(env, "RMAPI_CONFIG="+cfgPath)
-	if host := config.Get("RMAPI_HOST", ""); host != "" {
-		env = append(env, "RMAPI_HOST="+host)
-	}
-	cmd.Env = env
-
-	if err := cmd.Run(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Pairing failed"})
-		return
-	}
-
-	// Call post-pairing callback if set (async for folder cache refresh)
-	if GetPostPairingCallback() != nil {
-		go GetPostPairingCallback()("single-user", true) // true = single-user mode
-	}
-
-	c.JSON(http.StatusOK, gin.H{"success": true})
-}

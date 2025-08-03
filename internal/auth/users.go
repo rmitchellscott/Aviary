@@ -2,34 +2,15 @@ package auth
 
 import (
 	"net/http"
-	"os"
-	"os/exec"
-	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/rmapi"
 )
 
-// PostPairingCallback is called after successful pairing
-type PostPairingCallback func(userID string, singleUserMode bool)
-
-// Global callback for post-pairing actions
-var postPairingCallback PostPairingCallback
-
-// SetPostPairingCallback sets the callback to be called after successful pairing
-func SetPostPairingCallback(callback PostPairingCallback) {
-	postPairingCallback = callback
-}
-
-// GetPostPairingCallback returns the current post-pairing callback
-func GetPostPairingCallback() PostPairingCallback {
-	return postPairingCallback
-}
 
 // UpdateUserRequest represents a user update request
 type UpdateUserRequest struct {
@@ -67,16 +48,6 @@ type SelfDeleteRequest struct {
 	Confirmation    string `json:"confirmation" binding:"required"`
 }
 
-// filterEnv removes environment variables with the given prefix from the slice
-func filterEnv(env []string, prefix string) []string {
-	var filtered []string
-	for _, e := range env {
-		if !strings.HasPrefix(e, prefix+"=") {
-			filtered = append(filtered, e)
-		}
-	}
-	return filtered
-}
 
 // GetUsersHandler returns all users (admin only)
 func GetUsersHandler(c *gin.Context) {
@@ -459,97 +430,6 @@ func UpdatePasswordHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
-// PairRMAPIHandler pairs the current user with rmapi using a one-time code.
-func PairRMAPIHandler(c *gin.Context) {
-	if !database.IsMultiUserMode() {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Not available in single-user mode"})
-		return
-	}
-
-	// Mock successful pairing in DRY_RUN mode
-	if config.Get("DRY_RUN", "") != "" {
-		c.JSON(http.StatusOK, gin.H{"success": true})
-		return
-	}
-
-	user, ok := RequireUser(c)
-	if !ok {
-		return
-	}
-
-	var req struct {
-		Code string `json:"code" binding:"required"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	var cfgPath string
-	baseDir := config.Get("DATA_DIR", "")
-	if baseDir == "" {
-		baseDir = "/data"
-	}
-	cfgDir := filepath.Join(baseDir, "users", user.ID.String(), "rmapi")
-	if err := os.MkdirAll(cfgDir, 0755); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to determine config path"})
-		return
-	}
-	cfgPath = filepath.Join(cfgDir, "rmapi.conf")
-
-	cmd := exec.Command("rmapi", "cd")
-	cmd.Stdin = strings.NewReader(req.Code + "\n")
-	env := os.Environ()
-	env = append(env, "RMAPI_CONFIG="+cfgPath)
-	if user.RmapiHost != "" {
-		env = append(env, "RMAPI_HOST="+user.RmapiHost)
-	} else {
-		// Remove server-level RMAPI_HOST to use official cloud
-		env = filterEnv(env, "RMAPI_HOST")
-	}
-	cmd.Env = env
-	if err := cmd.Run(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Pairing failed"})
-		return
-	}
-
-	// After successful pairing, save config to database
-	if configContent, err := os.ReadFile(cfgPath); err == nil {
-		database.SaveUserRmapiConfig(user.ID, string(configContent))
-	}
-
-	// Call post-pairing callback if set (async for folder cache refresh)
-	if postPairingCallback != nil {
-		go postPairingCallback(user.ID.String(), false) // false = multi-user mode
-	}
-
-	c.JSON(http.StatusOK, gin.H{"success": true})
-}
-
-// UnpairRMAPIHandler removes the rmapi configuration for the current user.
-func UnpairRMAPIHandler(c *gin.Context) {
-	if !database.IsMultiUserMode() {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Not available in single-user mode"})
-		return
-	}
-
-	user, ok := RequireUser(c)
-	if !ok {
-		return
-	}
-
-	baseDir := config.Get("DATA_DIR", "")
-	if baseDir == "" {
-		baseDir = "/data"
-	}
-	cfgPath := filepath.Join(baseDir, "users", user.ID.String(), "rmapi", "rmapi.conf")
-	_ = os.Remove(cfgPath)
-
-	// Also clear database config
-	database.SaveUserRmapiConfig(user.ID, "")
-
-	c.JSON(http.StatusOK, gin.H{"success": true})
-}
 
 // AdminUpdatePasswordHandler updates any user's password (admin only)
 func AdminUpdatePasswordHandler(c *gin.Context) {

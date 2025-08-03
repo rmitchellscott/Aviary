@@ -223,3 +223,133 @@ To migrate from PostgreSQL to SQLite:
 ### Single-User to Multi-User Migration
 
 When enabling multi-user mode (`MULTI_USER=true`), Aviary automatically performs a single-user to multi-user migration. For more information, see  [Migration from Single-User Mode](AUTHENTICATION.md#Migration-from-Single-User-Mode).
+
+**Important**: Single-user to multi-user migration requires using the same storage backend. If you need to change storage backends, use the cross-storage-backend migration process below.
+
+## Cross-Storage-Backend Migration
+
+To migrate between different storage backends (e.g., filesystem to S3, or S3 to filesystem), use the backup and restore process:
+
+### Filesystem to S3 Migration
+
+1. **Create a backup** while running with filesystem storage:
+   ```bash
+   # Current environment with filesystem storage
+   STORAGE_BACKEND=filesystem  # or unset (defaults to filesystem)
+   DATA_DIR=/data
+   ```
+   
+2. **Download the backup** from the admin interface
+
+3. **Update environment variables** for S3 storage:
+   ```bash
+   STORAGE_BACKEND=s3
+   S3_ENDPOINT=https://s3.amazonaws.com
+   S3_REGION=us-east-1
+   S3_BUCKET=my-aviary-bucket
+   S3_ACCESS_KEY_ID=your-access-key
+   S3_SECRET_ACCESS_KEY=your-secret-key
+   ```
+
+4. **Restart Aviary** with the new configuration
+
+5. **Restore the backup** through the admin interface
+
+### S3 to Filesystem Migration
+
+1. **Create a backup** while running with S3 storage:
+   ```bash
+   # Current environment with S3 storage
+   STORAGE_BACKEND=s3
+   S3_BUCKET=my-aviary-bucket
+   # ... other S3 config
+   ```
+
+2. **Download the backup** from the admin interface
+
+3. **Update environment variables** for filesystem storage:
+   ```bash
+   STORAGE_BACKEND=filesystem  # or unset (defaults to filesystem)
+   DATA_DIR=/data
+   # Remove S3-specific variables
+   ```
+
+4. **Restart Aviary** with the new configuration
+
+5. **Restore the backup** through the admin interface
+
+### S3 Provider Migration
+
+To migrate between different S3 providers (e.g., AWS S3 to MinIO):
+
+1. **Create a backup** with the current S3 configuration
+2. **Update S3 environment variables** for the new provider:
+   ```bash
+   STORAGE_BACKEND=s3
+   S3_ENDPOINT=https://minio.example.com     # New endpoint
+   S3_BUCKET=new-bucket-name                 # New bucket
+   S3_FORCE_PATH_STYLE=true                  # Often required for MinIO
+   # ... update credentials as needed
+   ```
+3. **Restart Aviary** with the new configuration
+4. **Restore the backup** through the admin interface
+
+### Important Notes
+
+- **Single-user rmapi.conf**: In single-user mode, the `rmapi.conf` file is always stored in the filesystem at `/root/.config/rmapi/rmapi.conf`, regardless of storage backend. Ensure this is properly mounted as a volume for persistence.
+
+- **Backup verification**: Always verify that backups complete successfully before changing storage backends. Check the backup metadata and file counts.
+
+- **Storage backend validation**: The restore process validates that the backup format is compatible with the current storage backend configuration.
+
+- **Temporary storage**: Backup files are temporarily stored in `/tmp` during the restore process and are automatically cleaned up.
+
+## Stateless Container Deployment
+
+### Local Storage Requirements
+
+Regardless of `STORAGE_BACKEND` setting, these components are **always stored locally**:
+
+| Component | Location | Volume Mount Required |
+|-----------|----------|----------------------|
+| SQLite database | `/data/aviary.db` | Yes |
+| Single-user rmapi.conf | `/root/.config/rmapi/rmapi.conf` | Yes |
+| Temporary files | `/tmp` | No (ephemeral) |
+
+### Stateless Configuration
+
+The Aviary container can run **completely stateless** (no volume mounts) only with:
+
+```bash
+MULTI_USER=true           # Multi-user mode
+DB_TYPE=postgres          # External PostgreSQL database  
+STORAGE_BACKEND=s3        # S3-compatible object storage
+# + PostgreSQL and S3 connection details
+```
+
+In this configuration:
+- **Database**: External PostgreSQL server
+- **Documents**: S3-compatible object storage
+- **User configs**: Stored in PostgreSQL database
+- **No local persistence needed**
+
+### Configurations Requiring Volume Mounts
+
+| Configuration | Required Mounts | Reason |
+|---------------|----------------|---------|
+| Single-user mode | `/root/.config/rmapi/` | rmapi.conf always filesystem-based |
+| SQLite database | `/data` | Database file stored locally |
+| Filesystem storage | `/data` | Documents stored locally |
+
+**Example requiring volumes**:
+```bash
+# Single-user with S3 - still needs rmapi.conf mount
+STORAGE_BACKEND=s3
+# Requires: -v ~/.config/rmapi:/root/.config/rmapi
+
+# Multi-user with SQLite - still needs database mount  
+MULTI_USER=true
+DB_TYPE=sqlite
+STORAGE_BACKEND=s3
+# Requires: -v ./data:/data
+```

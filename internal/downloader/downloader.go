@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
@@ -13,8 +14,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rmitchellscott/aviary/internal/config"
-	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/manager"
 )
 
@@ -85,44 +84,14 @@ func DownloadPDF(urlStr string, tmp bool, prefix string, progress func(done, tot
 	return DownloadPDFForUser(urlStr, tmp, prefix, uuid.Nil, progress)
 }
 
-// DownloadPDFForUser fetches the PDF and saves locally for a specific user.
-// tmp==true → user temp dir, else under user PDF dir/prefix.
+// DownloadPDFForUser fetches the PDF and saves to temp directory.
+// The tmp parameter is kept for compatibility but all downloads now go to temp.
+// Archival to storage backend happens later in the pipeline.
 // progress is an optional callback receiving bytes downloaded and total bytes.
 func DownloadPDFForUser(urlStr string, tmp bool, prefix string, userID uuid.UUID, progress func(done, total int64)) (string, error) {
 	// Sanitize prefix before using it in any paths
 	var err error
 	prefix, err = manager.SanitizePrefix(prefix)
-	if err != nil {
-		return "", err
-	}
-
-	// 1) Determine destination directory
-	var destDir string
-	if tmp {
-		if database.IsMultiUserMode() && userID != uuid.Nil {
-			destDir, err = manager.GetUserTempDir(userID)
-		} else {
-			destDir = os.TempDir()
-		}
-	} else {
-		if database.IsMultiUserMode() && userID != uuid.Nil {
-			destDir, err = manager.GetUserPDFDir(userID, prefix)
-		} else {
-			// Single-user mode - use existing logic
-			d := config.Get("PDF_DIR", "")
-			if d == "" {
-				d = "/app/pdfs"
-			}
-			if prefix != "" {
-				d = filepath.Join(d, prefix)
-			}
-			if err := os.MkdirAll(d, 0755); err != nil {
-				return "", err
-			}
-			destDir = d
-		}
-	}
-
 	if err != nil {
 		return "", err
 	}
@@ -171,10 +140,17 @@ func DownloadPDFForUser(urlStr string, tmp bool, prefix string, userID uuid.UUID
 		}
 	}
 
-	// 4) Write to disk
-	outPath := filepath.Join(destDir, name)
+	// 4) Always save to temp file with original filename
+	tempDir, err := ioutil.TempDir("", "aviary-")
+	if err != nil {
+		return "", err
+	}
+	
+	// Use the original filename in the temp directory
+	outPath := filepath.Join(tempDir, name)
 	f, err := os.Create(outPath)
 	if err != nil {
+		os.RemoveAll(tempDir)
 		return "", err
 	}
 	defer f.Close()

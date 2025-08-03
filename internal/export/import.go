@@ -3,6 +3,7 @@ package export
 import (
 	"archive/tar"
 	"compress/gzip"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,20 +15,23 @@ import (
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/logging"
+	"github.com/rmitchellscott/aviary/internal/storage"
 	"gorm.io/gorm"
 )
 
 // Importer handles restoring from backup archives
 type Importer struct {
-	db      *gorm.DB
-	dataDir string
+	db             *gorm.DB
+	dataDir        string
+	storageBackend storage.StorageBackendWithInfo
 }
 
 // NewImporter creates a new importer instance
 func NewImporter(db *gorm.DB, dataDir string) *Importer {
 	return &Importer{
-		db:      db,
-		dataDir: dataDir,
+		db:             db,
+		dataDir:        dataDir,
+		storageBackend: storage.GetStorageBackend(),
 	}
 }
 
@@ -139,53 +143,51 @@ func (i *Importer) importDatabase(dbDir string, options ImportOptions) error {
 	return nil
 }
 
-// cleanupExistingUserDirectories removes existing user directories before restore
+// cleanupExistingUserDirectories removes existing user files before restore
 func (i *Importer) cleanupExistingUserDirectories(options ImportOptions) error {
-	// Get list of existing users in the data directory
-	usersDir := filepath.Join(i.dataDir, "users")
-	if _, err := os.Stat(usersDir); os.IsNotExist(err) {
-		// No users directory exists, nothing to clean up
-		return nil
-	}
-
-	entries, err := os.ReadDir(usersDir)
-	if err != nil {
-		return fmt.Errorf("failed to read users directory: %w", err)
-	}
-
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			continue
+	ctx := context.Background()
+	
+	// Get list of users to clean
+	var userIDsToClean []string
+	
+	if len(options.UserIDs) > 0 {
+		// Clean specific users
+		for _, id := range options.UserIDs {
+			userIDsToClean = append(userIDsToClean, id.String())
 		}
-
-		userID := entry.Name()
-
-		// Validate UUID format
-		if _, err := uuid.Parse(userID); err != nil {
-			continue
+	} else {
+		// Get all users from database
+		var users []database.User
+		if err := database.DB.Find(&users).Error; err != nil {
+			return fmt.Errorf("failed to get users for cleanup: %w", err)
 		}
-
-		// If specific users are specified, only clean those
-		if len(options.UserIDs) > 0 {
-			found := false
-			for _, id := range options.UserIDs {
-				if id.String() == userID {
-					found = true
-					break
-				}
+		for _, user := range users {
+			userIDsToClean = append(userIDsToClean, user.ID.String())
+		}
+	}
+	
+	// Clean files for each user using the storage backend
+	for _, userID := range userIDsToClean {
+		userPrefix := fmt.Sprintf("users/%s/", userID)
+		
+		// List all files for this user
+		keys, err := i.storageBackend.List(ctx, userPrefix)
+		if err != nil {
+			return fmt.Errorf("failed to list files for user %s: %w", userID, err)
+		}
+		
+		// Delete all files
+		for _, key := range keys {
+			if err := i.storageBackend.Delete(ctx, key); err != nil {
+				logging.Logf("[RESTORE] Warning: failed to delete %s: %v", key, err)
 			}
-			if !found {
-				continue
-			}
 		}
-
-		// Remove the entire user directory to ensure clean restore
-		userDir := filepath.Join(usersDir, userID)
-		if err := os.RemoveAll(userDir); err != nil {
-			return fmt.Errorf("failed to remove existing directory for user %s: %w", userID, err)
+		
+		if len(keys) > 0 {
+			logging.Logf("[RESTORE] Cleaned up %d files for user %s", len(keys), userID)
 		}
 	}
-
+	
 	return nil
 }
 
@@ -386,24 +388,25 @@ func (i *Importer) importFilesystem(fsDir string, options ImportOptions) error {
 	return nil
 }
 
-// cleanupExistingBackupDirectory removes all backup files to prevent orphaned files after restore
+// cleanupExistingBackupDirectory removes all backup files from storage backend to prevent orphaned files after restore
 func (i *Importer) cleanupExistingBackupDirectory() error {
-	backupDir := filepath.Join(i.dataDir, "backups")
-
-	// Check if backup directory exists
-	if _, err := os.Stat(backupDir); os.IsNotExist(err) {
-		// No backup directory exists, nothing to clean up
-		return nil
+	ctx := context.Background()
+	
+	// List all backup files in storage backend
+	backupKeys, err := i.storageBackend.List(ctx, "backups/")
+	if err != nil {
+		return fmt.Errorf("failed to list backup files: %w", err)
 	}
-
-	// Remove the entire backup directory and recreate it empty
-	if err := os.RemoveAll(backupDir); err != nil {
-		return fmt.Errorf("failed to remove existing backup directory: %w", err)
+	
+	// Delete each backup file
+	for _, key := range backupKeys {
+		if err := i.storageBackend.Delete(ctx, key); err != nil {
+			logging.Logf("[RESTORE] Warning: failed to delete backup file %s: %v", key, err)
+		}
 	}
-
-	// Recreate the empty backup directory with proper permissions
-	if err := os.MkdirAll(backupDir, 0755); err != nil {
-		return fmt.Errorf("failed to recreate backup directory: %w", err)
+	
+	if len(backupKeys) > 0 {
+		logging.Logf("[RESTORE] Cleaned up %d backup files from storage backend", len(backupKeys))
 	}
 
 	return nil
@@ -411,6 +414,8 @@ func (i *Importer) cleanupExistingBackupDirectory() error {
 
 // importUserFiles imports files for a specific subdirectory (pdfs or rmapi)
 func (i *Importer) importUserFiles(sourceDir, subDir string, options ImportOptions) error {
+	ctx := context.Background()
+	
 	// List user directories
 	entries, err := os.ReadDir(sourceDir)
 	if err != nil {
@@ -444,7 +449,6 @@ func (i *Importer) importUserFiles(sourceDir, subDir string, options ImportOptio
 		}
 
 		sourcePath := filepath.Join(sourceDir, userID)
-		destPath := filepath.Join(i.dataDir, "users", userID, subDir)
 
 		// Check source directory exists and has content
 		sourceInfo, err := os.Stat(sourcePath)
@@ -455,18 +459,65 @@ func (i *Importer) importUserFiles(sourceDir, subDir string, options ImportOptio
 			continue
 		}
 
-		// Create destination directory with proper permissions
-		if err := os.MkdirAll(destPath, 0755); err != nil {
-			return fmt.Errorf("failed to create destination directory %s: %w", destPath, err)
-		}
-
-		// Copy files with detailed logging
-		_, err = copyDirectoryContentsWithLogging(sourcePath, destPath, true) // Always overwrite during restore
+		// Import files from the extracted directory to storage backend
+		err = i.importUserFilesToStorage(ctx, sourcePath, userID, subDir)
 		if err != nil {
-			return fmt.Errorf("failed to copy files for user %s: %w", userID, err)
+			return fmt.Errorf("failed to import files for user %s: %w", userID, err)
 		}
 	}
 
+	return nil
+}
+
+// importUserFilesToStorage imports user files to the storage backend
+func (i *Importer) importUserFilesToStorage(ctx context.Context, sourcePath, userID, subDir string) error {
+	fileCount := 0
+	
+	err := filepath.Walk(sourcePath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return fmt.Errorf("walk error at %s: %w", path, err)
+		}
+		
+		// Skip directories
+		if info.IsDir() {
+			return nil
+		}
+		
+		// Calculate relative path from source
+		relPath, err := filepath.Rel(sourcePath, path)
+		if err != nil {
+			return fmt.Errorf("failed to get relative path for %s: %w", path, err)
+		}
+		
+		// Create storage key
+		storageKey := fmt.Sprintf("users/%s/%s/%s", userID, subDir, strings.ReplaceAll(relPath, "\\", "/"))
+		
+		// Open source file
+		sourceFile, err := os.Open(path)
+		if err != nil {
+			return fmt.Errorf("failed to open source file %s: %w", path, err)
+		}
+		defer sourceFile.Close()
+		
+		// Upload to storage backend
+		err = i.storageBackend.Put(ctx, storageKey, sourceFile)
+		if err != nil {
+			return fmt.Errorf("failed to upload file %s to storage: %w", storageKey, err)
+		}
+		
+		fileCount++
+		if fileCount%10 == 0 {
+			logging.Logf("[RESTORE] Imported %d files for user %s/%s", fileCount, userID, subDir)
+		}
+		
+		return nil
+	})
+	
+	if err != nil {
+		return err
+	}
+	
+	logging.Logf("[RESTORE] Successfully imported %d files for user %s/%s", fileCount, userID, subDir)
 	return nil
 }
 

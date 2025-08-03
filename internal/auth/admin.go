@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -18,6 +19,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/logging"
 	"github.com/rmitchellscott/aviary/internal/restore"
 	"github.com/rmitchellscott/aviary/internal/smtp"
+	"github.com/rmitchellscott/aviary/internal/storage"
 )
 
 // TestSMTPHandler tests SMTP configuration (admin only)
@@ -889,8 +891,10 @@ func DownloadBackupHandler(c *gin.Context) {
 		return
 	}
 
-	// Check if file exists
-	if _, err := os.Stat(job.FilePath); os.IsNotExist(err) {
+	ctx := context.Background()
+	backend := storage.GetStorageBackend()
+	exists, err := backend.Exists(ctx, job.FilePath)
+	if err != nil || !exists {
 		c.JSON(http.StatusNotFound, gin.H{"error_type": "backup_not_found"})
 		return
 	}
@@ -900,8 +904,17 @@ func DownloadBackupHandler(c *gin.Context) {
 	c.Header("Content-Type", "application/gzip")
 	c.Header("Content-Description", "Aviary Backup")
 
-	// Stream file to client
-	c.File(job.FilePath)
+	reader, err := backend.Get(ctx, job.FilePath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve backup file"})
+		return
+	}
+	defer reader.Close()
+	
+	if _, err := io.Copy(c.Writer, reader); err != nil {
+		logging.Logf("[ERROR] Failed to stream backup file: %v", err)
+		return
+	}
 }
 
 // DeleteBackupJobHandler deletes a backup job and its file

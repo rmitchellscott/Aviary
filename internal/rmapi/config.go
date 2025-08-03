@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/google/uuid"
-	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 )
 
@@ -93,21 +92,3 @@ func CleanupTempConfigFile(configPath string) {
 	}
 }
 
-// GetUserDataDir returns the data directory for a specific user
-func GetUserDataDir(userID uuid.UUID) (string, error) {
-	baseDir := config.Get("DATA_DIR", "")
-	if baseDir == "" {
-		baseDir = "/data"
-	}
-	
-	if database.IsMultiUserMode() {
-		userDir := filepath.Join(baseDir, "users", userID.String())
-		if err := os.MkdirAll(userDir, 0755); err != nil {
-			return "", fmt.Errorf("failed to create user data directory: %w", err)
-		}
-		return userDir, nil
-	}
-	
-	// Single-user mode uses base directory directly
-	return baseDir, nil
-}

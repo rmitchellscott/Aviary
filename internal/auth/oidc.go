@@ -510,7 +510,6 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 	return nil
 }
 
-
 // generateState generates a secure random state parameter
 func generateState() (string, error) {
 	bytes := make([]byte, 32)

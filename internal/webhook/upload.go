@@ -17,7 +17,7 @@ import (
 )
 
 // UploadHandler handles a single "file" field plus optional form values.
-// It saves the uploaded file under per-user upload directory, then
+// It saves the uploaded file to temporary storage, then
 // enqueues it for processing (skipping download) and returns a JSON { jobId: "..." }.
 func UploadHandler(c *gin.Context) {
 	// 1) Parse multipart form (allow up to 32 MiB in memory)
@@ -43,7 +43,7 @@ func UploadHandler(c *gin.Context) {
 		fileHeaders = []*multipart.FileHeader{fileHeader}
 	}
 
-	// 3) Determine upload directory based on user context
+	// 3) Determine upload directory based on user context (always use temp for uploads)
 	var uploadDir string
 	var userID uuid.UUID
 	
@@ -53,21 +53,15 @@ func UploadHandler(c *gin.Context) {
 			return // auth.RequireUser already set the response
 		}
 		userID = user.ID
-		uploadDir, err = manager.GetUserUploadDir(userID)
-		if err != nil {
-			c.String(http.StatusInternalServerError, "backend.errors.create_dir")
-			return
-		}
-	} else {
-		// Single-user mode - use ./uploads
-		uploadDir = "./uploads"
-		if err := os.MkdirAll(uploadDir, 0o755); err != nil {
-			c.String(http.StatusInternalServerError, "backend.errors.create_dir")
-			return
-		}
+	}
+	
+	uploadDir, err = manager.CreateUserTempDir(userID)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "backend.errors.create_dir")
+		return
 	}
 
-	// 4) Process each file and save to disk
+	// 4) Process each file and save to temp filesystem location
 	var savedPaths []string
 	for _, fileHeader := range fileHeaders {
 		// Open the uploaded file
@@ -78,7 +72,7 @@ func UploadHandler(c *gin.Context) {
 		}
 		defer src.Close()
 
-		// Create destination file on disk
+		// Create destination file in temp location
 		dstPath := filepath.Join(uploadDir, filepath.Base(fileHeader.Filename))
 		dstFile, err := os.Create(dstPath)
 		if err != nil {
