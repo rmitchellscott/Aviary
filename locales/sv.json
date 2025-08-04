@@ -515,7 +515,10 @@
       "create_file": "Kunde inte skapa fil på disk",
       "save_file": "Kunde inte spara fil",
       "no_form": "Inget multipart-formulär hittat",
-      "no_file_field": "Ingen fil med fältnamn {{field}}"
+      "no_file_field": "Ingen fil med fältnamn {{field}}",
+      "file_too_large": "Filstorleken överskrider maxgränsen",
+      "memory_constrained": "Serverminnet otillräckligt för filbehandling",
+      "upload_stream_failed": "Misslyckades att bearbeta stor filuppladdning"
     }
   }
 }

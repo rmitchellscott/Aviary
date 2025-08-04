@@ -515,7 +515,10 @@
       "create_file": "Tiedostoa ei voitu luoda levylle",
       "save_file": "Tiedoston tallentaminen epäonnistui",
       "no_form": "Multipart-lomaketta ei löytynyt",
-      "no_file_field": "Ei tiedostoa kentässä {{field}}"
+      "no_file_field": "Ei tiedostoa kentässä {{field}}",
+      "file_too_large": "Tiedosto ylittää maksimikoon",
+      "memory_constrained": "Palvelimen muisti ei riitä tiedoston käsittelyyn",
+      "upload_stream_failed": "Suuren tiedoston latauksen käsittely epäonnistui"
     }
   }
 }

@@ -44,6 +44,7 @@ This is particularly useful when using Docker secrets, Kubernetes secrets, or ot
 | PAGE_RESOLUTION          | No        | 1404x1872 | Page resolution for PDF conversion (WIDTHxHEIGHT format), used as the default in multi-user mode |
 | PAGE_DPI                 | No        | 226     | Page DPI for PDF conversion, used as the default in multi-user mode |
 | DRY_RUN                  | No        | false   | Set to `true` to log rmapi commands without running them |
+| MAX_UPLOAD_SIZE          | No        | 524288000 | Maximum file upload size in bytes (default: 500MB) |
 
 For more rmapi-specific configuration, see [their documentation](https://github.com/ddvk/rmapi?tab=readme-ov-file#environment-variables).
 

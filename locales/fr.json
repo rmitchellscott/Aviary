@@ -394,7 +394,10 @@
       "create_file": "Impossible de créer le fichier sur le disque",
       "save_file": "Impossible de sauvegarder le fichier",
       "no_form": "Aucun formulaire multipart trouvé",
-      "no_file_field": "Aucun fichier avec le nom de champ {{field}}"
+      "no_file_field": "Aucun fichier avec le nom de champ {{field}}",
+      "file_too_large": "La taille du fichier dépasse la limite maximale",
+      "memory_constrained": "Mémoire du serveur insuffisante pour le traitement du fichier",
+      "upload_stream_failed": "Échec du traitement du téléchargement de fichier volumineux"
     }
   },
   "settings": {

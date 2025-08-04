@@ -515,7 +515,10 @@
       "create_file": "Kon bestand niet maken op schijf",
       "save_file": "Kon bestand niet opslaan",
       "no_form": "Geen multipart formulier gevonden",
-      "no_file_field": "Geen bestand met veldnaam {{field}}"
+      "no_file_field": "Geen bestand met veldnaam {{field}}",
+      "file_too_large": "Bestandsgrootte overschrijdt het maximum limiet",
+      "memory_constrained": "Onvoldoende servergeheugen voor bestandsverwerking",
+      "upload_stream_failed": "Verwerking van grote bestand upload mislukt"
     }
   }
 }

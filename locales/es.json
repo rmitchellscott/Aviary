@@ -370,7 +370,10 @@
       "create_file": "No se pudo crear el archivo en disco",
       "save_file": "No se pudo guardar el archivo",
       "no_form": "No se encontró formulario multipart",
-      "no_file_field": "No hay archivo con el nombre de campo {{field}}"
+      "no_file_field": "No hay archivo con el nombre de campo {{field}}",
+      "file_too_large": "El tamaño del archivo excede el límite máximo",
+      "memory_constrained": "Memoria del servidor insuficiente para procesar el archivo",
+      "upload_stream_failed": "Error al procesar la carga de archivo grande"
     }
   },
   "settings": {

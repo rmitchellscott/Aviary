@@ -515,7 +515,10 @@
       "create_file": "Could not create file on disk",
       "save_file": "Could not save file",
       "no_form": "No multipart form found",
-      "no_file_field": "No file with field name {{field}}"
+      "no_file_field": "No file with field name {{field}}",
+      "file_too_large": "File size exceeds maximum limit",
+      "memory_constrained": "Server memory insufficient for file processing",
+      "upload_stream_failed": "Failed to process large file upload"
     }
   }
 }

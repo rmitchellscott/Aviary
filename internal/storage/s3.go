@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -9,42 +8,46 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/rmitchellscott/aviary/internal/logging"
 )
 
 type S3Backend struct {
-	client *s3.Client
-	bucket string
+	client   *s3.Client
+	uploader *manager.Uploader
+	bucket   string
 }
 
 func NewS3Backend(client *s3.Client, bucket string) *S3Backend {
+	uploader := manager.NewUploader(client, func(u *manager.Uploader) {
+		// Set part size to 5MB for multipart uploads
+		u.PartSize = 5 * 1024 * 1024
+		// Enable concurrency for large files
+		u.Concurrency = 5
+	})
+	
 	return &S3Backend{
-		client: client,
-		bucket: bucket,
+		client:   client,
+		uploader: uploader,
+		bucket:   bucket,
 	}
 }
 
 func (s3b *S3Backend) Put(ctx context.Context, key string, data io.Reader) error {
-	buf := &bytes.Buffer{}
-	size, err := io.Copy(buf, data)
-	if err != nil {
-		return fmt.Errorf("failed to buffer data for %s: %w", key, err)
-	}
-
-	_, err = s3b.client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket:        aws.String(s3b.bucket),
-		Key:           aws.String(key),
-		Body:          bytes.NewReader(buf.Bytes()),
-		ContentLength: aws.Int64(size),
+	// Use the uploader for streaming uploads without memory buffering
+	result, err := s3b.uploader.Upload(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(s3b.bucket),
+		Key:    aws.String(key),
+		Body:   data,
 	})
 
 	if err != nil {
 		return fmt.Errorf("failed to put object %s: %w", key, err)
 	}
 
-	logging.Logf("[STORAGE] S3 Put: s3://%s/%s (size: %d bytes)", s3b.bucket, key, size)
+	logging.Logf("[STORAGE] S3 Put: s3://%s/%s (ETag: %s)", s3b.bucket, key, aws.ToString(result.ETag))
 	return nil
 }
 

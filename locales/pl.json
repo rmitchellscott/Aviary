@@ -515,7 +515,10 @@
       "create_file": "Nie można utworzyć pliku na dysku",
       "save_file": "Nie można zapisać pliku",
       "no_form": "Nie znaleziono formularza multipart",
-      "no_file_field": "Brak pliku z nazwą pola {{field}}"
+      "no_file_field": "Brak pliku z nazwą pola {{field}}",
+      "file_too_large": "Rozmiar pliku przekracza maksymalny limit",
+      "memory_constrained": "Pamięć serwera niewystarczająca do przetwarzania pliku",
+      "upload_stream_failed": "Nie udało się przetworzyć przesyłania dużego pliku"
     }
   }
 }
