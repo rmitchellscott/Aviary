@@ -17,7 +17,7 @@ func GenerateUserDocumentKey(userID uuid.UUID, prefix, filename string, multiUse
 		return fmt.Sprintf("users/%s/pdfs/%s", userID.String(), filename)
 	}
 	
-	hasPdfDir := !multiUserMode && internalConfig.Get("PDF_DIR", "") != ""
+	hasPdfDir := !multiUserMode && internalConfig.Get("PDF_DIR", "") != "" && GetStorageType() == "filesystem"
 	if hasPdfDir {
 		if prefix != "" {
 			return fmt.Sprintf("%s/%s", prefix, filename)

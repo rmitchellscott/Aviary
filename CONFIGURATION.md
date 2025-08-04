@@ -30,7 +30,7 @@ This is particularly useful when using Docker secrets, Kubernetes secrets, or ot
 | PORT                     | No        | 8000    | Port for the web server to listen on |
 | GIN_MODE                 | No        | release | Gin web framework mode (`release`, `debug`, or `test`) |
 | DISABLE_UI               | No        | false   | Set `true` to disable the UI routes and run in API-only mode |
-| PDF_DIR                  | No        | /app/pdfs| Directory to archive PDFs into |
+| PDF_DIR                  | No        | /app/pdfs| Directory to archive PDFs into (filesystem storage only) |
 | RMAPI_HOST               | No        |         | Self-hosted endpoint to use for rmapi (single-user mode only) |
 | RMAPI_COVERPAGE          | No        |         | Set to `first` to add `--coverpage=1` flag to rmapi put commands, used as the default in multi-user mode |
 | RMAPI_CONFLICT_RESOLUTION| No        | abort   | Default conflict resolution mode: `abort`, `overwrite`, or `content_only` |
@@ -71,7 +71,7 @@ For more rmapi-specific configuration, see [their documentation](https://github.
 
 - **Filesystem backend**: Default option. Stores all files in the local filesystem under `DATA_DIR`
 - **S3 backend**: Stores archived documents and backups in S3-compatible object storage
-- **Single-user mode limitation**: In single-user mode, only archived documents use the storage backend. The `rmapi.conf` file is always stored in the filesystem at `/root/.config/rmapi/rmapi.conf` and must be mounted as a volume for persistence
+- **Single-user mode limitation**: In single-user mode, only archived documents use the storage backend. The `rmapi.conf` file is always stored in the filesystem at `/root/.config/rmapi/rmapi.conf` and must be mounted as a volume for persistence. `PDF_DIR` is ignored when using S3 storage backend
 - **Migration constraint**: Single-user to multi-user migration requires using the same storage backend. Cross-backend migrations are not supported - use backup/restore instead
 - **Database storage**: SQLite databases are always stored locally and require volume mounts. For stateless deployment, use PostgreSQL with S3 storage backend
 

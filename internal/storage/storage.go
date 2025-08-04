@@ -40,7 +40,7 @@ func getDataDir() string {
 func getPdfDir() string {
 	isMultiUser := internalConfig.GetBool("MULTI_USER", false)
 	
-	if !isMultiUser {
+	if !isMultiUser && GetStorageType() == "filesystem" {
 		if pdfDir := internalConfig.Get("PDF_DIR", ""); pdfDir != "" {
 			return pdfDir
 		}

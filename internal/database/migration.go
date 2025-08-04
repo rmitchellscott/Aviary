@@ -226,8 +226,10 @@ func isDocumentFile(filename string) bool {
 }
 
 func getSingleUserStorageDir() string {
-	if pdfDir := config.Get("PDF_DIR", ""); pdfDir != "" {
-		return pdfDir
+	if storage.GetStorageType() == "filesystem" {
+		if pdfDir := config.Get("PDF_DIR", ""); pdfDir != "" {
+			return pdfDir
+		}
 	}
 	return "pdfs"
 }
