@@ -19,6 +19,8 @@ Upload documents by providing a URL to download from.
 | archive                  | No        | true/false  | Download to PDF_DIR instead of /tmp |
 | rm_dir                   | No        | Books       | Override default reMarkable upload directory |
 | retention_days           | No        | 30          | Optional integer (in days) for cleanup if manage=true. Defaults to 7. |
+| conflict_resolution      | No        | abort/overwrite/content_only | Override conflict resolution when file exists. Defaults to user/environment setting. |
+| coverpage                | No        | current/first | Override coverpage setting for PDF uploads. Defaults to user/environment setting. |
 
 ### Document content uploads (JSON)
 
@@ -36,8 +38,12 @@ Upload documents by providing base64-encoded content directly.
 | archive                  | No        | true/false | Save to PDF_DIR instead of /tmp |
 | rm_dir                   | No        | Books | Override default reMarkable upload directory |
 | retention_days           | No        | 30 | Optional integer (in days) for cleanup |
+| conflict_resolution      | No        | abort/overwrite/content_only | Override conflict resolution when file exists |
+| coverpage                | No        | current/first | Override coverpage setting for PDF uploads |
 
 **Supported content types:** PDF, JPEG, PNG, EPUB
+
+**Note:** The `content_only` conflict resolution mode only works with PDF files. For non-PDF files (images, EPUB), it automatically falls back to `abort` behavior.
 
 ## Authentication
 
@@ -66,12 +72,22 @@ curl -X POST http://localhost:8000/api/webhook \
   -d "rm_dir=Books"
 ```
 
+#### With conflict resolution and coverpage settings
+```shell
+curl -X POST http://localhost:8000/api/webhook \
+  -d "Body=https://pdfobject.com/pdf/sample.pdf" \
+  -d "conflict_resolution=overwrite" \
+  -d "coverpage=first" \
+  -d "compress=true"
+```
+
 #### With API key authentication
 ```shell
 curl -X POST http://localhost:8000/api/webhook \
   -H "Authorization: Bearer your-api-key" \
   -d "Body=https://pdfobject.com/pdf/sample.pdf" \
-  -d "compress=true"
+  -d "compress=true" \
+  -d "conflict_resolution=content_only"
 ```
 
 ### Document content uploads (JSON)
@@ -87,7 +103,9 @@ curl -X POST http://localhost:8000/api/webhook \
     "filename": "document.pdf",
     "isContent": true,
     "compress": "true",
-    "rm_dir": "Books"
+    "rm_dir": "Books",
+    "conflict_resolution": "overwrite",
+    "coverpage": "first"
   }'
 ```
 
@@ -100,7 +118,8 @@ curl -X POST http://localhost:8000/api/webhook \
     "contentType": "image/png",
     "filename": "screenshot.png",
     "isContent": true,
-    "compress": "false"
+    "compress": "false",
+    "conflict_resolution": "abort"
   }'
 ```
 
