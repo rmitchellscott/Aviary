@@ -70,20 +70,13 @@ For more rmapi-specific configuration, see [their documentation](https://github.
 
 ### Storage Backend Notes
 
-- **Filesystem backend**: Default option. Stores all files in the local filesystem under `DATA_DIR`
+- **Filesystem backend**: Default option. 
+   - `DATA_DIR`: Multi-user mode, primary storage for user data, database, and archived documents. 
+   - `PDF_DIR`: Single-user mode, directory for archived PDFs 
 - **S3 backend**: Stores archived documents and backups in S3-compatible object storage
 - **Single-user mode limitation**: In single-user mode, only archived documents use the storage backend. The `rmapi.conf` file is always stored in the filesystem at `/root/.config/rmapi/rmapi.conf` and must be mounted as a volume for persistence. `PDF_DIR` is ignored when using S3 storage backend
-- **Migration constraint**: Single-user to multi-user migration requires using the same storage backend. Cross-backend migrations are not supported - use backup/restore instead
-- **Database storage**: SQLite databases are always stored locally and require volume mounts. For stateless deployment, use PostgreSQL with S3 storage backend
-
-### Supported S3-Compatible Services
-
-- Amazon S3
-- Backblaze B2
-- MinIO
-- DigitalOcean Spaces
-- Google Cloud Storage (with S3 compatibility)
-- Any S3-compatible object storage service
+- **Migration constraint**: Single-user to multi-user migration requires using the same storage backend. For cross-backend migrations, see the [Migration Guide](docs/MIGRATION_GUIDE.md)
+- **Database storage**: SQLite databases are always stored in the `DATA_DIR` and require volume mounts. For stateless deployment, use PostgreSQL with S3 storage backend
 
 ## Database Configuration (Multi-User Mode)
 
@@ -264,13 +257,3 @@ ADMIN_EMAIL=admin@localhost
 ```
 
 **Note:** Environment variables set in your shell or Docker configuration will override values in the `.env` file.
-
-## Configuration Validation
-
-Aviary validates configuration on startup and will log warnings or errors for:
-- Invalid timeout values
-- Missing required fields when multi-user mode is enabled
-- Invalid database connection parameters
-- SMTP configuration issues
-
-Check the startup logs to ensure your configuration is valid.

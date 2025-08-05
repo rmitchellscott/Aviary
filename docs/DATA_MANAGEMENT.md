@@ -11,7 +11,7 @@ Aviary provides comprehensive data management capabilities through its built-in 
 - **Database migrations**: SQLite ↔ PostgreSQL
 - **Disaster recovery**: Full system restoration
 
-This system is included for easy of use and to aide in cross-database migrations. You can also backup the system yourself outside of Aviary by:
+This system is included for ease of use and to aide in cross-database migrations. You can also backup the system yourself outside of Aviary by:
 - Backing up the database (SQLite or Postgres)
 - Backing up the storage directory
 
@@ -24,7 +24,7 @@ This system is included for easy of use and to aide in cross-database migrations
 2. Navigate to Admin Panel → System Settings
 3. Click "Backup & Restore"
 4. Click "Create Backup"
-5. Monitor job progress in "Recent Jobs" section
+5. Monitor job progress in "Recent Backups" section
 6. Download completed backups when ready
 
 ### Backup Metadata
@@ -50,7 +50,7 @@ Aviary backups are compressed tar.gz archives with a standardized internal struc
 backup-filename.tar.gz
 ├── metadata.json                    # Export metadata and compatibility info
 ├── database/                        # Database exports (JSON format)
-│   ├── users.json                   # User accounts and settings
+│   ├── users.json                   # User accounts, settings, and rmapi configs
 │   ├── api_keys.json                # API keys and permissions
 │   ├── user_sessions.json           # Active user sessions
 │   ├── documents.json               # Document metadata and references
@@ -58,14 +58,11 @@ backup-filename.tar.gz
 │   ├── login_attempts.json          # Authentication logs
 │   └── user_folders_cache.json      # Cached folder structures
 └── filesystem/                      # User files and configurations
-    ├── documents/                   # User-uploaded documents
-    │   └── {user-id}/               # Per-user document storage
-    │       ├── document1.pdf
-    │       ├── subfolder/
-    │       └── document2.pdf
-    └── configs/                     # User configurations
-        └── {user-id}/               # Per-user configurations
-            └── rmapi.conf           # reMarkable API configuration
+    └── documents/                   # User-uploaded documents
+        └── {user-id}/               # Per-user document storage
+            ├── document1.pdf
+            ├── subfolder/
+            └── document2.pdf
 ```
 
 ### File Descriptions
@@ -86,7 +83,7 @@ Contains export information and compatibility data:
 ```
 
 **Database Files (database/)**
-- **users.json**: User accounts, passwords (hashed), settings, and preferences
+- **users.json**: User accounts, passwords (hashed), settings, preferences, and rmapi configurations
 - **api_keys.json**: API keys, expiration dates, and usage tracking
 - **user_sessions.json**: Active login sessions and JWT tokens
 - **documents.json**: Document metadata including filenames, upload dates, and file paths
@@ -95,8 +92,7 @@ Contains export information and compatibility data:
 - **user_folders_cache.json**: Cached reMarkable folder structures for performance
 
 **Filesystem Files (filesystem/)**
-- **documents/{user-id}/**: All PDF files and documents uploaded by each user
-- **configs/{user-id}/**: User-specific configurations, primarily rmapi.conf files
+- **documents/{user-id}/**: Documents archived by each user
 
 ### Database Table Structure
 
@@ -115,11 +111,15 @@ Each JSON file in the database directory contains an array of records from the c
     "rmapi_host": "remarkable.cloud",
     "default_rmdir": "/Books",
     "coverpage_setting": "current",
+    "rmapi_config": "[auth]\ndevicetoken=...\nusertoken=...\n",
     "created_at": "2024-01-01T00:00:00Z",
     "updated_at": "2024-01-01T00:00:00Z"
   }
 ]
 ```
+
+> [!NOTE]  
+> As of v1.6.0, the `rmapi_config` field in the users table contains the complete rmapi configuration as a text string. This eliminates the need for separate config files in the filesystem.
 
 ### Manual Archive Access
 
@@ -137,9 +137,6 @@ cat database/users.json | jq '.'
 
 # List user documents
 ls -la filesystem/documents/*/
-
-# Check user configurations
-ls -la filesystem/configs/*/
 ```
 
 ## Restore Operations
@@ -158,7 +155,6 @@ ls -la filesystem/configs/*/
 4. Wait for upload and validation to complete
 5. Click "Restore" on the uploaded file
 6. Confirm
-7. Monitor restoration progress in jobs panel
 
 ### Restore Validation
 
@@ -166,10 +162,9 @@ The system validates backups during upload:
 - Checks backup file integrity and format
 - Validates metadata compatibility
 - Warns about version differences
-- Confirms database type compatibility
 - Analyzes backup contents before restoration
 
-## Database Migration
+## Migrations
 
 ### SQLite to PostgreSQL
 
@@ -213,22 +208,23 @@ To migrate from PostgreSQL to SQLite:
 ├── aviary.db                 # SQLite database (if using SQLite)
 └── users/
     └── {user-id}/
-        ├── pdfs/             # User's uploaded documents
-        │   ├── document1.pdf
-        │   └── subfolder/
-        └── rmapi/            # User's rmapi configuration
-            └── rmapi.conf
+        └── pdfs/             # User's uploaded documents
+            ├── document1.pdf
+            └── subfolder/
 ```
+
+> [!NOTE]  
+> As of v1.6.0, rmapi configurations are stored in the database (in the `rmapi_config` column of the users table) rather than in the filesystem.
 
 ### Single-User to Multi-User Migration
 
-When enabling multi-user mode (`MULTI_USER=true`), Aviary automatically performs a single-user to multi-user migration. For more information, see  [Migration from Single-User Mode](AUTHENTICATION.md#Migration-from-Single-User-Mode).
+When enabling multi-user mode (`MULTI_USER=true`), Aviary automatically performs a single-user to multi-user migration. For detailed migration procedures and troubleshooting, see the [Migration Guide](docs/MIGRATION_GUIDE.md).
 
 **Important**: Single-user to multi-user migration requires using the same storage backend. If you need to change storage backends, use the cross-storage-backend migration process below.
 
 ## Cross-Storage-Backend Migration
 
-To migrate between different storage backends (e.g., filesystem to S3, or S3 to filesystem), use the backup and restore process:
+To migrate between different storage backends (e.g., filesystem to S3, or S3 to filesystem), use the backup and restore process. For comprehensive migration instructions including verification steps and troubleshooting, see the [Migration Guide](docs/MIGRATION_GUIDE.md).
 
 ### Filesystem to S3 Migration
 
@@ -294,13 +290,43 @@ To migrate between different S3 providers (e.g., AWS S3 to MinIO):
 3. **Restart Aviary** with the new configuration
 4. **Restore the backup** through the admin interface
 
+### Combined Migrations
+
+Combining multiple migrations is supported, but may require two migration steps. 
+
+Due to the backup capabilities exposed in multi-user mode it is recommended to perform the single-user → multi-user migration first before changing storage backends. 
+
+Combined migrations between database and storage providers in a single step is fully supported by the restore process in multi-user mode.
+
+1. **Stage 1**: Single-user → Multi-user (same storage)
+   ```bash
+   # Current: Single-user + filesystem + SQLite (implicit)
+   MULTI_USER=true
+   AUTH_USERNAME=admin
+   AUTH_PASSWORD=secure-password
+   # Keep: STORAGE_BACKEND=filesystem, DB_TYPE=sqlite
+   ```
+
+2. **Restart and verify** single→multi migration works
+
+3. **Stage 2**: Create backup and configure S3 + PostgreSQL
+   ```bash
+   MULTI_USER=true
+   STORAGE_BACKEND=s3
+   S3_BUCKET=my-bucket
+   # ... S3 config
+   DB_TYPE=postgres
+   DB_HOST=postgres-host
+   # ... PostgreSQL config
+   ```
+
+4. **Restart and restore** backup
+
 ### Important Notes
 
 - **Single-user rmapi.conf**: In single-user mode, the `rmapi.conf` file is always stored in the filesystem at `/root/.config/rmapi/rmapi.conf`, regardless of storage backend. Ensure this is properly mounted as a volume for persistence.
 
 - **Backup verification**: Always verify that backups complete successfully before changing storage backends. Check the backup metadata and file counts.
-
-- **Storage backend validation**: The restore process validates that the backup format is compatible with the current storage backend configuration.
 
 - **Temporary storage**: Backup files are temporarily stored in `/tmp` during the restore process and are automatically cleaned up.
 
@@ -340,16 +366,3 @@ In this configuration:
 | Single-user mode | `/root/.config/rmapi/` | rmapi.conf always filesystem-based |
 | SQLite database | `/data` | Database file stored locally |
 | Filesystem storage | `/data` | Documents stored locally |
-
-**Example requiring volumes**:
-```bash
-# Single-user with S3 - still needs rmapi.conf mount
-STORAGE_BACKEND=s3
-# Requires: -v ~/.config/rmapi:/root/.config/rmapi
-
-# Multi-user with SQLite - still needs database mount  
-MULTI_USER=true
-DB_TYPE=sqlite
-STORAGE_BACKEND=s3
-# Requires: -v ./data:/data
-```

@@ -13,6 +13,7 @@ import (
 
 	"github.com/rmitchellscott/aviary/internal/compressor"
 	"github.com/rmitchellscott/aviary/internal/manager"
+	"github.com/rmitchellscott/aviary/internal/rmapi"
 )
 
 // stubCommand records commands and returns a Cmd that succeeds
@@ -64,11 +65,14 @@ func TestProcessPDFRmapiCommands(t *testing.T) {
 			var cmds [][]string
 			mgrOrig := manager.ExecCommand
 			compOrig := compressor.ExecCommand
+			rmapiOrig := rmapi.ExecCommand
 			manager.ExecCommand = stubCommand(&cmds)
 			compressor.ExecCommand = func(string, ...string) *exec.Cmd { return exec.Command("true") }
+			rmapi.ExecCommand = stubCommand(&cmds)
 			defer func() {
 				manager.ExecCommand = mgrOrig
 				compressor.ExecCommand = compOrig
+				rmapi.ExecCommand = rmapiOrig
 			}()
 
 			form := map[string]string{
@@ -88,19 +92,13 @@ func TestProcessPDFRmapiCommands(t *testing.T) {
 			month := today.Format("January")
 			day := today.Day()
 			var expect [][]string
-			if c.manage && c.archive {
-				dest := filepath.Join(pdfDir, "Report", fmt.Sprintf("Report %s %d.pdf", month, day))
-				expect = append(expect, []string{"rmapi", "put", dest, rmDir})
-				expect = append(expect, []string{"rmapi", "ls", rmDir})
-			} else if c.manage && !c.archive {
+			if c.manage {
+				// When manage is true, the file is renamed in the same directory
 				dest := filepath.Join(tmpDir, fmt.Sprintf("Report %s %d.pdf", month, day))
 				expect = append(expect, []string{"rmapi", "put", dest, rmDir})
 				expect = append(expect, []string{"rmapi", "ls", rmDir})
 			} else {
 				expect = append(expect, []string{"rmapi", "put", input, rmDir})
-				if c.manage {
-					expect = append(expect, []string{"rmapi", "ls", rmDir})
-				}
 			}
 
 			if !reflect.DeepEqual(cmds, expect) {

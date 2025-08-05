@@ -30,9 +30,9 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 ### Authentication & User Management
 - **Single-user mode**: Simple environment variable authentication
 - **Multi-user mode**: Database-backed user management with admin interface
-- **Advanced auth**: OIDC and proxy authentication support
-- Per-user API key management with expiration tracking
-- Password reset via e-mail
+  - Advanced auth: OIDC and proxy authentication support
+  - Per-user API key management with expiration tracking
+  - Password reset via e-mail
 
 ### Document Processing
 - Webhook endpoint for HTTP integrations
@@ -90,12 +90,12 @@ Open http://localhost:8000 and pair with your reMarkable account.
 
 ## Documentation
 
-- **[Configuration](CONFIGURATION.md)** - Environment variables and settings
-- **[Authentication](AUTHENTICATION.md)** - User management, OIDC, and proxy auth
-- **[Deployment](DEPLOYMENT.md)** - Docker, Docker Compose, and production setup
-- **[API Reference](API.md)** - Webhook endpoints and integrations
-- **[Data Management](DATA_MANAGEMENT.md)** - Backup, restore, and database migration
-- **[Translations](TRANSLATIONS.md)** - Multi-language support and contributing
+- **[Configuration](docs/CONFIGURATION.md)** - Environment variables and settings
+- **[Authentication](docs/AUTHENTICATION.md)** - User management, OIDC, and proxy auth
+- **[Deployment](docs/DEPLOYMENT.md)** - Docker, Docker Compose, and production setup
+- **[API Reference](docs/API.md)** - Webhook endpoints and integrations
+- **[Data Management](docs/DATA_MANAGEMENT.md)** - Backup, restore, and database migration
+- **[Translations](docs/TRANSLATIONS.md)** - Multi-language support and contributing
 
 ## Data Management
 
@@ -112,14 +112,14 @@ When migrating from single-user to multi-user mode, Aviary automatically:
 - Migrates existing cloud pairing, archived PDF files, and API key
 - Runs schema migrations for new features
 
-See [Data Management](DATA_MANAGEMENT.md) and [Migration from Single-User Mode](AUTHENTICATION.md#Migration-from-Single-User-Mode) for more details.
+See [Data Management](docs/DATA_MANAGEMENT.md) and [Migration from Single-User Mode](docs/AUTHENTICATION.md#Migration-from-Single-User-Mode) for more details.
 
 ## Integrations
 
 * [AWS SES Integration](https://github.com/rmitchellscott/aviary-integration-ses) - Lambda to provide emailed PDFs/ePubs to Aviary
 
-See [API Reference](API.md) for webhook details and integration examples.
+See [API Reference](docs/API.md) for webhook details and integration examples.
 
 ## Building from Source
 
-See [Deployment Guide](DEPLOYMENT.md) for local build instructions and requirements.
+See [Deployment Guide](docs/DEPLOYMENT.md) for local build instructions and requirements.

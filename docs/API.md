@@ -184,10 +184,6 @@ ws.onmessage = (event) => {
 };
 ```
 
-## Integrations
-
-* [AWS SES](https://github.com/rmitchellscott/aviary-integration-ses) - Lambda to provide emailed PDFs/ePubs to Aviary.
-
 ## Rate Limiting
 
 Aviary implements basic rate limiting on API endpoints:
@@ -195,21 +191,3 @@ Aviary implements basic rate limiting on API endpoints:
 - Status checks: No specific limits
 
 For high-volume usage, consider implementing your own rate limiting or batching uploads.
-
-## Error Handling
-
-Common error scenarios and responses:
-
-### Invalid JSON Format
-```json
-{
-  "error": "Invalid JSON format"
-}
-```
-
-### Authentication Required
-```json
-{
-  "error": "Authentication required"
-}
-```
