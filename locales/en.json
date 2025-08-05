@@ -403,7 +403,7 @@
       "cover_page": "Controls whether the first page or current page is used as the cover for uploaded documents",
       "conflict_resolution": "Choose what happens when uploading a document with the same name as an existing document. Content Only preserves annotations and only works for PDFs and images - it will Abort for EPUBs. Overwrite completely replaces documents.",
       "folder_depth_limit": "Maximum folder depth to display (0 = unlimited)",
-      "folder_exclusion_list": "Comma-separated list of folder names to exclude",
+      "folder_exclusion_list": "Comma-separated list of folder names to exclude, case-sensitive",
       "pdf_conversion_device": "Choose your reMarkable device model for optimal image to PDF conversion. This setting only affects image files (JPEG, PNG) that are converted to PDF.",
       "page_resolution": "Page resolution in WIDTHxHEIGHT format",
       "page_dpi": "Dots per inch",

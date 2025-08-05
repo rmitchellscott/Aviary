@@ -351,6 +351,8 @@
       "default_directory": "Oletuskansio",
       "cover_page": "Kansilehti",
       "conflict_resolution": "Konfliktissa",
+      "folder_depth_limit": "Kansion syvyysraja",
+      "folder_exclusion_list": "Poissuljetut kansiot",
       "current_password": "Nykyinen salasana",
       "new_password": "Uusi salasana",
       "confirm_new_password": "Vahvista uusi salasana",
@@ -403,7 +405,9 @@
       "page_resolution": "Sivun resoluutio LEVEYSxKORKEUS muodossa",
       "page_dpi": "Pistettä tuumaa kohti",
       "default_directory": "Valitse oletuskansio, johon asiakirjasi ladataan",
-      "conflict_resolution": "Valitse mitä tapahtuu kun lataat asiakirjan samalla nimellä kuin olemassa oleva asiakirja. Vain sisältö säilyttää merkinnät ja toimii vain PDF:ille ja kuville - se Keskeytää EPUB:ille. Korvaa korvaa asiakirjat kokonaan."
+      "conflict_resolution": "Valitse mitä tapahtuu kun lataat asiakirjan samalla nimellä kuin olemassa oleva asiakirja. Vain sisältö säilyttää merkinnät ja toimii vain PDF:ille ja kuville - se Keskeytää EPUB:ille. Korvaa korvaa asiakirjat kokonaan.",
+      "folder_depth_limit": "Maksimi kansiosyvyys näytettäväksi (0 = rajaton)",
+      "folder_exclusion_list": "Pilkuilla erotettu lista poissuljetuista kansionimistä, isojen ja pienten kirjainten erotteleva"
     },
     "status": {
       "active": "aktiivinen",
@@ -435,7 +439,9 @@
       "current_password": "Syötä nykyinen salasanasi",
       "delete_confirm": "POISTA TILINI",
       "page_resolution": "1404x1872",
-      "page_dpi": "226"
+      "page_dpi": "226",
+      "folder_depth_limit": "0",
+      "folder_exclusion_list": "esim., roskakori, mallit, arkisto"
     },
     "loading_states": {
       "saving": "Tallennetaan...",

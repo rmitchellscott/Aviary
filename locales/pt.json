@@ -351,6 +351,8 @@
       "default_directory": "Diretório Padrão",
       "cover_page": "Página de Capa",
       "conflict_resolution": "Em Conflito",
+      "folder_depth_limit": "Limite de Profundidade de Pastas",
+      "folder_exclusion_list": "Pastas Excluídas",
       "current_password": "Senha Atual",
       "new_password": "Nova Senha",
       "confirm_new_password": "Confirmar Nova Senha",
@@ -403,7 +405,9 @@
       "page_resolution": "Resolução da página no formato LARGURAxALTURA",
       "page_dpi": "Pontos por polegada",
       "default_directory": "Escolha a pasta padrão onde seus documentos serão enviados",
-      "conflict_resolution": "Escolha o que acontece ao enviar um documento com o mesmo nome que um documento existente. Apenas Conteúdo preserva anotações e funciona apenas para PDFs e imagens - irá Abortar para EPUBs. Sobrescrever substitui documentos completamente."
+      "conflict_resolution": "Escolha o que acontece ao enviar um documento com o mesmo nome que um documento existente. Apenas Conteúdo preserva anotações e funciona apenas para PDFs e imagens - irá Abortar para EPUBs. Sobrescrever substitui documentos completamente.",
+      "folder_depth_limit": "Profundidade máxima de pastas para exibir (0 = ilimitado)",
+      "folder_exclusion_list": "Lista separada por vírgulas de nomes de pastas para excluir, sensível a maiúsculas e minúsculas"
     },
     "status": {
       "active": "ativo",
@@ -435,7 +439,9 @@
       "current_password": "Digite sua senha atual",
       "delete_confirm": "EXCLUIR MINHA CONTA",
       "page_resolution": "1404x1872",
-      "page_dpi": "226"
+      "page_dpi": "226",
+      "folder_depth_limit": "0",
+      "folder_exclusion_list": "ex., lixeira, modelos, arquivo"
     },
     "loading_states": {
       "saving": "Salvando...",

@@ -351,6 +351,8 @@
       "default_directory": "Standard Mappe",
       "cover_page": "Forside",
       "conflict_resolution": "Ved konflikt",
+      "folder_depth_limit": "Mappedybdegrænse",
+      "folder_exclusion_list": "Ekskluderede Mapper",
       "current_password": "Nuværende Adgangskode",
       "new_password": "Ny Adgangskode",
       "confirm_new_password": "Bekræft Ny Adgangskode",
@@ -403,7 +405,9 @@
       "page_resolution": "Sideopløsning i BREDDExHØJDE format",
       "page_dpi": "Punkter pr. tomme",
       "default_directory": "Vælg standardmappen hvor dine dokumenter vil blive uploadet",
-      "conflict_resolution": "Vælg hvad der sker når du uploader et dokument med samme navn som et eksisterende dokument. Kun indhold bevarer annotationer og virker kun for PDF'er og billeder - det vil Afbryde for EPUB'er. Overskriv erstatter dokumenter fuldstændigt."
+      "conflict_resolution": "Vælg hvad der sker når du uploader et dokument med samme navn som et eksisterende dokument. Kun indhold bevarer annotationer og virker kun for PDF'er og billeder - det vil Afbryde for EPUB'er. Overskriv erstatter dokumenter fuldstændigt.",
+      "folder_depth_limit": "Maksimal mappedybde at vise (0 = ubegrænset)",
+      "folder_exclusion_list": "Kommasepareret liste over mappenavne at ekskludere, forskel på store og små bogstaver"
     },
     "status": {
       "active": "aktiv",
@@ -435,7 +439,9 @@
       "current_password": "Indtast din nuværende adgangskode",
       "delete_confirm": "SLET MIN KONTO",
       "page_resolution": "1404x1872",
-      "page_dpi": "226"
+      "page_dpi": "226",
+      "folder_depth_limit": "0",
+      "folder_exclusion_list": "f.eks., papirkurv, skabeloner, arkiv"
     },
     "loading_states": {
       "saving": "Gemmer...",

@@ -616,7 +616,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
             </div>
           )}
 
-          <Tabs defaultValue="profile" className="w-full h-[600px] flex flex-col">
+          <Tabs defaultValue="profile" className="w-full h-[660px] flex flex-col">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
@@ -724,7 +724,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 mb-8">
                     <div>
                       <Label htmlFor="default-rmdir">{t("settings.labels.default_directory")}</Label>
                       <Select 
