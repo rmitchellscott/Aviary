@@ -3,6 +3,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { LoginForm } from "@/components/LoginForm";
 import { PairingDialog } from "@/components/PairingDialog";
 import { useUserData } from "@/hooks/useUserData";
+import { useFolderRefresh } from "@/hooks/useFolderRefresh";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -106,6 +107,7 @@ export default function HomePage() {
     useAuth();
   const { t } = useTranslation();
   const { rmapiPaired, rmapiHost, loading: userDataLoading, updatePairingStatus } = useUserData();
+  const { refreshTrigger } = useFolderRefresh();
   
   const [url, setUrl] = useState<string>("");
   const [committedUrl, setCommittedUrl] = useState<string>("");
@@ -237,7 +239,7 @@ export default function HomePage() {
         setFoldersLoading(false);
       }
     })();
-  }, [isAuthenticated, rmapiPaired, userDataLoading]);
+  }, [isAuthenticated, rmapiPaired, userDataLoading, refreshTrigger]);
 
   const handlePairingSuccess = () => {
     updatePairingStatus(true);

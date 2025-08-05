@@ -49,6 +49,14 @@ func InitializeUserFolderCache(db *gorm.DB) {
 	if database.IsMultiUserMode() {
 		userFolderCacheService = NewUserFolderCacheService(db)
 		userFolderCacheService.StartBackgroundRefresh()
+		
+		database.SetUserCacheInvalidateHook(func(userID uuid.UUID) error {
+			if userFolderCacheService != nil {
+				_, err := userFolderCacheService.GetUserFolders(userID, true)
+				return err
+			}
+			return nil
+		})
 	}
 }
 
@@ -86,11 +94,43 @@ func ListFolders(user *database.User) ([]string, error) {
 		}
 	}
 
+	// Parse user-specific folder settings
+	var folderDepthLimit int
+	var excludedFolders map[string]bool
+	
+	if user != nil {
+		folderDepthLimit = user.FolderDepthLimit
+		excludedFolders = make(map[string]bool)
+		
+		// Parse exclusion list (comma-separated)
+		if user.FolderExclusionList != "" {
+			exclusions := strings.Split(user.FolderExclusionList, ",")
+			for _, exclusion := range exclusions {
+				trimmed := strings.TrimSpace(exclusion)
+				if trimmed != "" {
+					excludedFolders[trimmed] = true
+				}
+			}
+		}
+	} else {
+		// Default settings for single-user mode
+		folderDepthLimit = 0
+		excludedFolders = make(map[string]bool)
+	}
+
+	// Always exclude trash folder
+	excludedFolders["trash"] = true
+
 	// Include the root directory explicitly so the UI can offer it as an option
 	folders := []string{"/"}
 
-	var walk func(string) error
-	walk = func(p string) error {
+	var walk func(string, int) error
+	walk = func(p string, depth int) error {
+		// Check depth limit (0 means unlimited)
+		if folderDepthLimit > 0 && depth >= folderDepthLimit {
+			return nil
+		}
+
 		args := []string{"ls"}
 		if p != "" {
 			args = append(args, p)
@@ -108,8 +148,8 @@ func ListFolders(user *database.User) ([]string, error) {
 				name := strings.TrimSpace(strings.TrimPrefix(line, "[d]"))
 				name = strings.TrimLeft(name, "\t ")
 
-				// Skip the /trash folder entirely
-				if p == "" && name == "trash" {
+				// Skip excluded folders
+				if excludedFolders[name] {
 					continue
 				}
 
@@ -120,7 +160,7 @@ func ListFolders(user *database.User) ([]string, error) {
 					child = path.Join(p, name)
 				}
 				folders = append(folders, "/"+child)
-				if err := walk(child); err != nil {
+				if err := walk(child, depth+1); err != nil {
 					return err
 				}
 			}
@@ -128,7 +168,7 @@ func ListFolders(user *database.User) ([]string, error) {
 		return scanner.Err()
 	}
 
-	if err := walk(""); err != nil {
+	if err := walk("", 0); err != nil {
 		return nil, err
 	}
 	return folders, nil
@@ -158,6 +198,7 @@ func FoldersHandler(c *gin.Context) {
 	// Fall back to global cache for single-user mode
 	useCache := cacheRefreshInterval > 0
 
+	// If not forcing refresh and cache is enabled, try to use cached data
 	if useCache && !force {
 		if cached, ok := cachedFolders(); ok {
 			// Kick off a background refresh if the cache is old, but return immediately.
@@ -168,6 +209,7 @@ func FoldersHandler(c *gin.Context) {
 	}
 
 	// Either forced refresh, cache miss, or caching disabled.
+	// When force=true, we always fetch fresh data synchronously
 	dirs, err := ListFolders(nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "backend.status.internal_error"})

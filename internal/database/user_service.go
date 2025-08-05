@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,9 +18,28 @@ type UserService struct {
 	db *gorm.DB
 }
 
+// UserCacheInvalidateFunc is a function type for invalidating user cache
+type UserCacheInvalidateFunc func(userID uuid.UUID) error
+
+// Global hook for cache invalidation to avoid import cycles
+var userCacheInvalidateHook UserCacheInvalidateFunc
+
 // NewUserService creates a new user service
 func NewUserService(db *gorm.DB) *UserService {
 	return &UserService{db: db}
+}
+
+// SetUserCacheInvalidateHook sets the function to call when user cache needs invalidation
+func SetUserCacheInvalidateHook(hook UserCacheInvalidateFunc) {
+	userCacheInvalidateHook = hook
+}
+
+// InvalidateUserCache calls the hook to invalidate user cache if set
+func InvalidateUserCache(userID uuid.UUID) error {
+	if userCacheInvalidateHook != nil {
+		return userCacheInvalidateHook(userID)
+	}
+	return nil
 }
 
 // CreateUser creates a new user with hashed password
@@ -48,19 +68,30 @@ func (s *UserService) CreateUser(username, email, password string, isAdmin bool)
 	// Set default RMAPI host from environment variable
 	rmapiHost := config.Get("RMAPI_HOST", "")
 
+	// Set folder settings from environment variables
+	folderDepthLimit := 0
+	if depthStr := config.Get("RMAPI_FOLDER_DEPTH_LIMIT", "0"); depthStr != "" {
+		if depth, err := strconv.Atoi(depthStr); err == nil {
+			folderDepthLimit = depth
+		}
+	}
+	folderExclusionList := config.Get("RMAPI_FOLDER_EXCLUSION_LIST", "")
+
 	user := &User{
-		ID:                 uuid.New(),
-		Username:           username,
-		Email:              email,
-		Password:           string(hashedPassword),
-		IsAdmin:            isAdmin,
-		IsActive:           true,
-		RmapiHost:          rmapiHost,
-		DefaultRmdir:       "/",
-		CoverpageSetting:   coverpageSetting,
-		ConflictResolution: conflictResolution,
-		CreatedAt:          time.Now(),
-		UpdatedAt:          time.Now(),
+		ID:                  uuid.New(),
+		Username:            username,
+		Email:               email,
+		Password:            string(hashedPassword),
+		IsAdmin:             isAdmin,
+		IsActive:            true,
+		RmapiHost:           rmapiHost,
+		DefaultRmdir:        "/",
+		CoverpageSetting:    coverpageSetting,
+		ConflictResolution:  conflictResolution,
+		FolderDepthLimit:    folderDepthLimit,
+		FolderExclusionList: folderExclusionList,
+		CreatedAt:           time.Now(),
+		UpdatedAt:           time.Now(),
 	}
 
 	if err := s.db.Create(user).Error; err != nil {

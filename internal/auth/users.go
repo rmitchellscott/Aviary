@@ -14,16 +14,18 @@ import (
 
 // UpdateUserRequest represents a user update request
 type UpdateUserRequest struct {
-	Username           *string  `json:"username,omitempty"`
-	Email              *string  `json:"email,omitempty" binding:"omitempty,email"`
-	RmapiHost          *string  `json:"rmapi_host,omitempty"`
-	DefaultRmdir       *string  `json:"default_rmdir,omitempty"`
-	CoverpageSetting   *string  `json:"coverpage_setting,omitempty"`
-	ConflictResolution *string  `json:"conflict_resolution,omitempty"`
-	PageResolution     *string  `json:"page_resolution,omitempty"`
-	PageDPI            *float64 `json:"page_dpi,omitempty"`
-	IsAdmin            *bool    `json:"is_admin,omitempty"`
-	IsActive           *bool    `json:"is_active,omitempty"`
+	Username            *string  `json:"username,omitempty"`
+	Email               *string  `json:"email,omitempty" binding:"omitempty,email"`
+	RmapiHost           *string  `json:"rmapi_host,omitempty"`
+	DefaultRmdir        *string  `json:"default_rmdir,omitempty"`
+	CoverpageSetting    *string  `json:"coverpage_setting,omitempty"`
+	ConflictResolution  *string  `json:"conflict_resolution,omitempty"`
+	FolderDepthLimit    *int     `json:"folder_depth_limit,omitempty"`
+	FolderExclusionList *string  `json:"folder_exclusion_list,omitempty"`
+	PageResolution      *string  `json:"page_resolution,omitempty"`
+	PageDPI             *float64 `json:"page_dpi,omitempty"`
+	IsAdmin             *bool    `json:"is_admin,omitempty"`
+	IsActive            *bool    `json:"is_active,omitempty"`
 }
 
 // UpdatePasswordRequest represents a password update request
@@ -369,6 +371,19 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 		updates["conflict_resolution"] = *req.ConflictResolution
 	}
 
+	// Track if folder settings are being updated (for cache invalidation)
+	folderSettingsChanged := false
+
+	if req.FolderDepthLimit != nil {
+		updates["folder_depth_limit"] = *req.FolderDepthLimit
+		folderSettingsChanged = true
+	}
+
+	if req.FolderExclusionList != nil {
+		updates["folder_exclusion_list"] = *req.FolderExclusionList // Allow clearing by setting to empty string
+		folderSettingsChanged = true
+	}
+
 	if req.PageResolution != nil {
 		updates["page_resolution"] = *req.PageResolution // Allow clearing by setting to empty string
 	}
@@ -390,6 +405,14 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update profile"})
 		return
+	}
+
+	// Invalidate folder cache if folder settings were changed
+	if folderSettingsChanged {
+		if err := database.InvalidateUserCache(user.ID); err != nil {
+			// Log the error but don't fail the request - the settings update was successful
+			// The cache will be refreshed naturally on the next request
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true})

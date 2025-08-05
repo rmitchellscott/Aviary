@@ -104,6 +104,11 @@ func (s *UserFolderCacheService) GetUserFolders(userID uuid.UUID, force bool) ([
 		return s.refreshUserFolders(userID, userCache, false)
 	}
 
+	// If forced refresh is requested, refresh synchronously and return fresh data
+	if force {
+		return s.refreshUserFolders(userID, userCache, false) // synchronous refresh without rate limiting
+	}
+
 	// If cache exists but is stale, return stale data and refresh in background (like single-user)
 	if needsRefresh {
 		go func() {
@@ -114,7 +119,7 @@ func (s *UserFolderCacheService) GetUserFolders(userID uuid.UUID, force bool) ([
 		}()
 	}
 
-	// Always return cached data immediately (like single-user)
+	// Return cached data immediately
 	userCache.mu.RLock()
 	defer userCache.mu.RUnlock()
 
