@@ -325,7 +325,7 @@
       "all_api_keys": "Wszystkie klucze API ({{count}})"
     },
     "tooltips": {
-      "oidc_group_managed": "Role zarządzane przez grupy OIDC"
+      "oidc_managed": "Zarządzane przez OIDC"
     },
     "never": "Nigdy"
   },

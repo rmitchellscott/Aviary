@@ -1346,7 +1346,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                                   </Badge>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  {t("admin.tooltips.oidc_group_managed")}
+                                  {t("admin.tooltips.oidc_managed")}
                                 </TooltipContent>
                               </Tooltip>
                             ) : (

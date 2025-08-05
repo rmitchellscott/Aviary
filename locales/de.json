@@ -325,7 +325,7 @@
       "all_api_keys": "Alle API-Schlüssel ({{count}})"
     },
     "tooltips": {
-      "oidc_group_managed": "Rollen werden über OIDC-Gruppen verwaltet"
+      "oidc_managed": "Über OIDC verwaltet"
     },
     "never": "Nie"
   },

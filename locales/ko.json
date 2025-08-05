@@ -325,7 +325,7 @@
       "all_api_keys": "모든 API 키 ({{count}})"
     },
     "tooltips": {
-      "oidc_group_managed": "역할은 OIDC 그룹을 통해 관리됩니다"
+      "oidc_managed": "OIDC를 통해 관리됨"
     },
     "never": "없음"
   },

@@ -325,7 +325,7 @@
       "all_api_keys": "Alle API-nøkler ({{count}})"
     },
     "tooltips": {
-      "oidc_group_managed": "Roller administreres via OIDC-grupper"
+      "oidc_managed": "Administreres via OIDC"
     },
     "never": "Aldri"
   },

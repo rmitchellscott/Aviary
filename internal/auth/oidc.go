@@ -309,21 +309,20 @@ func OIDCCallbackHandler(c *gin.Context) {
 		return
 	}
 
-	// Handle user authentication based on mode
-	if database.IsMultiUserMode() {
-		if err := handleOIDCMultiUserAuth(c, username, claims.Email, claims.Name, claims.Subject, claims.Groups, rawIDToken); err != nil {
-			if err.Error() == "account disabled" {
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "backend.auth.account_disabled"})
-			} else {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			}
-			return
-		}
-	} else {
-		if err := handleOIDCSingleUserAuth(c, username, rawIDToken); err != nil {
+	// OIDC authentication requires multi-user mode
+	if !database.IsMultiUserMode() {
+		c.JSON(http.StatusNotImplemented, gin.H{"error": "OIDC authentication requires multi-user mode"})
+		return
+	}
+
+	// Handle user authentication in multi-user mode
+	if err := handleOIDCMultiUserAuth(c, username, claims.Email, claims.Name, claims.Subject, claims.Groups, rawIDToken); err != nil {
+		if err.Error() == "account disabled" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "backend.auth.account_disabled"})
+		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
 		}
+		return
 	}
 }
 
@@ -414,8 +413,23 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 		updates["oidc_subject"] = subject
 	}
 
-	if email != "" && user.Email == "" {
+	// Always sync email from OIDC provider
+	if email != "" {
 		updates["email"] = email
+	}
+
+	// Always sync username from OIDC provider (with conflict handling)
+	if username != "" && username != user.Username {
+		// Check if username already exists for another user
+		var existingUser database.User
+		if err := database.DB.Where("username = ? AND id != ?", username, user.ID).First(&existingUser).Error; err == nil {
+			// Username taken - log warning but continue login
+			oidcDebugLog("[OIDC] Warning: Cannot update username to '%s' for user %s - already taken by user %s", username, user.ID, existingUser.ID)
+		} else {
+			// Safe to update
+			oidcDebugLog("[OIDC] Updating username from '%s' to '%s' for user %s", user.Username, username, user.ID)
+			updates["username"] = username
+		}
 	}
 
 	// Update admin status based on group membership if enabled
@@ -433,9 +447,13 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 		oidcDebugLog("OIDC group-based admin is disabled, preserving existing admin status: %t", user.IsAdmin)
 	}
 
+	// Always update last login for OIDC authentication
+	now := time.Now()
+	updates["last_login"] = &now
+
 	if len(updates) > 0 {
 		oidcDebugLog("Applying user updates: %+v", updates)
-		updates["updated_at"] = time.Now()
+		updates["updated_at"] = now
 		if err := database.DB.Model(user).Updates(updates).Error; err != nil {
 			oidcDebugLog("Failed to update user: %v", err)
 			return fmt.Errorf("failed to update user: %w", err)
@@ -492,44 +510,6 @@ func handleOIDCMultiUserAuth(c *gin.Context, username, email, name, subject stri
 	return nil
 }
 
-// handleOIDCSingleUserAuth handles OIDC authentication in single-user mode
-func handleOIDCSingleUserAuth(c *gin.Context, username string, rawIDToken string) error {
-	// In single-user mode, we create a JWT token for the authenticated user
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username":    username,
-		"exp":         time.Now().Add(sessionTimeout).Unix(),
-		"iat":         time.Now().Unix(),
-		"iss":         "aviary",
-		"aud":         "aviary-web",
-		"auth_method": "oidc",
-	})
-
-	tokenString, err := token.SignedString(jwtSecret)
-	if err != nil {
-		return fmt.Errorf("failed to sign token: %w", err)
-	}
-
-	// Set secure cookie
-	secure := !allowInsecure()
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("auth_token", tokenString, int(sessionTimeout.Seconds()), "/", "", secure, true)
-
-	// Store ID token for logout (in a separate cookie)
-	c.SetCookie("oidc_id_token", rawIDToken, int(sessionTimeout.Seconds()), "/", "", secure, true)
-
-	// Call post-pairing callback if set (folder cache refresh)
-	if GetPostPairingCallback() != nil {
-		go GetPostPairingCallback()(username, true) // true = single-user mode
-	}
-
-	// Redirect to frontend
-	redirectURL := config.Get("OIDC_SUCCESS_REDIRECT_URL", "")
-	if redirectURL == "" {
-		redirectURL = "/" // Default to home page
-	}
-	c.Redirect(http.StatusFound, redirectURL)
-	return nil
-}
 
 // generateState generates a secure random state parameter
 func generateState() (string, error) {

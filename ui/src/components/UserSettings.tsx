@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { PairingDialog } from "@/components/PairingDialog";
 import { useUserData } from "@/hooks/useUserData";
+import { useConfig } from "@/hooks/useConfig";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +26,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -74,6 +80,7 @@ interface UserSettingsProps {
 export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const { t } = useTranslation();
   const { user, loading: userDataLoading, rmapiPaired, rmapiHost, refetch, updatePairingStatus } = useUserData();
+  const { config } = useConfig();
 
   // Device presets for image to PDF conversion
   const devicePresets = {
@@ -129,6 +136,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   
   // Original values for change tracking
   const [originalValues, setOriginalValues] = useState({
+    username: "",
     email: "",
     userRmapiHost: "",
     defaultRmdir: "/",
@@ -193,6 +201,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       
       // Store original values for change tracking
       setOriginalValues({
+        username: user.username,
         email,
         userRmapiHost,
         defaultRmdir,
@@ -258,7 +267,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   // Check if there are unsaved changes
   const hasChanges = () => {
     return (
-      email !== originalValues.email ||
+      (!config?.oidcEnabled && username !== originalValues.username) ||
+      (!config?.oidcEnabled && email !== originalValues.email) ||
       userRmapiHost !== originalValues.userRmapiHost ||
       defaultRmdir !== originalValues.defaultRmdir ||
       coverpageSetting !== originalValues.coverpageSetting ||
@@ -282,7 +292,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         },
         credentials: "include",
         body: JSON.stringify({
-          email,
+          ...(config?.oidcEnabled ? {} : { username, email }),
           rmapi_host: userRmapiHost,
           default_rmdir: defaultRmdir,
           coverpage_setting: coverpageSetting,
@@ -561,22 +571,55 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="username">{t("settings.labels.username")}</Label>
-                      <Input
-                        id="username"
-                        value={username}
-                        disabled
-                        className="mt-2"
-                      />
+                      {config?.oidcEnabled ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Input
+                              id="username"
+                              value={username}
+                              readOnly
+                              className="mt-2 bg-muted text-muted-foreground cursor-default"
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {t("admin.tooltips.oidc_managed")}
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <Input
+                          id="username"
+                          value={username}
+                          disabled
+                          className="mt-2"
+                        />
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="email">{t("settings.labels.email")}</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="mt-2"
-                      />
+                      {config?.oidcEnabled ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Input
+                              id="email"
+                              type="email"
+                              value={email}
+                              readOnly
+                              className="mt-2 bg-muted text-muted-foreground cursor-default"
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {t("admin.tooltips.oidc_managed")}
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <Input
+                          id="email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="mt-2"
+                        />
+                      )}
                     </div>
                   </div>
 

@@ -32,6 +32,7 @@ func GetPostPairingCallback() PostPairingCallback {
 
 // UpdateUserRequest represents a user update request
 type UpdateUserRequest struct {
+	Username           *string  `json:"username,omitempty"`
 	Email              *string  `json:"email,omitempty" binding:"omitempty,email"`
 	RmapiHost          *string  `json:"rmapi_host,omitempty"`
 	DefaultRmdir       *string  `json:"default_rmdir,omitempty"`
@@ -259,6 +260,15 @@ func UpdateUserHandler(c *gin.Context) {
 
 	// Build update map
 	updates := make(map[string]interface{})
+	if req.Username != nil && *req.Username != "" {
+		// Check for username conflicts
+		var existingUser database.User
+		if err := database.DB.Where("username = ? AND id != ?", *req.Username, userID).First(&existingUser).Error; err == nil {
+			c.JSON(http.StatusConflict, gin.H{"error": "Username already exists"})
+			return
+		}
+		updates["username"] = *req.Username
+	}
 	if req.Email != nil && *req.Email != "" {
 		updates["email"] = *req.Email
 	}
@@ -373,6 +383,15 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 	updates := make(map[string]interface{})
 
 	// Update fields only if they were provided in the request (pointers allow us to detect this)
+	if req.Username != nil && *req.Username != "" {
+		// Check for username conflicts
+		var existingUser database.User
+		if err := database.DB.Where("username = ? AND id != ?", *req.Username, user.ID).First(&existingUser).Error; err == nil {
+			c.JSON(http.StatusConflict, gin.H{"error": "Username already exists"})
+			return
+		}
+		updates["username"] = *req.Username
+	}
 	if req.Email != nil && *req.Email != "" {
 		updates["email"] = *req.Email
 	}
