@@ -102,6 +102,7 @@ type DocumentRequest struct {
 	Archive       string `form:"archive" json:"archive"`
 	RmDir         string `form:"rm_dir" json:"rm_dir"`
 	RetentionDays string `form:"retention_days" json:"retention_days"`
+	ConflictResolution string `form:"conflict_resolution" json:"conflict_resolution"`
 }
 
 // enqueueJob creates a new job ID, logs form fields, starts processPDF(form) in a goroutine,
@@ -199,6 +200,7 @@ func EnqueueHandler(c *gin.Context) {
 				"archive":        req.Archive,
 				"rm_dir":         req.RmDir,
 				"retention_days": req.RetentionDays,
+				"conflict_resolution": req.ConflictResolution,
 			}
 			// Set defaults for empty values
 			if form["compress"] == "" {
@@ -226,6 +228,7 @@ func EnqueueHandler(c *gin.Context) {
 			"archive":        c.DefaultPostForm("archive", "false"),
 			"rm_dir":         c.PostForm("rm_dir"),
 			"retention_days": c.DefaultPostForm("retention_days", "7"),
+			"conflict_resolution": c.PostForm("conflict_resolution"),
 		}
 		id := enqueueJobForUser(form, userID)
 		c.JSON(http.StatusAccepted, gin.H{"jobId": id})
@@ -296,6 +299,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 	manage := isTrue(form["manage"])
 	archive := isTrue(form["archive"])
 	retentionStr := form["retention_days"]
+	requestConflictResolution := form["conflict_resolution"]
 
 	retentionDays := 7
 	if rd, err := strconv.Atoi(retentionStr); err == nil && rd > 0 {
@@ -473,7 +477,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 	// 5) Upload to rmapi
 	jobStore.UpdateWithOperation(jobID, "Running", "backend.status.uploading", nil, "uploading")
 	manager.Logf("📤 Uploading to reMarkable")
-	remoteName, err = manager.SimpleUpload(finalLocalPath, rmDir, dbUser)
+	remoteName, err = manager.SimpleUpload(finalLocalPath, rmDir, dbUser, requestConflictResolution)
 	if err != nil {
 		if isConflictError(err) {
 			return "backend.status.conflict_entry_exists", map[string]string{
@@ -668,6 +672,7 @@ func processDocumentForUser(jobID string, req DocumentRequest, userID uuid.UUID)
 		"archive":        req.Archive,
 		"rm_dir":         req.RmDir,
 		"retention_days": req.RetentionDays,
+		"conflict_resolution": req.ConflictResolution,
 	}
 
 	// Set defaults for empty values
@@ -813,6 +818,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 
 	body := form["Body"]
 	compress := isTrue(form["compress"])
+	requestConflictResolution := form["conflict_resolution"]
 
 	// Extract file paths from the "files:" prefix
 	pathsJSON := strings.TrimPrefix(body, "files:")
@@ -970,7 +976,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 
 	for _, filePath := range finalPaths {
 		// Use simple upload for each file
-		remoteName, err := manager.SimpleUpload(filePath, rmDir, dbUser)
+		remoteName, err := manager.SimpleUpload(filePath, rmDir, dbUser, requestConflictResolution)
 		if err != nil {
 			// Clean up any processed files before returning error
 			for _, path := range cleanupPaths {

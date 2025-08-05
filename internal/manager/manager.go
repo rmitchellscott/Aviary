@@ -157,7 +157,7 @@ func RenameStorage(ctx context.Context, srcKey, prefix string, userID uuid.UUID)
 }
 
 // SimpleUpload calls `rmapi put` and returns the uploaded filename or a detailed error.
-func SimpleUpload(path, rmDir string, user *database.User) (string, error) {
+func SimpleUpload(path, rmDir string, user *database.User, requestConflictResolution ...string) (string, error) {
 	args := []string{"put"}
 
 	// Use user's coverpage setting if provided, otherwise fall back to environment variable or default
@@ -177,9 +177,10 @@ func SimpleUpload(path, rmDir string, user *database.User) (string, error) {
 		args = append(args, "--coverpage=1")
 	}
 
-	// Use user's conflict resolution setting if provided, otherwise fall back to environment variable or default
 	conflictResolution := ""
-	if user != nil {
+	if len(requestConflictResolution) > 0 && requestConflictResolution[0] != "" {
+		conflictResolution = requestConflictResolution[0]
+	} else if user != nil {
 		conflictResolution = user.ConflictResolution
 	}
 	if conflictResolution == "" {
@@ -222,7 +223,7 @@ func SimpleUpload(path, rmDir string, user *database.User) (string, error) {
 }
 
 // RenameAndUpload takes a storage key, renames it in storage, uploads via rmapi, and creates archival copy
-func RenameAndUpload(storageKey, prefix, rmDir string, user *database.User) (string, error) {
+func RenameAndUpload(storageKey, prefix, rmDir string, user *database.User, requestConflictResolution ...string) (string, error) {
 	// Validate prefix early
 	var err error
 	prefix, err = SanitizePrefix(prefix)
@@ -276,9 +277,10 @@ func RenameAndUpload(storageKey, prefix, rmDir string, user *database.User) (str
 		args = append(args, "--coverpage=1")
 	}
 
-	// Use user's conflict resolution setting if provided, otherwise fall back to environment variable or default
 	conflictResolution := ""
-	if user != nil {
+	if len(requestConflictResolution) > 0 && requestConflictResolution[0] != "" {
+		conflictResolution = requestConflictResolution[0]
+	} else if user != nil {
 		conflictResolution = user.ConflictResolution
 	}
 	if conflictResolution == "" {
