@@ -13,6 +13,7 @@ import (
 	// third-party
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/google/uuid"
 
 	// internal
 	"github.com/rmitchellscott/aviary/internal/auth"
@@ -24,6 +25,8 @@ import (
 	"github.com/rmitchellscott/aviary/internal/logging"
 	"github.com/rmitchellscott/aviary/internal/manager"
 	"github.com/rmitchellscott/aviary/internal/restore"
+	"github.com/rmitchellscott/aviary/internal/rmapi"
+	"github.com/rmitchellscott/aviary/internal/storage"
 	"github.com/rmitchellscott/aviary/internal/version"
 	"github.com/rmitchellscott/aviary/internal/webhook"
 )
@@ -38,13 +41,18 @@ func main() {
 	_ = godotenv.Load()
 	logging.Logf("[STARTUP] Starting %s", version.String())
 
+	// Initialize storage backend early
+	if err := storage.InitializeStorage(); err != nil {
+		log.Fatalf("Failed to initialize storage: %v", err)
+	}
+
 	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
 		fmt.Println(version.String())
 		os.Exit(0)
 	}
 
 	if len(os.Args) > 1 && os.Args[1] == "pair" {
-		if err := auth.RunPair(os.Stdout, os.Stderr); err != nil {
+		if err := rmapi.RunPair(os.Stdout, os.Stderr); err != nil {
 			fmt.Fprintf(os.Stderr, "pair failed: %v\n", err)
 			os.Exit(1)
 		}
@@ -101,7 +109,7 @@ func main() {
 	// Check for rmapi.conf (skip in multi-user mode as each user will have their own config)
 	// In single-user mode, just log a warning if not paired - allow UI pairing
 	if !database.IsMultiUserMode() {
-		if !auth.CheckSingleUserPaired() {
+		if !rmapi.IsUserPaired(uuid.Nil) {
 			logging.Logf("[WARNING] No valid rmapi.conf detected. You can pair through the web interface or run 'aviary pair' from the command line.")
 		}
 	}
@@ -113,7 +121,7 @@ func main() {
 	}
 
 	// Set up post-pairing callback to refresh folder cache
-	auth.SetPostPairingCallback(func(userID string, singleUserMode bool) {
+	rmapi.SetPostPairingCallback(func(userID string, singleUserMode bool) {
 		if singleUserMode {
 			if err := manager.RefreshFolderCache(); err != nil {
 				logging.Logf("[WARNING] Failed to refresh folder cache after pairing: %v", err)
@@ -180,13 +188,13 @@ func main() {
 	{
 		profile.PUT("", auth.UpdateCurrentUserHandler)         // PUT /api/profile - update current user
 		profile.POST("/password", auth.UpdatePasswordHandler)  // POST /api/profile/password - update password
-		profile.POST("/pair", auth.PairRMAPIHandler)           // POST /api/profile/pair - pair rmapi
-		profile.POST("/disconnect", auth.UnpairRMAPIHandler)   // POST /api/profile/disconnect - remove rmapi config
+		profile.POST("/pair", rmapi.PairHandler)           // POST /api/profile/pair - pair rmapi
+		profile.POST("/disconnect", rmapi.UnpairHandler)   // POST /api/profile/disconnect - remove rmapi config
 		profile.GET("/stats", auth.GetCurrentUserStatsHandler) // GET /api/profile/stats - get current user stats
 		profile.DELETE("", auth.DeleteCurrentUserHandler)      // DELETE /api/profile - delete current user account
 	}
 
-	protected.POST("/pair", auth.HandlePairRequest)
+	protected.POST("/pair", rmapi.HandlePairRequest)
 
 	apiKeys := protected.Group("/api-keys")
 	{

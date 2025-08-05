@@ -1,15 +1,18 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/logging"
+	"github.com/rmitchellscott/aviary/internal/storage"
 )
 
 // MigrateToMultiUser handles the migration from single-user to multi-user mode
@@ -38,7 +41,7 @@ func MigrateToMultiUser() error {
 	email := config.Get("ADMIN_EMAIL", "")
 
 	if username == "" || password == "" {
-		logging.Logf("[STARTUP] AUTH_USERNAME and AUTH_PASSWORD not set - first user will become admin")
+		logging.Logf("[STARTUP] No admin user configured - navigate to /register to create the first admin account")
 		return nil
 	}
 
@@ -96,12 +99,10 @@ func MigrateToMultiUser() error {
 		}
 	}
 
-	// Migrate single-user data (rmapi config and files) asynchronously
-	go func() {
-		if err := MigrateSingleUserData(adminUser.ID); err != nil {
-			logging.Logf("[WARNING] failed to migrate single-user data during startup: %v", err)
-		}
-	}()
+	// Migrate single-user data (rmapi config and files) synchronously to avoid database locking
+	if err := MigrateSingleUserData(adminUser.ID); err != nil {
+		logging.Logf("[WARNING] failed to migrate single-user data during startup: %v", err)
+	}
 
 	// Ensure all existing users have coverpage setting set
 	if err := ensureUsersHaveCoverpageSetting(); err != nil {
@@ -219,7 +220,21 @@ func GetDatabaseStats() (map[string]interface{}, error) {
 	return stats, nil
 }
 
-// migrateRmapiConfig copies the root rmapi.conf file to the admin user's directory
+func isDocumentFile(filename string) bool {
+	ext := strings.ToLower(filepath.Ext(filename))
+	return ext == ".pdf" || ext == ".epub"
+}
+
+func getSingleUserStorageDir() string {
+	if storage.GetStorageType() == "filesystem" {
+		if pdfDir := config.Get("PDF_DIR", ""); pdfDir != "" {
+			return pdfDir
+		}
+	}
+	return "pdfs"
+}
+
+// migrateRmapiConfig migrates the root rmapi.conf file to the admin user's database
 func migrateRmapiConfig(adminUserID uuid.UUID) error {
 	// Check if single-user rmapi.conf exists at /root/.config/rmapi/rmapi.conf
 	rootRmapiPath := "/root/.config/rmapi/rmapi.conf"
@@ -228,97 +243,167 @@ func migrateRmapiConfig(adminUserID uuid.UUID) error {
 		return nil
 	}
 
-	// Get the user's rmapi config path using local logic to avoid import cycle
-	baseDir := config.Get("DATA_DIR", "")
-	if baseDir == "" {
-		baseDir = "/data"
+	// Check if user already has rmapi config in database
+	var user User
+	if err := DB.Select("rmapi_config").Where("id = ?", adminUserID).First(&user).Error; err != nil {
+		return fmt.Errorf("failed to check existing rmapi config: %w", err)
 	}
-
-	userDir := filepath.Join(baseDir, "users", adminUserID.String())
-	cfgDir := filepath.Join(userDir, "rmapi")
-	userRmapiPath := filepath.Join(cfgDir, "rmapi.conf")
-
-	// Check if user already has rmapi config
-	if _, err := os.Stat(userRmapiPath); err == nil {
-		logging.Logf("[STARTUP] User already has rmapi config, skipping migration")
+	
+	if user.RmapiConfig != "" {
+		logging.Logf("[STARTUP] User already has rmapi config in database, skipping migration")
 		return nil
 	}
 
-	// Ensure the rmapi config directory exists
-	if err := os.MkdirAll(cfgDir, 0755); err != nil {
-		return fmt.Errorf("failed to create rmapi config directory: %w", err)
+	// Read config content directly from source
+	configContent, err := os.ReadFile(rootRmapiPath)
+	if err != nil {
+		return fmt.Errorf("failed to read rmapi config from %s: %w", rootRmapiPath, err)
 	}
 
-	// Copy the file
-	if err := copyFile(rootRmapiPath, userRmapiPath); err != nil {
-		return fmt.Errorf("failed to copy rmapi config: %w", err)
+	// Save config content to database
+	if err := SaveUserRmapiConfig(adminUserID, string(configContent)); err != nil {
+		return fmt.Errorf("failed to save rmapi config to database during migration: %w", err)
 	}
 
-	logging.Logf("[STARTUP] Successfully migrated rmapi.conf from root to user directory: %s", userRmapiPath)
+	logging.Logf("[STARTUP] Successfully migrated rmapi.conf from %s to database for admin user", rootRmapiPath)
 	return nil
 }
 
-// migrateArchivedFiles copies archived files from root pdfs directory to admin user's pdfs directory
+// migrateArchivedFiles copies archived files from single-user storage to multi-user storage
 func migrateArchivedFiles(adminUserID uuid.UUID) error {
-	// Determine source directory - either PDF_DIR env var or default pdfs/
-	sourceDir := config.Get("PDF_DIR", "")
-	if sourceDir == "" {
-		sourceDir = "pdfs"
+	ctx := context.Background()
+	backend := storage.GetStorageBackend()
+	migratedCount := 0
+
+	var singleUserFiles []string
+	var err error
+	
+	if storage.GetStorageType() == "s3" {
+		singleUserFiles, err = backend.List(ctx, "pdfs/")
+		if err != nil {
+			logging.Logf("[STARTUP] No single-user files found to migrate: %v", err)
+			return nil
+		}
+	} else {
+		singleUserStorageDir := getSingleUserStorageDir()
+		
+		// Check if directory exists
+		if _, err := os.Stat(singleUserStorageDir); os.IsNotExist(err) {
+			logging.Logf("[STARTUP] No single-user PDF directory found at %s", singleUserStorageDir)
+			return nil
+		}
+		
+		// Walk directory recursively
+		err := filepath.Walk(singleUserStorageDir, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return nil // Continue walking despite errors
+			}
+			
+			// Calculate relative path from base directory
+			relPath, err := filepath.Rel(singleUserStorageDir, path)
+			if err != nil {
+				return nil
+			}
+			
+			if !info.IsDir() && isDocumentFile(info.Name()) {
+				singleUserFiles = append(singleUserFiles, relPath)
+			}
+			
+			return nil
+		})
+		
+		if err != nil {
+			logging.Logf("[STARTUP] Failed to walk single-user PDF directory %s: %v", singleUserStorageDir, err)
+			return nil
+		}
 	}
 
-	// Check if source directory exists
-	if _, err := os.Stat(sourceDir); os.IsNotExist(err) {
-		logging.Logf("[STARTUP] No archived files directory found to migrate: %s", sourceDir)
+	if len(singleUserFiles) == 0 {
+		logging.Logf("[STARTUP] No single-user archived files found to migrate")
 		return nil
 	}
 
-	// Get the user's PDF directory using local logic to avoid import cycle
-	baseDir := config.Get("DATA_DIR", "")
-	if baseDir == "" {
-		baseDir = "/data"
-	}
+	logging.Logf("[STARTUP] Found %d single-user files to migrate", len(singleUserFiles))
 
-	userDir := filepath.Join(baseDir, "users", adminUserID.String())
-	destDir := filepath.Join(userDir, "pdfs")
-
-	// Ensure the user PDF directory exists
-	if err := os.MkdirAll(destDir, 0755); err != nil {
-		return fmt.Errorf("failed to create user PDF directory: %w", err)
-	}
-
-	// Copy all files and directories from source to destination
-	err := filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		// Calculate relative path from source
-		relPath, err := filepath.Rel(sourceDir, path)
-		if err != nil {
-			return err
-		}
-
-		// Skip the root directory itself
-		if relPath == "." {
-			return nil
-		}
-
-		destPath := filepath.Join(destDir, relPath)
-
-		if info.IsDir() {
-			// Create directory in destination
-			return os.MkdirAll(destPath, info.Mode())
+	// Migrate each file from single-user to multi-user storage
+	for _, filename := range singleUserFiles {
+		var reader io.ReadCloser
+		var oldKey string
+		
+		if storage.GetStorageType() == "s3" {
+			if strings.HasSuffix(filename, "/") {
+				continue
+			}
+			relPath := strings.TrimPrefix(filename, "pdfs/")
+			if relPath == filename {
+				continue
+			}
+			oldKey = filename
+			
+			r, err := backend.Get(ctx, oldKey)
+			if err != nil {
+				logging.Logf("[WARNING] Failed to read file %s during migration: %v", oldKey, err)
+				continue
+			}
+			reader = r
 		} else {
-			// Copy file to destination
-			return copyFile(path, destPath)
+			singleUserStorageDir := getSingleUserStorageDir()
+			oldPath := filepath.Join(singleUserStorageDir, filename)
+			
+			file, err := os.Open(oldPath)
+			if err != nil {
+				logging.Logf("[WARNING] Failed to read file %s during migration: %v", oldPath, err)
+				continue
+			}
+			
+			reader = file
+			oldKey = filename
 		}
-	})
 
-	if err != nil {
-		return fmt.Errorf("failed to migrate archived files: %w", err)
+		// Generate new multi-user key
+		var fileRelPath string
+		if storage.GetStorageType() == "s3" {
+			fileRelPath = strings.TrimPrefix(filename, "pdfs/")
+		} else {
+			fileRelPath = filename
+		}
+		
+		// Check if file is in a subdirectory
+		dir := filepath.Dir(fileRelPath)
+		base := filepath.Base(fileRelPath)
+		
+		var newKey string
+		if dir != "." && dir != "" {
+			newKey = storage.GenerateUserDocumentKey(adminUserID, dir, base, true)
+		} else {
+			newKey = storage.GenerateUserDocumentKey(adminUserID, "", base, true)
+		}
+
+		// Write to new location
+		if err := backend.Put(ctx, newKey, reader); err != nil {
+			reader.Close()
+			logging.Logf("[WARNING] Failed to write file %s during migration: %v", newKey, err)
+			continue
+		}
+		reader.Close()
+
+		// Delete old file
+		if storage.GetStorageType() == "s3" {
+			if err := backend.Delete(ctx, oldKey); err != nil {
+				logging.Logf("[WARNING] Failed to delete old file %s after migration: %v", oldKey, err)
+			}
+		} else {
+			singleUserStorageDir := getSingleUserStorageDir()
+			oldPath := filepath.Join(singleUserStorageDir, filename)
+			if err := os.Remove(oldPath); err != nil {
+				logging.Logf("[WARNING] Failed to delete old file %s after migration: %v", oldPath, err)
+			}
+		}
+
+		migratedCount++
 	}
 
-	logging.Logf("[STARTUP] Successfully migrated archived files from %s to %s", sourceDir, destDir)
+	logging.Logf("[STARTUP] Successfully migrated %d archived files from single-user to multi-user storage", migratedCount)
 	return nil
 }
 

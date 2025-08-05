@@ -1,6 +1,7 @@
 package backup
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,6 +14,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/export"
 	"github.com/rmitchellscott/aviary/internal/logging"
+	"github.com/rmitchellscott/aviary/internal/storage"
 	"gorm.io/gorm"
 )
 
@@ -122,15 +124,16 @@ func (w *Worker) processJob(job database.BackupJob) {
 		return
 	}
 
-	backupDir := filepath.Join(w.dataDir, "backups")
-	if err := os.MkdirAll(backupDir, 0755); err != nil {
-		w.failJob(job, fmt.Sprintf("Failed to create backup directory: %v", err))
+	tempDir, err := os.MkdirTemp("", "aviary-backup-*")
+	if err != nil {
+		w.failJob(job, fmt.Sprintf("Failed to create temp directory: %v", err))
 		return
 	}
+	defer os.RemoveAll(tempDir)
 
 	timestamp := time.Now().Format("20060102_150405")
 	filename := fmt.Sprintf("aviary_backup_%s.tar.gz", timestamp)
-	backupPath := filepath.Join(backupDir, filename)
+	tempBackupPath := filepath.Join(tempDir, filename)
 
 	exporter := export.NewExporter(w.db, w.dataDir)
 
@@ -153,12 +156,28 @@ func (w *Worker) processJob(job database.BackupJob) {
 	job.Progress = 50
 	w.db.Save(&job)
 
-	if err := exporter.Export(backupPath, exportOptions); err != nil {
+	if err := exporter.Export(tempBackupPath, exportOptions); err != nil {
 		w.failJob(job, fmt.Sprintf("Export failed: %v", err))
 		return
 	}
 
-	stat, err := os.Stat(backupPath)
+	ctx := context.Background()
+	backend := storage.GetStorageBackend()
+	storageKey := fmt.Sprintf("backups/%s", filename)
+	
+	backupFile, err := os.Open(tempBackupPath)
+	if err != nil {
+		w.failJob(job, fmt.Sprintf("Failed to open backup file: %v", err))
+		return
+	}
+	defer backupFile.Close()
+	
+	if err := backend.Put(ctx, storageKey, backupFile); err != nil {
+		w.failJob(job, fmt.Sprintf("Failed to store backup: %v", err))
+		return
+	}
+
+	stat, err := os.Stat(tempBackupPath)
 	if err != nil {
 		w.failJob(job, fmt.Sprintf("Failed to get backup file info: %v", err))
 		return
@@ -169,7 +188,7 @@ func (w *Worker) processJob(job database.BackupJob) {
 
 	job.Status = "completed"
 	job.Progress = 100
-	job.FilePath = backupPath
+	job.FilePath = storageKey
 	job.Filename = filename
 	job.FileSize = stat.Size()
 	job.CompletedAt = &completedAt
@@ -235,9 +254,14 @@ func CleanupExpiredBackups(db *gorm.DB) error {
 		return err
 	}
 
+	ctx := context.Background()
+	backend := storage.GetStorageBackend()
+
 	for _, job := range expiredJobs {
 		if job.FilePath != "" {
-			os.Remove(job.FilePath)
+			if err := backend.Delete(ctx, job.FilePath); err != nil {
+				logging.Logf("[BACKUP] Warning: failed to delete backup %s: %v", job.FilePath, err)
+			}
 		}
 		db.Delete(&job)
 	}
@@ -253,7 +277,11 @@ func DeleteBackupJob(db *gorm.DB, jobID uuid.UUID, adminUserID uuid.UUID) error 
 
 	// Delete the backup file if it exists
 	if job.FilePath != "" {
-		os.Remove(job.FilePath)
+		ctx := context.Background()
+		backend := storage.GetStorageBackend()
+		if err := backend.Delete(ctx, job.FilePath); err != nil {
+			logging.Logf("[BACKUP] Warning: failed to delete backup %s: %v", job.FilePath, err)
+		}
 	}
 
 	// Delete the job record

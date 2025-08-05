@@ -17,7 +17,7 @@ You can start Aviary without an rmapi.conf file and pair through the web interfa
 4. Enter the 8-character code as prompted
 5. The pairing will be completed automatically
 
-**Note:** In single-user mode, both methods write to the same location (`/root/.config/rmapi/rmapi.conf`). In multi-user mode, each user has their own pairing status managed through their profile settings.
+**Note:** In single-user mode, both methods write to the same location (`/root/.config/rmapi/rmapi.conf`). This file is always stored in the filesystem regardless of storage backend configuration, so you must mount `/root/.config/rmapi/` as a volume for persistence. In multi-user mode, each user has their own pairing data stored in the database.
 
 #### Method 2: Command Line Pairing (Recommended for stateless setups)
 Get your device and user token file (rmapi.conf) by running:
@@ -25,7 +25,7 @@ Get your device and user token file (rmapi.conf) by running:
 docker run -it -e RMAPI_HOST=https://remarkable.mydomain.com ghcr.io/rmitchellscott/aviary pair
 ```
 
-For the standard reMarkable Cloud, omit the `RMAPI_HOST`:
+For the official reMarkable Cloud, omit the `RMAPI_HOST`:
 ```bash
 docker run -it ghcr.io/rmitchellscott/aviary pair
 ```
@@ -42,11 +42,11 @@ In multi-user mode, pairing is handled per-user:
 2. Users can access pairing through the main page, or Settings → Profile → Pair
 3. Each user can configure their own RMAPI_HOST if using self-hosted rmfakecloud
 4. Admin users can see which users are paired through the admin interface
-5. User pairing status is stored in the database, with the user's rmapi.conf stored in a user-specific directory in the filesystem
+5. User pairing data is stored in the database
 
 ## Docker
 
-### Basic Usage
+### Basic Usage (Single-User Mode)
 
 ```shell
 # Basic usage (with pre-created rmapi.conf)
@@ -185,66 +185,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
-
-volumes:
-  postgres_data:
-```
-
-### Multi-User Mode with PostgreSQL and Docker Secrets
-```yaml
-services:
-  aviary:
-    image: ghcr.io/rmitchellscott/aviary
-    ports:
-      - "8000:8000"
-    environment:
-      MULTI_USER: "true"
-      AUTH_USERNAME: "admin"
-      AUTH_PASSWORD_FILE: "/run/secrets/auth_password"
-      ADMIN_EMAIL: "admin@example.com"
-      DB_TYPE: "postgres"
-      DB_HOST: "postgres"
-      DB_PORT: "5432"
-      DB_USER: "aviary"
-      DB_PASSWORD_FILE: "/run/secrets/db_password"
-      DB_NAME: "aviary"
-      DB_SSLMODE: "disable"
-      JWT_SECRET_FILE: "/run/secrets/jwt_secret"
-      SMTP_PASSWORD_FILE: "/run/secrets/smtp_password"
-    secrets:
-      - auth_password
-      - db_password
-      - jwt_secret
-      - smtp_password
-    volumes:
-      - type: bind
-        source: ./data
-        target: /data
-    depends_on:
-      - postgres
-    restart: unless-stopped
-
-  postgres:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: "aviary"
-      POSTGRES_USER: "aviary"
-      POSTGRES_PASSWORD_FILE: "/run/secrets/db_password"
-    secrets:
-      - db_password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
-secrets:
-  auth_password:
-    file: ./secrets/auth_password.txt
-  db_password:
-    file: ./secrets/db_password.txt
-  jwt_secret:
-    file: ./secrets/jwt_secret.txt
-  smtp_password:
-    file: ./secrets/smtp_password.txt
 
 volumes:
   postgres_data:

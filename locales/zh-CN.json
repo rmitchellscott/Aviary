@@ -515,7 +515,10 @@
       "create_file": "无法在磁盘上创建文件",
       "save_file": "无法保存文件",
       "no_form": "未找到multipart表单",
-      "no_file_field": "没有字段名为{{field}}的文件"
+      "no_file_field": "没有字段名为{{field}}的文件",
+      "file_too_large": "文件大小超过最大限制",
+      "memory_constrained": "服务器内存不足，无法处理文件",
+      "upload_stream_failed": "处理大文件上传失败"
     }
   }
 }

@@ -515,7 +515,10 @@
       "create_file": "Não foi possível criar arquivo no disco",
       "save_file": "Não foi possível salvar arquivo",
       "no_form": "Nenhum formulário multipart encontrado",
-      "no_file_field": "Nenhum arquivo com nome de campo {{field}}"
+      "no_file_field": "Nenhum arquivo com nome de campo {{field}}",
+      "file_too_large": "O tamanho do arquivo excede o limite máximo",
+      "memory_constrained": "Memória do servidor insuficiente para processar o arquivo",
+      "upload_stream_failed": "Falha ao processar upload de arquivo grande"
     }
   }
 }

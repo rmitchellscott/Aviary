@@ -370,7 +370,10 @@
       "create_file": "Impossibile creare il file sul disco",
       "save_file": "Impossibile salvare il file",
       "no_form": "Nessun modulo multipart trovato",
-      "no_file_field": "Nessun file con il nome del campo {{field}}"
+      "no_file_field": "Nessun file con il nome del campo {{field}}",
+      "file_too_large": "La dimensione del file supera il limite massimo",
+      "memory_constrained": "Memoria del server insufficiente per elaborare il file",
+      "upload_stream_failed": "Impossibile elaborare il caricamento di file di grandi dimensioni"
     }
   },
   "settings": {

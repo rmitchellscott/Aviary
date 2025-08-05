@@ -2,8 +2,9 @@ package manager
 
 import (
 	"bufio"
+	"context"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -11,8 +12,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
+	"github.com/rmitchellscott/aviary/internal/rmapi"
+	"github.com/rmitchellscott/aviary/internal/storage"
 )
 
 // ExecCommand is exec.Command by default, but can be overridden in tests.
@@ -25,7 +29,7 @@ func init() {
 			if len(args) > 0 {
 				cmdStr += " " + strings.Join(args, " ")
 			}
-			Logf("[dry-run] would run: %s", cmdStr)
+			Logf("[DRY RUN] would run: %s", cmdStr)
 			return exec.Command("true")
 		}
 	}
@@ -48,26 +52,6 @@ func filterEnv(env []string, prefix string) []string {
 		}
 	}
 	return filtered
-}
-
-// rmapiCmd builds an exec.Cmd to run rmapi with user-specific configuration
-// if provided.
-func rmapiCmd(user *database.User, args ...string) *exec.Cmd {
-	cmd := ExecCommand("rmapi", args...)
-	env := os.Environ()
-	if user != nil {
-		if user.RmapiHost != "" {
-			env = append(env, "RMAPI_HOST="+user.RmapiHost)
-		} else {
-			// Remove server-level RMAPI_HOST to use official cloud
-			env = filterEnv(env, "RMAPI_HOST")
-		}
-		if cfg, err := GetUserRmapiConfigPath(user.ID); err == nil {
-			env = append(env, "RMAPI_CONFIG="+cfg)
-		}
-	}
-	cmd.Env = env
-	return cmd
 }
 
 func Logf(format string, v ...interface{}) {
@@ -94,62 +78,82 @@ func SanitizePrefix(p string) (string, error) {
 	return p, nil
 }
 
-func RenameLocalNoYear(src, prefix string) (string, error) {
-	dir := filepath.Dir(src)
+// Storage-based rename functions that work with storage keys instead of file paths
+
+// RenameStorageNoYear renames a file in storage to include month and day but no year
+func RenameStorageNoYear(ctx context.Context, srcKey, prefix string, userID uuid.UUID) (string, error) {
 	today := time.Now()
 	month, day := today.Format("January"), today.Day()
 
-	name := fmt.Sprintf("%s %s %d.pdf", prefix, month, day)
+	filename := fmt.Sprintf("%s %s %d.pdf", prefix, month, day)
 	if prefix == "" {
-		name = fmt.Sprintf("%s %d.pdf", month, day)
+		filename = fmt.Sprintf("%s %d.pdf", month, day)
 	}
-	dest := filepath.Join(dir, name)
-	if err := moveFile(src, dest); err != nil {
+
+	// Generate destination key
+	multiUserMode := database.IsMultiUserMode()
+	dstKey := storage.GenerateUserDocumentKey(userID, prefix, filename, multiUserMode)
+
+	// Move in storage
+	if err := storage.MoveInStorage(ctx, srcKey, dstKey); err != nil {
 		return "", err
 	}
-	return dest, nil
+
+	return dstKey, nil
 }
 
-func AppendYearLocal(noYearPath string) (string, error) {
-	dir := filepath.Dir(noYearPath)
+// AppendYearStorage renames a file in storage to append the current year
+func AppendYearStorage(ctx context.Context, noYearKey string, userID uuid.UUID) (string, error) {
 	today := time.Now()
 	year := today.Year()
 
-	base := strings.TrimSuffix(filepath.Base(noYearPath), ".pdf")
-	name := fmt.Sprintf("%s %d.pdf", base, year)
-	dest := filepath.Join(dir, name)
-	if err := moveFile(noYearPath, dest); err != nil {
+	// Extract filename from storage key
+	parts := strings.Split(noYearKey, "/")
+	filename := parts[len(parts)-1]
+	base := strings.TrimSuffix(filename, ".pdf")
+	newFilename := fmt.Sprintf("%s %d.pdf", base, year)
+
+	// Extract prefix from storage key structure
+	var prefix string
+	if database.IsMultiUserMode() && userID != uuid.Nil {
+		// Multi-user: users/{userID}/pdfs/{prefix}/{filename}
+		if len(parts) >= 5 {
+			prefix = parts[3] // The prefix is the 4th part (0-indexed)
+		}
+	} else {
+		// Single-user: pdfs/{prefix}/{filename}
+		if len(parts) >= 3 {
+			prefix = parts[1] // The prefix is the 2nd part (0-indexed)
+		}
+	}
+
+	// Generate destination key
+	multiUserMode := database.IsMultiUserMode()
+	dstKey := storage.GenerateUserDocumentKey(userID, prefix, newFilename, multiUserMode)
+
+	// Move in storage
+	if err := storage.MoveInStorage(ctx, noYearKey, dstKey); err != nil {
 		return "", err
 	}
-	return dest, nil
+
+	return dstKey, nil
 }
 
-func moveFile(src, dst string) error {
-	in, err := os.Open(src)
+// RenameStorage performs both operations: rename to no-year, then append year
+func RenameStorage(ctx context.Context, srcKey, prefix string, userID uuid.UUID) (string, error) {
+	// First rename to no-year format
+	noYearKey, err := RenameStorageNoYear(ctx, srcKey, prefix, userID)
 	if err != nil {
-		return err
-	}
-	defer in.Close()
-
-	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
-		return err
+		return "", err
 	}
 
-	out, err := os.Create(dst)
+	// Then append year
+	withYearKey, err := AppendYearStorage(ctx, noYearKey, userID)
 	if err != nil {
-		return err
+		return "", err
 	}
-	defer out.Close()
 
-	if _, err := io.Copy(out, in); err != nil {
-		return err
-	}
-	// ensure data flushed
-	if err := out.Sync(); err != nil {
-		return err
-	}
-	// remove src
-	return os.Remove(src)
+	return withYearKey, nil
 }
 
 // SimpleUpload calls `rmapi put` and returns the uploaded filename or a detailed error.
@@ -200,7 +204,8 @@ func SimpleUpload(path, rmDir string, user *database.User) (string, error) {
 	}
 
 	args = append(args, path, rmDir)
-	cmd := rmapiCmd(user, args...)
+	cmd, cleanup := rmapi.NewCommand(user, args...)
+	defer cleanup()
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		raw := strings.TrimSpace(string(out))
@@ -216,33 +221,8 @@ func SimpleUpload(path, rmDir string, user *database.User) (string, error) {
 	return remoteName, nil
 }
 
-func RenameLocal(path, prefix string) (string, error) {
-	dir := filepath.Dir(path)
-	today := time.Now()
-	month, day, year := today.Format("January"), today.Day(), today.Year()
-
-	// 1) rename to no‐year
-	noYear := fmt.Sprintf("%s %s %d.pdf", prefix, month, day)
-	if prefix == "" {
-		noYear = fmt.Sprintf("%s %d.pdf", month, day)
-	}
-	noYearPath := filepath.Join(dir, noYear)
-	if err := moveFile(path, noYearPath); err != nil {
-		return "", err
-	}
-
-	// 2) rename to include year
-	withYear := strings.TrimSuffix(noYear, ".pdf") + fmt.Sprintf(" %d.pdf", year)
-	withYearPath := filepath.Join(dir, withYear)
-	if err := moveFile(noYearPath, withYearPath); err != nil {
-		return "", err
-	}
-
-	return withYearPath, nil
-}
-
-// RenameAndUpload renames locally, uploads via rmapi, and returns the name on the device.
-func RenameAndUpload(path, prefix, rmDir string, user *database.User) (string, error) {
+// RenameAndUpload takes a storage key, renames it in storage, uploads via rmapi, and creates archival copy
+func RenameAndUpload(storageKey, prefix, rmDir string, user *database.User) (string, error) {
 	// Validate prefix early
 	var err error
 	prefix, err = SanitizePrefix(prefix)
@@ -250,41 +230,33 @@ func RenameAndUpload(path, prefix, rmDir string, user *database.User) (string, e
 		return "", err
 	}
 
-	// Build target dir - use user-specific directory in multi-user mode
-	var pdfDir string
-	if database.IsMultiUserMode() && user != nil {
-		pdfDir, err = GetUserPDFDir(user.ID, prefix)
-		if err != nil {
-			return "", err
-		}
-	} else {
-		// Single-user mode - use existing logic
-		pdfDir = config.Get("PDF_DIR", "")
-		if pdfDir == "" {
-			pdfDir = "/app/pdfs"
-		}
-		if prefix != "" {
-			pdfDir = filepath.Join(pdfDir, prefix)
-			if err := os.MkdirAll(pdfDir, 0755); err != nil {
-				return "", err
-			}
-		}
+	ctx := context.Background()
+	var userID uuid.UUID
+	if user != nil {
+		userID = user.ID
 	}
 
-	// Date strings
-	today := time.Now()
-	month, day, year := today.Format("January"), today.Day(), today.Year()
-
-	// Move into target as "<prefix> Month D.pdf"
-	noYear := fmt.Sprintf("%s %s %d.pdf", prefix, month, day)
-	if prefix == "" {
-		noYear = fmt.Sprintf("%s %d.pdf", month, day)
-	}
-	noYearPath := filepath.Join(pdfDir, noYear)
-	if err := moveFile(path, noYearPath); err != nil {
+	// Input is already a storage key, rename it directly to no-year format
+	noYearKey, err := RenameStorageNoYear(ctx, storageKey, prefix, userID)
+	if err != nil {
 		return "", err
 	}
 
+	// Create temp file for rmapi upload
+	tempFile, err := ioutil.TempFile("", "aviary-rmapi-*.pdf")
+	if err != nil {
+		return "", fmt.Errorf("failed to create temp file: %w", err)
+	}
+	tempFilePath := tempFile.Name()
+	tempFile.Close()
+	defer os.Remove(tempFilePath)
+
+	// Download from storage to temp file
+	if err := storage.CopyFileFromStorage(ctx, noYearKey, tempFilePath); err != nil {
+		return "", fmt.Errorf("failed to download from storage: %w", err)
+	}
+
+	// Prepare rmapi upload
 	args := []string{"put"}
 
 	// Use user's coverpage setting, fallback to environment variable, then default to "current"
@@ -317,7 +289,7 @@ func RenameAndUpload(path, prefix, rmDir string, user *database.User) (string, e
 	// content_only only works with PDF files, so fallback to abort for other file types
 	effectiveConflictResolution := conflictResolution
 	if conflictResolution == "content_only" {
-		ext := strings.ToLower(filepath.Ext(noYearPath))
+		ext := strings.ToLower(filepath.Ext(tempFilePath))
 		if ext != ".pdf" {
 			effectiveConflictResolution = "abort"
 		}
@@ -330,8 +302,9 @@ func RenameAndUpload(path, prefix, rmDir string, user *database.User) (string, e
 		args = append(args, "--content-only") // Only reached for PDFs
 	}
 
-	args = append(args, noYearPath, rmDir)
-	cmd := rmapiCmd(user, args...)
+	args = append(args, tempFilePath, rmDir)
+	cmd, cleanup := rmapi.NewCommand(user, args...)
+	defer cleanup()
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		raw := strings.TrimSpace(string(out))
@@ -344,15 +317,21 @@ func RenameAndUpload(path, prefix, rmDir string, user *database.User) (string, e
 		return "", fmt.Errorf("rmapi put failed: %s", raw)
 	}
 
-	// Rename local file to include year (for local storage)
-	withYear := strings.TrimSuffix(noYear, ".pdf") + fmt.Sprintf(" %d.pdf", year)
-	withYearPath := filepath.Join(pdfDir, withYear)
-	if err := moveFile(noYearPath, withYearPath); err != nil {
-		return "", err
+	// Append year in storage for archival
+	Logf("[ARCHIVE] Starting archival storage process")
+	archiveKey, err := AppendYearStorage(ctx, noYearKey, userID)
+	if err != nil {
+		return "", fmt.Errorf("failed to create archival copy: %w", err)
 	}
 
+	Logf("[ARCHIVE] Archival copy stored with key: %s", archiveKey)
+
+	// Extract filename from no-year key for return value
+	parts := strings.Split(noYearKey, "/")
+	noYearFilename := parts[len(parts)-1]
+
 	// Return the name that ended up on the device
-	return noYear, nil
+	return noYearFilename, nil
 }
 
 func CleanupOld(prefix, rmDir string, retentionDays int, user *database.User) error {
@@ -369,7 +348,8 @@ func CleanupOld(prefix, rmDir string, retentionDays int, user *database.User) er
 	}
 
 	// 1) List remote files
-	proc := rmapiCmd(user, "ls", rmDir)
+	proc, cleanup := rmapi.NewCommand(user, "ls", rmDir)
+	defer cleanup()
 	out, err := proc.Output()
 	if err != nil {
 		return err
@@ -426,7 +406,9 @@ func CleanupOld(prefix, rmDir string, retentionDays int, user *database.User) er
 		if fileDate.Before(cutoff) {
 			Logf("Removing %s (dated %s < %s)",
 				fname, fileDate.Format("2006-01-02"), cutoff.Format("2006-01-02"))
-			rmapiCmd(user, "rm", filepath.Join(rmDir, fname)).Run()
+			rmCmd, rmCleanup := rmapi.NewCommand(user, "rm", filepath.Join(rmDir, fname))
+			rmCmd.Run()
+			rmCleanup()
 		}
 	}
 

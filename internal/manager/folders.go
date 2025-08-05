@@ -16,6 +16,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/auth"
 	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
+	"github.com/rmitchellscott/aviary/internal/rmapi"
 	"gorm.io/gorm"
 )
 
@@ -63,7 +64,7 @@ func RefreshUserFolderCache(userID string) error {
 	}
 
 	// Check if user is paired before attempting refresh
-	if !IsUserPaired(uuid) {
+	if !rmapi.IsUserPaired(uuid) {
 		return fmt.Errorf("user %s not paired", userID)
 	}
 
@@ -76,11 +77,11 @@ func RefreshUserFolderCache(userID string) error {
 func ListFolders(user *database.User) ([]string, error) {
 	// Check pairing status based on mode
 	if database.IsMultiUserMode() {
-		if user != nil && !IsUserPaired(user.ID) {
+		if user != nil && !rmapi.IsUserPaired(user.ID) {
 			return nil, fmt.Errorf("user %s not paired", user.ID)
 		}
 	} else {
-		if !IsSingleUserPaired() {
+		if !rmapi.IsUserPaired(uuid.Nil) {
 			return nil, fmt.Errorf("single user not paired")
 		}
 	}
@@ -94,7 +95,9 @@ func ListFolders(user *database.User) ([]string, error) {
 		if p != "" {
 			args = append(args, p)
 		}
-		out, err := rmapiCmd(user, args...).Output()
+		cmd, cleanup := rmapi.NewCommand(user, args...)
+		defer cleanup()
+		out, err := cmd.Output()
 		if err != nil {
 			return err
 		}

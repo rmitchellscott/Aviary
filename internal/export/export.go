@@ -3,16 +3,19 @@ package export
 import (
 	"archive/tar"
 	"compress/gzip"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/logging"
+	"github.com/rmitchellscott/aviary/internal/storage"
 	"github.com/rmitchellscott/aviary/internal/version"
 	"gorm.io/gorm"
 )
@@ -50,14 +53,16 @@ type ImportOptions struct {
 type Exporter struct {
 	db              *gorm.DB
 	dataDir         string
+	storageBackend  storage.StorageBackendWithInfo
 	totalDocuments  int64
 }
 
 // NewExporter creates a new exporter instance
 func NewExporter(db *gorm.DB, dataDir string) *Exporter {
 	return &Exporter{
-		db:      db,
-		dataDir: dataDir,
+		db:             db,
+		dataDir:        dataDir,
+		storageBackend: storage.GetStorageBackend(),
 	}
 }
 
@@ -146,8 +151,14 @@ func (e *Exporter) exportDatabase(dbDir string, metadata *ExportMetadata, option
 			query = query.Where("user_id IN ?", options.UserIDs)
 		}
 		
-		if err := query.Model(model).Find(&records).Error; err != nil {
-			return fmt.Errorf("failed to export table %s: %w", tableName, err)
+		if tableName == "users" {
+			if err := query.Model(model).Select("*").Find(&records).Error; err != nil {
+				return fmt.Errorf("failed to export table %s: %w", tableName, err)
+			}
+		} else {
+			if err := query.Model(model).Find(&records).Error; err != nil {
+				return fmt.Errorf("failed to export table %s: %w", tableName, err)
+			}
 		}
 
 		// Write to JSON file
@@ -185,6 +196,7 @@ func (e *Exporter) exportFilesystem(fsDir string, options ExportOptions) (int64,
 	var totalSize int64
 	var exportedUsers []string
 	var totalDocuments int64
+	ctx := context.Background()
 
 	// Get list of users to export
 	var users []database.User
@@ -204,32 +216,112 @@ func (e *Exporter) exportFilesystem(fsDir string, options ExportOptions) (int64,
 
 		// Export user documents
 		if options.IncludeFiles {
-			userDocsDir := filepath.Join(e.dataDir, "users", userID, "pdfs")
+			userDocsPrefix := fmt.Sprintf("users/%s/pdfs/", userID)
 			
-			if stat, err := os.Stat(userDocsDir); err == nil && stat.IsDir() {
+			// List files from storage backend
+			fileInfos, err := e.storageBackend.ListWithInfo(ctx, userDocsPrefix)
+			if err != nil {
+				return 0, nil, fmt.Errorf("failed to list documents for user %s: %w", userID, err)
+			}
+			
+			if len(fileInfos) > 0 {
 				destDir := filepath.Join(fsDir, "documents", userID)
-				
-				size, docCount, err := copyDirectoryAndCount(userDocsDir, destDir)
-				if err != nil {
-					return 0, nil, fmt.Errorf("failed to copy documents for user %s: %w", userID, err)
+				if err := os.MkdirAll(destDir, 0755); err != nil {
+					return 0, nil, fmt.Errorf("failed to create documents directory for user %s: %w", userID, err)
 				}
-				totalSize += size
-				totalDocuments += docCount
+				
+				for _, fileInfo := range fileInfos {
+					// Extract filename from key
+					filename := strings.TrimPrefix(fileInfo.Key, userDocsPrefix)
+					if filename == "" {
+						continue
+					}
+					
+					// Get file data from storage
+					reader, err := e.storageBackend.Get(ctx, fileInfo.Key)
+					if err != nil {
+						return 0, nil, fmt.Errorf("failed to get file %s for user %s: %w", filename, userID, err)
+					}
+					
+					// Write to destination
+					destPath := filepath.Join(destDir, filename)
+					if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+						reader.Close()
+						return 0, nil, fmt.Errorf("failed to create directory for %s: %w", destPath, err)
+					}
+					
+					destFile, err := os.Create(destPath)
+					if err != nil {
+						reader.Close()
+						return 0, nil, fmt.Errorf("failed to create destination file %s: %w", destPath, err)
+					}
+					
+					written, err := io.Copy(destFile, reader)
+					destFile.Close()
+					reader.Close()
+					
+					if err != nil {
+						return 0, nil, fmt.Errorf("failed to copy file %s for user %s: %w", filename, userID, err)
+					}
+					
+					totalSize += written
+					totalDocuments++
+				}
 			}
 		}
 
-		// Export user configs
+		// Export user configs from rmapi directory (configs are exported from database as part of user data)
 		if options.IncludeConfigs {
-			userConfigDir := filepath.Join(e.dataDir, "users", userID, "rmapi")
+			// Check if rmapi configs exist in storage
+			userConfigPrefix := fmt.Sprintf("users/%s/rmapi/", userID)
 			
-			if stat, err := os.Stat(userConfigDir); err == nil && stat.IsDir() {
+			configInfos, err := e.storageBackend.ListWithInfo(ctx, userConfigPrefix)
+			if err != nil {
+				return 0, nil, fmt.Errorf("failed to list configs for user %s: %w", userID, err)
+			}
+			
+			if len(configInfos) > 0 {
 				destDir := filepath.Join(fsDir, "configs", userID)
-				
-				size, _, err := copyDirectoryAndCount(userConfigDir, destDir)
-				if err != nil {
-					return 0, nil, fmt.Errorf("failed to copy configs for user %s: %w", userID, err)
+				if err := os.MkdirAll(destDir, 0755); err != nil {
+					return 0, nil, fmt.Errorf("failed to create configs directory for user %s: %w", userID, err)
 				}
-				totalSize += size
+				
+				for _, configInfo := range configInfos {
+					// Extract filename from key
+					filename := strings.TrimPrefix(configInfo.Key, userConfigPrefix)
+					if filename == "" {
+						continue
+					}
+					
+					// Get file data from storage
+					reader, err := e.storageBackend.Get(ctx, configInfo.Key)
+					if err != nil {
+						return 0, nil, fmt.Errorf("failed to get config %s for user %s: %w", filename, userID, err)
+					}
+					
+					// Write to destination
+					destPath := filepath.Join(destDir, filename)
+					if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+						reader.Close()
+						return 0, nil, fmt.Errorf("failed to create directory for %s: %w", destPath, err)
+					}
+					
+					destFile, err := os.Create(destPath)
+					if err != nil {
+						reader.Close()
+						return 0, nil, fmt.Errorf("failed to create destination file %s: %w", destPath, err)
+					}
+					
+					written, err := io.Copy(destFile, reader)
+					destFile.Close()
+					reader.Close()
+					
+					if err != nil {
+						return 0, nil, fmt.Errorf("failed to copy config %s for user %s: %w", filename, userID, err)
+					}
+					
+					totalSize += written
+				}
 			}
 		}
 	}
@@ -406,12 +498,13 @@ func createTarGz(sourceDir, outputPath string) error {
 	tarWriter := tar.NewWriter(gzWriter)
 	defer tarWriter.Close()
 
-	// First, add metadata.json if it exists
+	// First, add metadata.json if it exists - MUST be first file in archive
 	metadataPath := filepath.Join(sourceDir, "metadata.json")
 	if _, err := os.Stat(metadataPath); err == nil {
 		if err := addFileToTar(tarWriter, metadataPath, "metadata.json"); err != nil {
 			return fmt.Errorf("failed to add metadata.json: %w", err)
 		}
+		logging.Logf("[EXPORT] Added metadata.json as first file in archive")
 	}
 
 	// Walk through source directory

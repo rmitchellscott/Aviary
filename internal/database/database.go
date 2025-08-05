@@ -331,3 +331,11 @@ func Close() error {
 	}
 	return nil
 }
+
+// SaveUserRmapiConfig saves the rmapi configuration content to the database (global helper)
+func SaveUserRmapiConfig(userID uuid.UUID, configContent string) error {
+	if !IsMultiUserMode() {
+		return fmt.Errorf("rmapi config database storage only available in multi-user mode")
+	}
+	return DB.Model(&User{}).Where("id = ?", userID).Update("rmapi_config", configContent).Error
+}

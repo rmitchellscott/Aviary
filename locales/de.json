@@ -515,7 +515,10 @@
       "create_file": "Datei konnte nicht auf der Festplatte erstellt werden",
       "save_file": "Datei konnte nicht gespeichert werden",
       "no_form": "Kein Multipart-Formular gefunden",
-      "no_file_field": "Keine Datei mit Feldname {{field}}"
+      "no_file_field": "Keine Datei mit Feldname {{field}}",
+      "file_too_large": "Dateigröße überschreitet das maximale Limit",
+      "memory_constrained": "Unzureichender Serverspeicher für Dateiverarbeitung",
+      "upload_stream_failed": "Verarbeitung des großen Datei-Uploads fehlgeschlagen"
     }
   }
 }

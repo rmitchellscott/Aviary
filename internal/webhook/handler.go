@@ -2,15 +2,18 @@
 package webhook
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/coder/websocket"
 	"github.com/coder/websocket/wsjson"
@@ -23,6 +26,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/downloader"
 	"github.com/rmitchellscott/aviary/internal/jobs"
 	"github.com/rmitchellscott/aviary/internal/manager"
+	"github.com/rmitchellscott/aviary/internal/storage"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -348,10 +352,9 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			return "backend.status.no_url", nil, fmt.Errorf("no URL")
 		}
 
-		tmpDir := !archive // if archive==false, we download into a temp dir so it'll get cleaned up
-		manager.Logf("DownloadPDF: tmp=%t, prefix=%q", tmpDir, prefix)
+		manager.Logf("DownloadPDF: tmp=true, prefix=%q", prefix)
 		jobStore.UpdateWithOperation(jobID, "Running", "backend.status.downloading", nil, "downloading")
-		localPath, err = downloader.DownloadPDFForUser(match, tmpDir, prefix, userID, nil)
+		localPath, err = downloader.DownloadPDFForUser(match, true, prefix, userID, nil)
 		if err != nil {
 			// Even if download fails, localPath may be empty—no cleanup needed here.
 			return "backend.status.download_error", nil, err
@@ -422,95 +425,115 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		localPath = compressedPath
 		jobStore.UpdateProgress(jobID, 100)
 
-		// If "manage" is false, rename the compressed back to "*.pdf" (drop "_compressed" suffix)
-		if !manage {
-			origPath := strings.TrimSuffix(localPath, "_compressed.pdf") + ".pdf"
-			if err := os.Rename(localPath, origPath); err != nil {
-				return "backend.status.rename_error", nil, err
-			}
-			localPath = origPath
+		// Always rename the compressed file back to drop "_compressed" suffix
+		origPath := strings.TrimSuffix(localPath, "_compressed.pdf") + ".pdf"
+		if err := os.Rename(localPath, origPath); err != nil {
+			return "backend.status.rename_error", nil, err
 		}
+		localPath = origPath
 	}
 
-	// 4) Upload / Manage workflows
+	// 4) Rename file for managed workflows
+	var finalLocalPath string
+	if manage {
+		// Create new filename with month and day but no year
+		today := time.Now()
+		month, day := today.Format("January"), today.Day()
+		
+		var newFilename string
+		if prefix != "" {
+			manager.Logf("🔄 Renaming file for managed workflow with prefix: %s", prefix)
+			newFilename = fmt.Sprintf("%s %s %d.pdf", prefix, month, day)
+		} else {
+			manager.Logf("🔄 Renaming file for managed workflow (no prefix)")
+			newFilename = fmt.Sprintf("%s %d.pdf", month, day)
+		}
+		
+		// Create renamed file in same directory as original
+		dir := filepath.Dir(localPath)
+		finalLocalPath = filepath.Join(dir, newFilename)
+		
+		// Copy to new location
+		if err := os.Rename(localPath, finalLocalPath); err != nil {
+			return "backend.status.rename_error", nil, err
+		}
+		
+		// Clean up the renamed file when done
+		defer func() {
+			if _, statErr := os.Stat(finalLocalPath); statErr == nil {
+				if cleanupErr := os.Remove(finalLocalPath); cleanupErr != nil {
+					manager.Logf("⚠️ cleanup warning: could not remove renamed file %q: %v", finalLocalPath, cleanupErr)
+				}
+			}
+		}()
+	} else {
+		finalLocalPath = localPath
+	}
+
+	// 5) Upload to rmapi
 	jobStore.UpdateWithOperation(jobID, "Running", "backend.status.uploading", nil, "uploading")
-	switch {
-	case manage && archive:
-		manager.Logf("📤 Managed archive upload")
-		remoteName, err = manager.RenameAndUpload(localPath, prefix, rmDir, dbUser)
-		if err != nil {
-			if isConflictError(err) {
-				return "backend.status.conflict_entry_exists", map[string]string{
-					"conflict_resolution": "settings.labels.conflict_resolution",
-					"settings": "app.settings",
-				}, err
-			}
-			return "backend.status.internal_error", nil, err
+	manager.Logf("📤 Uploading to reMarkable")
+	remoteName, err = manager.SimpleUpload(finalLocalPath, rmDir, dbUser)
+	if err != nil {
+		if isConflictError(err) {
+			return "backend.status.conflict_entry_exists", map[string]string{
+				"conflict_resolution": "settings.labels.conflict_resolution",
+				"settings": "app.settings",
+			}, err
 		}
-
-	case manage && !archive:
-		manager.Logf("📤 Managed in-place workflow")
-		noYearPath, err2 := manager.RenameLocalNoYear(localPath, prefix)
-		if err2 != nil {
-			return "backend.status.internal_error", nil, err2
-		}
-		remoteName, err = manager.SimpleUpload(noYearPath, rmDir, dbUser)
-		if err != nil {
-			if isConflictError(err) {
-				return "backend.status.conflict_entry_exists", map[string]string{
-					"conflict_resolution": "settings.labels.conflict_resolution",
-					"settings": "app.settings",
-				}, err
-			}
-			return "backend.status.internal_error", nil, err
-		}
-		if _, err2 := manager.AppendYearLocal(noYearPath); err2 != nil {
-			return "backend.status.internal_error", nil, err2
-		}
-
-	case !manage && archive:
-		manager.Logf("📤 Archive-only upload")
-		remoteName, err = manager.SimpleUpload(localPath, rmDir, dbUser)
-		if err != nil {
-			if isConflictError(err) {
-				return "backend.status.conflict_entry_exists", map[string]string{
-					"conflict_resolution": "settings.labels.conflict_resolution",
-					"settings": "app.settings",
-				}, err
-			}
-			return "backend.status.internal_error", nil, err
-		}
-
-	default:
-		manager.Logf("📤 Simple upload")
-		remoteName, err = manager.SimpleUpload(localPath, rmDir, dbUser)
-		if err != nil {
-			if isConflictError(err) {
-				return "backend.status.conflict_entry_exists", map[string]string{
-					"conflict_resolution": "settings.labels.conflict_resolution",
-					"settings": "app.settings",
-				}, err
-			}
-			return "backend.status.internal_error", nil, err
-		}
+		return "backend.status.internal_error", nil, err
 	}
 
-	// 5) If manage==true, perform cleanup
+	// 6) Archive to storage backend if requested
+	if archive {
+		manager.Logf("📦 Archiving to storage backend")
+		filename := filepath.Base(finalLocalPath)
+		multiUserMode := database.IsMultiUserMode()
+		
+		var storageKey string
+		if manage {
+			// For managed files, use no-year format first, then add year for archival
+			noYearKey := storage.GenerateUserDocumentKey(userID, prefix, filename, multiUserMode)
+			
+			// Copy to storage with no-year format
+			ctx := context.Background()
+			if err := storage.CopyFileToStorage(ctx, finalLocalPath, noYearKey); err != nil {
+				manager.Logf("⚠️ archival warning: failed to copy to storage: %v", err)
+			} else {
+				// Add year for archival copy
+				if yearKey, err2 := manager.AppendYearStorage(ctx, noYearKey, userID); err2 != nil {
+					manager.Logf("⚠️ archival warning: failed to create year copy: %v", err2)
+				} else {
+					storageKey = yearKey
+				}
+			}
+		} else {
+			// For non-managed files, archive as-is
+			storageKey = storage.GenerateUserDocumentKey(userID, "", filename, multiUserMode)
+			ctx := context.Background()
+			if err := storage.CopyFileToStorage(ctx, finalLocalPath, storageKey); err != nil {
+				manager.Logf("⚠️ archival warning: failed to copy to storage: %v", err)
+			}
+		}
+		
+	}
+
+	// 7) If manage==true, perform cleanup
 	if manage {
 		if err := manager.CleanupOld(prefix, rmDir, retentionDays, dbUser); err != nil {
 			manager.Logf("cleanup warning: %v", err)
 		}
 	}
 
-	// 6) Track document in database if in multi-user mode
+	// 8) Track document in database if in multi-user mode
 	if database.IsMultiUserMode() && userID != uuid.Nil {
-		if err := trackDocumentUpload(userID, localPath, remoteName, rmDir); err != nil {
+		if err := trackDocumentUpload(userID, finalLocalPath, remoteName, rmDir); err != nil {
 			manager.Logf("⚠️ failed to track document upload: %v", err)
 			// Continue anyway - the upload was successful
 		}
 	}
 
-	// 7) Now that the file has been uploaded to the reMarkable, build final status message
+	// 9) Now that the file has been uploaded to the reMarkable, build final status message
 	fullPath := filepath.Join(rmDir, remoteName)
 	fullPath = strings.TrimPrefix(fullPath, "/")
 	jobStore.UpdateProgress(jobID, 100)
@@ -566,18 +589,8 @@ func processDocument(jobID string, req DocumentRequest) (string, map[string]stri
 // processDocumentForUser handles document content processing for a specific user
 func processDocumentForUser(jobID string, req DocumentRequest, userID uuid.UUID) (string, map[string]string, error) {
 	// Create job-specific temp directory
-	var jobTempDir string
-	if database.IsMultiUserMode() && userID != uuid.Nil {
-		userTempDir, err := manager.GetUserTempDir(userID)
-		if err != nil {
-			return "backend.status.internal_error", nil, fmt.Errorf("failed to get user temp directory: %w", err)
-		}
-		jobTempDir = filepath.Join(userTempDir, "aviary_job_"+jobID)
-	} else {
-		jobTempDir = filepath.Join(os.TempDir(), "aviary_job_"+jobID)
-	}
-
-	if err := os.MkdirAll(jobTempDir, 0755); err != nil {
+	jobTempDir, err := manager.CreateUserTempDir(userID)
+	if err != nil {
 		return "backend.status.internal_error", nil, fmt.Errorf("failed to create job temp directory: %w", err)
 	}
 
@@ -631,15 +644,24 @@ func processDocumentForUser(jobID string, req DocumentRequest, userID uuid.UUID)
 		}
 	}
 
-	// Create temp file in job-specific directory
-	tempFile := filepath.Join(jobTempDir, filename)
-	if err := os.WriteFile(tempFile, content, 0644); err != nil {
-		return "backend.status.save_error", nil, fmt.Errorf("failed to save document: %w", err)
+	// Create temp file with proper extension
+	tempFile, err := ioutil.TempFile("", "aviary-doc-*"+filepath.Ext(filename))
+	if err != nil {
+		return "backend.status.save_error", nil, fmt.Errorf("failed to create temp file: %w", err)
 	}
+	tempFilePath := tempFile.Name()
+	
+	// Write content to temp file
+	if _, err := tempFile.Write(content); err != nil {
+		tempFile.Close()
+		os.Remove(tempFilePath)
+		return "backend.status.save_error", nil, fmt.Errorf("failed to write document: %w", err)
+	}
+	tempFile.Close()
 
 	// Create form map for existing processing pipeline
 	form := map[string]string{
-		"Body":           tempFile,
+		"Body":           tempFilePath,
 		"prefix":         req.Prefix,
 		"compress":       req.Compress,
 		"manage":         req.Manage,

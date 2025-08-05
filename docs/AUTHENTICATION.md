@@ -48,8 +48,8 @@ Set `MULTI_USER=true` and configure database settings. The initial admin user is
 
   - The first user to register (via Create Account)
   - If OIDC is enabled and `OIDC_AUTO_CREATE_USERS=true`, OIDC login will create a user on first login
-  - If `OIDC_ADMIN_GROUP` is set, the first user in that group to login will become the admin user
-  - If `OIDC_ADMIN_GROUP` is not set, the first user (regardless of login method) becomes admin
+      - If `OIDC_ADMIN_GROUP` is set, the first user in that group to login will become the admin user
+      - If `OIDC_ADMIN_GROUP` is not set, the first user (regardless of login method) becomes admin
 
   Optionally, you can pre-create an admin user by setting:
   ```bash
@@ -64,6 +64,8 @@ When enabling multi-user mode, the following happens upon the initial admin user
 1. Existing rmapi configuration (cloud pairing) is migrated to the admin user, if present
 2. Existing archived PDF files are moved to the admin user's directory, if present
 3. Environment-based API key is migrated to the admin user's account, if present
+
+For detailed migration procedures, troubleshooting, and combined migrations (e.g., single-user to multi-user + storage backend changes), see the [Migration Guide](docs/MIGRATION_GUIDE.md).
 
 ## Advanced Authentication
 
@@ -104,7 +106,7 @@ OIDC_POST_LOGOUT_REDIRECT_URL=https://aviary.example.com/
 - **OIDC_AUTO_CREATE_USERS**: Whether to automatically create user accounts for new OIDC users (true/false)
 - **OIDC_ADMIN_GROUP**: Name of the OIDC group that grants admin privileges. Users must be members of this group to receive admin rights. If not set, the first user becomes admin
 - **OIDC_SSO_ONLY**: When set to `true`, hides the traditional username/password login form and shows only the OIDC login button (optional, defaults to false)
-- **OIDC_BUTTON_TEXT**: Custom text to override the OIDC login button with (optional)
+- **OIDC_BUTTON_TEXT**: Custom text that will override the OIDC login button (optional)
 - **OIDC_SUCCESS_REDIRECT_URL**: Where to redirect users after successful login (optional, defaults to "/")
 - **OIDC_POST_LOGOUT_REDIRECT_URL**: Where to redirect users after logout (optional)
 - **OIDC_DEBUG**: Logs debug messages about the OIDC lookup and linking process, including raw claims when true (optional)
@@ -209,12 +211,12 @@ curl --cookie-jar cookies.txt https://aviary.example.com/api/status
 
 4. **"Failed to verify ID token" error**
    - Incorrect token signing algorithm in OIDC provider
-   - [Token Signing Algorithm Requirements](#token-signing-algorithm-requirements)
+      - [Token Signing Algorithm Requirements](#token-signing-algorithm-requirements)
 
 5. **Users cannot login on mobile**
    - Some mobile browsers (iOS) require HTTPS for OIDC
-   - Enable HTTPS
-   - Choose another authentication method
+      - Enable HTTPS
+      - Choose another authentication method
 
 ### Proxy Auth Issues
 

@@ -30,7 +30,7 @@ This is particularly useful when using Docker secrets, Kubernetes secrets, or ot
 | PORT                     | No        | 8000    | Port for the web server to listen on |
 | GIN_MODE                 | No        | release | Gin web framework mode (`release`, `debug`, or `test`) |
 | DISABLE_UI               | No        | false   | Set `true` to disable the UI routes and run in API-only mode |
-| PDF_DIR                  | No        | /app/pdfs| Directory to archive PDFs into |
+| PDF_DIR                  | No        | /app/pdfs| Directory to archive PDFs into (filesystem storage only) |
 | RMAPI_HOST               | No        |         | Self-hosted endpoint to use for rmapi (single-user mode only) |
 | RMAPI_COVERPAGE          | No        |         | Set to `first` to add `--coverpage=1` flag to rmapi put commands, used as the default in multi-user mode |
 | RMAPI_CONFLICT_RESOLUTION| No        | abort   | Default conflict resolution mode: `abort`, `overwrite`, or `content_only` |
@@ -44,6 +44,7 @@ This is particularly useful when using Docker secrets, Kubernetes secrets, or ot
 | PAGE_RESOLUTION          | No        | 1404x1872 | Page resolution for PDF conversion (WIDTHxHEIGHT format), used as the default in multi-user mode |
 | PAGE_DPI                 | No        | 226     | Page DPI for PDF conversion, used as the default in multi-user mode |
 | DRY_RUN                  | No        | false   | Set to `true` to log rmapi commands without running them |
+| MAX_UPLOAD_SIZE          | No        | 524288000 | Maximum file upload size in bytes (default: 500MB) |
 
 For more rmapi-specific configuration, see [their documentation](https://github.com/ddvk/rmapi?tab=readme-ov-file#environment-variables).
 
@@ -53,7 +54,29 @@ For more rmapi-specific configuration, see [their documentation](https://github.
 |--------------------------|-----------|---------|-------------|
 | MULTI_USER               | No        | false   | Set to `true` to enable multi-user mode with database |
 | ADMIN_EMAIL              | No        | username@localhost | Admin user email (used when creating initial admin from AUTH_USERNAME, if provided) |
-| DATA_DIR                 | No        | /data   | Directory for database and user data storage |
+| DATA_DIR                 | No        | /data   | Directory for database and user data storage (filesystem backend only) |
+
+## Storage Backend Configuration
+
+| Variable                 | Required? | Default | Description |
+|--------------------------|-----------|---------|-------------|
+| STORAGE_BACKEND          | No        | filesystem | Storage backend type: `filesystem` or `s3` |
+| S3_ENDPOINT              | No        |         | S3-compatible endpoint URL (optional for AWS S3, required for other S3-compatible services) |
+| S3_REGION                | No        | us-east-1 | S3 region |
+| S3_BUCKET                | No        |         | S3 bucket name (required for S3 backend) |
+| S3_ACCESS_KEY_ID         | No        |         | S3 access key ID (required for S3 backend) |
+| S3_SECRET_ACCESS_KEY     | No        |         | S3 secret access key (required for S3 backend) |
+| S3_FORCE_PATH_STYLE      | No        | false   | Force path-style S3 URLs (required for some S3-compatible services) |
+
+### Storage Backend Notes
+
+- **Filesystem backend**: Default option. 
+   - `DATA_DIR`: Multi-user mode, primary storage for user data, database, and archived documents. 
+   - `PDF_DIR`: Single-user mode, directory for archived PDFs 
+- **S3 backend**: Stores archived documents and backups in S3-compatible object storage
+- **Single-user mode limitation**: In single-user mode, only archived documents use the storage backend. The `rmapi.conf` file is always stored in the filesystem at `/root/.config/rmapi/rmapi.conf` and must be mounted as a volume for persistence. `PDF_DIR` is ignored when using S3 storage backend
+- **Migration constraint**: Single-user to multi-user migration requires using the same storage backend. For cross-backend migrations, see the [Migration Guide](docs/MIGRATION_GUIDE.md)
+- **Database storage**: SQLite databases are always stored in the `DATA_DIR` and require volume mounts. For stateless deployment, use PostgreSQL with S3 storage backend
 
 ## Database Configuration (Multi-User Mode)
 
@@ -165,6 +188,40 @@ SITE_URL=https://aviary.example.com
 JWT_SECRET=your-long-random-jwt-secret-here
 ```
 
+### With AWS S3 Storage Backend
+```bash
+MULTI_USER=true
+
+# AWS S3 storage configuration
+STORAGE_BACKEND=s3
+S3_REGION=us-west-2
+S3_BUCKET=my-aviary-bucket
+S3_ACCESS_KEY_ID=AKIA...
+S3_SECRET_ACCESS_KEY=secret-key-here
+# S3_ENDPOINT not needed for AWS S3 - uses default endpoints
+
+DB_TYPE=postgres
+DB_HOST=postgres
+DB_PORT=5432
+DB_USER=aviary
+DB_PASSWORD=secure-db-password
+DB_NAME=aviary
+```
+
+### With MinIO/Self-hosted S3
+```bash
+MULTI_USER=true
+
+# MinIO configuration
+STORAGE_BACKEND=s3
+S3_ENDPOINT=https://minio.example.com
+S3_REGION=us-east-1
+S3_BUCKET=aviary
+S3_ACCESS_KEY_ID=minioadmin
+S3_SECRET_ACCESS_KEY=minioadmin
+S3_FORCE_PATH_STYLE=true
+```
+
 ### With File-based Secrets
 ```bash
 MULTI_USER=true
@@ -200,13 +257,3 @@ ADMIN_EMAIL=admin@localhost
 ```
 
 **Note:** Environment variables set in your shell or Docker configuration will override values in the `.env` file.
-
-## Configuration Validation
-
-Aviary validates configuration on startup and will log warnings or errors for:
-- Invalid timeout values
-- Missing required fields when multi-user mode is enabled
-- Invalid database connection parameters
-- SMTP configuration issues
-
-Check the startup logs to ensure your configuration is valid.

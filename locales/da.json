@@ -515,7 +515,10 @@
       "create_file": "Kunne ikke oprette fil på disk",
       "save_file": "Kunne ikke gemme fil",
       "no_form": "Ingen multipart formular fundet",
-      "no_file_field": "Ingen fil med feltnavn {{field}}"
+      "no_file_field": "Ingen fil med feltnavn {{field}}",
+      "file_too_large": "Filstørrelse overstiger maksimumgrænsen",
+      "memory_constrained": "Serverhukommelse utilstrækkelig til filbehandling",
+      "upload_stream_failed": "Kunne ikke behandle stor fil upload"
     }
   }
 }

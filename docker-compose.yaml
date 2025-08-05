@@ -1,7 +1,7 @@
 # Aviary Docker Compose Configuration
 # 
 # This example shows multi-user mode with SQLite database.
-# For more examples, see: https://github.com/rmitchellscott/Aviary/blob/main/DEPLOYMENT.md
+# For more examples, see: https://github.com/rmitchellscott/Aviary/blob/main/docs/DEPLOYMENT.md
 
 services:
   aviary:
@@ -49,4 +49,4 @@ services:
 # then uncomment the rmapi.conf volume mount.
 #
 # For PostgreSQL, production setups, or advanced configurations,
-# see: https://github.com/rmitchellscott/Aviary/blob/main/DEPLOYMENT.md
+# see: https://github.com/rmitchellscott/Aviary/blob/main/docs/DEPLOYMENT.md
