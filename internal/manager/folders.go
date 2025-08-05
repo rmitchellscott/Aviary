@@ -49,14 +49,6 @@ func InitializeUserFolderCache(db *gorm.DB) {
 	if database.IsMultiUserMode() {
 		userFolderCacheService = NewUserFolderCacheService(db)
 		userFolderCacheService.StartBackgroundRefresh()
-		
-		database.SetUserCacheInvalidateHook(func(userID uuid.UUID) error {
-			if userFolderCacheService != nil {
-				_, err := userFolderCacheService.GetUserFolders(userID, true)
-				return err
-			}
-			return nil
-		})
 	}
 }
 

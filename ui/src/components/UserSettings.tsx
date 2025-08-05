@@ -82,7 +82,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const { t } = useTranslation();
   const { user, loading: userDataLoading, rmapiPaired, rmapiHost, refetch, updatePairingStatus } = useUserData();
   const { config } = useConfig();
-  const { triggerRefresh } = useFolderRefresh();
+  const { triggerRefresh, refreshTrigger } = useFolderRefresh();
 
   // Device presets for image to PDF conversion
   const devicePresets = {
@@ -258,7 +258,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setFolders([]);
       setFoldersLoading(false);
     }
-  }, [isOpen, user, rmapiPaired]);
+  }, [isOpen, user, rmapiPaired, refreshTrigger]);
 
 
   const fetchAPIKeys = async () => {
@@ -345,11 +345,35 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           folderDepthLimit !== originalValues.folderDepthLimit ||
           folderExclusionList !== originalValues.folderExclusionList;
 
-        refetch();
+        // Update original values to reflect the saved state
+        const detectedPreset = devicePreset;
+        const manualResolution = detectedPreset === "manual" ? manualPageResolution : "";
+        const manualDPI = detectedPreset === "manual" ? manualPageDPI : "";
+        
+        setOriginalValues({
+          username,
+          email,
+          userRmapiHost,
+          defaultRmdir,
+          coverpageSetting,
+          conflictResolution,
+          folderDepthLimit,
+          folderExclusionList,
+          devicePreset: detectedPreset,
+          manualPageResolution: manualResolution,
+          manualPageDPI: manualDPI
+        });
 
+        // Trigger folder refresh if folder settings changed
         if (folderSettingsChanged && rmapiPaired) {
           triggerRefresh();
         }
+        
+        // Refetch user data to ensure we have the latest from server
+        // This happens after updating originalValues to prevent flash
+        setTimeout(() => {
+          refetch();
+        }, 100);
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to update profile");

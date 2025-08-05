@@ -371,17 +371,12 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 		updates["conflict_resolution"] = *req.ConflictResolution
 	}
 
-	// Track if folder settings are being updated (for cache invalidation)
-	folderSettingsChanged := false
-
 	if req.FolderDepthLimit != nil {
 		updates["folder_depth_limit"] = *req.FolderDepthLimit
-		folderSettingsChanged = true
 	}
 
 	if req.FolderExclusionList != nil {
 		updates["folder_exclusion_list"] = *req.FolderExclusionList // Allow clearing by setting to empty string
-		folderSettingsChanged = true
 	}
 
 	if req.PageResolution != nil {
@@ -405,14 +400,6 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update profile"})
 		return
-	}
-
-	// Invalidate folder cache if folder settings were changed
-	if folderSettingsChanged {
-		if err := database.InvalidateUserCache(user.ID); err != nil {
-			// Log the error but don't fail the request - the settings update was successful
-			// The cache will be refreshed naturally on the next request
-		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true})
