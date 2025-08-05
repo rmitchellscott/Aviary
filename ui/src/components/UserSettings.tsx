@@ -279,7 +279,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const fetchFolders = async () => {
     try {
       setFoldersLoading(true);
-      const response = await fetch("/api/folders", {
+      const response = await fetch("/api/folders?refresh=1", {
         credentials: "include",
       });
 
@@ -762,29 +762,6 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                     </div>
 
                     <div>
-                      <Label htmlFor="coverpage-setting">{t("settings.labels.cover_page")}</Label>
-                      <Select 
-                        value={coverpageSetting} 
-                        onValueChange={setCoverpageSetting}
-                      >
-                        <SelectTrigger id="coverpage-setting" className="mt-2">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="current">
-                            {t("settings.options.cover_current")}
-                          </SelectItem>
-                          <SelectItem value="first">
-                            {t("settings.options.cover_first")}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {t("settings.help.cover_page")}
-                      </p>
-                    </div>
-
-                    <div>
                       <Label htmlFor="folder-depth-limit">{t("settings.labels.folder_depth_limit")}</Label>
                       <Input
                         id="folder-depth-limit"
@@ -814,6 +791,31 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       </p>
                     </div>
 
+                    <div>
+                      <Label htmlFor="coverpage-setting">{t("settings.labels.cover_page")}</Label>
+                      <Select 
+                        value={coverpageSetting} 
+                        onValueChange={setCoverpageSetting}
+                      >
+                        <SelectTrigger id="coverpage-setting" className="mt-2">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="current">
+                            {t("settings.options.cover_current")}
+                          </SelectItem>
+                          <SelectItem value="first">
+                            {t("settings.options.cover_first")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {t("settings.help.cover_page")}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="conflict-resolution">{t("settings.labels.conflict_resolution")}</Label>
                       <Select 
