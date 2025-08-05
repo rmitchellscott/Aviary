@@ -157,12 +157,13 @@ func RenameStorage(ctx context.Context, srcKey, prefix string, userID uuid.UUID)
 }
 
 // SimpleUpload calls `rmapi put` and returns the uploaded filename or a detailed error.
-func SimpleUpload(path, rmDir string, user *database.User, requestConflictResolution ...string) (string, error) {
+func SimpleUpload(path, rmDir string, user *database.User, requestConflictResolution string, requestCoverpage string) (string, error) {
 	args := []string{"put"}
 
-	// Use user's coverpage setting if provided, otherwise fall back to environment variable or default
 	coverpageSetting := ""
-	if user != nil {
+	if requestCoverpage != "" {
+		coverpageSetting = requestCoverpage
+	} else if user != nil {
 		coverpageSetting = user.CoverpageSetting
 	}
 	if coverpageSetting == "" {
@@ -178,8 +179,8 @@ func SimpleUpload(path, rmDir string, user *database.User, requestConflictResolu
 	}
 
 	conflictResolution := ""
-	if len(requestConflictResolution) > 0 && requestConflictResolution[0] != "" {
-		conflictResolution = requestConflictResolution[0]
+	if requestConflictResolution != "" {
+		conflictResolution = requestConflictResolution
 	} else if user != nil {
 		conflictResolution = user.ConflictResolution
 	}
@@ -223,7 +224,7 @@ func SimpleUpload(path, rmDir string, user *database.User, requestConflictResolu
 }
 
 // RenameAndUpload takes a storage key, renames it in storage, uploads via rmapi, and creates archival copy
-func RenameAndUpload(storageKey, prefix, rmDir string, user *database.User, requestConflictResolution ...string) (string, error) {
+func RenameAndUpload(storageKey, prefix, rmDir string, user *database.User, requestConflictResolution string, requestCoverpage string) (string, error) {
 	// Validate prefix early
 	var err error
 	prefix, err = SanitizePrefix(prefix)
@@ -260,9 +261,10 @@ func RenameAndUpload(storageKey, prefix, rmDir string, user *database.User, requ
 	// Prepare rmapi upload
 	args := []string{"put"}
 
-	// Use user's coverpage setting, fallback to environment variable, then default to "current"
 	coverpageSetting := ""
-	if user != nil {
+	if requestCoverpage != "" {
+		coverpageSetting = requestCoverpage
+	} else if user != nil {
 		coverpageSetting = user.CoverpageSetting
 	}
 	if coverpageSetting == "" {
@@ -278,8 +280,8 @@ func RenameAndUpload(storageKey, prefix, rmDir string, user *database.User, requ
 	}
 
 	conflictResolution := ""
-	if len(requestConflictResolution) > 0 && requestConflictResolution[0] != "" {
-		conflictResolution = requestConflictResolution[0]
+	if requestConflictResolution != "" {
+		conflictResolution = requestConflictResolution
 	} else if user != nil {
 		conflictResolution = user.ConflictResolution
 	}
