@@ -205,7 +205,7 @@ func generatePasswordResetHTML(data EmailData) (string, error) {
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
             line-height: 1.6; 
-            color: oklch(0.145 0 0); 
+            color: oklch(0 0 0); 
             background-color: oklch(1 0 0);
             margin: 0;
             padding: 0;
@@ -243,7 +243,7 @@ func generatePasswordResetHTML(data EmailData) (string, error) {
         }
         .content p {
             margin: 0 0 16px 0;
-            color: oklch(0.145 0 0);
+            color: oklch(0 0 0);
         }
         .button { 
             display: inline-block; 
@@ -257,7 +257,7 @@ func generatePasswordResetHTML(data EmailData) (string, error) {
             transition: background-color 0.2s ease;
         }
         .button:hover {
-            background: oklch(0.145 0 0);
+            background: oklch(0 0 0);
         }
         .link {
             color: oklch(0.205 0 0);
@@ -396,7 +396,7 @@ func generateWelcomeHTML(data EmailData) (string, error) {
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
             line-height: 1.6; 
-            color: oklch(0.145 0 0); 
+            color: oklch(0 0 0); 
             background-color: oklch(1 0 0);
             margin: 0;
             padding: 0;
@@ -434,12 +434,12 @@ func generateWelcomeHTML(data EmailData) (string, error) {
         }
         .content p {
             margin: 0 0 16px 0;
-            color: oklch(0.145 0 0);
+            color: oklch(0 0 0);
         }
         .content ul {
             margin: 16px 0;
             padding-left: 24px;
-            color: oklch(0.145 0 0);
+            color: oklch(0 0 0);
         }
         .content li {
             margin: 8px 0;
@@ -456,7 +456,7 @@ func generateWelcomeHTML(data EmailData) (string, error) {
             transition: background-color 0.2s ease;
         }
         .button:hover {
-            background: oklch(0.145 0 0);
+            background: oklch(0 0 0);
         }
         .footer { 
             background: oklch(1 0 0); 
@@ -517,14 +517,13 @@ func generateWelcomeHTML(data EmailData) (string, error) {
             <div class="content">
                 <h2>Hello {{.Username}},</h2>
                 <p>Welcome to {{.SiteName}}! Your account has been created successfully.</p>
-                <p>{{.SiteName}} is a webhook-driven document uploader that automatically downloads and sends PDFs to your reMarkable tablet.</p>
+                <p>{{.SiteName}} is a web-based document uploader that automatically downloads and sends ePubs, images, and PDFs to your reMarkable tablet.</p>
                 <div class="feature-box">
                     <p><strong>You can now:</strong></p>
                     <ul>
+                        <li>Configure your sending preferences</li>
                         <li>Upload documents from URLs or local files</li>
                         <li>Manage your API keys for programmatic access</li>
-                        <li>Configure your reMarkable settings</li>
-                        <li>Organize your documents with folders</li>
                     </ul>
                 </div>
                 <div style="text-align: center;">
@@ -561,13 +560,12 @@ Hello %s,
 
 Welcome to %s! Your account has been created successfully.
 
-%s is a webhook-driven document uploader that automatically downloads and sends PDFs to your reMarkable tablet.
+%s is a web-based document uploader that automatically downloads and sends PDFs to your reMarkable tablet.
 
 You can now:
+- Configure your sending preferences
 - Upload documents from URLs or local files
 - Manage your API keys for programmatic access
-- Configure your reMarkable settings
-- Organize your documents with folders
 
 Visit %s to get started!
 
