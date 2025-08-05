@@ -398,6 +398,8 @@
       "default_directory": "Directorio Predeterminado",
       "cover_page": "Página de Portada",
       "conflict_resolution": "En Conflicto",
+      "folder_depth_limit": "Límite de Profundidad de Carpetas",
+      "folder_exclusion_list": "Carpetas Excluidas",
       "current_password": "Contraseña Actual",
       "new_password": "Nueva Contraseña",
       "confirm_new_password": "Confirmar Nueva Contraseña",
@@ -450,7 +452,9 @@
       "page_resolution": "Resolución de página en formato ANCHOxALTO",
       "page_dpi": "Puntos por pulgada",
       "default_directory": "Elige la carpeta predeterminada donde se cargarán tus documentos",
-      "conflict_resolution": "Elige qué sucede al subir un documento con el mismo nombre que un documento existente. Solo Contenido preserva anotaciones y solo funciona para PDFs e imágenes - Abortará para EPUBs. Sobrescribir reemplaza documentos completamente."
+      "conflict_resolution": "Elige qué sucede al subir un documento con el mismo nombre que un documento existente. Solo Contenido preserva anotaciones y solo funciona para PDFs e imágenes - Abortará para EPUBs. Sobrescribir reemplaza documentos completamente.",
+      "folder_depth_limit": "Profundidad máxima de carpetas a mostrar (0 = ilimitado)",
+      "folder_exclusion_list": "Lista separada por comas de nombres de carpetas a excluir, sensible a mayúsculas y minúsculas"
     },
     "status": {
       "active": "activo",
@@ -482,7 +486,9 @@
       "current_password": "Ingresa tu contraseña actual",
       "delete_confirm": "ELIMINAR MI CUENTA",
       "page_resolution": "1404x1872",
-      "page_dpi": "226"
+      "page_dpi": "226",
+      "folder_depth_limit": "0",
+      "folder_exclusion_list": "ej., papelera, plantillas, archivo"
     },
     "loading_states": {
       "saving": "Guardando...",

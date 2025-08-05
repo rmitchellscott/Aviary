@@ -34,6 +34,8 @@ This is particularly useful when using Docker secrets, Kubernetes secrets, or ot
 | RMAPI_HOST               | No        |         | Self-hosted endpoint to use for rmapi (single-user mode only) |
 | RMAPI_COVERPAGE          | No        |         | Set to `first` to add `--coverpage=1` flag to rmapi put commands, used as the default in multi-user mode |
 | RMAPI_CONFLICT_RESOLUTION| No        | abort   | Default conflict resolution mode: `abort`, `overwrite`, or `content_only` |
+| RMAPI_FOLDER_DEPTH_LIMIT | No        | 0       | Limit folder traversal depth (0 = no limit, used as the default in multi-user mode) |
+| RMAPI_FOLDER_EXCLUSION_LIST | No     |         | Comma-separated list of folder names to exclude (e.g., `trash,templates,archive`) |
 | RM_TARGET_DIR            | No        | /       | Target folder on reMarkable device (single-user mode only) |
 | GS_COMPAT                | No        | 1.7     | Ghostscript compatibility level |
 | GS_SETTINGS              | No        | /ebook  | Ghostscript PDFSETTINGS preset |

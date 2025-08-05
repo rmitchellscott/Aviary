@@ -351,6 +351,8 @@
       "default_directory": "Standaardmap",
       "cover_page": "Omslagpagina",
       "conflict_resolution": "Bij Conflict",
+      "folder_depth_limit": "Mapdieptelimiet",
+      "folder_exclusion_list": "Uitgesloten mappen",
       "current_password": "Huidige wachtwoord",
       "new_password": "Nieuw wachtwoord",
       "confirm_new_password": "Bevestig nieuw wachtwoord",
@@ -403,7 +405,9 @@
       "page_resolution": "Paginaresolutie in BREEDTExHOOGTE formaat",
       "page_dpi": "Punten per inch",
       "default_directory": "Kies de standaardmap waar uw documenten worden geüpload",
-      "conflict_resolution": "Kies wat er gebeurt bij het uploaden van een document met dezelfde naam als een bestaand document. Alleen Inhoud behoudt annotaties en werkt alleen voor PDF's en afbeeldingen - het zal Afbreken voor EPUB's. Overschrijven vervangt documenten volledig."
+      "conflict_resolution": "Kies wat er gebeurt bij het uploaden van een document met dezelfde naam als een bestaand document. Alleen Inhoud behoudt annotaties en werkt alleen voor PDF's en afbeeldingen - het zal Afbreken voor EPUB's. Overschrijven vervangt documenten volledig.",
+      "folder_depth_limit": "Maximale mapdiepte om weer te geven (0 = onbeperkt)",
+      "folder_exclusion_list": "Kommagescheiden lijst van mapnamen om uit te sluiten, hoofdlettergevoelig"
     },
     "status": {
       "active": "actief",
@@ -435,7 +439,9 @@
       "current_password": "Voer je huidige wachtwoord in",
       "delete_confirm": "VERWIJDER MIJN ACCOUNT",
       "page_resolution": "1404x1872",
-      "page_dpi": "226"
+      "page_dpi": "226",
+      "folder_depth_limit": "0",
+      "folder_exclusion_list": "bijv., prullenbak, sjablonen, archief"
     },
     "loading_states": {
       "saving": "Opslaan...",

@@ -266,6 +266,10 @@ func main() {
 			}
 
 			if stat, err := fs.Stat(uiFS, p); err != nil || stat.IsDir() {
+				if strings.HasPrefix(p, "assets/") {
+					c.AbortWithStatus(http.StatusNotFound)
+					return
+				}
 				p = "index.html"
 				if p == "index.html" {
 					envUsername := config.Get("AUTH_USERNAME", "")
@@ -279,6 +283,14 @@ func main() {
 				}
 			}
 
+			if strings.HasSuffix(p, ".js") {
+				c.Header("Content-Type", "application/javascript")
+			}
+			if p == "index.html" {
+				c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+				c.Header("Pragma", "no-cache")
+				c.Header("Expires", "0")
+			}
 			http.ServeFileFS(c.Writer, c.Request, uiFS, p)
 		})
 	} else {

@@ -23,6 +23,8 @@ type User struct {
 	FolderRefreshPercent int `gorm:"column:folder_refresh_percent;default:0" json:"folder_refresh_percent"`
 	CoverpageSetting string `gorm:"column:coverpage_setting" json:"coverpage_setting"`
 	ConflictResolution string `gorm:"column:conflict_resolution;default:abort" json:"conflict_resolution"`
+	FolderDepthLimit int `gorm:"column:folder_depth_limit;default:0" json:"folder_depth_limit"`
+	FolderExclusionList string `gorm:"column:folder_exclusion_list" json:"folder_exclusion_list"`
 	PageResolution string `gorm:"column:page_resolution" json:"page_resolution,omitempty"`
 	PageDPI float64 `gorm:"column:page_dpi" json:"page_dpi,omitempty"`
 	RmapiConfig string `gorm:"column:rmapi_config;type:text" json:"-"` // Never return config in JSON

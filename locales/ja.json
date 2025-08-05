@@ -351,6 +351,8 @@
       "default_directory": "デフォルトディレクトリ",
       "cover_page": "カバーページ",
       "conflict_resolution": "競合時",
+      "folder_depth_limit": "フォルダ深度制限",
+      "folder_exclusion_list": "除外フォルダ",
       "current_password": "現在のパスワード",
       "new_password": "新しいパスワード",
       "confirm_new_password": "新しいパスワードを確認",
@@ -403,7 +405,9 @@
       "page_resolution": "幅x高さ形式のページ解像度",
       "page_dpi": "1インチあたりのドット数",
       "default_directory": "ドキュメントがアップロードされるデフォルトフォルダを選択してください",
-      "conflict_resolution": "既存の文書と同じ名前の文書をアップロードするときに何が起こるかを選択します。コンテンツのみは注釈を保持し、PDFと画像にのみ機能します - EPUBでは中止されます。上書きは文書を完全に置き換えます。"
+      "conflict_resolution": "既存の文書と同じ名前の文書をアップロードするときに何が起こるかを選択します。コンテンツのみは注釈を保持し、PDFと画像にのみ機能します - EPUBでは中止されます。上書きは文書を完全に置き換えます。",
+      "folder_depth_limit": "表示する最大フォルダ深度（0 = 無制限）",
+      "folder_exclusion_list": "除外するフォルダ名のカンマ区切りリスト、大文字小文字を区別"
     },
     "status": {
       "active": "アクティブ",
@@ -435,7 +439,9 @@
       "current_password": "現在のパスワードを入力してください",
       "delete_confirm": "アカウントを削除",
       "page_resolution": "1404x1872",
-      "page_dpi": "226"
+      "page_dpi": "226",
+      "folder_depth_limit": "0",
+      "folder_exclusion_list": "例：ゴミ箱、テンプレート、アーカイブ"
     },
     "loading_states": {
       "saving": "保存中...",

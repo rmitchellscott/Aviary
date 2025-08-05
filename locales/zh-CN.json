@@ -351,6 +351,8 @@
       "default_directory": "默认目录",
       "cover_page": "封面页",
       "conflict_resolution": "冲突时",
+      "folder_depth_limit": "文件夹深度限制",
+      "folder_exclusion_list": "排除文件夹",
       "current_password": "当前密码",
       "new_password": "新密码",
       "confirm_new_password": "确认新密码",
@@ -403,7 +405,9 @@
       "page_resolution": "以宽度x高度格式的页面分辨率",
       "page_dpi": "每英寸点数",
       "default_directory": "选择您的文档将上传到的默认文件夹",
-      "conflict_resolution": "选择上传与现有文档同名的文档时发生的情况。仅内容保留注释，仅适用于PDF和图像 - 对于EPUB将中止。覆盖完全替换文档。"
+      "conflict_resolution": "选择上传与现有文档同名的文档时发生的情况。仅内容保留注释，仅适用于PDF和图像 - 对于EPUB将中止。覆盖完全替换文档。",
+      "folder_depth_limit": "显示的最大文件夹深度（0 = 无限制）",
+      "folder_exclusion_list": "要排除的文件夹名称的逗号分隔列表，区分大小写"
     },
     "status": {
       "active": "活动",
@@ -435,7 +439,9 @@
       "current_password": "输入您的当前密码",
       "delete_confirm": "删除我的账户",
       "page_resolution": "1404x1872",
-      "page_dpi": "226"
+      "page_dpi": "226",
+      "folder_depth_limit": "0",
+      "folder_exclusion_list": "如：回收站、模板、存档"
     },
     "loading_states": {
       "saving": "保存中...",

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { PairingDialog } from "@/components/PairingDialog";
 import { useUserData } from "@/hooks/useUserData";
 import { useConfig } from "@/hooks/useConfig";
+import { useFolderRefresh } from "@/hooks/useFolderRefresh";
 import {
   Dialog,
   DialogContent,
@@ -81,6 +82,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const { t } = useTranslation();
   const { user, loading: userDataLoading, rmapiPaired, rmapiHost, refetch, updatePairingStatus } = useUserData();
   const { config } = useConfig();
+  const { triggerRefresh, refreshTrigger } = useFolderRefresh();
 
   // Device presets for image to PDF conversion
   const devicePresets = {
@@ -133,6 +135,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [devicePreset, setDevicePreset] = useState("remarkable_1_2");
   const [manualPageResolution, setManualPageResolution] = useState("");
   const [manualPageDPI, setManualPageDPI] = useState("");
+  const [folderDepthLimit, setFolderDepthLimit] = useState(0);
+  const [folderExclusionList, setFolderExclusionList] = useState("");
   
   // Original values for change tracking
   const [originalValues, setOriginalValues] = useState({
@@ -144,7 +148,9 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     conflictResolution: "abort",
     devicePreset: "remarkable_1_2",
     manualPageResolution: "",
-    manualPageDPI: ""
+    manualPageDPI: "",
+    folderDepthLimit: 0,
+    folderExclusionList: ""
   });
   
   const [folders, setFolders] = useState<string[]>([]);
@@ -174,8 +180,32 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   useEffect(() => {
     if (isOpen) {
       fetchAPIKeys();
+      if (user) {
+        const email = user.email;
+        const userRmapiHost = user.rmapi_host || "";
+        const defaultRmdir = user.default_rmdir || "/";
+        const coverpageSetting = user.coverpage_setting || "current";
+        const conflictResolution = user.conflict_resolution || "abort";
+        const folderDepthLimit = user.folder_depth_limit || 0;
+        const folderExclusionList = user.folder_exclusion_list || "";
+        const detectedPreset = getDevicePresetFromUser(user.page_resolution, user.page_dpi);
+        const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
+        const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
+        
+        setUsername(user.username);
+        setEmail(email);
+        setUserRmapiHost(userRmapiHost);
+        setDefaultRmdir(defaultRmdir);
+        setCoverpageSetting(coverpageSetting);
+        setConflictResolution(conflictResolution);
+        setFolderDepthLimit(folderDepthLimit);
+        setFolderExclusionList(folderExclusionList);
+        setDevicePreset(detectedPreset);
+        setManualPageResolution(manualResolution);
+        setManualPageDPI(manualDPI);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, user]);
 
   // Update form fields when user data changes
   useEffect(() => {
@@ -185,6 +215,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       const defaultRmdir = user.default_rmdir || "/";
       const coverpageSetting = user.coverpage_setting || "current";
       const conflictResolution = user.conflict_resolution || "abort";
+      const folderDepthLimit = user.folder_depth_limit || 0;
+      const folderExclusionList = user.folder_exclusion_list || "";
       const detectedPreset = getDevicePresetFromUser(user.page_resolution, user.page_dpi);
       const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
       const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
@@ -195,11 +227,12 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setDefaultRmdir(defaultRmdir);
       setCoverpageSetting(coverpageSetting);
       setConflictResolution(conflictResolution);
+      setFolderDepthLimit(folderDepthLimit);
+      setFolderExclusionList(folderExclusionList);
       setDevicePreset(detectedPreset);
       setManualPageResolution(manualResolution);
       setManualPageDPI(manualDPI);
       
-      // Store original values for change tracking
       setOriginalValues({
         username: user.username,
         email,
@@ -207,6 +240,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         defaultRmdir,
         coverpageSetting,
         conflictResolution,
+        folderDepthLimit,
+        folderExclusionList,
         devicePreset: detectedPreset,
         manualPageResolution: manualResolution,
         manualPageDPI: manualDPI
@@ -223,7 +258,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setFolders([]);
       setFoldersLoading(false);
     }
-  }, [isOpen, user, rmapiPaired]);
+  }, [isOpen, user, rmapiPaired, refreshTrigger]);
 
 
   const fetchAPIKeys = async () => {
@@ -244,7 +279,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const fetchFolders = async () => {
     try {
       setFoldersLoading(true);
-      const response = await fetch("/api/folders", {
+      const response = await fetch("/api/folders?refresh=1", {
         credentials: "include",
       });
 
@@ -273,6 +308,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       defaultRmdir !== originalValues.defaultRmdir ||
       coverpageSetting !== originalValues.coverpageSetting ||
       conflictResolution !== originalValues.conflictResolution ||
+      folderDepthLimit !== originalValues.folderDepthLimit ||
+      folderExclusionList !== originalValues.folderExclusionList ||
       devicePreset !== originalValues.devicePreset ||
       manualPageResolution !== originalValues.manualPageResolution ||
       manualPageDPI !== originalValues.manualPageDPI
@@ -297,13 +334,46 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           default_rmdir: defaultRmdir,
           coverpage_setting: coverpageSetting,
           conflict_resolution: conflictResolution,
+          folder_depth_limit: folderDepthLimit,
+          folder_exclusion_list: folderExclusionList,
           ...pageSettings,
         }),
       });
 
       if (response.ok) {
-        // Refresh user data to ensure UI shows any server-side updates
-        refetch();
+        const folderSettingsChanged = 
+          folderDepthLimit !== originalValues.folderDepthLimit ||
+          folderExclusionList !== originalValues.folderExclusionList;
+
+        // Update original values to reflect the saved state
+        const detectedPreset = devicePreset;
+        const manualResolution = detectedPreset === "manual" ? manualPageResolution : "";
+        const manualDPI = detectedPreset === "manual" ? manualPageDPI : "";
+        
+        setOriginalValues({
+          username,
+          email,
+          userRmapiHost,
+          defaultRmdir,
+          coverpageSetting,
+          conflictResolution,
+          folderDepthLimit,
+          folderExclusionList,
+          devicePreset: detectedPreset,
+          manualPageResolution: manualResolution,
+          manualPageDPI: manualDPI
+        });
+
+        // Trigger folder refresh if folder settings changed
+        if (folderSettingsChanged && rmapiPaired) {
+          triggerRefresh();
+        }
+        
+        // Refetch user data to ensure we have the latest from server
+        // This happens after updating originalValues to prevent flash
+        setTimeout(() => {
+          refetch();
+        }, 100);
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to update profile");
@@ -546,7 +616,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
             </div>
           )}
 
-          <Tabs defaultValue="profile" className="w-full h-[600px] flex flex-col">
+          <Tabs defaultValue="profile" className="w-full h-[660px] flex flex-col">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
@@ -654,7 +724,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 mb-8">
                     <div>
                       <Label htmlFor="default-rmdir">{t("settings.labels.default_directory")}</Label>
                       <Select 
@@ -692,6 +762,36 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                     </div>
 
                     <div>
+                      <Label htmlFor="folder-depth-limit">{t("settings.labels.folder_depth_limit")}</Label>
+                      <Input
+                        id="folder-depth-limit"
+                        type="number"
+                        min="0"
+                        value={folderDepthLimit}
+                        onChange={(e) => setFolderDepthLimit(parseInt(e.target.value) || 0)}
+                        placeholder={t('settings.placeholders.folder_depth_limit')}
+                        className="mt-2"
+                      />
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {t("settings.help.folder_depth_limit")}
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="folder-exclusion-list">{t("settings.labels.folder_exclusion_list")}</Label>
+                      <Input
+                        id="folder-exclusion-list"
+                        value={folderExclusionList}
+                        onChange={(e) => setFolderExclusionList(e.target.value)}
+                        placeholder={t('settings.placeholders.folder_exclusion_list')}
+                        className="mt-2"
+                      />
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {t("settings.help.folder_exclusion_list")}
+                      </p>
+                    </div>
+
+                    <div>
                       <Label htmlFor="coverpage-setting">{t("settings.labels.cover_page")}</Label>
                       <Select 
                         value={coverpageSetting} 
@@ -713,7 +813,9 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         {t("settings.help.cover_page")}
                       </p>
                     </div>
+                  </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="conflict-resolution">{t("settings.labels.conflict_resolution")}</Label>
                       <Select 

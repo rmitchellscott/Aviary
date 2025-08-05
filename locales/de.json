@@ -351,6 +351,8 @@
       "default_directory": "Standardverzeichnis",
       "cover_page": "Deckblatt",
       "conflict_resolution": "Bei Konflikt",
+      "folder_depth_limit": "Ordnertiefenbegrenzung",
+      "folder_exclusion_list": "Ausgeschlossene Ordner",
       "current_password": "Aktuelles Passwort",
       "new_password": "Neues Passwort",
       "confirm_new_password": "Neues Passwort bestätigen",
@@ -403,7 +405,9 @@
       "page_resolution": "Seitenauflösung im BREITExHÖHE Format",
       "page_dpi": "Punkte pro Zoll",
       "default_directory": "Wählen Sie den Standardordner, in den Ihre Dokumente hochgeladen werden",
-      "conflict_resolution": "Wählen Sie, was passiert, wenn Sie ein Dokument mit demselben Namen wie ein vorhandenes Dokument hochladen. Nur Inhalt behält Anmerkungen bei und funktioniert nur bei PDFs und Bildern - es wird bei EPUBs abbrechen. Überschreiben ersetzt Dokumente vollständig."
+      "conflict_resolution": "Wählen Sie, was passiert, wenn Sie ein Dokument mit demselben Namen wie ein vorhandenes Dokument hochladen. Nur Inhalt behält Anmerkungen bei und funktioniert nur bei PDFs und Bildern - es wird bei EPUBs abbrechen. Überschreiben ersetzt Dokumente vollständig.",
+      "folder_depth_limit": "Maximale Ordnertiefe zur Anzeige (0 = unbegrenzt)",
+      "folder_exclusion_list": "Kommagetrennte Liste von Ordnernamen zum Ausschließen, groß-/kleinschreibungsempfindlich"
     },
     "status": {
       "active": "aktiv",
@@ -435,7 +439,9 @@
       "current_password": "Geben Sie Ihr aktuelles Passwort ein",
       "delete_confirm": "MEIN KONTO LÖSCHEN",
       "page_resolution": "1404x1872",
-      "page_dpi": "226"
+      "page_dpi": "226",
+      "folder_depth_limit": "0",
+      "folder_exclusion_list": "z.B. Papierkorb, Vorlagen, Archiv"
     },
     "loading_states": {
       "saving": "Speichern...",

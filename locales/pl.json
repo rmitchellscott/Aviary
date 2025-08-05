@@ -351,6 +351,8 @@
       "default_directory": "Domyślny katalog",
       "cover_page": "Strona okładki",
       "conflict_resolution": "W Konflikcie",
+      "folder_depth_limit": "Limit głębokości folderów",
+      "folder_exclusion_list": "Wykluczone foldery",
       "current_password": "Bieżące hasło",
       "new_password": "Nowe hasło",
       "confirm_new_password": "Potwierdź nowe hasło",
@@ -403,7 +405,9 @@
       "page_resolution": "Rozdzielczość strony w formacie SZEROKoŚĆxWYSOKoŚĆ",
       "page_dpi": "Punkty na cal",
       "default_directory": "Wybierz domyślny folder, do którego będą przesyłane Twoje dokumenty",
-      "conflict_resolution": "Wybierz co się dzieje podczas przesyłania dokumentu o takiej samej nazwie jak istniejący dokument. Tylko Zawartość zachowuje adnotacje i działa tylko dla PDF-ów i obrazów - Przerwie dla EPUB-ów. Nadpisz całkowicie zastępuje dokumenty."
+      "conflict_resolution": "Wybierz co się dzieje podczas przesyłania dokumentu o takiej samej nazwie jak istniejący dokument. Tylko Zawartość zachowuje adnotacje i działa tylko dla PDF-ów i obrazów - Przerwie dla EPUB-ów. Nadpisz całkowicie zastępuje dokumenty.",
+      "folder_depth_limit": "Maksymalna głębokość folderów do wyświetlenia (0 = nieograniczona)",
+      "folder_exclusion_list": "Lista oddzielonych przecinkami nazw folderów do wykluczenia, wrażliwa na wielkość liter"
     },
     "status": {
       "active": "aktywny",
@@ -435,7 +439,9 @@
       "current_password": "Wprowadź swoje bieżące hasło",
       "delete_confirm": "USUŃ MOJE KONTO",
       "page_resolution": "1404x1872",
-      "page_dpi": "226"
+      "page_dpi": "226",
+      "folder_depth_limit": "0",
+      "folder_exclusion_list": "np. kosz, szablony, archiwum"
     },
     "loading_states": {
       "saving": "Zapisywanie...",
