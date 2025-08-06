@@ -251,9 +251,11 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [uploadPhase, setUploadPhase] = useState<'idle' | 'uploading' | 'extracting' | 'validating'>('idle');
   const [downloadingJobId, setDownloadingJobId] = useState<string | null>(null);
+  const [restorePerformed, setRestorePerformed] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
+      setRestorePerformed(false);
       fetchSystemStatus();
       fetchUsers();
       fetchAPIKeys();
@@ -493,7 +495,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const handleClose = () => {
     setError(null);
     setSuccessMessage(null);
-    onClose();
+    
+    if (restorePerformed) {
+      window.location.reload();
+    } else {
+      onClose();
+    }
   };
 
   const confirmResetPassword = async () => {
@@ -854,6 +861,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         const filename = restoreConfirmDialog.upload?.filename || 'backup file';
         const message = t("admin.success.backup_restored", { filename });
         setSuccessMessage(message);
+        setRestorePerformed(true);
         try {
           await fetchWithSessionCheck("/api/admin/status", { credentials: "include" });
           await fetchWithSessionCheck("/api/users", { credentials: "include" });
