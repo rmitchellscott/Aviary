@@ -442,7 +442,7 @@
       "delete_confirm": "POISTA TILINI",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "rajaton",
+      "folder_depth_limit": "Rajaton",
       "folder_exclusion_list": "esim., roskakori, mallit, arkisto"
     },
     "loading_states": {

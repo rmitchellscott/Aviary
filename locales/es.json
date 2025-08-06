@@ -489,7 +489,7 @@
       "delete_confirm": "ELIMINAR MI CUENTA",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "ilimitado",
+      "folder_depth_limit": "Ilimitado",
       "folder_exclusion_list": "ej., papelera, plantillas, archivo"
     },
     "loading_states": {

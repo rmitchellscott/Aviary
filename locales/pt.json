@@ -442,7 +442,7 @@
       "delete_confirm": "EXCLUIR MINHA CONTA",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "ilimitado",
+      "folder_depth_limit": "Ilimitado",
       "folder_exclusion_list": "ex., lixeira, modelos, arquivo"
     },
     "loading_states": {

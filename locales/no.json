@@ -442,7 +442,7 @@
       "delete_confirm": "SLETT MIN KONTO",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "ubegrenset",
+      "folder_depth_limit": "Ubegrenset",
       "folder_exclusion_list": "f.eks., papirkurv, maler, arkiv"
     },
     "loading_states": {

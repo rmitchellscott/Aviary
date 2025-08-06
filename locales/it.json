@@ -489,7 +489,7 @@
       "delete_confirm": "ELIMINA IL MIO ACCOUNT",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "illimitato",
+      "folder_depth_limit": "Illimitato",
       "folder_exclusion_list": "es., cestino, modelli, archivio"
     },
     "loading_states": {
