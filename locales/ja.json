@@ -406,7 +406,7 @@
       "page_dpi": "1インチあたりのドット数",
       "default_directory": "ドキュメントがアップロードされるデフォルトフォルダを選択してください",
       "conflict_resolution": "既存の文書と同じ名前の文書をアップロードするときに何が起こるかを選択します。コンテンツのみは注釈を保持し、PDFと画像にのみ機能します - EPUBでは中止されます。上書きは文書を完全に置き換えます。",
-      "folder_depth_limit": "表示する最大フォルダ深度（0 = 無制限）",
+      "folder_depth_limit": "表示する最大フォルダ深度（空白で無制限）",
       "folder_exclusion_list": "除外するフォルダ名のカンマ区切りリスト、大文字小文字を区別"
     },
     "status": {
@@ -440,7 +440,7 @@
       "delete_confirm": "アカウントを削除",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "0",
+      "folder_depth_limit": "無制限",
       "folder_exclusion_list": "例：ゴミ箱、テンプレート、アーカイブ"
     },
     "loading_states": {

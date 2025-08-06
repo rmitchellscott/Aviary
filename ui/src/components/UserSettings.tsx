@@ -135,7 +135,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [devicePreset, setDevicePreset] = useState("remarkable_1_2");
   const [manualPageResolution, setManualPageResolution] = useState("");
   const [manualPageDPI, setManualPageDPI] = useState("");
-  const [folderDepthLimit, setFolderDepthLimit] = useState(0);
+  const [folderDepthLimit, setFolderDepthLimit] = useState("");
   const [folderExclusionList, setFolderExclusionList] = useState("");
   
   // Original values for change tracking
@@ -149,7 +149,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     devicePreset: "remarkable_1_2",
     manualPageResolution: "",
     manualPageDPI: "",
-    folderDepthLimit: 0,
+    folderDepthLimit: "",
     folderExclusionList: ""
   });
   
@@ -186,7 +186,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         const defaultRmdir = user.default_rmdir || "/";
         const coverpageSetting = user.coverpage_setting || "current";
         const conflictResolution = user.conflict_resolution || "abort";
-        const folderDepthLimit = user.folder_depth_limit || 0;
+        const folderDepthLimit = user.folder_depth_limit && user.folder_depth_limit > 0 ? user.folder_depth_limit.toString() : "";
         const folderExclusionList = user.folder_exclusion_list || "";
         const detectedPreset = getDevicePresetFromUser(user.page_resolution, user.page_dpi);
         const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
@@ -215,7 +215,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       const defaultRmdir = user.default_rmdir || "/";
       const coverpageSetting = user.coverpage_setting || "current";
       const conflictResolution = user.conflict_resolution || "abort";
-      const folderDepthLimit = user.folder_depth_limit || 0;
+      const folderDepthLimit = user.folder_depth_limit && user.folder_depth_limit > 0 ? user.folder_depth_limit.toString() : "";
       const folderExclusionList = user.folder_exclusion_list || "";
       const detectedPreset = getDevicePresetFromUser(user.page_resolution, user.page_dpi);
       const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
@@ -334,7 +334,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           default_rmdir: defaultRmdir,
           coverpage_setting: coverpageSetting,
           conflict_resolution: conflictResolution,
-          folder_depth_limit: folderDepthLimit,
+          folder_depth_limit: folderDepthLimit === "" ? 0 : parseInt(folderDepthLimit),
           folder_exclusion_list: folderExclusionList,
           ...pageSettings,
         }),
@@ -768,7 +768,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         type="number"
                         min="0"
                         value={folderDepthLimit}
-                        onChange={(e) => setFolderDepthLimit(parseInt(e.target.value) || 0)}
+                        onChange={(e) => setFolderDepthLimit(e.target.value)}
                         placeholder={t('settings.placeholders.folder_depth_limit')}
                         className="mt-2"
                       />

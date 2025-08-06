@@ -406,7 +406,7 @@
       "page_dpi": "Punkty na cal",
       "default_directory": "Wybierz domyślny folder, do którego będą przesyłane Twoje dokumenty",
       "conflict_resolution": "Wybierz co się dzieje podczas przesyłania dokumentu o takiej samej nazwie jak istniejący dokument. Tylko Zawartość zachowuje adnotacje i działa tylko dla PDF-ów i obrazów - Przerwie dla EPUB-ów. Nadpisz całkowicie zastępuje dokumenty.",
-      "folder_depth_limit": "Maksymalna głębokość folderów do wyświetlenia (0 = nieograniczona)",
+      "folder_depth_limit": "Maksymalna głębokość folderów do wyświetlenia (pozostaw puste dla nieograniczonej)",
       "folder_exclusion_list": "Lista oddzielonych przecinkami nazw folderów do wykluczenia, wrażliwa na wielkość liter"
     },
     "status": {
@@ -440,7 +440,7 @@
       "delete_confirm": "USUŃ MOJE KONTO",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "0",
+      "folder_depth_limit": "nieograniczone",
       "folder_exclusion_list": "np. kosz, szablony, archiwum"
     },
     "loading_states": {

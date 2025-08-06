@@ -406,7 +406,7 @@
       "page_dpi": "Punkter per tomme",
       "default_directory": "Velg standardmappen hvor dokumentene dine vil bli lastet opp",
       "conflict_resolution": "Velg hva som skjer når du laster opp et dokument med samme navn som et eksisterende dokument. Kun Innhold bevarer merknader og fungerer bare for PDF-er og bilder - det vil Avbryte for EPUB-er. Overskriv erstatter dokumenter fullstendig.",
-      "folder_depth_limit": "Maksimal mappedybde å vise (0 = ubegrenset)",
+      "folder_depth_limit": "Maksimal mappedybde å vise (la stå tom for ubegrenset)",
       "folder_exclusion_list": "Kommaseparert liste over mappenavn å ekskludere, skiller mellom store og små bokstaver"
     },
     "status": {
@@ -440,7 +440,7 @@
       "delete_confirm": "SLETT MIN KONTO",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "0",
+      "folder_depth_limit": "ubegrenset",
       "folder_exclusion_list": "f.eks., papirkurv, maler, arkiv"
     },
     "loading_states": {

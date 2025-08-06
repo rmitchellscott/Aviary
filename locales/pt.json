@@ -406,7 +406,7 @@
       "page_dpi": "Pontos por polegada",
       "default_directory": "Escolha a pasta padrão onde seus documentos serão enviados",
       "conflict_resolution": "Escolha o que acontece ao enviar um documento com o mesmo nome que um documento existente. Apenas Conteúdo preserva anotações e funciona apenas para PDFs e imagens - irá Abortar para EPUBs. Sobrescrever substitui documentos completamente.",
-      "folder_depth_limit": "Profundidade máxima de pastas para exibir (0 = ilimitado)",
+      "folder_depth_limit": "Profundidade máxima de pastas para exibir (deixe vazio para ilimitado)",
       "folder_exclusion_list": "Lista separada por vírgulas de nomes de pastas para excluir, sensível a maiúsculas e minúsculas"
     },
     "status": {
@@ -440,7 +440,7 @@
       "delete_confirm": "EXCLUIR MINHA CONTA",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "0",
+      "folder_depth_limit": "ilimitado",
       "folder_exclusion_list": "ex., lixeira, modelos, arquivo"
     },
     "loading_states": {

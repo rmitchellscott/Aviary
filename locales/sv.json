@@ -351,7 +351,7 @@
       "default_directory": "Standardkatalog",
       "cover_page": "Omslagssida",
       "conflict_resolution": "Vid Konflikt",
-      "folder_depth_limit": "Mappdjúplimställning",
+      "folder_depth_limit": "Mappdjupsgräns",
       "folder_exclusion_list": "Uteslutna mappar",
       "current_password": "Nuvarande lösenord",
       "new_password": "Nytt lösenord",
@@ -406,7 +406,7 @@
       "page_dpi": "Punkter per tum",
       "default_directory": "Välj standardmappen där dina dokument kommer att laddas upp",
       "conflict_resolution": "Välj vad som händer när du laddar upp ett dokument med samma namn som ett befintligt dokument. Endast Innehåll bevarar anteckningar och fungerar bara för PDF:er och bilder - det kommer att Avbryta för EPUB:er. Skriv över ersätter dokument helt.",
-      "folder_depth_limit": "Maximal mappdjúp att visa (0 = obegränsad)",
+      "folder_depth_limit": "Maximal mappdjup att visa (lämna tom för obegränsat)",
       "folder_exclusion_list": "Kommaseparerad lista över mappnamn att utesluta, skiftlägeskänslig"
     },
     "status": {
@@ -440,7 +440,7 @@
       "delete_confirm": "RADERA MITT KONTO",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "0",
+      "folder_depth_limit": "obegränsat",
       "folder_exclusion_list": "t.ex., papperskorg, mallar, arkiv"
     },
     "loading_states": {
