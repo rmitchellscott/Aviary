@@ -454,7 +454,10 @@
       "update_password": "パスワードを更新",
       "delete_my_account": "アカウントを削除"
     },
-    "never": "なし"
+    "never": "なし",
+    "tooltips": {
+      "api_key_copied": "コピーしました！"
+    }
   },
   "app": {
     "settings": "設定",

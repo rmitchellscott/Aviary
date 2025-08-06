@@ -454,7 +454,10 @@
       "update_password": "更新密码",
       "delete_my_account": "删除我的账户"
     },
-    "never": "从不"
+    "never": "从不",
+    "tooltips": {
+      "api_key_copied": "已复制！"
+    }
   },
   "app": {
     "settings": "设置",

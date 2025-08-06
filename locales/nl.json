@@ -454,7 +454,10 @@
       "update_password": "Wachtwoord bijwerken",
       "delete_my_account": "Mijn account verwijderen"
     },
-    "never": "Nooit"
+    "never": "Nooit",
+    "tooltips": {
+      "api_key_copied": "Gekopieerd!"
+    }
   },
   "app": {
     "settings": "Instellingen",

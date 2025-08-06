@@ -525,6 +525,9 @@
       "update_password": "Mettre à jour le mot de passe",
       "delete_my_account": "Supprimer mon compte"
     },
-    "never": "Jamais"
+    "never": "Jamais",
+    "tooltips": {
+      "api_key_copied": "Copié!"
+    }
   }
 }
