@@ -1113,7 +1113,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         {t("settings.messages.no_api_keys")}
                       </p>
                     ) : (
-                      <Table>
+                      <Table className="w-full table-fixed lg:table-auto">
                         <TableHeader>
                           <TableRow>
                           <TableHead>{t("settings.labels.api_key_name")}</TableHead>
