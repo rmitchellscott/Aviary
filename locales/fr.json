@@ -477,7 +477,7 @@
       "page_dpi": "Points par pouce",
       "default_directory": "Choisissez le dossier par défaut où vos documents seront téléchargés",
       "conflict_resolution": "Choisissez ce qui se passe lors du téléchargement d'un document avec le même nom qu'un document existant. Contenu seulement préserve les annotations et ne fonctionne que pour les PDFs et images - cela Abandonnera pour les EPUBs. Écraser remplace complètement les documents.",
-      "folder_depth_limit": "Profondeur maximale des dossiers à afficher (0 = illimité)",
+      "folder_depth_limit": "Profondeur maximale des dossiers à afficher (laisser vide pour illimité)",
       "folder_exclusion_list": "Liste séparée par des virgules des noms de dossiers à exclure, sensible à la casse"
     },
     "status": {
@@ -511,7 +511,7 @@
       "delete_confirm": "SUPPRIMER MON COMPTE",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "0",
+      "folder_depth_limit": "illimité",
       "folder_exclusion_list": "ex., corbeille, modèles, archive"
     },
     "loading_states": {
