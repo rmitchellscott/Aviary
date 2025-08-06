@@ -267,6 +267,64 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     }
   }, [isOpen, user, rmapiPaired, refreshTrigger]);
 
+  // Listen for logout event to clear sensitive state
+  useEffect(() => {
+    const handleLogout = () => {
+      // Clear all sensitive state
+      setApiKeys([]);
+      setError(null);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setDeletePassword("");
+      setDeleteConfirmation("");
+      setNewKeyName("");
+      setNewKeyExpiry("");
+      setShowNewKey(null);
+      setViewKey(null);
+      
+      // Close any open dialogs
+      setPairingDialogOpen(false);
+      setDeleteAccountDialog(false);
+      setDeleteKeyDialog({ isOpen: false, key: null });
+      
+      // Reset form state to defaults
+      setUsername("");
+      setEmail("");
+      setUserRmapiHost("");
+      setDefaultRmdir("/");
+      setCoverpageSetting("current");
+      setConflictResolution("abort");
+      setDevicePreset("remarkable_1_2");
+      setManualPageResolution("");
+      setManualPageDPI("");
+      setFolderDepthLimit("");
+      setFolderExclusionList("");
+      
+      // Reset original values
+      setOriginalValues({
+        username: "",
+        email: "",
+        userRmapiHost: "",
+        defaultRmdir: "/",
+        coverpageSetting: "current",
+        conflictResolution: "abort",
+        devicePreset: "remarkable_1_2",
+        manualPageResolution: "",
+        manualPageDPI: "",
+        folderDepthLimit: "",
+        folderExclusionList: ""
+      });
+      
+      setFolders([]);
+    };
+
+    window.addEventListener('logout', handleLogout);
+
+    return () => {
+      window.removeEventListener('logout', handleLogout);
+    };
+  }, []);
 
   const fetchAPIKeys = async () => {
     try {
