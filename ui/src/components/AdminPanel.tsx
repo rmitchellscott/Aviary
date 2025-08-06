@@ -1313,8 +1313,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   <CardTitle>{t("admin.counts.users", {count: users.length})}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="overflow-x-auto">
-                    <Table>
+                    <Table className="w-full table-fixed lg:table-auto">
                       <TableHeader>
                         <TableRow>
                           <TableHead>{t("admin.labels.username")}</TableHead>
@@ -1329,7 +1328,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     <TableBody>
                       {users.map((user) => (
                         <TableRow key={user.id}>
-                          <TableCell className="font-medium max-w-24 lg:max-w-none">
+                          <TableCell className="font-medium">
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className="truncate cursor-default" title={user.username}>
@@ -1433,7 +1432,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       ))}
                     </TableBody>
                   </Table>
-                  </div>
                 </CardContent>
                   </Card>
                   </div>
@@ -1446,8 +1444,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   <CardTitle>{t("admin.counts.all_api_keys", {count: apiKeys.length})}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="overflow-x-auto">
-                    <Table>
+                    <Table className="w-full table-fixed lg:table-auto">
                       <TableHeader>
                         <TableRow>
                           <TableHead>{t("admin.labels.name")}</TableHead>
@@ -1465,12 +1462,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       const status = getKeyStatus(key);
                       return (
                         <TableRow key={key.id}>
-                          <TableCell className="font-medium max-w-20 lg:max-w-none">
+                          <TableCell className="font-medium">
                             <div className="truncate" title={key.name}>
                               {key.name}
                             </div>
                           </TableCell>
-                          <TableCell className="max-w-20 lg:max-w-none">
+                          <TableCell>
                             <div className="truncate" title={key.username}>
                               {key.username}
                             </div>
@@ -1525,7 +1522,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     })}
                   </TableBody>
                 </Table>
-                  </div>
                 </CardContent>
               </Card>
             </div>
