@@ -412,9 +412,9 @@
       "folder_exclusion_list": "Kommagescheiden lijst van mapnamen om uit te sluiten, hoofdlettergevoelig"
     },
     "status": {
-      "active": "actief",
-      "expired": "verlopen",
-      "inactive": "inactief"
+      "active": "Actief",
+      "expired": "Verlopen",
+      "inactive": "Inactief"
     },
     "delete_warnings": {
       "documents": "Alle gearchiveerde documenten en bestanden",

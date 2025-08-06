@@ -412,9 +412,9 @@
       "folder_exclusion_list": "Kommagetrennte Liste von Ordnernamen zum Ausschließen, groß-/kleinschreibungsempfindlich"
     },
     "status": {
-      "active": "aktiv",
-      "expired": "abgelaufen",
-      "inactive": "inaktiv"
+      "active": "Aktiv",
+      "expired": "Abgelaufen",
+      "inactive": "Inaktiv"
     },
     "delete_warnings": {
       "documents": "Alle archivierten Dokumente und Dateien",

@@ -412,9 +412,9 @@
       "folder_exclusion_list": "Kommaseparerad lista över mappnamn att utesluta, skiftlägeskänslig"
     },
     "status": {
-      "active": "aktiv",
-      "expired": "utgången",
-      "inactive": "inaktiv"
+      "active": "Aktiv",
+      "expired": "Utgången",
+      "inactive": "Inaktiv"
     },
     "delete_warnings": {
       "documents": "Alla arkiverade dokument och filer",

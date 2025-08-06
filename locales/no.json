@@ -412,9 +412,9 @@
       "folder_exclusion_list": "Kommaseparert liste over mappenavn å ekskludere, skiller mellom store og små bokstaver"
     },
     "status": {
-      "active": "aktiv",
-      "expired": "utløpt",
-      "inactive": "inaktiv"
+      "active": "Aktiv",
+      "expired": "Utløpt",
+      "inactive": "Inaktiv"
     },
     "delete_warnings": {
       "documents": "Alle arkiverte dokumenter og filer",

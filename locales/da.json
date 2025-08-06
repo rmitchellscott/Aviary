@@ -412,9 +412,9 @@
       "folder_exclusion_list": "Kommasepareret liste over mappenavne at ekskludere, forskel på store og små bogstaver"
     },
     "status": {
-      "active": "aktiv",
-      "expired": "udløbet",
-      "inactive": "inaktiv"
+      "active": "Aktiv",
+      "expired": "Udløbet",
+      "inactive": "Inaktiv"
     },
     "delete_warnings": {
       "documents": "Alle arkiverede dokumenter og filer",

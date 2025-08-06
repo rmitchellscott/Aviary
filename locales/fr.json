@@ -483,9 +483,9 @@
       "folder_exclusion_list": "Liste séparée par des virgules des noms de dossiers à exclure, sensible à la casse"
     },
     "status": {
-      "active": "actif",
-      "expired": "expiré",
-      "inactive": "inactif"
+      "active": "Actif",
+      "expired": "Expiré",
+      "inactive": "Inactif"
     },
     "delete_warnings": {
       "documents": "Tous les documents et fichiers archivés",

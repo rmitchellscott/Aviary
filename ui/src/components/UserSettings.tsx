@@ -1138,7 +1138,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                     {key.key_prefix}...
                                   </code>
                                 </TableCell>
-                                <TableCell className="hidden lg:table-cell">
+                                <TableCell className="hidden lg:table-cell text-center">
                                   <Badge
                                     variant={
                                       status === "active"
@@ -1147,16 +1147,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                           ? "destructive"
                                           : "secondary"
                                     }
+                                    className="min-w-16 max-w-32 justify-center text-center whitespace-nowrap"
                                   >
-                                    {status === "active" && (
-                                      <CheckCircle className="h-3 w-3 mr-1" />
-                                    )}
-                                    {status === "expired" && (
-                                      <XCircle className="h-3 w-3 mr-1" />
-                                    )}
-                                    {status === "inactive" && (
-                                      <Clock className="h-3 w-3 mr-1" />
-                                    )}
                                     {t(`settings.status.${status}`)}
                                   </Badge>
                                 </TableCell>

@@ -412,9 +412,9 @@
       "folder_exclusion_list": "Lista oddzielonych przecinkami nazw folderów do wykluczenia, wrażliwa na wielkość liter"
     },
     "status": {
-      "active": "aktywny",
-      "expired": "wygasły",
-      "inactive": "nieaktywny"
+      "active": "Aktywny",
+      "expired": "Wygasły",
+      "inactive": "Nieaktywny"
     },
     "delete_warnings": {
       "documents": "Wszystkie zarchiwizowane dokumenty i pliki",
