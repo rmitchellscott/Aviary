@@ -454,7 +454,10 @@
       "update_password": "비밀번호 업데이트",
       "delete_my_account": "내 계정 삭제"
     },
-    "never": "없음"
+    "never": "없음",
+    "tooltips": {
+      "api_key_copied": "복사됨!"
+    }
   },
   "app": {
     "settings": "설정",

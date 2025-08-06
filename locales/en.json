@@ -454,7 +454,10 @@
       "update_password": "Update Password",
       "delete_my_account": "Delete My Account"
     },
-    "never": "Never"
+    "never": "Never",
+    "tooltips": {
+      "api_key_copied": "Copied!"
+    }
   },
   "app": {
     "settings": "Settings",

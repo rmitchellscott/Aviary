@@ -454,7 +454,10 @@
       "update_password": "Päivitä salasana",
       "delete_my_account": "Poista tilini"
     },
-    "never": "Ei koskaan"
+    "never": "Ei koskaan",
+    "tooltips": {
+      "api_key_copied": "Kopioitu!"
+    }
   },
   "app": {
     "settings": "Asetukset",

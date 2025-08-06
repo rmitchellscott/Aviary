@@ -501,7 +501,10 @@
       "update_password": "Actualizar Contraseña",
       "delete_my_account": "Eliminar Mi Cuenta"
     },
-    "never": "Nunca"
+    "never": "Nunca",
+    "tooltips": {
+      "api_key_copied": "¡Copiado!"
+    }
   },
   "app": {
     "settings": "Configuración",

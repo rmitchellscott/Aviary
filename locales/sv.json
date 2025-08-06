@@ -454,7 +454,10 @@
       "update_password": "Uppdatera lösenord",
       "delete_my_account": "Radera mitt konto"
     },
-    "never": "Aldrig"
+    "never": "Aldrig",
+    "tooltips": {
+      "api_key_copied": "Kopierad!"
+    }
   },
   "app": {
     "settings": "Inställningar",

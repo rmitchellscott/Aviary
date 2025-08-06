@@ -454,7 +454,10 @@
       "update_password": "Opdater Adgangskode",
       "delete_my_account": "Slet Min Konto"
     },
-    "never": "Aldrig"
+    "never": "Aldrig",
+    "tooltips": {
+      "api_key_copied": "Kopieret!"
+    }
   },
   "app": {
     "settings": "Indstillinger",

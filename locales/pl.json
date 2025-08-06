@@ -454,7 +454,10 @@
       "update_password": "Zaktualizuj hasło",
       "delete_my_account": "Usuń moje konto"
     },
-    "never": "Nigdy"
+    "never": "Nigdy",
+    "tooltips": {
+      "api_key_copied": "Skopiowano!"
+    }
   },
   "app": {
     "settings": "Ustawienia",

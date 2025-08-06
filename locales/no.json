@@ -454,7 +454,10 @@
       "update_password": "Oppdater passord",
       "delete_my_account": "Slett min konto"
     },
-    "never": "Aldri"
+    "never": "Aldri",
+    "tooltips": {
+      "api_key_copied": "Kopiert!"
+    }
   },
   "app": {
     "settings": "Innstillinger",

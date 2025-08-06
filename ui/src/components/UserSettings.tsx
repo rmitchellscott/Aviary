@@ -125,6 +125,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showCopiedText, setShowCopiedText] = useState(false);
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -176,6 +177,12 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   }>({ isOpen: false, key: null });
 
   const [viewKey, setViewKey] = useState<APIKey | null>(null);
+
+  const handleClose = () => {
+    setError(null);
+    setShowCopiedText(false);
+    onClose();
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -571,6 +578,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+    setShowCopiedText(true);
+    setTimeout(() => setShowCopiedText(false), 3000);
   };
 
   const formatDate = (dateString: string) => {
@@ -588,7 +597,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
   if (userDataLoading) {
     return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
+      <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent className="max-w-4xl">
           <div className="flex items-center justify-center p-8">{t('settings.loading_states.loading')}</div>
         </DialogContent>
@@ -598,7 +607,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
+      <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent className="max-w-7xl max-h-[85vh] overflow-y-auto sm:max-w-7xl sm:max-h-[90vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -615,6 +624,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
               {error}
             </div>
           )}
+
 
           <Tabs defaultValue="profile" className="w-full h-[660px] flex flex-col">
             <TabsList className="grid w-full grid-cols-3">
@@ -1077,7 +1087,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           variant="outline"
                           onClick={() => copyToClipboard(showNewKey)}
                         >
-                          <Copy className="h-4 w-4" />
+                          {showCopiedText ? t('settings.tooltips.api_key_copied') : <Copy className="h-4 w-4" />}
                         </Button>
                       </div>
                       <div className="flex justify-end mt-2">
