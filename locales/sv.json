@@ -442,7 +442,7 @@
       "delete_confirm": "RADERA MITT KONTO",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "obegränsat",
+      "folder_depth_limit": "Obegränsat",
       "folder_exclusion_list": "t.ex., papperskorg, mallar, arkiv"
     },
     "loading_states": {

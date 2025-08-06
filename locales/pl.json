@@ -442,7 +442,7 @@
       "delete_confirm": "USUŃ MOJE KONTO",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "nieograniczone",
+      "folder_depth_limit": "Nieograniczone",
       "folder_exclusion_list": "np. kosz, szablony, archiwum"
     },
     "loading_states": {

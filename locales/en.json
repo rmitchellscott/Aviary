@@ -440,7 +440,7 @@
       "never_expires": "Never expires",
       "current_password": "Enter your current password",
       "delete_confirm": "DELETE MY ACCOUNT",
-      "folder_depth_limit": "unlimited",
+      "folder_depth_limit": "Unlimited",
       "folder_exclusion_list": "e.g., trash, templates, archive",
       "page_resolution": "1404x1872",
       "page_dpi": "226"

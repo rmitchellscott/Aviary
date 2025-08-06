@@ -442,7 +442,7 @@
       "delete_confirm": "VERWIJDER MIJN ACCOUNT",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "onbeperkt",
+      "folder_depth_limit": "Onbeperkt",
       "folder_exclusion_list": "bijv., prullenbak, sjablonen, archief"
     },
     "loading_states": {
