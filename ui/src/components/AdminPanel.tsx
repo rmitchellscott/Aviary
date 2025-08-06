@@ -282,6 +282,61 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     };
   }, [isOpen, backupJobs]);
 
+  // Listen for logout event to clear sensitive admin state
+  useEffect(() => {
+    const handleLogout = () => {
+      // Clear all sensitive admin state
+      setUsers([]);
+      setApiKeys([]);
+      setSystemStatus(null);
+      setBackupJobs([]);
+      setRestoreUploads([]);
+      setError(null);
+      setSuccessMessage(null);
+      setSmtpTestResult(null);
+      
+      // Clear form state
+      setNewUsername("");
+      setNewEmail("");
+      setNewPassword("");
+      setRegistrationEnabled(false);
+      setMaxApiKeys("10");
+      setMaxApiKeysError(null);
+      setNewPasswordValue("");
+      setDeleting(false);
+      setBackupCounts({ users: 0, api_keys: 0, documents: 0 });
+      setBackupVersion(null);
+      setRestorePerformed(false);
+      setVersionInfo({ version: "", gitCommit: "", buildDate: "", goVersion: "" });
+      setUploadProgress(0);
+      setUploadPhase('idle');
+      setDownloadingJobId(null);
+      
+      // Close any open dialogs
+      setResetPasswordDialog({ isOpen: false, user: null });
+      setDeleteUserDialog({ isOpen: false, user: null });
+      setDeleteBackupDialog({ isOpen: false, job: null });
+      setRestoreConfirmDialog({ isOpen: false, upload: null });
+      setViewUser(null);
+      setViewKey(null);
+      
+      // Reset loading states
+      setLoading(false);
+      setCreatingBackup(false);
+      setRestoringBackup(false);
+      setTestingSMTP(false);
+      setCreatingUser(false);
+      setResettingPassword(false);
+      setAnalyzingBackup(false);
+    };
+
+    window.addEventListener('logout', handleLogout);
+
+    return () => {
+      window.removeEventListener('logout', handleLogout);
+    };
+  }, []);
+
   const fetchWithSessionCheck = async (url: string, options?: RequestInit) => {
     const response = await fetch(url, options);
     if (response.status === 401) {
