@@ -204,7 +204,8 @@
       "backup_description": "Crea un backup completo inclusi database e file utente come archivio .tar.gz",
       "restore_description": "Ripristina database e file utente da archivio backup (formato .tar.gz)",
       "upload_restore_description": "Carica un file di backup per ripristinare in seguito con conferma",
-      "restore_warning": "Attenzione: Il ripristino sovrascriverà completamente tutti i dati correnti"
+      "restore_warning": "Attenzione: Il ripristino sovrascriverà completamente tutti i dati correnti",
+      "max_api_keys_help": "Imposta il numero massimo di chiavi API che ogni utente può creare (1-100)"
     },
     "badges": {
       "multi_user": "Modalità multiutente",
@@ -278,7 +279,8 @@
       "no_backup_file": "Nessun file di backup fornito",
       "backup_not_found": "File di backup non trovato",
       "backup_not_ready": "Backup non pronto per il download",
-      "backup_file_unavailable": "File di backup non disponibile"
+      "backup_file_unavailable": "File di backup non disponibile",
+      "max_api_keys_invalid": "Inserisci un valore compreso tra 1 e 100"
     },
     "success": {
       "restore_complete": "Database ripristinato con successo",

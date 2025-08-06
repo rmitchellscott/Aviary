@@ -204,7 +204,8 @@
       "backup_description": "Luo täydellinen varmuuskopio mukaan lukien tietokanta ja käyttäjätiedostot .tar.gz-arkistona",
       "restore_description": "Palauttaa tietokannan ja käyttäjätiedostot varmuuskopioarkistosta (.tar.gz-muoto)",
       "upload_restore_description": "Lataa varmuuskopiotiedosto myöhempää palautusta varten vahvistuksella",
-      "restore_warning": "Varoitus: Palautus korvaa täysin kaikki nykyiset tiedot"
+      "restore_warning": "Varoitus: Palautus korvaa täysin kaikki nykyiset tiedot",
+      "max_api_keys_help": "Aseta maksimimäärä API-avaimia, jotka kukin käyttäjä voi luoda (1-100)"
     },
     "badges": {
       "multi_user": "Monikäyttäjätila",
@@ -278,7 +279,8 @@
       "no_backup_file": "Varmuuskopiotiedostoa ei annettu",
       "backup_not_found": "Varmuuskopiotiedostoa ei löytynyt",
       "backup_not_ready": "Varmuuskopio ei ole valmis lataukseen",
-      "backup_file_unavailable": "Varmuuskopiotiedosto ei ole saatavilla"
+      "backup_file_unavailable": "Varmuuskopiotiedosto ei ole saatavilla",
+      "max_api_keys_invalid": "Syötä arvo väliltä 1-100"
     },
     "success": {
       "restore_complete": "Tietokanta palautettu onnistuneesti",

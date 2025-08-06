@@ -204,7 +204,8 @@
       "backup_description": "Crea un respaldo completo incluyendo base de datos y archivos de usuario como archivo .tar.gz",
       "restore_description": "Restaura base de datos y archivos de usuario desde archivo de respaldo (formato .tar.gz)",
       "upload_restore_description": "Sube un archivo de respaldo para restaurar más tarde con confirmación",
-      "restore_warning": "Advertencia: La restauración sobrescribirá completamente todos los datos actuales"
+      "restore_warning": "Advertencia: La restauración sobrescribirá completamente todos los datos actuales",
+      "max_api_keys_help": "Establece el número máximo de claves API que cada usuario puede crear (1-100)"
     },
     "badges": {
       "multi_user": "Modo Multi-usuario",
@@ -278,7 +279,8 @@
       "no_backup_file": "No se proporcionó archivo de respaldo",
       "backup_not_found": "Archivo de respaldo no encontrado",
       "backup_not_ready": "Respaldo no listo para descarga",
-      "backup_file_unavailable": "Archivo de respaldo no disponible"
+      "backup_file_unavailable": "Archivo de respaldo no disponible",
+      "max_api_keys_invalid": "Por favor ingresa un valor entre 1 y 100"
     },
     "success": {
     "restore_complete": "Base de datos restaurada exitosamente",

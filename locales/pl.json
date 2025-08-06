@@ -204,7 +204,8 @@
       "backup_description": "Tworzy kompletną kopię zapasową zawierającą bazę danych i pliki użytkowników jako archiwum .tar.gz",
       "restore_description": "Przywraca bazę danych i pliki użytkowników z archiwum kopii zapasowej (format .tar.gz)",
       "upload_restore_description": "Prześlij plik kopii zapasowej do późniejszego przywracania z potwierdzeniem",
-      "restore_warning": "Ostrzeżenie: Przywracanie całkowicie nadpisze wszystkie bieżące dane"
+      "restore_warning": "Ostrzeżenie: Przywracanie całkowicie nadpisze wszystkie bieżące dane",
+      "max_api_keys_help": "Ustaw maksymalną liczbę kluczy API, które może utworzyć każdy użytkownik (1-100)"
     },
     "badges": {
       "multi_user": "Tryb wieloużytkownikowy",
@@ -278,7 +279,8 @@
       "no_backup_file": "Nie podano pliku kopii zapasowej",
       "backup_not_found": "Plik kopii zapasowej nie znaleziony",
       "backup_not_ready": "Kopia zapasowa nie jest gotowa do pobrania",
-      "backup_file_unavailable": "Plik kopii zapasowej niedostępny"
+      "backup_file_unavailable": "Plik kopii zapasowej niedostępny",
+      "max_api_keys_invalid": "Wprowadź wartość od 1 do 100"
     },
     "success": {
       "restore_complete": "Baza danych przywrócona pomyślnie",

@@ -204,7 +204,8 @@
       "backup_description": "Oppretter en komplett sikkerhetskopi inkludert database og brukerfiler som .tar.gz arkiv",
       "restore_description": "Gjenoppretter database og brukerfiler fra sikkerhetskopi arkiv (.tar.gz format)",
       "upload_restore_description": "Last opp en sikkerhetskopi fil for senere gjenoppretting med bekreftelse",
-      "restore_warning": "Advarsel: Gjenoppretting vil fullstendig overskrive alle nåværende data"
+      "restore_warning": "Advarsel: Gjenoppretting vil fullstendig overskrive alle nåværende data",
+      "max_api_keys_help": "Angi maksimalt antall API-nøkler hver bruker kan opprette (1-100)"
     },
     "badges": {
       "multi_user": "Flerbruker modus",
@@ -278,7 +279,8 @@
       "no_backup_file": "Ingen sikkerhetskopi fil oppgitt",
       "backup_not_found": "Sikkerhetskopi fil ikke funnet",
       "backup_not_ready": "Sikkerhetskopi ikke klar for nedlasting",
-      "backup_file_unavailable": "Sikkerhetskopi fil ikke tilgjengelig"
+      "backup_file_unavailable": "Sikkerhetskopi fil ikke tilgjengelig",
+      "max_api_keys_invalid": "Vennligst angi en verdi mellom 1 og 100"
     },
     "success": {
       "restore_complete": "Database gjenopprettet",

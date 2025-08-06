@@ -204,7 +204,8 @@
       "backup_description": "Erstellt ein vollständiges Backup einschließlich Datenbank und Benutzerdateien als .tar.gz-Archiv",
       "restore_description": "Stellt Datenbank und Benutzerdateien aus einem Backup-Archiv (.tar.gz-Format) wieder her",
       "upload_restore_description": "Backup-Datei für spätere Wiederherstellung mit Bestätigung hochladen",
-      "restore_warning": "Warnung: Die Wiederherstellung überschreibt alle aktuellen Daten vollständig"
+      "restore_warning": "Warnung: Die Wiederherstellung überschreibt alle aktuellen Daten vollständig",
+      "max_api_keys_help": "Legen Sie die maximale Anzahl von API-Schlüsseln fest, die jeder Benutzer erstellen kann (1-100)"
     },
     "badges": {
       "multi_user": "Mehrbenutzermodus",
@@ -278,7 +279,8 @@
       "no_backup_file": "Keine Backup-Datei angegeben",
       "backup_not_found": "Backup-Datei nicht gefunden",
       "backup_not_ready": "Backup nicht bereit zum Download",
-      "backup_file_unavailable": "Backup-Datei nicht verfügbar"
+      "backup_file_unavailable": "Backup-Datei nicht verfügbar",
+      "max_api_keys_invalid": "Bitte geben Sie einen Wert zwischen 1 und 100 ein"
     },
     "success": {
       "restore_complete": "Datenbank erfolgreich wiederhergestellt",

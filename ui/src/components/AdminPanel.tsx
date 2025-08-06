@@ -31,6 +31,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -210,6 +211,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
   const [maxApiKeys, setMaxApiKeys] = useState("10");
+  const [maxApiKeysError, setMaxApiKeysError] = useState<string | null>(null);
 
   const [resetPasswordDialog, setResetPasswordDialog] = useState<{
     isOpen: boolean;
@@ -1570,13 +1572,45 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     <Input
                       id="max-api-keys"
                       type="number"
+                      min="1"
+                      max="100"
                       value={maxApiKeys}
-                      onChange={(e) => setMaxApiKeys(e.target.value)}
-                      onBlur={() =>
-                        updateSystemSetting("max_api_keys_per_user", maxApiKeys)
-                      }
-                      className="mt-2"
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setMaxApiKeys(value);
+                        
+                        if (value === "") {
+                          setMaxApiKeysError(null);
+                          return;
+                        }
+                        
+                        const numValue = parseInt(value, 10);
+                        if (isNaN(numValue) || numValue < 1 || numValue > 100) {
+                          setMaxApiKeysError(t("admin.errors.max_api_keys_invalid"));
+                        } else {
+                          setMaxApiKeysError(null);
+                        }
+                      }}
+                      onBlur={() => {
+                        const numValue = parseInt(maxApiKeys, 10);
+                        if (!isNaN(numValue) && numValue >= 1 && numValue <= 100) {
+                          updateSystemSetting("max_api_keys_per_user", maxApiKeys);
+                        }
+                      }}
+                      className={cn(
+                        "mt-2 max-w-[200px]",
+                        maxApiKeysError && "border-destructive"
+                      )}
+                      aria-invalid={!!maxApiKeysError}
                     />
+                    <p className="text-sm text-muted-foreground mt-2">
+                      {t("admin.descriptions.max_api_keys_help")}
+                    </p>
+                    {maxApiKeysError && (
+                      <p className="text-sm text-destructive mt-1">
+                        {maxApiKeysError}
+                      </p>
+                    )}
                   </div>
                 </CardContent>
               </Card>

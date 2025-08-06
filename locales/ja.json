@@ -204,7 +204,8 @@
       "backup_description": "データベースとユーザーファイルを含む完全なバックアップを.tar.gzアーカイブとして作成",
       "restore_description": "バックアップアーカイブ（.tar.gz形式）からデータベースとユーザーファイルを復元",
       "upload_restore_description": "確認付きで後で復元するためのバックアップファイルをアップロード",
-      "restore_warning": "警告：復元により現在のデータがすべて完全に上書きされます"
+      "restore_warning": "警告：復元により現在のデータがすべて完全に上書きされます",
+      "max_api_keys_help": "各ユーザーが作成できるAPIキーの最大数を設定（1-100）"
     },
     "badges": {
       "multi_user": "マルチユーザーモード",
@@ -278,7 +279,8 @@
       "no_backup_file": "バックアップファイルが提供されていません",
       "backup_not_found": "バックアップファイルが見つかりません",
       "backup_not_ready": "バックアップがダウンロードの準備ができていません",
-      "backup_file_unavailable": "バックアップファイルが利用できません"
+      "backup_file_unavailable": "バックアップファイルが利用できません",
+      "max_api_keys_invalid": "1から100までの値を入力してください"
     },
     "success": {
       "restore_complete": "データベースが正常に復元されました",

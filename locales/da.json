@@ -204,7 +204,8 @@
       "backup_description": "Opretter en komplet backup inklusive database og brugerfiler som .tar.gz arkiv",
       "restore_description": "Gendanner database og brugerfiler fra backup arkiv (.tar.gz format)",
       "upload_restore_description": "Upload en backup fil til senere gendannelse med bekræftelse",
-      "restore_warning": "Advarsel: Gendannelse vil fuldstændigt overskrive alle nuværende data"
+      "restore_warning": "Advarsel: Gendannelse vil fuldstændigt overskrive alle nuværende data",
+      "max_api_keys_help": "Angiv det maksimale antal API-nøgler hver bruger kan oprette (1-100)"
     },
     "badges": {
       "multi_user": "Multi-bruger Tilstand",
@@ -278,7 +279,8 @@
       "no_backup_file": "Ingen backup fil angivet",
       "backup_not_found": "Backup fil ikke fundet",
       "backup_not_ready": "Backup ikke klar til download",
-      "backup_file_unavailable": "Backup fil ikke tilgængelig"
+      "backup_file_unavailable": "Backup fil ikke tilgængelig",
+      "max_api_keys_invalid": "Indtast venligst en værdi mellem 1 og 100"
     },
     "success": {
       "restore_complete": "Database gendannet succesfuldt",

@@ -204,7 +204,8 @@
       "backup_description": "创建包含数据库和用户文件的完整备份，格式为.tar.gz档案",
       "restore_description": "从备份档案（.tar.gz格式）还原数据库和用户文件",
       "upload_restore_description": "上传备份文件以便稍后确认还原",
-      "restore_warning": "警告：还原将完全覆盖所有当前数据"
+      "restore_warning": "警告：还原将完全覆盖所有当前数据",
+      "max_api_keys_help": "设置每个用户可创建的API密钥最大数量（1-100）"
     },
     "badges": {
       "multi_user": "多用户模式",
@@ -278,7 +279,8 @@
       "no_backup_file": "未提供备份文件",
       "backup_not_found": "找不到备份文件",
       "backup_not_ready": "备份未准备好下载",
-      "backup_file_unavailable": "备份文件不可用"
+      "backup_file_unavailable": "备份文件不可用",
+      "max_api_keys_invalid": "请输入1到100之间的值"
     },
     "success": {
       "restore_complete": "数据库还原成功",

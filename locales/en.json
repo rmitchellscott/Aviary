@@ -204,7 +204,8 @@
       "backup_description": "Creates a complete backup including database and user files as a .tar.gz archive",
       "restore_description": "Restores database and user files from backup archive (.tar.gz format)",
       "upload_restore_description": "Upload a backup file to restore later with confirmation",
-      "restore_warning": "Warning: Restoring will completely overwrite all current data"
+      "restore_warning": "Warning: Restoring will completely overwrite all current data",
+      "max_api_keys_help": "Set the maximum number of API keys each user can create (1-100)"
     },
     "badges": {
       "multi_user": "Multi-user Mode",
@@ -278,7 +279,8 @@
       "get_backup_jobs_failed": "Failed to get backup jobs",
       "invalid_job_id": "Invalid job ID",
       "backup_job_not_found": "Backup job not found",
-      "delete_backup_job_failed": "Failed to delete backup job"
+      "delete_backup_job_failed": "Failed to delete backup job",
+      "max_api_keys_invalid": "Please enter a value between 1 and 100"
     },
     "success": {
       "restore_complete": "Database restored successfully",

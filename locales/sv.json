@@ -204,7 +204,8 @@
       "backup_description": "Skapar en fullständig säkerhetskopia inklusive databas och användarfiler som ett .tar.gz-arkiv",
       "restore_description": "Återställer databas och användarfiler från säkerhetskopiearkiv (.tar.gz-format)",
       "upload_restore_description": "Ladda upp en säkerhetskopia för att återställa senare med bekräftelse",
-      "restore_warning": "Varning: Återställning kommer helt att skriva över all nuvarande data"
+      "restore_warning": "Varning: Återställning kommer helt att skriva över all nuvarande data",
+      "max_api_keys_help": "Ställ in det maximala antalet API-nycklar som varje användare kan skapa (1-100)"
     },
     "badges": {
       "multi_user": "Flermanvändarläge",
@@ -278,7 +279,8 @@
       "no_backup_file": "Ingen säkerhetskopia angiven",
       "backup_not_found": "Säkerhetskopia hittades inte",
       "backup_not_ready": "Säkerhetskopia inte redo för nedladdning",
-      "backup_file_unavailable": "Säkerhetskopia inte tillgänglig"
+      "backup_file_unavailable": "Säkerhetskopia inte tillgänglig",
+      "max_api_keys_invalid": "Ange ett värde mellan 1 och 100"
     },
     "success": {
       "restore_complete": "Databas återställd framgångsrikt",
