@@ -399,7 +399,9 @@
       "remarkable_unaffected": "Ihr reMarkable Cloud-Konto und die Gerätedaten bleiben vollständig unberührt.",
       "api_key_created_title": "Neuer API-Schlüssel erstellt",
       "api_key_created_message": "Kopieren Sie diesen Schlüssel jetzt - er wird nicht erneut angezeigt:",
-      "no_api_keys": "Noch keine API-Schlüssel erstellt"
+      "no_api_keys": "Noch keine API-Schlüssel erstellt",
+      "api_key_limit_reached": "Sie haben Ihr Limit von {{maxKeys}} API-Schlüsseln erreicht",
+      "api_keys_remaining": "{{remaining}} von {{maxKeys}} API-Schlüsseln verbleibend"
     },
     "help": {
       "cover_page": "Steuert, ob die erste Seite oder die aktuelle Seite als Deckblatt beim Hochladen von PDFs verwendet wird",

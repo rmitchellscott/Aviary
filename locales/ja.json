@@ -399,7 +399,9 @@
       "remarkable_unaffected": "reMarkable Cloudアカウントとデバイスデータは完全に影響を受けません。",
       "api_key_created_title": "新しいAPIキーが作成されました",
       "api_key_created_message": "このキーを今すぐコピーしてください - 再表示されません：",
-      "no_api_keys": "APIキーはまだ作成されていません"
+      "no_api_keys": "APIキーはまだ作成されていません",
+      "api_key_limit_reached": "APIキーの上限{{maxKeys}}個に達しました",
+      "api_keys_remaining": "{{remaining}}/{{maxKeys}}個のAPIキーが残っています"
     },
     "help": {
       "cover_page": "PDFアップロード時に最初のページまたは現在のページをカバーとして使用するかを制御",

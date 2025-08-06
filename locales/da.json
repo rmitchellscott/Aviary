@@ -399,7 +399,9 @@
       "remarkable_unaffected": "Din reMarkable Cloud-konto og enhedsdata vil forblive helt upåvirket.",
       "api_key_created_title": "Ny API-nøgle Oprettet",
       "api_key_created_message": "Kopier denne nøgle nu - den vil ikke blive vist igen:",
-      "no_api_keys": "Ingen API-nøgler oprettet endnu"
+      "no_api_keys": "Ingen API-nøgler oprettet endnu",
+      "api_key_limit_reached": "Du har nået din grænse på {{maxKeys}} API-nøgler",
+      "api_keys_remaining": "{{remaining}} af {{maxKeys}} API-nøgler tilbage"
     },
     "help": {
       "cover_page": "Styrer om første side eller nuværende side bruges som forside ved upload af PDF'er",

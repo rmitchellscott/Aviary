@@ -446,7 +446,9 @@
       "remarkable_unaffected": "Tu cuenta de reMarkable Cloud y datos del dispositivo permanecerán completamente intactos.",
       "api_key_created_title": "Nueva Clave API Creada",
       "api_key_created_message": "Copia esta clave ahora - no se mostrará de nuevo:",
-      "no_api_keys": "Aún no se han creado claves API"
+      "no_api_keys": "Aún no se han creado claves API",
+      "api_key_limit_reached": "Has alcanzado tu límite de {{maxKeys}} claves API",
+      "api_keys_remaining": "{{remaining}} de {{maxKeys}} claves API restantes"
     },
     "help": {
       "cover_page": "Controla si la primera página o página actual se usa como portada al subir PDFs",

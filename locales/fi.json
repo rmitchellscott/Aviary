@@ -399,7 +399,9 @@
       "remarkable_unaffected": "ReMarkable Cloud -tilisi ja laitetiedot pysyvät täysin koskemattomina.",
       "api_key_created_title": "Uusi API-avain luotu",
       "api_key_created_message": "Kopioi tämä avain nyt - sitä ei näytetä uudelleen:",
-      "no_api_keys": "API-avaimia ei ole vielä luotu"
+      "no_api_keys": "API-avaimia ei ole vielä luotu",
+      "api_key_limit_reached": "Olet saavuttanut {{maxKeys}} API-avaimen rajasi",
+      "api_keys_remaining": "{{remaining}}/{{maxKeys}} API-avainta jäljellä"
     },
     "help": {
       "cover_page": "Ohjaa käytetäänkö ensimmäistä sivua vai nykyistä sivua kansikuvana PDF-tiedostoja ladattaessa",
