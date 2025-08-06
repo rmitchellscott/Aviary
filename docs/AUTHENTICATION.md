@@ -57,15 +57,8 @@ Set `MULTI_USER=true` and configure database settings. The initial admin user is
   AUTH_PASSWORD=secure-admin-password
   ADMIN_EMAIL=admin@example.com
 ```
-#### Migration from Single-User Mode
 
-When enabling multi-user mode, the following happens upon the initial admin user's first login in the background:
-
-1. Existing rmapi configuration (cloud pairing) is migrated to the admin user, if present
-2. Existing archived PDF files are moved to the admin user's directory, if present
-3. Environment-based API key is migrated to the admin user's account, if present
-
-For detailed migration procedures, troubleshooting, and combined migrations (e.g., single-user to multi-user + storage backend changes), see the [Migration Guide](docs/MIGRATION_GUIDE.md).
+For detailed migration procedures, troubleshooting, and combined migrations (e.g., single-user to multi-user + storage backend changes), see [Data Management](docs/DATA_MANAGEMENT.md).
 
 ## Advanced Authentication
 

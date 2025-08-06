@@ -218,13 +218,17 @@ To migrate from PostgreSQL to SQLite:
 
 ### Single-User to Multi-User Migration
 
-When enabling multi-user mode (`MULTI_USER=true`), Aviary automatically performs a single-user to multi-user migration. For detailed migration procedures and troubleshooting, see the [Migration Guide](docs/MIGRATION_GUIDE.md).
+When enabling multi-user mode (`MULTI_USER=true`), Aviary automatically performs a single-user to multi-user migration. The following happens upon the initial admin user's first login in the background:
+
+1. Existing cloud pairing (if present) is migrated to the admin user
+2. Existing archived PDF files (if present) are moved to the admin user's directory
+3. Environment-based API key (if present) is migrated to the admin user's account
 
 **Important**: Single-user to multi-user migration requires using the same storage backend. If you need to change storage backends, use the cross-storage-backend migration process below.
 
 ## Cross-Storage-Backend Migration
 
-To migrate between different storage backends (e.g., filesystem to S3, or S3 to filesystem), use the backup and restore process. For comprehensive migration instructions including verification steps and troubleshooting, see the [Migration Guide](docs/MIGRATION_GUIDE.md).
+To migrate between different storage backends (e.g., filesystem to S3, or S3 to filesystem), use the backup and restore process.
 
 ### Filesystem to S3 Migration
 
