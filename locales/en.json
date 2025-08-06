@@ -399,7 +399,9 @@
       "remarkable_unaffected": "Your reMarkable Cloud account and device data will remain completely unaffected.",
       "api_key_created_title": "New API Key Created",
       "api_key_created_message": "Copy this key now - it won't be shown again:",
-      "no_api_keys": "No API keys created yet"
+      "no_api_keys": "No API keys created yet",
+      "api_key_limit_reached": "You've reached your limit of {{maxKeys}} API keys",
+      "api_keys_remaining": "{{remaining}} of {{maxKeys}} API keys remaining"
     },
     "help": {
       "cover_page": "Controls whether the first page or current page is used as the cover for uploaded documents",

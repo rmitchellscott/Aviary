@@ -399,7 +399,9 @@
       "remarkable_unaffected": "reMarkable Cloud 계정과 기기 데이터는 전혀 영향을 받지 않습니다.",
       "api_key_created_title": "새 API 키 생성됨",
       "api_key_created_message": "지금 이 키를 복사하세요 - 다시 표시되지 않습니다:",
-      "no_api_keys": "아직 생성된 API 키가 없습니다"
+      "no_api_keys": "아직 생성된 API 키가 없습니다",
+      "api_key_limit_reached": "{{maxKeys}}개의 API 키 제한에 도달했습니다",
+      "api_keys_remaining": "{{remaining}}/{{maxKeys}}개의 API 키가 남아 있습니다"
     },
     "help": {
       "cover_page": "PDF 업로드 시 첫 번째 페이지 또는 현재 페이지를 표지로 사용할지 제어",

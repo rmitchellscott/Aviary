@@ -470,7 +470,9 @@
       "remarkable_unaffected": "Votre compte reMarkable Cloud et les données de l'appareil resteront complètement intacts.",
       "api_key_created_title": "Nouvelle clé API créée",
       "api_key_created_message": "Copiez cette clé maintenant - elle ne sera plus affichée :",
-      "no_api_keys": "Aucune clé API créée pour le moment"
+      "no_api_keys": "Aucune clé API créée pour le moment",
+      "api_key_limit_reached": "Vous avez atteint votre limite de {{maxKeys}} clés API",
+      "api_keys_remaining": "{{remaining}} sur {{maxKeys}} clés API restantes"
     },
     "help": {
       "cover_page": "Contrôle si la première page ou la page actuelle est utilisée comme couverture lors du téléchargement de PDF",
