@@ -1254,7 +1254,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   <CardTitle>{t("admin.cards.create_new_user")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <Label htmlFor="new-username">{t("admin.labels.username")}</Label>
                       <Input
@@ -1318,18 +1318,18 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       <TableHeader>
                         <TableRow>
                           <TableHead>{t("admin.labels.username")}</TableHead>
-                          <TableHead className="hidden md:table-cell">{t("admin.labels.email")}</TableHead>
-                          <TableHead className="hidden md:table-cell">{t("admin.labels.role")}</TableHead>
-                          <TableHead className="hidden md:table-cell">{t("admin.labels.status")}</TableHead>
-                          <TableHead className="hidden md:table-cell">{t("admin.labels.created")}</TableHead>
-                          <TableHead className="hidden md:table-cell">{t("admin.labels.last_login")}</TableHead>
+                          <TableHead className="hidden lg:table-cell">{t("admin.labels.email")}</TableHead>
+                          <TableHead className="hidden lg:table-cell">{t("admin.labels.role")}</TableHead>
+                          <TableHead className="hidden lg:table-cell">{t("admin.labels.status")}</TableHead>
+                          <TableHead className="hidden lg:table-cell">{t("admin.labels.created")}</TableHead>
+                          <TableHead className="hidden lg:table-cell">{t("admin.labels.last_login")}</TableHead>
                           <TableHead>{t("admin.labels.actions")}</TableHead>
                         </TableRow>
                       </TableHeader>
                     <TableBody>
                       {users.map((user) => (
                         <TableRow key={user.id}>
-                          <TableCell className="font-medium max-w-24 md:max-w-none">
+                          <TableCell className="font-medium max-w-24 lg:max-w-none">
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className="truncate cursor-default" title={user.username}>
@@ -1341,8 +1341,8 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               </TooltipContent>
                             </Tooltip>
                           </TableCell>
-                          <TableCell className="hidden md:table-cell">{user.email}</TableCell>
-                          <TableCell className="hidden md:table-cell">
+                          <TableCell className="hidden lg:table-cell">{user.email}</TableCell>
+                          <TableCell className="hidden lg:table-cell">
                             {config?.oidcGroupBasedAdmin ? (
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -1366,11 +1366,11 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               </Badge>
                             )}
                           </TableCell>
-                          <TableCell className="hidden md:table-cell">
+                          <TableCell className="hidden lg:table-cell">
                             {getUserStatusBadge(user)}
                           </TableCell>
-                          <TableCell className="hidden md:table-cell">{formatDate(user.created_at)}</TableCell>
-                          <TableCell className="hidden md:table-cell">
+                          <TableCell className="hidden lg:table-cell">{formatDate(user.created_at)}</TableCell>
+                          <TableCell className="hidden lg:table-cell">
                             {user.last_login
                               ? formatDate(user.last_login)
                               : t("admin.never")}
@@ -1380,7 +1380,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="md:hidden"
+                                className="lg:hidden"
                                 onClick={() => setViewUser(user)}
                               >
                                 {t('admin.actions.details', 'Details')}
@@ -1452,12 +1452,12 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         <TableRow>
                           <TableHead>{t("admin.labels.name")}</TableHead>
                           <TableHead>{t("admin.labels.user")}</TableHead>
-                          <TableHead className="hidden md:table-cell">{t("admin.labels.key_preview")}</TableHead>
-                          <TableHead className="hidden md:table-cell">{t("admin.labels.status")}</TableHead>
-                          <TableHead className="hidden md:table-cell">{t("admin.labels.created")}</TableHead>
-                          <TableHead className="hidden md:table-cell">{t("admin.labels.last_used")}</TableHead>
-                          <TableHead className="hidden md:table-cell">{t("admin.labels.expires")}</TableHead>
-                          <TableHead className="md:hidden">{t("admin.labels.actions")}</TableHead>
+                          <TableHead className="hidden lg:table-cell">{t("admin.labels.key_preview")}</TableHead>
+                          <TableHead className="hidden lg:table-cell">{t("admin.labels.status")}</TableHead>
+                          <TableHead className="hidden lg:table-cell">{t("admin.labels.created")}</TableHead>
+                          <TableHead className="hidden lg:table-cell">{t("admin.labels.last_used")}</TableHead>
+                          <TableHead className="hidden lg:table-cell">{t("admin.labels.expires")}</TableHead>
+                          <TableHead className="lg:hidden">{t("admin.labels.actions")}</TableHead>
                         </TableRow>
                       </TableHeader>
                   <TableBody>
@@ -1465,20 +1465,20 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       const status = getKeyStatus(key);
                       return (
                         <TableRow key={key.id}>
-                          <TableCell className="font-medium max-w-20 md:max-w-none">
+                          <TableCell className="font-medium max-w-20 lg:max-w-none">
                             <div className="truncate" title={key.name}>
                               {key.name}
                             </div>
                           </TableCell>
-                          <TableCell className="max-w-20 md:max-w-none">
+                          <TableCell className="max-w-20 lg:max-w-none">
                             <div className="truncate" title={key.username}>
                               {key.username}
                             </div>
                           </TableCell>
-                          <TableCell className="hidden md:table-cell">
+                          <TableCell className="hidden lg:table-cell">
                             <code className="text-sm">{key.key_prefix}...</code>
                           </TableCell>
-                          <TableCell className="hidden md:table-cell">
+                          <TableCell className="hidden lg:table-cell">
                             <Badge
                               variant={
                                 status === "active"
@@ -1500,18 +1500,18 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               {status}
                             </Badge>
                           </TableCell>
-                          <TableCell className="hidden md:table-cell">{formatDate(key.created_at)}</TableCell>
-                          <TableCell className="hidden md:table-cell">
+                          <TableCell className="hidden lg:table-cell">{formatDate(key.created_at)}</TableCell>
+                          <TableCell className="hidden lg:table-cell">
                             {key.last_used
                               ? formatDate(key.last_used)
                               : t("admin.never")}
                           </TableCell>
-                          <TableCell className="hidden md:table-cell">
+                          <TableCell className="hidden lg:table-cell">
                             {key.expires_at
                               ? formatDate(key.expires_at)
                               : t("admin.never")}
                           </TableCell>
-                          <TableCell className="md:hidden">
+                          <TableCell className="lg:hidden">
                             <Button
                               size="sm"
                               variant="outline"

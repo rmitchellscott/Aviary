@@ -1117,11 +1117,11 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         <TableHeader>
                           <TableRow>
                           <TableHead>{t("settings.labels.api_key_name")}</TableHead>
-                          <TableHead className="hidden md:table-cell">{t("settings.labels.key_preview")}</TableHead>
-                          <TableHead className="hidden md:table-cell">{t("settings.labels.status")}</TableHead>
-                          <TableHead className="hidden md:table-cell">{t("settings.labels.created")}</TableHead>
-                          <TableHead className="hidden md:table-cell">{t("settings.labels.last_used")}</TableHead>
-                          <TableHead className="hidden md:table-cell">{t("settings.labels.expires")}</TableHead>
+                          <TableHead className="hidden lg:table-cell">{t("settings.labels.key_preview")}</TableHead>
+                          <TableHead className="hidden lg:table-cell">{t("settings.labels.status")}</TableHead>
+                          <TableHead className="hidden lg:table-cell">{t("settings.labels.created")}</TableHead>
+                          <TableHead className="hidden lg:table-cell">{t("settings.labels.last_used")}</TableHead>
+                          <TableHead className="hidden lg:table-cell">{t("settings.labels.expires")}</TableHead>
                           <TableHead></TableHead>
                           </TableRow>
                         </TableHeader>
@@ -1133,12 +1133,12 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                 <TableCell className="font-medium">
                                   {key.name}
                                 </TableCell>
-                                <TableCell className="hidden md:table-cell">
+                                <TableCell className="hidden lg:table-cell">
                                   <code className="text-sm">
                                     {key.key_prefix}...
                                   </code>
                                 </TableCell>
-                                <TableCell className="hidden md:table-cell">
+                                <TableCell className="hidden lg:table-cell">
                                   <Badge
                                     variant={
                                       status === "active"
@@ -1160,15 +1160,15 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                     {t(`settings.status.${status}`)}
                                   </Badge>
                                 </TableCell>
-                                <TableCell className="hidden md:table-cell">
+                                <TableCell className="hidden lg:table-cell">
                                   {formatDate(key.created_at)}
                                 </TableCell>
-                                <TableCell className="hidden md:table-cell">
+                                <TableCell className="hidden lg:table-cell">
                                   {key.last_used
                                     ? formatDate(key.last_used)
                                     : t('settings.never')}
                                 </TableCell>
-                                <TableCell className="hidden md:table-cell">
+                                <TableCell className="hidden lg:table-cell">
                                   {key.expires_at
                                     ? formatDate(key.expires_at)
                                     : t('settings.never')}
@@ -1178,7 +1178,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                     <Button
                                       size="sm"
                                       variant="outline"
-                                      className="md:hidden"
+                                      className="lg:hidden"
                                       onClick={() => setViewKey(key)}
                                     >
                                       {t('settings.actions.details', 'Details')}
