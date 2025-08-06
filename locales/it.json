@@ -459,9 +459,9 @@
       "folder_exclusion_list": "Lista separata da virgole di nomi di cartelle da escludere, sensibile alle maiuscole"
     },
     "status": {
-      "active": "attivo",
-      "expired": "scaduto",
-      "inactive": "inattivo"
+      "active": "Attivo",
+      "expired": "Scaduto",
+      "inactive": "Inattivo"
     },
     "delete_warnings": {
       "documents": "Tutti i documenti e file archiviati",

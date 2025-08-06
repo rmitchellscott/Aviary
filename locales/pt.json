@@ -412,9 +412,9 @@
       "folder_exclusion_list": "Lista separada por vírgulas de nomes de pastas para excluir, sensível a maiúsculas e minúsculas"
     },
     "status": {
-      "active": "ativo",
-      "expired": "expirado",
-      "inactive": "inativo"
+      "active": "Ativo",
+      "expired": "Expirado",
+      "inactive": "Inativo"
     },
     "delete_warnings": {
       "documents": "Todos os documentos e arquivos arquivados",

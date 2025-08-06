@@ -1045,7 +1045,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   const getUserStatusBadge = (user: User) => {
     if (!user.is_active) {
       return (
-        <Badge variant="secondary" className="w-16 justify-center">
+        <Badge variant="secondary" className="min-w-16 max-w-32 justify-center text-center whitespace-nowrap">
           {t("admin.status.inactive")}
         </Badge>
       );
@@ -1053,14 +1053,14 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     
     if (user.rmapi_paired) {
       return (
-        <Badge variant="default" className="w-16 justify-center bg-primary text-primary-foreground hover:bg-primary/80">
+        <Badge variant="default" className="min-w-16 max-w-32 justify-center text-center whitespace-nowrap bg-primary text-primary-foreground hover:bg-primary/80">
           {t("admin.status.paired")}
         </Badge>
       );
     }
     
     return (
-      <Badge variant="default" className="w-16 justify-center">
+      <Badge variant="default" className="min-w-16 max-w-32 justify-center text-center whitespace-nowrap">
         {t("admin.status.unpaired")}
       </Badge>
     );
@@ -1343,13 +1343,13 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                             </Tooltip>
                           </TableCell>
                           <TableCell className="hidden lg:table-cell">{user.email}</TableCell>
-                          <TableCell className="hidden lg:table-cell">
+                          <TableCell className="hidden lg:table-cell text-center">
                             {config?.oidcGroupBasedAdmin ? (
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <Badge
                                     variant={user.is_admin ? "default" : "secondary"}
-                                    className="w-14 justify-center cursor-default"
+                                    className="min-w-14 max-w-24 justify-center cursor-default text-center whitespace-nowrap"
                                   >
                                     {user.is_admin ? t("admin.roles.admin") : t("admin.roles.user")}
                                   </Badge>
@@ -1361,13 +1361,13 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                             ) : (
                               <Badge
                                 variant={user.is_admin ? "default" : "secondary"}
-                                className="w-14 justify-center"
+                                className="min-w-14 max-w-24 justify-center text-center whitespace-nowrap"
                               >
                                 {user.is_admin ? t("admin.roles.admin") : t("admin.roles.user")}
                               </Badge>
                             )}
                           </TableCell>
-                          <TableCell className="hidden lg:table-cell">
+                          <TableCell className="hidden lg:table-cell text-center">
                             {getUserStatusBadge(user)}
                           </TableCell>
                           <TableCell className="hidden lg:table-cell">{formatDate(user.created_at)}</TableCell>
@@ -1477,7 +1477,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           <TableCell className="hidden lg:table-cell">
                             <code className="text-sm">{key.key_prefix}...</code>
                           </TableCell>
-                          <TableCell className="hidden lg:table-cell">
+                          <TableCell className="hidden lg:table-cell text-center">
                             <Badge
                               variant={
                                 status === "active"
@@ -1486,17 +1486,9 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                                     ? "destructive"
                                     : "secondary"
                               }
+                              className="min-w-16 max-w-32 justify-center text-center whitespace-nowrap"
                             >
-                              {status === "active" && (
-                                <CheckCircle className="h-3 w-3 mr-1" />
-                              )}
-                              {status === "expired" && (
-                                <XCircle className="h-3 w-3 mr-1" />
-                              )}
-                              {status === "inactive" && (
-                                <Clock className="h-3 w-3 mr-1" />
-                              )}
-                              {status}
+                              {t(`settings.status.${status}`)}
                             </Badge>
                           </TableCell>
                           <TableCell className="hidden lg:table-cell">{formatDate(key.created_at)}</TableCell>

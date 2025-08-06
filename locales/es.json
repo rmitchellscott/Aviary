@@ -459,9 +459,9 @@
       "folder_exclusion_list": "Lista separada por comas de nombres de carpetas a excluir, sensible a mayúsculas y minúsculas"
     },
     "status": {
-      "active": "activo",
-      "expired": "expirado",
-      "inactive": "inactivo"
+      "active": "Activo",
+      "expired": "Expirado",
+      "inactive": "Inactivo"
     },
     "delete_warnings": {
       "documents": "Todos los documentos y archivos archivados",

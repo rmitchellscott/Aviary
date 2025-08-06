@@ -412,9 +412,9 @@
       "folder_exclusion_list": "Pilkuilla erotettu lista poissuljetuista kansionimistä, isojen ja pienten kirjainten erotteleva"
     },
     "status": {
-      "active": "aktiivinen",
-      "expired": "vanhentunut",
-      "inactive": "ei-aktiivinen"
+      "active": "Aktiivinen",
+      "expired": "Vanhentunut",
+      "inactive": "Ei-aktiivinen"
     },
     "delete_warnings": {
       "documents": "Kaikki arkistoidut asiakirjat ja tiedostot",
