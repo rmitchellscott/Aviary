@@ -470,7 +470,7 @@
     "send_email": "Send Reset Email",
     "resetting": "Resetting...",
     "reset_button": "Reset Password",
-    "email_sent": "If the email exists, a password reset link has been sent",
+    "email_sent": "If an account exists, a password reset link has been sent to your email",
     "send_email_error": "Failed to send reset email",
     "success": "Password has been reset successfully. You can now log in with your new password.",
     "reset_error": "Failed to reset password",
