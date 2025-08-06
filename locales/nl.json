@@ -204,7 +204,8 @@
       "backup_description": "Maakt een complete backup inclusief database en gebruikersbestanden als .tar.gz archief",
       "restore_description": "Herstelt database en gebruikersbestanden van backup archief (.tar.gz formaat)",
       "upload_restore_description": "Upload een backup-bestand om later te herstellen met bevestiging",
-      "restore_warning": "Waarschuwing: Herstellen zal alle huidige data volledig overschrijven"
+      "restore_warning": "Waarschuwing: Herstellen zal alle huidige data volledig overschrijven",
+      "max_api_keys_help": "Stel het maximum aantal API-sleutels in dat elke gebruiker kan maken (1-100)"
     },
     "badges": {
       "multi_user": "Multi-gebruiker modus",
@@ -278,7 +279,8 @@
       "no_backup_file": "Geen backup-bestand opgegeven",
       "backup_not_found": "Backup-bestand niet gevonden",
       "backup_not_ready": "Backup niet klaar voor download",
-      "backup_file_unavailable": "Backup-bestand niet beschikbaar"
+      "backup_file_unavailable": "Backup-bestand niet beschikbaar",
+      "max_api_keys_invalid": "Voer een waarde tussen 1 en 100 in"
     },
     "success": {
       "restore_complete": "Database succesvol hersteld",

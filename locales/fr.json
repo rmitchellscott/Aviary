@@ -204,7 +204,8 @@
       "backup_description": "Crée une sauvegarde complète incluant la base de données et les fichiers utilisateur sous forme d'archive .tar.gz",
       "restore_description": "Restaure la base de données et les fichiers utilisateur à partir d'une archive de sauvegarde (format .tar.gz)",
       "upload_restore_description": "Téléchargez un fichier de sauvegarde pour une restauration ultérieure avec confirmation",
-      "restore_warning": "Attention : La restauration écrasera complètement toutes les données actuelles"
+      "restore_warning": "Attention : La restauration écrasera complètement toutes les données actuelles",
+      "max_api_keys_help": "Définissez le nombre maximum de clés API que chaque utilisateur peut créer (1-100)"
     },
     "badges": {
       "multi_user": "Mode multi-utilisateur",
@@ -278,7 +279,8 @@
       "no_backup_file": "Aucun fichier de sauvegarde fourni",
       "backup_not_found": "Fichier de sauvegarde introuvable",
       "backup_not_ready": "Sauvegarde non prête pour le téléchargement",
-      "backup_file_unavailable": "Fichier de sauvegarde indisponible"
+      "backup_file_unavailable": "Fichier de sauvegarde indisponible",
+      "max_api_keys_invalid": "Veuillez entrer une valeur entre 1 et 100"
     },
     "success": {
       "restore_complete": "Base de données restaurée avec succès",

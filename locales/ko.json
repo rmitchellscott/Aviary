@@ -204,7 +204,8 @@
       "backup_description": "데이터베이스와 사용자 파일을 포함한 완전한 백업을 .tar.gz 아카이브로 생성",
       "restore_description": "백업 아카이브 (.tar.gz 형식)에서 데이터베이스와 사용자 파일 복원",
       "upload_restore_description": "확인과 함께 나중에 복원할 백업 파일 업로드",
-      "restore_warning": "경고: 복원하면 모든 현재 데이터가 완전히 덮어쓰기됩니다"
+      "restore_warning": "경고: 복원하면 모든 현재 데이터가 완전히 덮어쓰기됩니다",
+      "max_api_keys_help": "각 사용자가 생성할 수 있는 API 키의 최대 개수를 설정하세요 (1-100)"
     },
     "badges": {
       "multi_user": "다중 사용자 모드",
@@ -278,7 +279,8 @@
       "no_backup_file": "백업 파일이 제공되지 않음",
       "backup_not_found": "백업 파일을 찾을 수 없음",
       "backup_not_ready": "백업이 다운로드 준비되지 않음",
-      "backup_file_unavailable": "백업 파일을 사용할 수 없음"
+      "backup_file_unavailable": "백업 파일을 사용할 수 없음",
+      "max_api_keys_invalid": "1에서 100 사이의 값을 입력하세요"
     },
     "success": {
       "restore_complete": "데이터베이스가 성공적으로 복원되었습니다",
