@@ -1223,7 +1223,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         <TableHeader>
                           <TableRow>
                           <TableHead>{t("settings.labels.api_key_name")}</TableHead>
-                          <TableHead className="hidden lg:table-cell">{t("settings.labels.key_preview")}</TableHead>
+                          <TableHead className="hidden lg:table-cell w-32">{t("settings.labels.key_preview")}</TableHead>
                           <TableHead className="hidden lg:table-cell text-center">{t("settings.labels.status")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("settings.labels.created")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("settings.labels.last_used")}</TableHead>
@@ -1239,7 +1239,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                 <TableCell className="font-medium">
                                   {key.name}
                                 </TableCell>
-                                <TableCell className="hidden lg:table-cell">
+                                <TableCell className="hidden lg:table-cell w-32">
                                   <code className="text-sm">
                                     {key.key_prefix}...
                                   </code>
