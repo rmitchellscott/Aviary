@@ -1133,7 +1133,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         )}
                       </div>
                       <div>
-                        <Label htmlFor="key-expiry">{t("settings.labels.api_key_expiry")}</Label>
+                        <Label htmlFor="key-expiry">{t("settings.labels.expires")}</Label>
                         <Select
                           value={newKeyExpiry}
                           onValueChange={setNewKeyExpiry}
