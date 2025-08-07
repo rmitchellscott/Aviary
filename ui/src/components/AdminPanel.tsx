@@ -1164,7 +1164,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-7xl max-h-[85vh] sm:max-w-7xl sm:max-h-[90vh] overflow-y-auto top-[0vh] translate-y-0 sm:top-[6vh]">
+      <DialogContent className="max-w-7xl max-h-[85vh] sm:max-w-7xl sm:max-h-[90vh] overflow-y-auto !top-[0vh] !translate-y-0 sm:!top-[6vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
@@ -1905,7 +1905,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         open={resetPasswordDialog.isOpen}
         onOpenChange={closeResetPasswordDialog}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[60vh] overflow-y-auto max-sm:top-[20vh] md:top-[33%]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Key className="h-5 w-5" />
