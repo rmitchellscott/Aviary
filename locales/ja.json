@@ -434,7 +434,8 @@
       },
       "cannot_undo": "この操作は元に戻すことができません。",
       "delete_account_confirmation": "アカウントを永久に削除してもよろしいですか？この操作は元に戻すことができません。",
-      "delete_account_type_confirm": "確認のため「{{confirmText}}」と入力してください"
+      "delete_account_type_confirm": "確認のため「{{confirmText}}」と入力してください",
+      "unpair_confirmation_message": "reMarkableクラウドとのペアリングを解除してもよろしいですか？ドキュメントをアップロードするには再度ペアリングが必要になります。"
     },
     "placeholders": {
       "cloud_default": "reMarkable Cloudの場合は空で留める",

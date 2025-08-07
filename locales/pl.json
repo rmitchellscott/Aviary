@@ -434,7 +434,8 @@
       },
       "cannot_undo": "Tej akcji nie można cofnąć.",
       "delete_account_confirmation": "Czy na pewno chcesz trwale usunąć swoje konto? Tej akcji nie można cofnąć.",
-      "delete_account_type_confirm": "Wpisz \"{{confirmText}}\", aby potwierdzić"
+      "delete_account_type_confirm": "Wpisz \"{{confirmText}}\", aby potwierdzić",
+      "unpair_confirmation_message": "Czy na pewno chcesz odłączyć się od chmury reMarkable? Będziesz musiał sparować ponownie, aby przesyłać dokumenty."
     },
     "placeholders": {
       "cloud_default": "Zostaw puste dla reMarkable Cloud",

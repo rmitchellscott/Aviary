@@ -434,7 +434,8 @@
       },
       "cannot_undo": "Denne handlingen kan ikke angres.",
       "delete_account_confirmation": "Er du sikker på at du vil slette kontoen din permanent? Denne handlingen kan ikke angres.",
-      "delete_account_type_confirm": "Skriv \"{{confirmText}}\" for å bekrefte"
+      "delete_account_type_confirm": "Skriv \"{{confirmText}}\" for å bekrefte",
+      "unpair_confirmation_message": "Er du sikker på at du vil koble fra reMarkable sky? Du må koble til igjen for å laste opp dokumenter."
     },
     "placeholders": {
       "cloud_default": "La stå tom for reMarkable Cloud",

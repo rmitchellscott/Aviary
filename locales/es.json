@@ -481,7 +481,8 @@
       },
       "cannot_undo": "Esta acción no se puede deshacer.",
       "delete_account_confirmation": "¿Estás seguro de que quieres eliminar permanentemente tu cuenta? Esta acción no se puede deshacer.",
-      "delete_account_type_confirm": "Escribe \"{{confirmText}}\" para confirmar"
+      "delete_account_type_confirm": "Escribe \"{{confirmText}}\" para confirmar",
+      "unpair_confirmation_message": "¿Estás seguro de que quieres desvincularte de reMarkable cloud? Necesitarás vincularte de nuevo para subir documentos."
     },
     "placeholders": {
       "cloud_default": "Dejar vacío para reMarkable Cloud",

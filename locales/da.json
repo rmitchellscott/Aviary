@@ -434,7 +434,8 @@
       },
       "cannot_undo": "Denne handling kan ikke fortrydes.",
       "delete_account_confirmation": "Er du sikker på, at du vil slette din konto permanent? Denne handling kan ikke fortrydes.",
-      "delete_account_type_confirm": "Skriv \"{{confirmText}}\" for at bekræfte"
+      "delete_account_type_confirm": "Skriv \"{{confirmText}}\" for at bekræfte",
+      "unpair_confirmation_message": "Er du sikker på, at du vil afparre fra reMarkable cloud? Du skal parre igen for at uploade dokumenter."
     },
     "placeholders": {
       "cloud_default": "Lad være tom for reMarkable Cloud",

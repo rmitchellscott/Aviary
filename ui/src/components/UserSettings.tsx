@@ -171,6 +171,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
   const [pairingDialogOpen, setPairingDialogOpen] = useState(false);
   const [deleteAccountDialog, setDeleteAccountDialog] = useState(false);
+  const [unpairConfirmDialog, setUnpairConfirmDialog] = useState(false);
 
   const [deleteKeyDialog, setDeleteKeyDialog] = useState<{
     isOpen: boolean;
@@ -287,6 +288,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       // Close any open dialogs
       setPairingDialogOpen(false);
       setDeleteAccountDialog(false);
+      setUnpairConfirmDialog(false);
       setDeleteKeyDialog({ isOpen: false, key: null });
       
       // Reset form state to defaults
@@ -797,7 +799,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       {rmapiPaired ? (
                         <Button
                           variant="outline"
-                          onClick={disconnectRmapi}
+                          onClick={() => setUnpairConfirmDialog(true)}
                           disabled={saving}
                           className="w-full sm:w-auto"
                         >
@@ -1435,6 +1437,34 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Unpair Confirmation Dialog */}
+      <AlertDialog open={unpairConfirmDialog} onOpenChange={setUnpairConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("settings.actions.unpair")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("settings.dialogs.unpair_confirmation_message")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setUnpairConfirmDialog(false)} disabled={saving}>
+              {t("settings.actions.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                setUnpairConfirmDialog(false);
+                await disconnectRmapi();
+              }}
+              disabled={saving}
+            >
+              {saving ? t('settings.loading_states.saving') : t("settings.actions.unpair")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

@@ -434,7 +434,8 @@
       },
       "cannot_undo": "This action cannot be undone.",
       "delete_account_confirmation": "Are you sure you want to permanently delete your account? This action cannot be undone.",
-      "delete_account_type_confirm": "Type \"{{confirmText}}\" to confirm"
+      "delete_account_type_confirm": "Type \"{{confirmText}}\" to confirm",
+      "unpair_confirmation_message": "Are you sure you want to unpair from reMarkable cloud? You'll need to pair again to upload documents."
     },
     "placeholders": {
       "cloud_default": "Leave empty for reMarkable Cloud",

@@ -434,7 +434,8 @@
       },
       "cannot_undo": "Deze actie kan niet ongedaan worden gemaakt.",
       "delete_account_confirmation": "Weet je zeker dat je je account permanent wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
-      "delete_account_type_confirm": "Type \"{{confirmText}}\" om te bevestigen"
+      "delete_account_type_confirm": "Type \"{{confirmText}}\" om te bevestigen",
+      "unpair_confirmation_message": "Weet je zeker dat je wilt ontkoppelen van reMarkable cloud? Je moet opnieuw koppelen om documenten te uploaden."
     },
     "placeholders": {
       "cloud_default": "Laat leeg voor reMarkable Cloud",

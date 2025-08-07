@@ -434,7 +434,8 @@
       },
       "cannot_undo": "此操作无法撤销。",
       "delete_account_confirmation": "您确定要永久删除您的账户吗？此操作无法撤销。",
-      "delete_account_type_confirm": "输入\"{{confirmText}}\"以确认"
+      "delete_account_type_confirm": "输入\"{{confirmText}}\"以确认",
+      "unpair_confirmation_message": "您确定要从reMarkable云取消配对吗？您需要重新配对才能上传文档。"
     },
     "placeholders": {
       "cloud_default": "留空使用reMarkable Cloud",
