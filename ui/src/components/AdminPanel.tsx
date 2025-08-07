@@ -1164,7 +1164,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-7xl max-h-[85vh] overflow-y-auto sm:max-w-7xl sm:max-h-[90vh]">
+      <DialogContent className="max-w-7xl max-h-[85vh] sm:max-w-7xl sm:max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
@@ -1193,31 +1193,31 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           </Alert>
         )}
 
-        <Tabs defaultValue="overview" className="w-full h-[600px] flex flex-col">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
+        <Tabs defaultValue="overview">
+          <TabsList className="w-full">
+            <TabsTrigger value="overview">
               <Activity className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("admin.tabs.overview")}</span>
+              <span className="hidden sm:inline ml-1.5">{t("admin.tabs.overview")}</span>
             </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
+            <TabsTrigger value="users">
               <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("admin.tabs.users")}</span>
+              <span className="hidden sm:inline ml-1.5">{t("admin.tabs.users")}</span>
             </TabsTrigger>
-            <TabsTrigger value="api-keys" className="flex items-center gap-2">
+            <TabsTrigger value="api-keys">
               <Key className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("admin.tabs.api_keys")}</span>
+              <span className="hidden sm:inline ml-1.5">{t("admin.tabs.api_keys")}</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger value="settings">
               <SettingsIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("admin.tabs.settings")}</span>
+              <span className="hidden sm:inline ml-1.5">{t("admin.tabs.settings")}</span>
             </TabsTrigger>
-            <TabsTrigger value="system" className="flex items-center gap-2">
+            <TabsTrigger value="system">
               <Database className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("admin.tabs.system")}</span>
+              <span className="hidden sm:inline ml-1.5">{t("admin.tabs.system")}</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="flex-1 overflow-y-auto">
+          <TabsContent value="overview">
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="pb-2">
@@ -1331,7 +1331,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="users" className="flex-1 overflow-y-auto">
+          <TabsContent value="users">
             <div className="space-y-4">
               <Card>
                 <CardHeader>
@@ -1557,7 +1557,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   </div>
                   </TabsContent>
 
-          <TabsContent value="api-keys" className="flex-1 overflow-y-auto">
+          <TabsContent value="api-keys">
             <div className="space-y-4">
               <Card>
                 <CardHeader>
@@ -1667,7 +1667,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="settings" className="flex-1 overflow-y-auto">
+          <TabsContent value="settings">
             <div className="space-y-4">
               <Card>
                 <CardHeader>
@@ -1756,7 +1756,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="system" className="flex-1 overflow-y-auto">
+          <TabsContent value="system">
             <div className="space-y-4">
               <Card>
                 <CardHeader>

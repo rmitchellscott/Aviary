@@ -689,7 +689,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-7xl max-h-[85vh] overflow-y-auto sm:max-w-7xl sm:max-h-[90vh]">
+        <DialogContent className="max-w-7xl max-h-[85vh] sm:max-w-7xl sm:max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
@@ -707,23 +707,23 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           )}
 
 
-          <Tabs defaultValue="profile" className="w-full h-[660px] flex flex-col">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="profile" className="flex items-center gap-2">
+          <Tabs defaultValue="profile">
+            <TabsList className="w-full">
+              <TabsTrigger value="profile">
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline">{t("settings.tabs.profile")}</span>
+                <span className="ml-1.5">{t("settings.tabs.profile")}</span>
               </TabsTrigger>
-              <TabsTrigger value="account" className="flex items-center gap-2">
+              <TabsTrigger value="account">
                 <UserCog className="h-4 w-4" />
-                <span className="hidden sm:inline">{t("settings.tabs.account")}</span>
+                <span className="ml-1.5">{t("settings.tabs.account")}</span>
               </TabsTrigger>
-              <TabsTrigger value="api-keys" className="flex items-center gap-2">
+              <TabsTrigger value="api-keys">
                 <Key className="h-4 w-4" />
-                <span className="hidden sm:inline">{t("settings.tabs.api_keys")}</span>
+                <span className="ml-1.5">{t("settings.tabs.api_keys")}</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="profile" className="flex-1 overflow-y-auto">
+            <TabsContent value="profile">
               <Card>
                 <CardHeader>
                   <CardTitle>{t("settings.cards.profile_information")}</CardTitle>
@@ -1004,7 +1004,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
               </Card>
             </TabsContent>
 
-            <TabsContent value="account" className="flex-1 overflow-y-auto">
+            <TabsContent value="account">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
@@ -1102,7 +1102,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
               </div>
             </TabsContent>
 
-            <TabsContent value="api-keys" className="flex-1 overflow-y-auto">
+            <TabsContent value="api-keys">
               <div className="space-y-4">
                 <Card>
                   <CardHeader>
