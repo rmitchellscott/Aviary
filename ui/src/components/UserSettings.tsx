@@ -179,6 +179,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   }>({ isOpen: false, key: null });
 
   const [viewKey, setViewKey] = useState<APIKey | null>(null);
+  const [deleteFromDetails, setDeleteFromDetails] = useState(false);
 
   const handleClose = () => {
     setError(null);
@@ -589,7 +590,13 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   };
 
   const closeDeleteKeyDialog = () => {
+    const wasFromDetails = deleteFromDetails;
+    const keyToRestore = deleteKeyDialog.key;
     setDeleteKeyDialog({ isOpen: false, key: null });
+    setDeleteFromDetails(false);
+    if (wasFromDetails && keyToRestore) {
+      setViewKey(keyToRestore);
+    }
   };
 
   const confirmDeleteAPIKey = async () => {
@@ -689,7 +696,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-7xl max-h-[85vh] sm:max-w-7xl sm:max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-7xl max-h-[85vh] sm:max-w-7xl sm:max-h-[90vh] overflow-y-auto top-[0vh] translate-y-0 sm:top-[6vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
@@ -1285,7 +1292,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                       size="sm"
                                       variant="destructive"
                                       onClick={() => openDeleteKeyDialog(key)}
-                                      className="w-full sm:w-auto"
+                                      className="hidden lg:inline-flex w-full sm:w-auto"
                                     >
                                       {t("admin.actions.delete")}
                                     </Button>
@@ -1412,28 +1419,44 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
             <DialogTitle>{viewKey?.name}</DialogTitle>
           </DialogHeader>
           {viewKey && (
-            <div className="space-y-2 text-sm">
-              <p>
-                <strong>{t('settings.labels.key_preview')}:</strong>{' '}
-                <code>{viewKey.key_prefix}...</code>
-              </p>
-              <p>
-                <strong>{t('settings.labels.status')}:</strong>{' '}
-                {getKeyStatus(viewKey)}
-              </p>
-              <p>
-                <strong>{t('settings.labels.created')}:</strong>{' '}
-                {formatDate(viewKey.created_at)}
-              </p>
-              <p>
-                <strong>{t('settings.labels.last_used')}:</strong>{' '}
-                {viewKey.last_used ? formatDate(viewKey.last_used) : t('settings.never')}
-              </p>
-              <p>
-                <strong>{t('settings.labels.expires')}:</strong>{' '}
-                {viewKey.expires_at ? formatDate(viewKey.expires_at) : t('settings.never')}
-              </p>
-            </div>
+            <>
+              <div className="space-y-2 text-sm">
+                <p>
+                  <strong>{t('settings.labels.key_preview')}:</strong>{' '}
+                  <code>{viewKey.key_prefix}...</code>
+                </p>
+                <p>
+                  <strong>{t('settings.labels.status')}:</strong>{' '}
+                  {getKeyStatus(viewKey)}
+                </p>
+                <p>
+                  <strong>{t('settings.labels.created')}:</strong>{' '}
+                  {formatDate(viewKey.created_at)}
+                </p>
+                <p>
+                  <strong>{t('settings.labels.last_used')}:</strong>{' '}
+                  {viewKey.last_used ? formatDate(viewKey.last_used) : t('settings.never')}
+                </p>
+                <p>
+                  <strong>{t('settings.labels.expires')}:</strong>{' '}
+                  {viewKey.expires_at ? formatDate(viewKey.expires_at) : t('settings.never')}
+                </p>
+              </div>
+              <div className="lg:hidden flex justify-end pt-4 border-t">
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => {
+                    setDeleteFromDetails(true);
+                    openDeleteKeyDialog(viewKey);
+                    setViewKey(null);
+                  }}
+                  className="w-full sm:w-auto"
+                >
+                  {t("admin.actions.delete")}
+                </Button>
+              </div>
+            </>
           )}
         </DialogContent>
       </Dialog>
