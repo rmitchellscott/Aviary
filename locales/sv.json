@@ -434,7 +434,8 @@
       },
       "cannot_undo": "Denna åtgärd kan inte ångras.",
       "delete_account_confirmation": "Är du säker på att du vill radera ditt konto permanent? Denna åtgärd kan inte ångras.",
-      "delete_account_type_confirm": "Skriv \"{{confirmText}}\" för att bekräfta"
+      "delete_account_type_confirm": "Skriv \"{{confirmText}}\" för att bekräfta",
+      "unpair_confirmation_message": "Är du säker på att du vill koppla från reMarkable-molnet? Du behöver para igen för att ladda upp dokument."
     },
     "placeholders": {
       "cloud_default": "Lämna tom för reMarkable Cloud",

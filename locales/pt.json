@@ -434,7 +434,8 @@
       },
       "cannot_undo": "Esta ação não pode ser desfeita.",
       "delete_account_confirmation": "Tem certeza de que deseja excluir permanentemente sua conta? Esta ação não pode ser desfeita.",
-      "delete_account_type_confirm": "Digite \"{{confirmText}}\" para confirmar"
+      "delete_account_type_confirm": "Digite \"{{confirmText}}\" para confirmar",
+      "unpair_confirmation_message": "Tem certeza de que deseja desemparelhar da nuvem reMarkable? Você precisará emparelhar novamente para enviar documentos."
     },
     "placeholders": {
       "cloud_default": "Deixe vazio para reMarkable Cloud",

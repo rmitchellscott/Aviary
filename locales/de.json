@@ -434,7 +434,8 @@
       },
       "cannot_undo": "Diese Aktion kann nicht rückgängig gemacht werden.",
       "delete_account_confirmation": "Sind Sie sicher, dass Sie Ihr Konto dauerhaft löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
-      "delete_account_type_confirm": "Geben Sie \"{{confirmText}}\" ein, um zu bestätigen"
+      "delete_account_type_confirm": "Geben Sie \"{{confirmText}}\" ein, um zu bestätigen",
+      "unpair_confirmation_message": "Sind Sie sicher, dass Sie die Verbindung zur reMarkable Cloud trennen möchten? Sie müssen die Geräte erneut koppeln, um Dokumente hochzuladen."
     },
     "placeholders": {
       "cloud_default": "Leer lassen für reMarkable Cloud",

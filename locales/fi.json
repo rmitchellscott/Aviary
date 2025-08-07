@@ -434,7 +434,8 @@
       },
       "cannot_undo": "Tätä toimintoa ei voi perua.",
       "delete_account_confirmation": "Oletko varma, että haluat poistaa tilisi pysyvästi? Tätä toimintoa ei voi perua.",
-      "delete_account_type_confirm": "Kirjoita \"{{confirmText}}\" vahvistaaksesi"
+      "delete_account_type_confirm": "Kirjoita \"{{confirmText}}\" vahvistaaksesi",
+      "unpair_confirmation_message": "Oletko varma, että haluat katkaista yhteyden reMarkable-pilveen? Sinun täytyy yhdistää uudelleen ladataksesi asiakirjoja."
     },
     "placeholders": {
       "cloud_default": "Jätä tyhjäksi reMarkable Cloudia varten",

@@ -505,7 +505,8 @@
       },
       "cannot_undo": "Cette action ne peut pas être annulée.",
       "delete_account_confirmation": "Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action ne peut pas être annulée.",
-      "delete_account_type_confirm": "Tapez \"{{confirmText}}\" pour confirmer"
+      "delete_account_type_confirm": "Tapez \"{{confirmText}}\" pour confirmer",
+      "unpair_confirmation_message": "Êtes-vous sûr de vouloir vous découpler du cloud reMarkable ? Vous devrez vous coupler à nouveau pour télécharger des documents."
     },
     "placeholders": {
       "cloud_default": "Laisser vide pour reMarkable Cloud",
