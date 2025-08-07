@@ -625,13 +625,15 @@ export default function HomePage() {
           )}
 
           <div className="flex flex-col sm:flex-row sm:justify-end">
-            <Button
-              onClick={!rmapiPaired ? () => setPairingDialogOpen(true) : handleSubmit}
-              disabled={loading || (!url && !selectedFile && selectedFiles.length === 0 && rmapiPaired)}
-              className="w-full sm:w-auto"
-            >
-              {loading ? t("home.sending") : !rmapiPaired ? t("home.pair") : t("home.send")}
-            </Button>
+            {!userDataLoading && (
+              <Button
+                onClick={!rmapiPaired ? () => setPairingDialogOpen(true) : handleSubmit}
+                disabled={loading || (!url && !selectedFile && selectedFiles.length === 0 && rmapiPaired)}
+                className="w-full sm:w-auto"
+              >
+                {loading ? t("home.sending") : !rmapiPaired ? t("home.pair") : t("home.send")}
+              </Button>
+            )}
           </div>
 
           {message && (
