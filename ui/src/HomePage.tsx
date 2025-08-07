@@ -566,14 +566,14 @@ export default function HomePage() {
             )}
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Label htmlFor="rmDir">{t("home.destination_folder")}</Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="rmDir" className="whitespace-nowrap">{t("home.destination_folder")}</Label>
             <Select 
               value={rmDir} 
               onValueChange={setRmDir}
               disabled={!rmapiPaired}
             >
-              <SelectTrigger id="rmDir">
+              <SelectTrigger id="rmDir" className="flex-1">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -624,10 +624,11 @@ export default function HomePage() {
             </div>
           )}
 
-          <div className="flex justify-end">
+          <div className="flex flex-col sm:flex-row sm:justify-end">
             <Button
               onClick={!rmapiPaired ? () => setPairingDialogOpen(true) : handleSubmit}
               disabled={loading || (!url && !selectedFile && selectedFiles.length === 0 && rmapiPaired)}
+              className="w-full sm:w-auto"
             >
               {loading ? t("home.sending") : !rmapiPaired ? t("home.pair") : t("home.send")}
             </Button>
@@ -657,7 +658,7 @@ export default function HomePage() {
                       return (
                         <div className="break-words">
                           {beforePaths && <div className="mb-1">{beforePaths}</div>}
-                          <ul className="list-disc ml-4 mt-1 space-y-1">
+                          <ul className="list-disc list-outside ml-6 sm:ml-5 mt-1 space-y-1">
                             {paths.map((path, index) => (
                               <li key={index} className="text-sm leading-relaxed">{path}</li>
                             ))}

@@ -55,7 +55,7 @@ export function UserDeleteDialog({
                 <br />
                 <br />
                 {t("user_delete.action_will")}
-                <ul className="list-disc list-inside mt-2 space-y-1">
+                <ul className="list-disc list-outside ml-6 sm:ml-5 mt-2 space-y-1">
                   <li>{t("user_delete.current_user.data_deletion")}</li>
                   <li>{t("user_delete.current_user.remove_sessions")}</li>
                   <li>{t("user_delete.current_user.remove_history")}</li>
@@ -78,7 +78,7 @@ export function UserDeleteDialog({
                 <br />
                 <br />
                 {t("user_delete.action_will")}
-                <ul className="list-disc list-inside mt-2 space-y-1">
+                <ul className="list-disc list-outside ml-6 sm:ml-5 mt-2 space-y-1">
                   <li>{t("user_delete.admin_user.data_deletion")}</li>
                   <li>{t("user_delete.admin_user.remove_sessions")}</li>
                   <li>{t("user_delete.admin_user.remove_history")}</li>
