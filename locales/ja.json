@@ -148,7 +148,8 @@
       "restore_backup": "バックアップから復元",
       "upload_restore": "復元アップロード",
       "cancel": "キャンセル",
-      "restore_database": "復元"
+      "restore_database": "復元",
+      "modify": "変更"
     },
     "tabs": {
       "overview": "概要",

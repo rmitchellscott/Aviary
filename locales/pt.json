@@ -148,7 +148,8 @@
       "restore_backup": "Restaurar do backup",
       "upload_restore": "Enviar restauração",
       "cancel": "Cancelar",
-      "restore_database": "Restaurar"
+      "restore_database": "Restaurar",
+      "modify": "Modificar"
     },
     "tabs": {
       "overview": "Visão geral",

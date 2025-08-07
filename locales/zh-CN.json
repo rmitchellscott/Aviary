@@ -148,7 +148,8 @@
       "restore_backup": "从备份还原",
       "upload_restore": "上传还原",
       "cancel": "取消",
-      "restore_database": "还原"
+      "restore_database": "还原",
+      "modify": "修改"
     },
     "tabs": {
       "overview": "概览",

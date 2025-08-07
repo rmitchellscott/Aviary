@@ -148,7 +148,8 @@
       "restore_backup": "Återställ från säkerhetskopia",
       "upload_restore": "Ladda upp återställning",
       "cancel": "Avbryt",
-      "restore_database": "Återställ"
+      "restore_database": "Återställ",
+      "modify": "Redigera"
     },
     "tabs": {
       "overview": "Översikt",

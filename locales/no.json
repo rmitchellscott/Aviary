@@ -148,7 +148,8 @@
       "restore_backup": "Gjenopprett fra sikkerhetskopi",
       "upload_restore": "Last opp gjenoppretting",
       "cancel": "Avbryt",
-      "restore_database": "Gjenopprett"
+      "restore_database": "Gjenopprett",
+      "modify": "Endre"
     },
     "tabs": {
       "overview": "Oversikt",

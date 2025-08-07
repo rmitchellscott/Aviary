@@ -148,7 +148,8 @@
       "restore_backup": "Palauta varmuuskopiosta",
       "upload_restore": "Lataa Palautus",
       "cancel": "Peruuta",
-      "restore_database": "Palauta"
+      "restore_database": "Palauta",
+      "modify": "Muokkaa"
     },
     "tabs": {
       "overview": "Yleiskatsaus",

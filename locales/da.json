@@ -148,7 +148,8 @@
       "restore_backup": "Gendan fra Backup",
       "upload_restore": "Upload Gendan",
       "cancel": "Annuller",
-      "restore_database": "Gendan"
+      "restore_database": "Gendan",
+      "modify": "Rediger"
     },
     "tabs": {
       "overview": "Overblik",

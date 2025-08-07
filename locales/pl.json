@@ -148,7 +148,8 @@
       "restore_backup": "Przywróć z kopii zapasowej",
       "upload_restore": "Prześlij przywracanie",
       "cancel": "Anuluj",
-      "restore_database": "Przywróć"
+      "restore_database": "Przywróć",
+      "modify": "Modyfikuj"
     },
     "tabs": {
       "overview": "Przegląd",
