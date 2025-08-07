@@ -17,21 +17,6 @@ WORKDIR /app
 COPY --from=xx / /
 RUN apk add --no-cache git
 
-
-# # Rmapi build
-# FROM --platform=$BUILDPLATFORM go-base AS rmapi-source
-# RUN git clone --branch master https://github.com/ddvk/rmapi .
-
-# FROM --platform=$BUILDPLATFORM go-base AS rmapi-builder
-
-# COPY --from=rmapi-source /app/go.mod /app/go.sum ./
-# RUN go mod download
-
-# COPY --from=rmapi-source /app .
-# ARG TARGETPLATFORM
-# RUN --mount=type=cache,target=/root/.cache \
-#     CGO_ENABLED=0 xx-go build -ldflags='-w -s' -trimpath
-
 # Rmapi stage
 FROM ghcr.io/ddvk/rmapi:v0.0.31 AS rmapi-binary
 

@@ -12,8 +12,8 @@ import (
 
 	// third-party
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 
 	// internal
 	"github.com/rmitchellscott/aviary/internal/auth"
@@ -81,17 +81,17 @@ func main() {
 			backupWorker := backup.NewWorker(database.DB)
 			backupWorker.Start()
 			defer backupWorker.Stop()
-			
+
 			extractionWorker := restore.NewExtractionWorker(database.DB)
 			extractionWorker.Start()
 			defer extractionWorker.Stop()
-			
+
 			logging.Logf("[STARTUP] Background workers started in continuous mode (WORKERS_ALWAYS_ON=true)")
 		} else {
 			// Default on-demand mode for resource efficiency
 			logging.Logf("[STARTUP] Background workers configured for on-demand startup (set WORKERS_ALWAYS_ON=true for continuous mode)")
 		}
-		
+
 	}
 
 	if err := auth.InitOIDC(); err != nil {
@@ -188,8 +188,8 @@ func main() {
 	{
 		profile.PUT("", auth.UpdateCurrentUserHandler)         // PUT /api/profile - update current user
 		profile.POST("/password", auth.UpdatePasswordHandler)  // POST /api/profile/password - update password
-		profile.POST("/pair", rmapi.PairHandler)           // POST /api/profile/pair - pair rmapi
-		profile.POST("/disconnect", rmapi.UnpairHandler)   // POST /api/profile/disconnect - remove rmapi config
+		profile.POST("/pair", rmapi.PairHandler)               // POST /api/profile/pair - pair rmapi
+		profile.POST("/disconnect", rmapi.UnpairHandler)       // POST /api/profile/disconnect - remove rmapi config
 		profile.GET("/stats", auth.GetCurrentUserStatsHandler) // GET /api/profile/stats - get current user stats
 		profile.DELETE("", auth.DeleteCurrentUserHandler)      // DELETE /api/profile - delete current user account
 	}
@@ -217,23 +217,23 @@ func main() {
 	admin := protected.Group("/admin")
 	admin.Use(auth.AdminRequiredMiddleware())
 	{
-		admin.GET("/status", auth.GetSystemStatusHandler)        // GET /api/admin/status - get system status
-		admin.GET("/settings", auth.GetSystemSettingsHandler)    // GET /api/admin/settings - get system settings
-		admin.PUT("/settings", auth.UpdateSystemSettingHandler)  // PUT /api/admin/settings - update system setting
-		admin.POST("/test-smtp", auth.TestSMTPHandler)           // POST /api/admin/test-smtp - test SMTP config
-		admin.POST("/cleanup", auth.CleanupDataHandler)          // POST /api/admin/cleanup - cleanup old data
-		admin.POST("/backup/analyze", auth.AnalyzeBackupHandler) // POST /api/admin/backup/analyze - analyze backup file
-			admin.POST("/backup-job", auth.CreateBackupJobHandler)   // POST /api/admin/backup-job - create background backup job
-		admin.GET("/backup-jobs", auth.GetBackupJobsHandler)     // GET /api/admin/backup-jobs - get backup jobs
-		admin.GET("/backup-job/:id", auth.GetBackupJobHandler)   // GET /api/admin/backup-job/:id - get backup job
-		admin.GET("/backup-job/:id/download", auth.DownloadBackupHandler) // GET /api/admin/backup-job/:id/download - download backup
-		admin.DELETE("/backup-job/:id", auth.DeleteBackupJobHandler)      // DELETE /api/admin/backup-job/:id - delete backup job
-		admin.POST("/restore/upload", auth.UploadRestoreFileHandler) // POST /api/admin/restore/upload - upload restore file
-		admin.GET("/restore/uploads", auth.GetRestoreUploadsHandler) // GET /api/admin/restore/uploads - get pending uploads
-		admin.POST("/restore/uploads/:id/analyze", auth.AnalyzeRestoreUploadHandler) // POST /api/admin/restore/uploads/:id/analyze - analyze uploaded restore file
+		admin.GET("/status", auth.GetSystemStatusHandler)                                    // GET /api/admin/status - get system status
+		admin.GET("/settings", auth.GetSystemSettingsHandler)                                // GET /api/admin/settings - get system settings
+		admin.PUT("/settings", auth.UpdateSystemSettingHandler)                              // PUT /api/admin/settings - update system setting
+		admin.POST("/test-smtp", auth.TestSMTPHandler)                                       // POST /api/admin/test-smtp - test SMTP config
+		admin.POST("/cleanup", auth.CleanupDataHandler)                                      // POST /api/admin/cleanup - cleanup old data
+		admin.POST("/backup/analyze", auth.AnalyzeBackupHandler)                             // POST /api/admin/backup/analyze - analyze backup file
+		admin.POST("/backup-job", auth.CreateBackupJobHandler)                               // POST /api/admin/backup-job - create background backup job
+		admin.GET("/backup-jobs", auth.GetBackupJobsHandler)                                 // GET /api/admin/backup-jobs - get backup jobs
+		admin.GET("/backup-job/:id", auth.GetBackupJobHandler)                               // GET /api/admin/backup-job/:id - get backup job
+		admin.GET("/backup-job/:id/download", auth.DownloadBackupHandler)                    // GET /api/admin/backup-job/:id/download - download backup
+		admin.DELETE("/backup-job/:id", auth.DeleteBackupJobHandler)                         // DELETE /api/admin/backup-job/:id - delete backup job
+		admin.POST("/restore/upload", auth.UploadRestoreFileHandler)                         // POST /api/admin/restore/upload - upload restore file
+		admin.GET("/restore/uploads", auth.GetRestoreUploadsHandler)                         // GET /api/admin/restore/uploads - get pending uploads
+		admin.POST("/restore/uploads/:id/analyze", auth.AnalyzeRestoreUploadHandler)         // POST /api/admin/restore/uploads/:id/analyze - analyze uploaded restore file
 		admin.GET("/restore/uploads/:id/extraction-status", auth.GetExtractionStatusHandler) // GET /api/admin/restore/uploads/:id/extraction-status - get extraction progress
-		admin.DELETE("/restore/uploads/:id", auth.DeleteRestoreUploadHandler) // DELETE /api/admin/restore/uploads/:id - delete restore upload
-		admin.POST("/restore", auth.RestoreDatabaseHandler)      // POST /api/admin/restore - restore from backup
+		admin.DELETE("/restore/uploads/:id", auth.DeleteRestoreUploadHandler)                // DELETE /api/admin/restore/uploads/:id - delete restore upload
+		admin.POST("/restore", auth.RestoreDatabaseHandler)                                  // POST /api/admin/restore - restore from backup
 	}
 
 	protected.POST("/webhook", webhook.EnqueueHandler)
