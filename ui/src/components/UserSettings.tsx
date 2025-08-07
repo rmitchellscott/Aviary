@@ -1222,7 +1222,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           <TableRow>
                           <TableHead>{t("settings.labels.api_key_name")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("settings.labels.key_preview")}</TableHead>
-                          <TableHead className="hidden lg:table-cell">{t("settings.labels.status")}</TableHead>
+                          <TableHead className="hidden lg:table-cell text-center">{t("settings.labels.status")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("settings.labels.created")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("settings.labels.last_used")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("settings.labels.expires")}</TableHead>
@@ -1248,7 +1248,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                       status === "active"
                                         ? "success"
                                         : status === "expired"
-                                          ? "destructive"
+                                          ? "default"
                                           : "secondary"
                                     }
                                     className="min-w-16 max-w-32 justify-center text-center whitespace-nowrap"

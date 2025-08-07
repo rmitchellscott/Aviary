@@ -1135,7 +1135,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     
     if (user.rmapi_paired) {
       return (
-        <Badge variant="default" className="min-w-16 max-w-32 justify-center text-center whitespace-nowrap bg-primary text-primary-foreground hover:bg-primary/80">
+        <Badge variant="outline" className="min-w-16 max-w-32 justify-center text-center whitespace-nowrap">
           {t("admin.status.paired")}
         </Badge>
       );
@@ -1314,7 +1314,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex flex-col gap-2 items-start">
+                  <div className="flex flex-wrap gap-2 items-start">
                     <Badge variant="secondary">{t("admin.badges.multi_user")}</Badge>
                     {systemStatus.dry_run && (
                       <Badge variant="destructive">{t("admin.badges.dry_run")}</Badge>
@@ -1403,8 +1403,8 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         <TableRow>
                           <TableHead>{t("admin.labels.username")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("admin.labels.email")}</TableHead>
-                          <TableHead className="hidden lg:table-cell">{t("admin.labels.role")}</TableHead>
-                          <TableHead className="hidden lg:table-cell">{t("admin.labels.status")}</TableHead>
+                          <TableHead className="hidden lg:table-cell text-center">{t("admin.labels.role")}</TableHead>
+                          <TableHead className="hidden lg:table-cell text-center">{t("admin.labels.status")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("admin.labels.created")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("admin.labels.last_login")}</TableHead>
                           <TableHead>{t("admin.labels.actions")}</TableHead>
@@ -1431,7 +1431,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <Badge
-                                    variant={user.is_admin ? "default" : "secondary"}
+                                    variant={user.is_admin ? "default" : "outline"}
                                     className="min-w-14 max-w-24 justify-center cursor-default text-center whitespace-nowrap"
                                   >
                                     {user.is_admin ? t("admin.roles.admin") : t("admin.roles.user")}
@@ -1443,7 +1443,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               </Tooltip>
                             ) : (
                               <Badge
-                                variant={user.is_admin ? "default" : "secondary"}
+                                variant={user.is_admin ? "default" : "outline"}
                                 className="min-w-14 max-w-24 justify-center text-center whitespace-nowrap"
                               >
                                 {user.is_admin ? t("admin.roles.admin") : t("admin.roles.user")}
@@ -1570,7 +1570,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           <TableHead>{t("admin.labels.name")}</TableHead>
                           <TableHead>{t("admin.labels.user")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("admin.labels.key_preview")}</TableHead>
-                          <TableHead className="hidden lg:table-cell">{t("admin.labels.status")}</TableHead>
+                          <TableHead className="hidden lg:table-cell text-center">{t("admin.labels.status")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("admin.labels.created")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("admin.labels.last_used")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("admin.labels.expires")}</TableHead>
@@ -1599,9 +1599,9 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                             <Badge
                               variant={
                                 status === "active"
-                                  ? "success"
+                                  ? "outline"
                                   : status === "expired"
-                                    ? "destructive"
+                                    ? "secondary"
                                     : "secondary"
                               }
                               className="min-w-16 max-w-32 justify-center text-center whitespace-nowrap"
