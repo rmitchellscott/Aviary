@@ -78,7 +78,7 @@ function AppContent() {
                 className="flex items-center gap-2"
               >
                 <Settings className="h-4 w-4" />
-                {t("app.settings")}
+                <span className="sm:hidden lg:inline">{t("app.settings")}</span>
               </Button>
 
               {user?.is_admin && (
@@ -89,7 +89,7 @@ function AppContent() {
                   className="flex items-center gap-2"
                 >
                   <Shield className="h-4 w-4" />
-                  {t("app.admin")}
+                  <span className="sm:hidden lg:inline">{t("app.admin")}</span>
                 </Button>
               )}
             </>
