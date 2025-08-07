@@ -1293,13 +1293,13 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2">
                     <Badge
                       variant={getSMTPStatusColor(systemStatus.smtp.status)}
                     >
                       {getSMTPStatusText(systemStatus.smtp.status)}
                     </Badge>
-                    <Button size="sm" onClick={testSMTP} disabled={testingSMTP || !systemStatus.smtp.configured}>
+                    <Button size="sm" onClick={testSMTP} disabled={testingSMTP || !systemStatus.smtp.configured} className="w-full sm:w-auto">
                       {t("admin.actions.test_smtp")}
                     </Button>
                   </div>
@@ -1378,9 +1378,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                     </div>
                   </div>
 
-                  <div className="flex justify-end">
+                  <div className="flex flex-col sm:flex-row sm:justify-end">
                     <Button
                       onClick={createUser}
+                      className="w-full sm:w-auto"
                       disabled={
                         creatingUser || !newUsername || !newEmail || !newPassword
                       }
@@ -1481,7 +1482,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="lg:hidden"
+                                className="lg:hidden w-full sm:w-auto"
                                 onClick={() => setViewUser(user)}
                               >
                                 {t('admin.actions.details', 'Details')}
@@ -1650,6 +1651,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                             <Button
                               size="sm"
                               variant="outline"
+                              className="w-full sm:w-auto"
                               onClick={() => setViewKey(key)}
                             >
                               {t('admin.actions.details', 'Details')}
@@ -2027,7 +2029,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
               <p className="text-destructive font-medium">
                 {t("admin.dialogs.restore_warning_text")}
               </p>
-              <ul className="list-disc list-inside text-sm space-y-1 ml-4">
+              <ul className="list-disc list-outside text-sm space-y-1 ml-8 sm:ml-9">
                 <li>{t("admin.dialogs.restore_warning_items.accounts")}</li>
                 <li>{t("admin.dialogs.restore_warning_items.api_keys")}</li>
                 <li>{t("admin.dialogs.restore_warning_items.documents")}</li>
@@ -2096,18 +2098,18 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   {viewUser.last_login ? formatDate(viewUser.last_login) : t('admin.never')}
                 </p>
               </div>
-              <DialogFooter className="lg:hidden flex-row gap-2">
+              <DialogFooter className="lg:hidden flex-col sm:flex-row gap-2">
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       size="sm"
                       variant="outline"
-                      className="flex-1"
+                      className="w-full sm:w-auto sm:flex-1"
                     >
                       {t("admin.actions.modify")}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-2" align="end">
+                  <PopoverContent className="w-[calc(100vw-2rem)] sm:w-auto p-2" align="center">
                     <div className="flex flex-col gap-2">
                       <Button
                         size="sm"
@@ -2157,7 +2159,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       openDeleteUserDialog(viewUser);
                       setViewUser(null);
                     }}
-                    className="flex-1"
+                    className="w-full sm:w-auto sm:flex-1"
                   >
                     {t("admin.actions.delete")}
                   </Button>

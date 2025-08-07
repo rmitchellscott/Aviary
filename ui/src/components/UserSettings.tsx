@@ -799,6 +799,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           variant="outline"
                           onClick={disconnectRmapi}
                           disabled={saving}
+                          className="w-full sm:w-auto"
                         >
                           {t("settings.actions.unpair")}
                         </Button>
@@ -806,6 +807,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         <Button
                           onClick={() => setPairingDialogOpen(true)}
                           disabled={saving}
+                          className="w-full sm:w-auto"
                         >
                           {t("settings.actions.pair")}
                         </Button>
@@ -813,7 +815,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 mb-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 mb-8">
                     <div>
                       <Label htmlFor="default-rmdir">{t("settings.labels.default_directory")}</Label>
                       <Select 
@@ -821,7 +823,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         onValueChange={setDefaultRmdir}
                         disabled={!rmapiPaired}
                       >
-                        <SelectTrigger id="default-rmdir" className="mt-2">
+                        <SelectTrigger id="default-rmdir" className="mt-2 w-full">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -886,7 +888,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         value={coverpageSetting} 
                         onValueChange={setCoverpageSetting}
                       >
-                        <SelectTrigger id="coverpage-setting" className="mt-2">
+                        <SelectTrigger id="coverpage-setting" className="mt-2 w-full">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -911,7 +913,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         value={conflictResolution} 
                         onValueChange={setConflictResolution}
                       >
-                        <SelectTrigger id="conflict-resolution" className="mt-2">
+                        <SelectTrigger id="conflict-resolution" className="mt-2 w-full">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -937,7 +939,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         value={devicePreset} 
                         onValueChange={setDevicePreset}
                       >
-                        <SelectTrigger id="device-preset" className="mt-2">
+                        <SelectTrigger id="device-preset" className="mt-2 w-full">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -990,8 +992,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                     )}
                   </div>
 
-                  <div className="flex justify-end">
-                    <Button onClick={updateProfile} disabled={saving || !hasChanges()}>
+                  <div className="flex flex-col sm:flex-row sm:justify-end">
+                    <Button onClick={updateProfile} disabled={saving || !hasChanges()} className="w-full sm:w-auto">
                       <Save className="h-4 w-4 mr-2" />
                       {saving ? t('settings.loading_states.saving') : t('settings.buttons.save_changes')}
                     </Button>
@@ -1040,9 +1042,10 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       />
                     </div>
 
-                    <div className="flex justify-end">
+                    <div className="flex flex-col sm:flex-row sm:justify-end">
                       <Button
                         onClick={updatePassword}
+                        className="w-full sm:w-auto"
                         disabled={
                           saving ||
                           !currentPassword ||
@@ -1072,7 +1075,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       <p className="text-sm text-destructive/80 mb-4">
                         {t("settings.messages.delete_warning_intro")}
                       </p>
-                      <ul className="text-sm text-destructive/80 list-disc list-inside space-y-1 mb-4">
+                      <ul className="text-sm text-destructive/80 list-disc list-outside ml-6 sm:ml-5 space-y-1 mb-4">
                         <li>{t("settings.delete_warnings.documents")}</li>
                         <li>{t("settings.delete_warnings.api_keys")}</li>
                         <li>{t("settings.delete_warnings.profile")}</li>
@@ -1082,10 +1085,11 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           <strong>{t("user_delete.note_label")}</strong> {t("settings.messages.remarkable_unaffected")}
                         </p>
                       </div>
-                      <div className="flex justify-end">
+                      <div className="flex flex-col sm:flex-row sm:justify-end">
                         <Button
                           variant="destructive"
                           onClick={openDeleteAccountDialog}
+                          className="w-full sm:w-auto"
                         >
                           {t('settings.buttons.delete_my_account')}
                         </Button>
@@ -1103,7 +1107,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                     <CardTitle>{t("settings.cards.create_api_key")}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="key-name">{t("settings.labels.api_key_name")}</Label>
                         <Input
@@ -1138,7 +1142,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           value={newKeyExpiry}
                           onValueChange={setNewKeyExpiry}
                         >
-                          <SelectTrigger className="mt-2">
+                          <SelectTrigger className="mt-2 w-full">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -1152,10 +1156,11 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       </div>
                     </div>
 
-                    <div className="flex justify-end">
+                    <div className="flex flex-col sm:flex-row sm:justify-end">
                       <Button
                         onClick={createAPIKey}
                         disabled={saving || !newKeyName || apiKeys.length >= maxApiKeys}
+                        className="w-full sm:w-auto"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         {t("settings.actions.create_api_key")}
@@ -1183,6 +1188,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           size="sm"
                           variant="outline"
                           onClick={() => copyToClipboard(showNewKey)}
+                          className="w-full sm:w-auto"
                         >
                           {showCopiedText ? t('settings.tooltips.api_key_copied') : <Copy className="h-4 w-4" />}
                         </Button>
@@ -1192,6 +1198,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           size="sm"
                           variant="outline"
                           onClick={() => setShowNewKey(null)}
+                          className="w-full sm:w-auto"
                         >
                           {t("settings.actions.got_it")}
                         </Button>
@@ -1263,11 +1270,11 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                     : t('settings.never')}
                                 </TableCell>
                                 <TableCell>
-                                  <div className="flex gap-2">
+                                  <div className="flex flex-col sm:flex-row gap-2">
                                     <Button
                                       size="sm"
                                       variant="outline"
-                                      className="lg:hidden"
+                                      className="lg:hidden w-full sm:w-auto"
                                       onClick={() => setViewKey(key)}
                                     >
                                       {t('settings.actions.details', 'Details')}
@@ -1276,6 +1283,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                       size="sm"
                                       variant="destructive"
                                       onClick={() => openDeleteKeyDialog(key)}
+                                      className="w-full sm:w-auto"
                                     >
                                       {t("admin.actions.delete")}
                                     </Button>
@@ -1370,7 +1378,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
               <br />
               <br />
               {t("settings.dialogs.delete_api_key_consequences_title")}
-              <ul className="list-disc list-inside mt-2 space-y-1">
+              <ul className="list-disc list-outside ml-6 sm:ml-5 mt-2 space-y-1">
                 <li>{t("settings.dialogs.delete_api_key_consequences.revoke")}</li>
                 <li>{t("settings.dialogs.delete_api_key_consequences.stop_apps")}</li>
                 <li>{t("settings.dialogs.delete_api_key_consequences.remove")}</li>
