@@ -39,6 +39,11 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Progress } from "@/components/ui/progress";
 import {
   Table,
@@ -226,6 +231,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   const [viewUser, setViewUser] = useState<User | null>(null);
   const [viewKey, setViewKey] = useState<APIKey | null>(null);
+  const [deleteFromDetails, setDeleteFromDetails] = useState(false);
 
   const [deleteBackupDialog, setDeleteBackupDialog] = useState<{
     isOpen: boolean;
@@ -281,6 +287,61 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       if (interval) clearInterval(interval);
     };
   }, [isOpen, backupJobs]);
+
+  // Listen for logout event to clear sensitive admin state
+  useEffect(() => {
+    const handleLogout = () => {
+      // Clear all sensitive admin state
+      setUsers([]);
+      setApiKeys([]);
+      setSystemStatus(null);
+      setBackupJobs([]);
+      setRestoreUploads([]);
+      setError(null);
+      setSuccessMessage(null);
+      setSmtpTestResult(null);
+      
+      // Clear form state
+      setNewUsername("");
+      setNewEmail("");
+      setNewPassword("");
+      setRegistrationEnabled(false);
+      setMaxApiKeys("10");
+      setMaxApiKeysError(null);
+      setNewPasswordValue("");
+      setDeleting(false);
+      setBackupCounts({ users: 0, api_keys: 0, documents: 0 });
+      setBackupVersion(null);
+      setRestorePerformed(false);
+      setVersionInfo({ version: "", gitCommit: "", buildDate: "", goVersion: "" });
+      setUploadProgress(0);
+      setUploadPhase('idle');
+      setDownloadingJobId(null);
+      
+      // Close any open dialogs
+      setResetPasswordDialog({ isOpen: false, user: null });
+      setDeleteUserDialog({ isOpen: false, user: null });
+      setDeleteBackupDialog({ isOpen: false, job: null });
+      setRestoreConfirmDialog({ isOpen: false, upload: null });
+      setViewUser(null);
+      setViewKey(null);
+      
+      // Reset loading states
+      setLoading(false);
+      setCreatingBackup(false);
+      setRestoringBackup(false);
+      setTestingSMTP(false);
+      setCreatingUser(false);
+      setResettingPassword(false);
+      setAnalyzingBackup(false);
+    };
+
+    window.addEventListener('logout', handleLogout);
+
+    return () => {
+      window.removeEventListener('logout', handleLogout);
+    };
+  }, []);
 
   const fetchWithSessionCheck = async (url: string, options?: RequestInit) => {
     const response = await fetch(url, options);
@@ -429,6 +490,9 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
       if (response.ok) {
         await fetchUsers();
+        if (viewUser && viewUser.id === userId) {
+          setViewUser(prev => prev ? { ...prev, is_active: isActive } : null);
+        }
       }
     } catch (error) {
       console.error("Failed to toggle user status:", error);
@@ -445,6 +509,9 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
       if (response.ok) {
         await fetchUsers();
+        if (viewUser && viewUser.id === userId) {
+          setViewUser(prev => prev ? { ...prev, is_admin: makeAdmin } : null);
+        }
       }
     } catch (error) {
       console.error("Failed to toggle admin status:", error);
@@ -456,7 +523,13 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
   };
 
   const closeDeleteUserDialog = () => {
+    const wasFromDetails = deleteFromDetails;
+    const userToRestore = deleteUserDialog.user;
     setDeleteUserDialog({ isOpen: false, user: null });
+    setDeleteFromDetails(false);
+    if (wasFromDetails && userToRestore) {
+      setViewUser(userToRestore);
+    }
   };
 
   const confirmDeleteUser = async () => {
@@ -473,6 +546,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         await fetchUsers();
         await fetchSystemStatus();
         closeDeleteUserDialog();
+        setViewUser(null);
       } else {
         const errorData = await response.json();
         setError(errorData.error || t("admin.errors.delete_user"));
@@ -932,6 +1006,14 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
     return new Date(dateString).toLocaleString();
   };
 
+  const formatDateOnly = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleString();
+  };
+
   const getKeyStatus = (key: APIKey) => {
     if (!key.is_active) return "inactive";
     if (key.expires_at && new Date(key.expires_at) < new Date())
@@ -1370,11 +1452,29 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           <TableCell className="hidden lg:table-cell text-center">
                             {getUserStatusBadge(user)}
                           </TableCell>
-                          <TableCell className="hidden lg:table-cell">{formatDate(user.created_at)}</TableCell>
                           <TableCell className="hidden lg:table-cell">
-                            {user.last_login
-                              ? formatDate(user.last_login)
-                              : t("admin.never")}
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="cursor-default">{formatDateOnly(user.created_at)}</span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {formatDateTime(user.created_at)}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell">
+                            {user.last_login ? (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-default">{formatDateOnly(user.last_login)}</span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {formatDateTime(user.last_login)}
+                                </TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              t("admin.never")
+                            )}
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2 flex-wrap">
@@ -1386,47 +1486,64 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               >
                                 {t('admin.actions.details', 'Details')}
                               </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => openResetPasswordDialog(user)}
-                                className="whitespace-nowrap"
-                              >
-                                {t("admin.actions.reset_password")}
-                              </Button>
-                              {!isCurrentUser(user) && (
-                                <>
-                                  {!config?.oidcGroupBasedAdmin && (
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() =>
-                                        toggleAdminStatus(user.id, !user.is_admin)
-                                      }
-                                      className="whitespace-nowrap"
-                                    >
-                                      {user.is_admin ? t("admin.actions.make_user") : t("admin.actions.make_admin")}
-                                    </Button>
-                                  )}
+                              <Popover>
+                                <PopoverTrigger asChild>
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() =>
-                                      toggleUserStatus(user.id, !user.is_active)
-                                    }
-                                    className="whitespace-nowrap"
+                                    className="hidden lg:inline-flex"
                                   >
-                                    {user.is_active ? t("admin.actions.deactivate") : t("admin.actions.activate")}
+                                    {t("admin.actions.modify")}
                                   </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => openDeleteUserDialog(user)}
-                                    className="whitespace-nowrap"
-                                  >
-                                    {t("admin.actions.delete")}
-                                  </Button>
-                                </>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-2" align="end">
+                                  <div className="flex flex-col gap-2">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => openResetPasswordDialog(user)}
+                                      className="w-full justify-start"
+                                    >
+                                      {t("admin.actions.reset_password")}
+                                    </Button>
+                                    {!isCurrentUser(user) && (
+                                      <>
+                                        {!config?.oidcGroupBasedAdmin && (
+                                          <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() =>
+                                              toggleAdminStatus(user.id, !user.is_admin)
+                                            }
+                                            className="w-full justify-start"
+                                          >
+                                            {user.is_admin ? t("admin.actions.make_user") : t("admin.actions.make_admin")}
+                                          </Button>
+                                        )}
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() =>
+                                            toggleUserStatus(user.id, !user.is_active)
+                                          }
+                                          className="w-full justify-start"
+                                        >
+                                          {user.is_active ? t("admin.actions.deactivate") : t("admin.actions.activate")}
+                                        </Button>
+                                      </>
+                                    )}
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                              {!isCurrentUser(user) && (
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => openDeleteUserDialog(user)}
+                                  className="hidden lg:inline-flex whitespace-nowrap"
+                                >
+                                  {t("admin.actions.delete")}
+                                </Button>
                               )}
                             </div>
                           </TableCell>
@@ -1491,16 +1608,43 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               {t(`settings.status.${status}`)}
                             </Badge>
                           </TableCell>
-                          <TableCell className="hidden lg:table-cell">{formatDate(key.created_at)}</TableCell>
                           <TableCell className="hidden lg:table-cell">
-                            {key.last_used
-                              ? formatDate(key.last_used)
-                              : t("admin.never")}
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="cursor-default">{formatDateOnly(key.created_at)}</span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {formatDateTime(key.created_at)}
+                              </TooltipContent>
+                            </Tooltip>
                           </TableCell>
                           <TableCell className="hidden lg:table-cell">
-                            {key.expires_at
-                              ? formatDate(key.expires_at)
-                              : t("admin.never")}
+                            {key.last_used ? (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-default">{formatDateOnly(key.last_used)}</span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {formatDateTime(key.last_used)}
+                                </TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              t("admin.never")
+                            )}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell">
+                            {key.expires_at ? (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-default">{formatDateOnly(key.expires_at)}</span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {formatDateTime(key.expires_at)}
+                                </TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              t("admin.never")
+                            )}
                           </TableCell>
                           <TableCell className="lg:hidden">
                             <Button
@@ -1916,39 +2060,110 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       </AlertDialog>
 
       {/* User Details Dialog */}
-      <Dialog open={!!viewUser} onOpenChange={() => setViewUser(null)}>
+      <Dialog open={!!viewUser} onOpenChange={(open) => {
+        if (!open) setViewUser(null);
+      }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{viewUser?.username}</DialogTitle>
           </DialogHeader>
           {viewUser && (
-            <div className="space-y-2 text-sm">
-              <p>
-                <strong>{t('admin.labels.email')}:</strong> {viewUser.email}
-              </p>
-              <p>
-                <strong>{t('admin.labels.user_id')}:</strong> {viewUser.id}
-              </p>
-              <p>
-                <strong>{t('admin.labels.role')}:</strong>{' '}
-                {viewUser.is_admin ? t('admin.roles.admin') : t('admin.roles.user')}
-              </p>
-              <p>
-                <strong>{t('admin.labels.status')}:</strong>{' '}
-                {!viewUser.is_active
-                  ? t('admin.status.inactive')
-                  : viewUser.rmapi_paired
-                  ? t('admin.status.paired')
-                  : t('admin.status.unpaired')}
-              </p>
-              <p>
-                <strong>{t('admin.labels.created')}:</strong> {formatDate(viewUser.created_at)}
-              </p>
-              <p>
-                <strong>{t('admin.labels.last_login')}:</strong>{' '}
-                {viewUser.last_login ? formatDate(viewUser.last_login) : t('admin.never')}
-              </p>
-            </div>
+            <>
+              <div className="space-y-2 text-sm">
+                <p>
+                  <strong>{t('admin.labels.email')}:</strong> {viewUser.email}
+                </p>
+                <p>
+                  <strong>{t('admin.labels.user_id')}:</strong> {viewUser.id}
+                </p>
+                <p>
+                  <strong>{t('admin.labels.role')}:</strong>{' '}
+                  {viewUser.is_admin ? t('admin.roles.admin') : t('admin.roles.user')}
+                </p>
+                <p>
+                  <strong>{t('admin.labels.status')}:</strong>{' '}
+                  {!viewUser.is_active
+                    ? t('admin.status.inactive')
+                    : viewUser.rmapi_paired
+                    ? t('admin.status.paired')
+                    : t('admin.status.unpaired')}
+                </p>
+                <p>
+                  <strong>{t('admin.labels.created')}:</strong> {formatDate(viewUser.created_at)}
+                </p>
+                <p>
+                  <strong>{t('admin.labels.last_login')}:</strong>{' '}
+                  {viewUser.last_login ? formatDate(viewUser.last_login) : t('admin.never')}
+                </p>
+              </div>
+              <DialogFooter className="lg:hidden flex-row gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      {t("admin.actions.modify")}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-2" align="end">
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          openResetPasswordDialog(viewUser);
+                        }}
+                        className="w-full justify-start"
+                      >
+                        {t("admin.actions.reset_password")}
+                      </Button>
+                      {!isCurrentUser(viewUser) && (
+                        <>
+                          {!config?.oidcGroupBasedAdmin && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                toggleAdminStatus(viewUser.id, !viewUser.is_admin);
+                              }}
+                              className="w-full justify-start"
+                            >
+                              {viewUser.is_admin ? t("admin.actions.make_user") : t("admin.actions.make_admin")}
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              toggleUserStatus(viewUser.id, !viewUser.is_active);
+                            }}
+                            className="w-full justify-start"
+                          >
+                            {viewUser.is_active ? t("admin.actions.deactivate") : t("admin.actions.activate")}
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                {!isCurrentUser(viewUser) && (
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => {
+                      setDeleteFromDetails(true);
+                      openDeleteUserDialog(viewUser);
+                      setViewUser(null);
+                    }}
+                    className="flex-1"
+                  >
+                    {t("admin.actions.delete")}
+                  </Button>
+                )}
+              </DialogFooter>
+            </>
           )}
         </DialogContent>
       </Dialog>

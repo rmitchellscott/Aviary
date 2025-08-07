@@ -49,7 +49,7 @@
     "destination_folder": "Destinationsmappe",
     "default": "Standard",
     "loading": "Indlæser...",
-    "compress_pdf": "Komprimer PDF",
+    "compress_pdf": "Komprimering",
     "send": "Send",
     "pair": "Parr",
     "sending": "Sender…",
@@ -148,7 +148,8 @@
       "restore_backup": "Gendan fra Backup",
       "upload_restore": "Upload Gendan",
       "cancel": "Annuller",
-      "restore_database": "Gendan"
+      "restore_database": "Gendan",
+      "modify": "Rediger"
     },
     "tabs": {
       "overview": "Overblik",
@@ -360,7 +361,6 @@
       "confirm_new_password": "Bekræft Ny Adgangskode",
       "delete_account": "Slet Konto",
       "api_key_name": "Navn",
-      "api_key_expiry": "Udløb (valgfrit)",
       "key_preview": "Nøgle Forhåndsvisning",
       "status": "Status",
       "created": "Oprettet",
@@ -399,7 +399,9 @@
       "remarkable_unaffected": "Din reMarkable Cloud-konto og enhedsdata vil forblive helt upåvirket.",
       "api_key_created_title": "Ny API-nøgle Oprettet",
       "api_key_created_message": "Kopier denne nøgle nu - den vil ikke blive vist igen:",
-      "no_api_keys": "Ingen API-nøgler oprettet endnu"
+      "no_api_keys": "Ingen API-nøgler oprettet endnu",
+      "api_key_limit_reached": "Du har nået din grænse på {{maxKeys}} API-nøgler",
+      "api_keys_remaining": "{{remaining}} af {{maxKeys}} API-nøgler tilbage"
     },
     "help": {
       "cover_page": "Styrer om første side eller nuværende side bruges som forside ved upload af PDF'er",
@@ -442,7 +444,7 @@
       "delete_confirm": "SLET MIN KONTO",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "ubegrænset",
+      "folder_depth_limit": "Ubegrænset",
       "folder_exclusion_list": "f.eks., papirkurv, skabeloner, arkiv"
     },
     "loading_states": {

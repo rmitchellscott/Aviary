@@ -49,7 +49,7 @@
     "destination_folder": "Doelmap",
     "default": "Standaard",
     "loading": "Laden...",
-    "compress_pdf": "PDF Comprimeren",
+    "compress_pdf": "Compressie",
     "send": "Verzenden",
     "pair": "Koppelen",
     "sending": "Verzenden…",
@@ -148,7 +148,8 @@
       "restore_backup": "Herstellen van backup",
       "upload_restore": "Upload Herstel",
       "cancel": "Annuleren",
-      "restore_database": "Herstellen"
+      "restore_database": "Herstellen",
+      "modify": "Wijzigen"
     },
     "tabs": {
       "overview": "Overzicht",
@@ -360,7 +361,6 @@
       "confirm_new_password": "Bevestig nieuw wachtwoord",
       "delete_account": "Account verwijderen",
       "api_key_name": "Naam",
-      "api_key_expiry": "Vervaldatum (optioneel)",
       "key_preview": "Sleutel voorbeeld",
       "status": "Status",
       "created": "Aangemaakt",
@@ -399,7 +399,9 @@
       "remarkable_unaffected": "Je reMarkable Cloud-account en apparaatdata blijven volledig onaangetast.",
       "api_key_created_title": "Nieuwe API-sleutel aangemaakt",
       "api_key_created_message": "Kopieer deze sleutel nu - deze wordt niet opnieuw getoond:",
-      "no_api_keys": "Nog geen API-sleutels aangemaakt"
+      "no_api_keys": "Nog geen API-sleutels aangemaakt",
+      "api_key_limit_reached": "Je hebt je limiet van {{maxKeys}} API-sleutels bereikt",
+      "api_keys_remaining": "{{remaining}} van {{maxKeys}} API-sleutels resterend"
     },
     "help": {
       "cover_page": "Bepaalt of de eerste pagina of huidige pagina wordt gebruikt als omslag bij het uploaden van PDF's",
@@ -442,7 +444,7 @@
       "delete_confirm": "VERWIJDER MIJN ACCOUNT",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "onbeperkt",
+      "folder_depth_limit": "Onbeperkt",
       "folder_exclusion_list": "bijv., prullenbak, sjablonen, archief"
     },
     "loading_states": {

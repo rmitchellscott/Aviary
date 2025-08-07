@@ -126,6 +126,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCopiedText, setShowCopiedText] = useState(false);
+  const [maxApiKeys, setMaxApiKeys] = useState<number>(10);
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -165,7 +166,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
 
   const [newKeyName, setNewKeyName] = useState("");
-  const [newKeyExpiry, setNewKeyExpiry] = useState("");
+  const [newKeyExpiry, setNewKeyExpiry] = useState("never");
   const [showNewKey, setShowNewKey] = useState<string | null>(null);
 
   const [pairingDialogOpen, setPairingDialogOpen] = useState(false);
@@ -267,6 +268,64 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     }
   }, [isOpen, user, rmapiPaired, refreshTrigger]);
 
+  // Listen for logout event to clear sensitive state
+  useEffect(() => {
+    const handleLogout = () => {
+      // Clear all sensitive state
+      setApiKeys([]);
+      setError(null);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setDeletePassword("");
+      setDeleteConfirmation("");
+      setNewKeyName("");
+      setNewKeyExpiry("");
+      setShowNewKey(null);
+      setViewKey(null);
+      
+      // Close any open dialogs
+      setPairingDialogOpen(false);
+      setDeleteAccountDialog(false);
+      setDeleteKeyDialog({ isOpen: false, key: null });
+      
+      // Reset form state to defaults
+      setUsername("");
+      setEmail("");
+      setUserRmapiHost("");
+      setDefaultRmdir("/");
+      setCoverpageSetting("current");
+      setConflictResolution("abort");
+      setDevicePreset("remarkable_1_2");
+      setManualPageResolution("");
+      setManualPageDPI("");
+      setFolderDepthLimit("");
+      setFolderExclusionList("");
+      
+      // Reset original values
+      setOriginalValues({
+        username: "",
+        email: "",
+        userRmapiHost: "",
+        defaultRmdir: "/",
+        coverpageSetting: "current",
+        conflictResolution: "abort",
+        devicePreset: "remarkable_1_2",
+        manualPageResolution: "",
+        manualPageDPI: "",
+        folderDepthLimit: "",
+        folderExclusionList: ""
+      });
+      
+      setFolders([]);
+    };
+
+    window.addEventListener('logout', handleLogout);
+
+    return () => {
+      window.removeEventListener('logout', handleLogout);
+    };
+  }, []);
 
   const fetchAPIKeys = async () => {
     try {
@@ -275,13 +334,24 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       });
 
       if (response.ok) {
-        const keys = await response.json();
-        setApiKeys(keys);
+        const data = await response.json();
+        // Handle both old and new response formats for backward compatibility
+        if (Array.isArray(data)) {
+          // Old format: direct array of API keys
+          setApiKeys(data);
+        } else {
+          // New format: object with api_keys, max_api_keys, etc.
+          setApiKeys(data.api_keys || []);
+          if (data.max_api_keys) {
+            setMaxApiKeys(data.max_api_keys);
+          }
+        }
       }
     } catch (error) {
       console.error("Failed to fetch API keys:", error);
     }
   };
+
 
   const fetchFolders = async () => {
     try {
@@ -490,11 +560,20 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         const newKey = await response.json();
         setShowNewKey(newKey.api_key);
         setNewKeyName("");
-        setNewKeyExpiry("");
+        setNewKeyExpiry("never");
         await fetchAPIKeys();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || "Failed to create API key");
+        const errorMessage = errorData.error || "Failed to create API key";
+        
+        // Check for specific API key limit error and use i18n message
+        if (errorMessage === "Maximum number of API keys reached" || 
+            errorMessage.includes("maximum number of API keys") || 
+            errorMessage.includes("reached")) {
+          setError(t('settings.messages.api_key_limit_reached', { maxKeys: maxApiKeys }));
+        } else {
+          setError(errorMessage);
+        }
       }
     } catch (error) {
       setError("Failed to create API key");
@@ -1031,18 +1110,36 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           id="key-name"
                           value={newKeyName}
                           onChange={(e) => setNewKeyName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && newKeyName && !saving && apiKeys.length < maxApiKeys) {
+                              e.preventDefault();
+                              createAPIKey();
+                            }
+                          }}
                           placeholder={t('settings.placeholders.api_key')}
                           className="mt-2"
                         />
+                        {apiKeys.length < maxApiKeys ? (
+                          <p className="text-sm text-muted-foreground mt-1 ml-1">
+                            {t('settings.messages.api_keys_remaining', { 
+                              remaining: maxApiKeys - apiKeys.length, 
+                              maxKeys: maxApiKeys 
+                            })}
+                          </p>
+                        ) : (
+                          <p className="text-sm text-destructive mt-1 ml-1">
+                            {t('settings.messages.api_key_limit_reached', { maxKeys: maxApiKeys })}
+                          </p>
+                        )}
                       </div>
                       <div>
-                        <Label htmlFor="key-expiry">{t("settings.labels.api_key_expiry")}</Label>
+                        <Label htmlFor="key-expiry">{t("settings.labels.expires")}</Label>
                         <Select
                           value={newKeyExpiry}
                           onValueChange={setNewKeyExpiry}
                         >
                           <SelectTrigger className="mt-2">
-                            <SelectValue placeholder={t('settings.placeholders.never_expires')} />
+                            <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="never">{t('settings.never')}</SelectItem>
@@ -1058,7 +1155,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                     <div className="flex justify-end">
                       <Button
                         onClick={createAPIKey}
-                        disabled={saving || !newKeyName}
+                        disabled={saving || !newKeyName || apiKeys.length >= maxApiKeys}
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         {t("settings.actions.create_api_key")}

@@ -49,7 +49,7 @@
     "destination_folder": "宛先フォルダ",
     "default": "デフォルト",
     "loading": "読み込み中...",
-    "compress_pdf": "PDF圧縮",
+    "compress_pdf": "圧縮",
     "send": "送信",
     "pair": "ペアリング",
     "sending": "送信中…",
@@ -148,7 +148,8 @@
       "restore_backup": "バックアップから復元",
       "upload_restore": "復元アップロード",
       "cancel": "キャンセル",
-      "restore_database": "復元"
+      "restore_database": "復元",
+      "modify": "変更"
     },
     "tabs": {
       "overview": "概要",
@@ -360,7 +361,6 @@
       "confirm_new_password": "新しいパスワードを確認",
       "delete_account": "アカウント削除",
       "api_key_name": "名前",
-      "api_key_expiry": "有効期限（オプション）",
       "key_preview": "キープレビュー",
       "status": "状態",
       "created": "作成日",
@@ -399,7 +399,9 @@
       "remarkable_unaffected": "reMarkable Cloudアカウントとデバイスデータは完全に影響を受けません。",
       "api_key_created_title": "新しいAPIキーが作成されました",
       "api_key_created_message": "このキーを今すぐコピーしてください - 再表示されません：",
-      "no_api_keys": "APIキーはまだ作成されていません"
+      "no_api_keys": "APIキーはまだ作成されていません",
+      "api_key_limit_reached": "APIキーの上限{{maxKeys}}個に達しました",
+      "api_keys_remaining": "{{remaining}}/{{maxKeys}}個のAPIキーが残っています"
     },
     "help": {
       "cover_page": "PDFアップロード時に最初のページまたは現在のページをカバーとして使用するかを制御",

@@ -49,7 +49,7 @@
     "destination_folder": "Pasta de destino",
     "default": "Padrão",
     "loading": "Carregando...",
-    "compress_pdf": "Comprimir PDF",
+    "compress_pdf": "Compressão",
     "send": "Enviar",
     "pair": "Emparelhar",
     "sending": "Enviando…",
@@ -148,7 +148,8 @@
       "restore_backup": "Restaurar do backup",
       "upload_restore": "Enviar restauração",
       "cancel": "Cancelar",
-      "restore_database": "Restaurar"
+      "restore_database": "Restaurar",
+      "modify": "Modificar"
     },
     "tabs": {
       "overview": "Visão geral",
@@ -360,7 +361,6 @@
       "confirm_new_password": "Confirmar Nova Senha",
       "delete_account": "Excluir Conta",
       "api_key_name": "Nome",
-      "api_key_expiry": "Expiração (opcional)",
       "key_preview": "Pré-visualização da Chave",
       "status": "Estado",
       "created": "Criado",
@@ -399,7 +399,9 @@
       "remarkable_unaffected": "Sua conta reMarkable Cloud e dados do dispositivo permanecerão completamente inalterados.",
       "api_key_created_title": "Nova Chave API Criada",
       "api_key_created_message": "Copie esta chave agora - ela não será mostrada novamente:",
-      "no_api_keys": "Nenhuma chave API criada ainda"
+      "no_api_keys": "Nenhuma chave API criada ainda",
+      "api_key_limit_reached": "Você atingiu seu limite de {{maxKeys}} chaves API",
+      "api_keys_remaining": "{{remaining}} de {{maxKeys}} chaves API restantes"
     },
     "help": {
       "cover_page": "Controla se a primeira página ou página atual é usada como capa ao enviar PDFs",
@@ -442,7 +444,7 @@
       "delete_confirm": "EXCLUIR MINHA CONTA",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "ilimitado",
+      "folder_depth_limit": "Ilimitado",
       "folder_exclusion_list": "ex., lixeira, modelos, arquivo"
     },
     "loading_states": {

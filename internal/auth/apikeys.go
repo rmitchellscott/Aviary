@@ -118,10 +118,21 @@ func GetAPIKeysHandler(c *gin.Context) {
 		return
 	}
 
+	// Get max API keys setting
+	maxKeysStr, err := database.GetSystemSetting("max_api_keys_per_user")
+	if err != nil {
+		maxKeysStr = "10" // Default fallback
+	}
+	
+	maxKeys, err := strconv.Atoi(maxKeysStr)
+	if err != nil {
+		maxKeys = 10
+	}
+
 	// Convert to response format
-	response := make([]APIKeyResponse, len(apiKeys))
+	apiKeyResponses := make([]APIKeyResponse, len(apiKeys))
 	for i, key := range apiKeys {
-		response[i] = APIKeyResponse{
+		apiKeyResponses[i] = APIKeyResponse{
 			ID:        key.ID,
 			Name:      key.Name,
 			KeyPrefix: key.KeyPrefix,
@@ -130,6 +141,12 @@ func GetAPIKeysHandler(c *gin.Context) {
 			ExpiresAt: key.ExpiresAt,
 			CreatedAt: key.CreatedAt,
 		}
+	}
+
+	response := map[string]interface{}{
+		"api_keys":        apiKeyResponses,
+		"max_api_keys":    maxKeys,
+		"current_count":   len(apiKeys),
 	}
 
 	c.JSON(http.StatusOK, response)

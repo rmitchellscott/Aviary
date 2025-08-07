@@ -49,7 +49,7 @@
     "destination_folder": "Zielordner",
     "default": "Standard",
     "loading": "Wird geladen...",
-    "compress_pdf": "PDF komprimieren",
+    "compress_pdf": "Komprimierung",
     "send": "Senden",
     "sending": "Wird gesendet…",
     "invalid_file": "Ungültige Datei",
@@ -148,7 +148,8 @@
       "restore_backup": "Aus Backup wiederherstellen",
       "upload_restore": "Wiederherstellung hochladen",
       "cancel": "Abbrechen",
-      "restore_database": "Wiederherstellen"
+      "restore_database": "Wiederherstellen",
+      "modify": "Bearbeiten"
     },
     "tabs": {
       "overview": "Übersicht",
@@ -360,7 +361,6 @@
       "confirm_new_password": "Neues Passwort bestätigen",
       "delete_account": "Konto löschen",
       "api_key_name": "Name",
-      "api_key_expiry": "Ablauf (optional)",
       "key_preview": "Schlüssel-Vorschau",
       "status": "Status",
       "created": "Erstellt",
@@ -399,7 +399,9 @@
       "remarkable_unaffected": "Ihr reMarkable Cloud-Konto und die Gerätedaten bleiben vollständig unberührt.",
       "api_key_created_title": "Neuer API-Schlüssel erstellt",
       "api_key_created_message": "Kopieren Sie diesen Schlüssel jetzt - er wird nicht erneut angezeigt:",
-      "no_api_keys": "Noch keine API-Schlüssel erstellt"
+      "no_api_keys": "Noch keine API-Schlüssel erstellt",
+      "api_key_limit_reached": "Sie haben Ihr Limit von {{maxKeys}} API-Schlüsseln erreicht",
+      "api_keys_remaining": "{{remaining}} von {{maxKeys}} API-Schlüsseln verbleibend"
     },
     "help": {
       "cover_page": "Steuert, ob die erste Seite oder die aktuelle Seite als Deckblatt beim Hochladen von PDFs verwendet wird",
@@ -442,7 +444,7 @@
       "delete_confirm": "MEIN KONTO LÖSCHEN",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "unbegrenzt",
+      "folder_depth_limit": "Unbegrenzt",
       "folder_exclusion_list": "z.B. Papierkorb, Vorlagen, Archiv"
     },
     "loading_states": {

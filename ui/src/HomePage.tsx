@@ -245,6 +245,37 @@ export default function HomePage() {
     updatePairingStatus(true);
   };
 
+  // Listen for logout event to clear sensitive state
+  useEffect(() => {
+    const handleLogout = () => {
+      // Clear all sensitive state that could leak between users
+      setUrl("");
+      setCommittedUrl("");
+      setUrlMime(null);
+      setSelectedFile(null);
+      setSelectedFiles([]);
+      setCompress(false);
+      setLoading(false);
+      setStatus("");
+      setMessage("");
+      setStatusData(null);
+      setProgress(0);
+      setUploadProgress(0);
+      setUploadPhase('idle');
+      setFileError(null);
+      setFolders([]);
+      setFoldersLoading(false);
+      setRmDir(DEFAULT_RM_DIR);
+      setPairingDialogOpen(false);
+    };
+
+    window.addEventListener('logout', handleLogout);
+
+    return () => {
+      window.removeEventListener('logout', handleLogout);
+    };
+  }, []);
+
   if (isLoading) {
     return null;
   }

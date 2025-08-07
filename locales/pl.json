@@ -49,7 +49,7 @@
     "destination_folder": "Folder docelowy",
     "default": "Domyślny",
     "loading": "Ładowanie...",
-    "compress_pdf": "Kompresuj PDF",
+    "compress_pdf": "Kompresja",
     "send": "Wyślij",
     "pair": "Paruj",
     "sending": "Wysyłanie…",
@@ -148,7 +148,8 @@
       "restore_backup": "Przywróć z kopii zapasowej",
       "upload_restore": "Prześlij przywracanie",
       "cancel": "Anuluj",
-      "restore_database": "Przywróć"
+      "restore_database": "Przywróć",
+      "modify": "Modyfikuj"
     },
     "tabs": {
       "overview": "Przegląd",
@@ -360,7 +361,6 @@
       "confirm_new_password": "Potwierdź nowe hasło",
       "delete_account": "Usuń konto",
       "api_key_name": "Nazwa",
-      "api_key_expiry": "Wygaśnięcie (opcjonalne)",
       "key_preview": "Podgląd klucza",
       "status": "Stan",
       "created": "Utworzone",
@@ -399,7 +399,9 @@
       "remarkable_unaffected": "Twoje konto reMarkable Cloud i dane urządzenia pozostaną całkowicie nietknięte.",
       "api_key_created_title": "Utworzono nowy klucz API",
       "api_key_created_message": "Skopiuj ten klucz teraz - nie zostanie ponownie wyświetlony:",
-      "no_api_keys": "Nie utworzono jeszcze żadnych kluczy API"
+      "no_api_keys": "Nie utworzono jeszcze żadnych kluczy API",
+      "api_key_limit_reached": "Osiągnąłeś limit {{maxKeys}} kluczy API",
+      "api_keys_remaining": "{{remaining}} z {{maxKeys}} kluczy API pozostało"
     },
     "help": {
       "cover_page": "Kontroluje, czy pierwsza strona lub bieżąca strona jest używana jako okładka podczas przesyłania plików PDF",
@@ -442,7 +444,7 @@
       "delete_confirm": "USUŃ MOJE KONTO",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "nieograniczone",
+      "folder_depth_limit": "Nieograniczone",
       "folder_exclusion_list": "np. kosz, szablony, archiwum"
     },
     "loading_states": {

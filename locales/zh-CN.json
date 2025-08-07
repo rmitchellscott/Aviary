@@ -49,7 +49,7 @@
     "destination_folder": "目标文件夹",
     "default": "默认",
     "loading": "加载中...",
-    "compress_pdf": "压缩PDF",
+    "compress_pdf": "压缩",
     "send": "发送",
     "pair": "配对",
     "sending": "发送中…",
@@ -148,7 +148,8 @@
       "restore_backup": "从备份还原",
       "upload_restore": "上传还原",
       "cancel": "取消",
-      "restore_database": "还原"
+      "restore_database": "还原",
+      "modify": "修改"
     },
     "tabs": {
       "overview": "概览",
@@ -360,7 +361,6 @@
       "confirm_new_password": "确认新密码",
       "delete_account": "删除账户",
       "api_key_name": "名称",
-      "api_key_expiry": "过期时间（可选）",
       "key_preview": "密钥预览",
       "status": "状态",
       "created": "创建时间",
@@ -399,7 +399,9 @@
       "remarkable_unaffected": "您的reMarkable Cloud账户和设备数据将完全不受影响。",
       "api_key_created_title": "新API密钥已创建",
       "api_key_created_message": "现在复制此密钥 - 它不会再次显示：",
-      "no_api_keys": "尚未创建API密钥"
+      "no_api_keys": "尚未创建API密钥",
+      "api_key_limit_reached": "您已达到{{maxKeys}}个API密钥的限制",
+      "api_keys_remaining": "剩余{{remaining}}/{{maxKeys}}个API密钥"
     },
     "help": {
       "cover_page": "控制上传PDF时是使用第一页还是当前页作为封面",

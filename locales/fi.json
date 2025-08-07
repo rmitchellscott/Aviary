@@ -49,7 +49,7 @@
     "destination_folder": "Kohdekansio",
     "default": "Oletus",
     "loading": "Ladataan...",
-    "compress_pdf": "Pakkaa PDF",
+    "compress_pdf": "Pakkaus",
     "send": "Lähetä",
     "pair": "Yhdistä",
     "sending": "Lähetetään…",
@@ -148,7 +148,8 @@
       "restore_backup": "Palauta varmuuskopiosta",
       "upload_restore": "Lataa Palautus",
       "cancel": "Peruuta",
-      "restore_database": "Palauta"
+      "restore_database": "Palauta",
+      "modify": "Muokkaa"
     },
     "tabs": {
       "overview": "Yleiskatsaus",
@@ -360,7 +361,6 @@
       "confirm_new_password": "Vahvista uusi salasana",
       "delete_account": "Poista tili",
       "api_key_name": "Nimi",
-      "api_key_expiry": "Vanhentuminen (valinnainen)",
       "key_preview": "Avaimen esikatselu",
       "status": "Tila",
       "created": "Luotu",
@@ -399,7 +399,9 @@
       "remarkable_unaffected": "ReMarkable Cloud -tilisi ja laitetiedot pysyvät täysin koskemattomina.",
       "api_key_created_title": "Uusi API-avain luotu",
       "api_key_created_message": "Kopioi tämä avain nyt - sitä ei näytetä uudelleen:",
-      "no_api_keys": "API-avaimia ei ole vielä luotu"
+      "no_api_keys": "API-avaimia ei ole vielä luotu",
+      "api_key_limit_reached": "Olet saavuttanut {{maxKeys}} API-avaimen rajasi",
+      "api_keys_remaining": "{{remaining}}/{{maxKeys}} API-avainta jäljellä"
     },
     "help": {
       "cover_page": "Ohjaa käytetäänkö ensimmäistä sivua vai nykyistä sivua kansikuvana PDF-tiedostoja ladattaessa",
@@ -442,7 +444,7 @@
       "delete_confirm": "POISTA TILINI",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
-      "folder_depth_limit": "rajaton",
+      "folder_depth_limit": "Rajaton",
       "folder_exclusion_list": "esim., roskakori, mallit, arkisto"
     },
     "loading_states": {
