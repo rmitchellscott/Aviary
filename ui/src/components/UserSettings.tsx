@@ -261,8 +261,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
   useEffect(() => {
     if (isOpen && user && rmapiPaired) {
-      const shouldForceRefresh = refreshTrigger > 0;
-      fetchFolders(shouldForceRefresh);
+      fetchFolders(false);
     } else if (!rmapiPaired) {
       setFolders([]);
       setFoldersLoading(false);
@@ -273,7 +272,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         foldersFetchController.abort();
       }
     };
-  }, [isOpen, user, rmapiPaired, refreshTrigger]);
+  }, [isOpen, user, rmapiPaired]);
 
   // Listen for logout event to clear sensitive state
   useEffect(() => {
