@@ -414,7 +414,7 @@
     "cards": {
       "profile_information": "Informations du profil",
       "change_password": "Changer le mot de passe",
-      "danger_zone": "Zone dangereuse",
+      "delete_account": "Supprimer le compte",
       "create_api_key": "Créer une nouvelle clé API",
       "your_api_keys": "Vos clés API"
     },
@@ -466,7 +466,7 @@
     "messages": {
       "pair_to_load_folders": "Couplez pour charger les dossiers",
       "pair_help": "Couplez avec le cloud reMarkable pour sélectionner parmi les dossiers existants",
-      "delete_warning_intro": "Une fois que vous supprimez votre compte, il n'y a pas de retour en arrière. Cette action est permanente et supprimera toutes vos données, y compris :",
+      "delete_warning_intro": "En cliquant ci-dessous, une boîte de dialogue de confirmation s'ouvrira. Une fois confirmé, votre compte sera définitivement supprimé avec toutes les données associées. Cela inclut :",
       "remarkable_unaffected": "Votre compte reMarkable Cloud et les données de l'appareil resteront complètement intacts.",
       "api_key_created_title": "Nouvelle clé API créée",
       "api_key_created_message": "Copiez cette clé maintenant - elle ne sera plus affichée :",
@@ -513,6 +513,8 @@
       "api_key": "Ma clé API",
       "never_expires": "N'expire jamais",
       "current_password": "Entrez votre mot de passe actuel",
+      "old_password": "ancienmdp",
+      "new_password": "nouveaumdp",
       "delete_confirm": "SUPPRIMER MON COMPTE",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
@@ -533,6 +535,15 @@
     "never": "Jamais",
     "tooltips": {
       "api_key_copied": "Copié!"
+    },
+    "errors": {
+      "update_profile": "Échec de la mise à jour du profil",
+      "unpair": "Échec du découplage",
+      "passwords_mismatch": "Les mots de passe ne correspondent pas",
+      "update_password": "Échec de la mise à jour du mot de passe",
+      "create_api_key": "Échec de la création de la clé API",
+      "delete_api_key": "Échec de la suppression de la clé API",
+      "delete_account": "Échec de la suppression du compte"
     }
   }
 }

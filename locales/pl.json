@@ -343,7 +343,7 @@
     "cards": {
       "profile_information": "Informacje o profilu",
       "change_password": "Zmień hasło",
-      "danger_zone": "Strefa niebezpieczeństwa",
+      "delete_account": "Usuń konto",
       "create_api_key": "Utwórz nowy klucz API",
       "your_api_keys": "Twoje klucze API"
     },
@@ -395,7 +395,7 @@
     "messages": {
       "pair_to_load_folders": "Sparuj, aby załadować foldery",
       "pair_help": "Sparuj z chmurą reMarkable, aby wybrać z istniejących folderów",
-      "delete_warning_intro": "Po usunięciu konta nie ma odwrotu. Ta akcja jest trwała i usunie wszystkie twoje dane, w tym:",
+      "delete_warning_intro": "Kliknięcie poniżej otworzy okno dialogowe potwierdzenia. Po potwierdzeniu, twoje konto zostanie trwale usunięte wraz z wszystkimi powiązanymi danymi. Obejmuje to:",
       "remarkable_unaffected": "Twoje konto reMarkable Cloud i dane urządzenia pozostaną całkowicie nietknięte.",
       "api_key_created_title": "Utworzono nowy klucz API",
       "api_key_created_message": "Skopiuj ten klucz teraz - nie zostanie ponownie wyświetlony:",
@@ -442,6 +442,8 @@
       "api_key": "Mój klucz API",
       "never_expires": "Nigdy nie wygasa",
       "current_password": "Wprowadź swoje bieżące hasło",
+      "old_password": "starehaslo",
+      "new_password": "nowehaslo",
       "delete_confirm": "USUŃ MOJE KONTO",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
@@ -462,6 +464,15 @@
     "never": "Nigdy",
     "tooltips": {
       "api_key_copied": "Skopiowano!"
+    },
+    "errors": {
+      "update_profile": "Nie udało się zaktualizować profilu",
+      "unpair": "Nie udało się odparować",
+      "passwords_mismatch": "Hasła nie pasują do siebie",
+      "update_password": "Nie udało się zaktualizować hasła",
+      "create_api_key": "Nie udało się utworzyć klucza API",
+      "delete_api_key": "Nie udało się usunąć klucza API",
+      "delete_account": "Nie udało się usunąć konta"
     }
   },
   "app": {

@@ -343,7 +343,7 @@
     "cards": {
       "profile_information": "Profile Information",
       "change_password": "Change Password",
-      "danger_zone": "Danger Zone",
+      "delete_account": "Delete Account",
       "create_api_key": "Create New API Key",
       "your_api_keys": "Your API Keys"
     },
@@ -395,7 +395,7 @@
     "messages": {
       "pair_to_load_folders": "Pair to load folders",
       "pair_help": "Pair with reMarkable cloud to select from existing folders",
-      "delete_warning_intro": "Once you delete your account, there is no going back. This action is permanent and will remove all your data including:",
+      "delete_warning_intro": "Clicking below will open a confirmation dialog. Once confirmed, your account will be permanently deleted along with all associated data. This includes:",
       "remarkable_unaffected": "Your reMarkable Cloud account and device data will remain completely unaffected.",
       "api_key_created_title": "New API Key Created",
       "api_key_created_message": "Copy this key now - it won't be shown again:",
@@ -442,6 +442,8 @@
       "api_key": "My API Key",
       "never_expires": "Never expires",
       "current_password": "Enter your current password",
+      "old_password": "oldpassword",
+      "new_password": "newpassword",
       "delete_confirm": "DELETE MY ACCOUNT",
       "folder_depth_limit": "Unlimited",
       "folder_exclusion_list": "e.g., trash, templates, archive",
@@ -462,6 +464,15 @@
     "never": "Never",
     "tooltips": {
       "api_key_copied": "Copied!"
+    },
+    "errors": {
+      "update_profile": "Failed to update profile",
+      "unpair": "Failed to unpair",
+      "passwords_mismatch": "Passwords do not match",
+      "update_password": "Failed to update password",
+      "create_api_key": "Failed to create API key",
+      "delete_api_key": "Failed to delete API key",
+      "delete_account": "Failed to delete account"
     }
   },
   "app": {

@@ -102,7 +102,7 @@ export function UserDeleteDialog({
           <AlertDialogAction
             onClick={onConfirm}
             disabled={loading}
-            className="bg-destructive hover:bg-destructive/90 focus:ring-destructive"
+            variant="destructive"
           >
             {loading ? t("user_delete.deleting") : isCurrentUser ? t("user_delete.delete_account") : t("user_delete.delete_user")}
           </AlertDialogAction>

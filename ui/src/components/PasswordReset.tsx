@@ -177,7 +177,6 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                   disabled={loading || !email}
                   className="w-full"
                 >
-                  <Mail className="h-4 w-4 mr-2" />
                   {loading ? t('password_reset.sending') : t('password_reset.send_email')}
                 </Button>
                 
@@ -234,7 +233,6 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
                   disabled={loading || !token || !newPassword || !confirmPassword}
                   className="w-full"
                 >
-                  <Lock className="h-4 w-4 mr-2" />
                   {loading ? t('password_reset.resetting') : t('password_reset.reset_button')}
                 </Button>
                 

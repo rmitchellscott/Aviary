@@ -343,7 +343,7 @@
     "cards": {
       "profile_information": "Profilinformationen",
       "change_password": "Passwort ändern",
-      "danger_zone": "Gefahrenbereich",
+      "delete_account": "Konto löschen",
       "create_api_key": "Neuen API-Schlüssel erstellen",
       "your_api_keys": "Ihre API-Schlüssel"
     },
@@ -395,7 +395,7 @@
     "messages": {
       "pair_to_load_folders": "Koppeln, um Ordner zu laden",
       "pair_help": "Mit reMarkable Cloud koppeln, um aus vorhandenen Ordnern auszuwählen",
-      "delete_warning_intro": "Sobald Sie Ihr Konto löschen, gibt es kein Zurück mehr. Diese Aktion ist dauerhaft und entfernt alle Ihre Daten einschließlich:",
+      "delete_warning_intro": "Wenn Sie unten klicken, öffnet sich ein Bestätigungsdialog. Nach der Bestätigung wird Ihr Konto dauerhaft gelöscht, zusammen mit allen zugehörigen Daten. Dies umfasst:",
       "remarkable_unaffected": "Ihr reMarkable Cloud-Konto und die Gerätedaten bleiben vollständig unberührt.",
       "api_key_created_title": "Neuer API-Schlüssel erstellt",
       "api_key_created_message": "Kopieren Sie diesen Schlüssel jetzt - er wird nicht erneut angezeigt:",
@@ -442,6 +442,8 @@
       "api_key": "Mein API-Schlüssel",
       "never_expires": "Läuft nie ab",
       "current_password": "Geben Sie Ihr aktuelles Passwort ein",
+      "old_password": "altespasswort",
+      "new_password": "neuespasswort",
       "delete_confirm": "MEIN KONTO LÖSCHEN",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
@@ -462,6 +464,15 @@
     "never": "Nie",
     "tooltips": {
       "api_key_copied": "Kopiert!"
+    },
+    "errors": {
+      "update_profile": "Profil konnte nicht aktualisiert werden",
+      "unpair": "Entkopplung fehlgeschlagen",
+      "passwords_mismatch": "Passwörter stimmen nicht überein",
+      "update_password": "Passwort konnte nicht aktualisiert werden",
+      "create_api_key": "API-Schlüssel konnte nicht erstellt werden",
+      "delete_api_key": "API-Schlüssel konnte nicht gelöscht werden",
+      "delete_account": "Konto konnte nicht gelöscht werden"
     }
   },
   "app": {

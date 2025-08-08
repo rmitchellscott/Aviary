@@ -179,6 +179,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   }>({ isOpen: false, key: null });
 
   const [viewKey, setViewKey] = useState<APIKey | null>(null);
+  const [deleteFromDetails, setDeleteFromDetails] = useState(false);
 
   const handleClose = () => {
     setError(null);
@@ -458,7 +459,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         setError(errorData.error || "Failed to update profile");
       }
     } catch (error) {
-      setError("Failed to update profile");
+      setError(t("settings.errors.update_profile"));
     } finally {
       setSaving(false);
     }
@@ -478,7 +479,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       });
       updatePairingStatus(false);
     } catch {
-      setError("Failed to disconnect");
+      setError(t("settings.errors.unpair"));
     } finally {
       setSaving(false);
     }
@@ -486,7 +487,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
   const updatePassword = async () => {
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(t("settings.errors.passwords_mismatch"));
       return;
     }
 
@@ -515,7 +516,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         setError(errorData.error || "Failed to update password");
       }
     } catch (error) {
-      setError("Failed to update password");
+      setError(t("settings.errors.update_password"));
     } finally {
       setSaving(false);
     }
@@ -578,7 +579,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         }
       }
     } catch (error) {
-      setError("Failed to create API key");
+      setError(t("settings.errors.create_api_key"));
     } finally {
       setSaving(false);
     }
@@ -589,7 +590,13 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   };
 
   const closeDeleteKeyDialog = () => {
+    const wasFromDetails = deleteFromDetails;
+    const keyToRestore = deleteKeyDialog.key;
     setDeleteKeyDialog({ isOpen: false, key: null });
+    setDeleteFromDetails(false);
+    if (wasFromDetails && keyToRestore) {
+      setViewKey(keyToRestore);
+    }
   };
 
   const confirmDeleteAPIKey = async () => {
@@ -609,7 +616,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         setError(errorData.error || "Failed to delete API key");
       }
     } catch (error) {
-      setError("Failed to delete API key");
+      setError(t("settings.errors.delete_api_key"));
     }
   };
 
@@ -650,7 +657,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         setError(errorData.error || "Failed to delete account");
       }
     } catch (error) {
-      setError("Failed to delete account");
+      setError(t("settings.errors.delete_account"));
     } finally {
       setSaving(false);
       setDeleteAccountDialog(false);
@@ -689,7 +696,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-7xl max-h-[85vh] overflow-y-auto sm:max-w-7xl sm:max-h-[90vh]">
+        <DialogContent className="max-w-7xl max-h-[85vh] sm:max-w-7xl sm:max-h-[90vh] overflow-y-auto !top-[0vh] !translate-y-0 sm:!top-[6vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
@@ -707,23 +714,23 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           )}
 
 
-          <Tabs defaultValue="profile" className="w-full h-[660px] flex flex-col">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="profile" className="flex items-center gap-2">
+          <Tabs defaultValue="profile">
+            <TabsList className="w-full">
+              <TabsTrigger value="profile">
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline">{t("settings.tabs.profile")}</span>
+                <span className="ml-1.5">{t("settings.tabs.profile")}</span>
               </TabsTrigger>
-              <TabsTrigger value="account" className="flex items-center gap-2">
+              <TabsTrigger value="account">
                 <UserCog className="h-4 w-4" />
-                <span className="hidden sm:inline">{t("settings.tabs.account")}</span>
+                <span className="ml-1.5">{t("settings.tabs.account")}</span>
               </TabsTrigger>
-              <TabsTrigger value="api-keys" className="flex items-center gap-2">
+              <TabsTrigger value="api-keys">
                 <Key className="h-4 w-4" />
-                <span className="hidden sm:inline">{t("settings.tabs.api_keys")}</span>
+                <span className="ml-1.5">{t("settings.tabs.api_keys")}</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="profile" className="flex-1 overflow-y-auto">
+            <TabsContent value="profile">
               <Card>
                 <CardHeader>
                   <CardTitle>{t("settings.cards.profile_information")}</CardTitle>
@@ -996,7 +1003,6 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
                   <div className="flex flex-col sm:flex-row sm:justify-end">
                     <Button onClick={updateProfile} disabled={saving || !hasChanges()} className="w-full sm:w-auto">
-                      <Save className="h-4 w-4 mr-2" />
                       {saving ? t('settings.loading_states.saving') : t('settings.buttons.save_changes')}
                     </Button>
                   </div>
@@ -1004,7 +1010,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
               </Card>
             </TabsContent>
 
-            <TabsContent value="account" className="flex-1 overflow-y-auto">
+            <TabsContent value="account">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
@@ -1018,6 +1024,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         type="password"
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
+                        placeholder={t('settings.placeholders.old_password')}
                         className="mt-2"
                       />
                     </div>
@@ -1029,6 +1036,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         type="password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder={t('settings.placeholders.new_password')}
                         className="mt-2"
                       />
                     </div>
@@ -1040,6 +1048,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         type="password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder={t('settings.placeholders.new_password')}
                         className="mt-2"
                       />
                     </div>
@@ -1055,54 +1064,47 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           !confirmPassword
                         }
                       >
-                        <Save className="h-4 w-4 mr-2" />
                         {saving ? t('settings.loading_states.updating') : t('settings.buttons.update_password')}
                       </Button>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="border-destructive/20 bg-destructive/10">
+                <Card>
                   <CardHeader>
-                    <CardTitle className="text-destructive flex items-center gap-2">
-                      <AlertTriangle className="h-5 w-5" />
-                      {t("settings.cards.danger_zone")}
+                    <CardTitle>
+                      {t("settings.cards.delete_account")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="bg-card p-4 rounded border">
-                      <h3 className="font-medium text-destructive mb-2">
-                        {t("settings.labels.delete_account")}
-                      </h3>
-                      <p className="text-sm text-destructive/80 mb-4">
-                        {t("settings.messages.delete_warning_intro")}
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {t("settings.messages.delete_warning_intro")}
+                    </p>
+                    <ul className="text-sm text-muted-foreground list-disc list-outside ml-6 sm:ml-5 space-y-1 mb-4">
+                      <li>{t("settings.delete_warnings.documents")}</li>
+                      <li>{t("settings.delete_warnings.api_keys")}</li>
+                      <li>{t("settings.delete_warnings.profile")}</li>
+                    </ul>
+                    <div className="bg-muted/50 p-3 rounded-md border mb-4">
+                      <p className="text-sm text-muted-foreground">
+                        <strong>{t("user_delete.note_label")}</strong> {t("settings.messages.remarkable_unaffected")}
                       </p>
-                      <ul className="text-sm text-destructive/80 list-disc list-outside ml-6 sm:ml-5 space-y-1 mb-4">
-                        <li>{t("settings.delete_warnings.documents")}</li>
-                        <li>{t("settings.delete_warnings.api_keys")}</li>
-                        <li>{t("settings.delete_warnings.profile")}</li>
-                      </ul>
-                      <div className="bg-muted/50 p-3 rounded-md border mb-4">
-                        <p className="text-sm text-muted-foreground">
-                          <strong>{t("user_delete.note_label")}</strong> {t("settings.messages.remarkable_unaffected")}
-                        </p>
-                      </div>
-                      <div className="flex flex-col sm:flex-row sm:justify-end">
-                        <Button
-                          variant="destructive"
-                          onClick={openDeleteAccountDialog}
-                          className="w-full sm:w-auto"
-                        >
-                          {t('settings.buttons.delete_my_account')}
-                        </Button>
-                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:justify-end">
+                      <Button
+                        variant="outline"
+                        onClick={openDeleteAccountDialog}
+                        className="w-full sm:w-auto"
+                      >
+                        {t('settings.buttons.delete_my_account')}
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
               </div>
             </TabsContent>
 
-            <TabsContent value="api-keys" className="flex-1 overflow-y-auto">
+            <TabsContent value="api-keys">
               <div className="space-y-4">
                 <Card>
                   <CardHeader>
@@ -1164,7 +1166,6 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         disabled={saving || !newKeyName || apiKeys.length >= maxApiKeys}
                         className="w-full sm:w-auto"
                       >
-                        <Plus className="h-4 w-4 mr-2" />
                         {t("settings.actions.create_api_key")}
                       </Button>
                     </div>
@@ -1223,7 +1224,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         <TableHeader>
                           <TableRow>
                           <TableHead>{t("settings.labels.api_key_name")}</TableHead>
-                          <TableHead className="hidden lg:table-cell">{t("settings.labels.key_preview")}</TableHead>
+                          <TableHead className="hidden lg:table-cell w-32">{t("settings.labels.key_preview")}</TableHead>
                           <TableHead className="hidden lg:table-cell text-center">{t("settings.labels.status")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("settings.labels.created")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("settings.labels.last_used")}</TableHead>
@@ -1239,7 +1240,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                 <TableCell className="font-medium">
                                   {key.name}
                                 </TableCell>
-                                <TableCell className="hidden lg:table-cell">
+                                <TableCell className="hidden lg:table-cell w-32">
                                   <code className="text-sm">
                                     {key.key_prefix}...
                                   </code>
@@ -1283,9 +1284,9 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                     </Button>
                                     <Button
                                       size="sm"
-                                      variant="destructive"
+                                      variant="outline"
                                       onClick={() => openDeleteKeyDialog(key)}
-                                      className="w-full sm:w-auto"
+                                      className="hidden lg:inline-flex w-full sm:w-auto"
                                     >
                                       {t("admin.actions.delete")}
                                     </Button>
@@ -1355,7 +1356,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
             <AlertDialogAction
               onClick={confirmDeleteAccount}
               disabled={saving || !canDeleteAccount}
-              className="bg-destructive hover:bg-destructive/90 focus:ring-destructive"
+              variant="destructive"
             >
               {saving ? t('settings.loading_states.deleting') : t('settings.buttons.delete_my_account')}
             </AlertDialogAction>
@@ -1397,7 +1398,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
             </AlertDialogCancel>
             <AlertDialogAction 
               onClick={confirmDeleteAPIKey}
-              className="bg-destructive hover:bg-destructive/90 focus:ring-destructive"
+              variant="destructive"
             >
               {t("settings.actions.delete_api_key")}
             </AlertDialogAction>
@@ -1412,28 +1413,52 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
             <DialogTitle>{viewKey?.name}</DialogTitle>
           </DialogHeader>
           {viewKey && (
-            <div className="space-y-2 text-sm">
-              <p>
-                <strong>{t('settings.labels.key_preview')}:</strong>{' '}
-                <code>{viewKey.key_prefix}...</code>
-              </p>
-              <p>
-                <strong>{t('settings.labels.status')}:</strong>{' '}
-                {getKeyStatus(viewKey)}
-              </p>
-              <p>
-                <strong>{t('settings.labels.created')}:</strong>{' '}
-                {formatDate(viewKey.created_at)}
-              </p>
-              <p>
-                <strong>{t('settings.labels.last_used')}:</strong>{' '}
-                {viewKey.last_used ? formatDate(viewKey.last_used) : t('settings.never')}
-              </p>
-              <p>
-                <strong>{t('settings.labels.expires')}:</strong>{' '}
-                {viewKey.expires_at ? formatDate(viewKey.expires_at) : t('settings.never')}
-              </p>
-            </div>
+            <>
+              <div className="space-y-2 text-sm">
+                <p>
+                  <strong>{t('settings.labels.key_preview')}:</strong>{' '}
+                  <code>{viewKey.key_prefix}...</code>
+                </p>
+                <p>
+                  <strong>{t('settings.labels.status')}:</strong>{' '}
+                  {getKeyStatus(viewKey)}
+                </p>
+                <p>
+                  <strong>{t('settings.labels.created')}:</strong>{' '}
+                  {formatDate(viewKey.created_at)}
+                </p>
+                <p>
+                  <strong>{t('settings.labels.last_used')}:</strong>{' '}
+                  {viewKey.last_used ? formatDate(viewKey.last_used) : t('settings.never')}
+                </p>
+                <p>
+                  <strong>{t('settings.labels.expires')}:</strong>{' '}
+                  {viewKey.expires_at ? formatDate(viewKey.expires_at) : t('settings.never')}
+                </p>
+              </div>
+              <div className="lg:hidden flex flex-col gap-2 pt-4 border-t">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setDeleteFromDetails(true);
+                    openDeleteKeyDialog(viewKey);
+                    setViewKey(null);
+                  }}
+                  className="w-full sm:w-auto"
+                >
+                  {t("admin.actions.delete")}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setViewKey(null)}
+                  className="w-full sm:w-auto"
+                >
+                  {t("settings.actions.cancel")}
+                </Button>
+              </div>
+            </>
           )}
         </DialogContent>
       </Dialog>
@@ -1459,6 +1484,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                 await disconnectRmapi();
               }}
               disabled={saving}
+              variant="default"
             >
               {saving ? t('settings.loading_states.saving') : t("settings.actions.unpair")}
             </AlertDialogAction>

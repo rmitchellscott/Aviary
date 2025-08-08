@@ -343,7 +343,7 @@
     "cards": {
       "profile_information": "Profilinformasjon",
       "change_password": "Endre passord",
-      "danger_zone": "Faresone",
+      "delete_account": "Slett konto",
       "create_api_key": "Opprett ny API-nøkkel",
       "your_api_keys": "Dine API-nøkler"
     },
@@ -395,7 +395,7 @@
     "messages": {
       "pair_to_load_folders": "Koble for å laste mapper",
       "pair_help": "Koble med reMarkable sky for å velge fra eksisterende mapper",
-      "delete_warning_intro": "Når du sletter kontoen din, er det ingen vei tilbake. Denne handlingen er permanent og vil fjerne alle dine data inkludert:",
+      "delete_warning_intro": "Ved å klikke nedenfor vil en bekreftelsesdialog åpnes. Når dette er bekreftet, vil kontoen din bli permanent slettet sammen med alle tilknyttede data. Dette inkluderer:",
       "remarkable_unaffected": "Din reMarkable Cloud-konto og enhetsdata vil forbli helt upåvirket.",
       "api_key_created_title": "Ny API-nøkkel opprettet",
       "api_key_created_message": "Kopier denne nøkkelen nå - den vil ikke vises igjen:",
@@ -442,6 +442,8 @@
       "api_key": "Min API-nøkkel",
       "never_expires": "Utløper aldri",
       "current_password": "Skriv inn ditt nåværende passord",
+      "old_password": "gammeltpassord",
+      "new_password": "nyttpassord",
       "delete_confirm": "SLETT MIN KONTO",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
@@ -462,6 +464,15 @@
     "never": "Aldri",
     "tooltips": {
       "api_key_copied": "Kopiert!"
+    },
+    "errors": {
+      "update_profile": "Kunne ikke oppdatere profil",
+      "unpair": "Kunne ikke koble fra",
+      "passwords_mismatch": "Passord stemmer ikke overens",
+      "update_password": "Kunne ikke oppdatere passord",
+      "create_api_key": "Kunne ikke opprette API-nøkkel",
+      "delete_api_key": "Kunne ikke slette API-nøkkel",
+      "delete_account": "Kunne ikke slette konto"
     }
   },
   "app": {

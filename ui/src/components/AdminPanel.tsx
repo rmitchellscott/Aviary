@@ -1083,7 +1083,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           </Button>
           <Button
             size="sm"
-            variant="destructive"
+            variant="outline"
             onClick={() => openDeleteBackupDialog(job)}
           >
             <Trash2 className="h-4 w-4 sm:hidden" />
@@ -1164,7 +1164,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-7xl max-h-[85vh] overflow-y-auto sm:max-w-7xl sm:max-h-[90vh]">
+      <DialogContent className="max-w-7xl max-h-[85vh] sm:max-w-7xl sm:max-h-[90vh] overflow-y-auto !top-[0vh] !translate-y-0 sm:!top-[6vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
@@ -1193,31 +1193,31 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           </Alert>
         )}
 
-        <Tabs defaultValue="overview" className="w-full h-[600px] flex flex-col">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
+        <Tabs defaultValue="overview">
+          <TabsList className="w-full">
+            <TabsTrigger value="overview">
               <Activity className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("admin.tabs.overview")}</span>
+              <span className="hidden sm:inline ml-1.5">{t("admin.tabs.overview")}</span>
             </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
+            <TabsTrigger value="users">
               <Users className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("admin.tabs.users")}</span>
+              <span className="hidden sm:inline ml-1.5">{t("admin.tabs.users")}</span>
             </TabsTrigger>
-            <TabsTrigger value="api-keys" className="flex items-center gap-2">
+            <TabsTrigger value="api-keys">
               <Key className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("admin.tabs.api_keys")}</span>
+              <span className="hidden sm:inline ml-1.5">{t("admin.tabs.api_keys")}</span>
             </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
+            <TabsTrigger value="settings">
               <SettingsIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("admin.tabs.settings")}</span>
+              <span className="hidden sm:inline ml-1.5">{t("admin.tabs.settings")}</span>
             </TabsTrigger>
-            <TabsTrigger value="system" className="flex items-center gap-2">
+            <TabsTrigger value="system">
               <Database className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("admin.tabs.system")}</span>
+              <span className="hidden sm:inline ml-1.5">{t("admin.tabs.system")}</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="flex-1 overflow-y-auto">
+          <TabsContent value="overview">
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="pb-2">
@@ -1317,7 +1317,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   <div className="flex flex-wrap gap-2 items-start">
                     <Badge variant="secondary">{t("admin.badges.multi_user")}</Badge>
                     {systemStatus.dry_run && (
-                      <Badge variant="destructive">{t("admin.badges.dry_run")}</Badge>
+                      <Badge variant="default">{t("admin.badges.dry_run")}</Badge>
                     )}
                     {systemStatus.auth?.oidc_enabled && (
                       <Badge variant="secondary">{t("admin.badges.oidc_enabled")}</Badge>
@@ -1331,7 +1331,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="users" className="flex-1 overflow-y-auto">
+          <TabsContent value="users">
             <div className="space-y-4">
               <Card>
                 <CardHeader>
@@ -1386,8 +1386,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         creatingUser || !newUsername || !newEmail || !newPassword
                       }
                     >
-                      <Plus className="h-4 w-4 mr-2" />
-                      {t("admin.actions.create_user")}
+                      {creatingUser ? t("register.creating") : t("admin.actions.create_user")}
                     </Button>
                   </div>
                 </CardContent>
@@ -1539,7 +1538,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               {!isCurrentUser(user) && (
                                 <Button
                                   size="sm"
-                                  variant="destructive"
+                                  variant="outline"
                                   onClick={() => openDeleteUserDialog(user)}
                                   className="hidden lg:inline-flex whitespace-nowrap"
                                 >
@@ -1557,7 +1556,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   </div>
                   </TabsContent>
 
-          <TabsContent value="api-keys" className="flex-1 overflow-y-auto">
+          <TabsContent value="api-keys">
             <div className="space-y-4">
               <Card>
                 <CardHeader>
@@ -1667,7 +1666,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="settings" className="flex-1 overflow-y-auto">
+          <TabsContent value="settings">
             <div className="space-y-4">
               <Card>
                 <CardHeader>
@@ -1756,7 +1755,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="system" className="flex-1 overflow-y-auto">
+          <TabsContent value="system">
             <div className="space-y-4">
               <Card>
                 <CardHeader>
@@ -1771,7 +1770,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       disabled={creatingBackup}
                       className="w-full"
                     >
-                      <Database className="h-4 w-4 mr-2" />
                       {creatingBackup ? t("admin.backup.creating_job") : t("admin.backup.create_backup")}
                     </Button>
                     
@@ -1791,7 +1789,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           disabled={analyzingBackup || uploadPhase !== 'idle'}
                           className="w-full"
                         >
-                          <Database className="h-4 w-4 mr-2" />
                           {uploadPhase === 'uploading' ? t("admin.loading_states.uploading") : 
                            uploadPhase === 'extracting' ? t("admin.loading_states.extracting") :
                            uploadPhase === 'validating' ? t("admin.loading_states.validating") :
@@ -1813,7 +1810,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         disabled={restoringBackup}
                         className="w-full"
                       >
-                        <Database className="h-4 w-4 mr-2" />
                         {restoringBackup ? t("admin.loading_states.restoring") : t("admin.actions.restore_backup")}
                       </Button>
                     )}
@@ -1905,7 +1901,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         open={resetPasswordDialog.isOpen}
         onOpenChange={closeResetPasswordDialog}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[60vh] overflow-y-auto max-sm:top-[20vh] md:top-[33%]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Key className="h-5 w-5" />
@@ -2053,7 +2049,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             <AlertDialogAction
               onClick={confirmDatabaseRestore}
               disabled={restoringBackup}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              variant="destructive"
             >
               {restoringBackup ? t("admin.loading_states.restoring") : t("admin.actions.restore_database")}
             </AlertDialogAction>
@@ -2153,7 +2149,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 {!isCurrentUser(viewUser) && (
                   <Button
                     size="sm"
-                    variant="destructive"
+                    variant="outline"
                     onClick={() => {
                       setDeleteFromDetails(true);
                       openDeleteUserDialog(viewUser);
@@ -2226,7 +2222,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             <AlertDialogAction
               onClick={confirmDeleteBackup}
               disabled={deleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              variant="destructive"
             >
               {deleting ? t("admin.loading_states.deleting") : t("admin.actions.delete")}
             </AlertDialogAction>

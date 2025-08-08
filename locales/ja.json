@@ -343,7 +343,7 @@
     "cards": {
       "profile_information": "プロフィール情報",
       "change_password": "パスワード変更",
-      "danger_zone": "危険ゾーン",
+      "delete_account": "アカウント削除",
       "create_api_key": "新しいAPIキーを作成",
       "your_api_keys": "あなたのAPIキー"
     },
@@ -395,7 +395,7 @@
     "messages": {
       "pair_to_load_folders": "フォルダを読み込むためにペアリング",
       "pair_help": "既存のフォルダから選択するためにreMarkableクラウドとペアリング",
-      "delete_warning_intro": "アカウントを削除すると、元に戻すことはできません。この操作は永続的で、以下を含むすべてのデータが削除されます：",
+      "delete_warning_intro": "下記をクリックすると確認ダイアログが開きます。確認後、アカウントは関連するすべてのデータと共に永久に削除されます。これには以下が含まれます：",
       "remarkable_unaffected": "reMarkable Cloudアカウントとデバイスデータは完全に影響を受けません。",
       "api_key_created_title": "新しいAPIキーが作成されました",
       "api_key_created_message": "このキーを今すぐコピーしてください - 再表示されません：",
@@ -442,6 +442,8 @@
       "api_key": "私のAPIキー",
       "never_expires": "有効期限なし",
       "current_password": "現在のパスワードを入力してください",
+      "old_password": "旧パスワード",
+      "new_password": "新パスワード",
       "delete_confirm": "アカウントを削除",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
@@ -462,6 +464,15 @@
     "never": "なし",
     "tooltips": {
       "api_key_copied": "コピーしました！"
+    },
+    "errors": {
+      "update_profile": "プロフィールの更新に失敗しました",
+      "unpair": "ペアリング解除に失敗しました",
+      "passwords_mismatch": "パスワードが一致しません",
+      "update_password": "パスワードの更新に失敗しました",
+      "create_api_key": "APIキーの作成に失敗しました",
+      "delete_api_key": "APIキーの削除に失敗しました",
+      "delete_account": "アカウントの削除に失敗しました"
     }
   },
   "app": {

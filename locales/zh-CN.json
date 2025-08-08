@@ -343,7 +343,7 @@
     "cards": {
       "profile_information": "个人资料信息",
       "change_password": "更改密码",
-      "danger_zone": "危险区域",
+      "delete_account": "删除账户",
       "create_api_key": "创建新API密钥",
       "your_api_keys": "您的API密钥"
     },
@@ -395,7 +395,7 @@
     "messages": {
       "pair_to_load_folders": "配对以加载文件夹",
       "pair_help": "与reMarkable云配对以从现有文件夹中选择",
-      "delete_warning_intro": "一旦删除您的账户，就无法挽回。此操作是永久性的，将删除您的所有数据，包括：",
+      "delete_warning_intro": "点击下方将打开确认对话框。确认后，您的账户将被永久删除，同时删除所有相关数据。这包括：",
       "remarkable_unaffected": "您的reMarkable Cloud账户和设备数据将完全不受影响。",
       "api_key_created_title": "新API密钥已创建",
       "api_key_created_message": "现在复制此密钥 - 它不会再次显示：",
@@ -442,6 +442,8 @@
       "api_key": "我的API密钥",
       "never_expires": "永不过期",
       "current_password": "输入您的当前密码",
+      "old_password": "旧密码",
+      "new_password": "新密码",
       "delete_confirm": "删除我的账户",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
@@ -462,6 +464,15 @@
     "never": "从不",
     "tooltips": {
       "api_key_copied": "已复制！"
+    },
+    "errors": {
+      "update_profile": "更新个人资料失败",
+      "unpair": "取消配对失败",
+      "passwords_mismatch": "密码不匹配",
+      "update_password": "更新密码失败",
+      "create_api_key": "创建API密钥失败",
+      "delete_api_key": "删除API密钥失败",
+      "delete_account": "删除账户失败"
     }
   },
   "app": {

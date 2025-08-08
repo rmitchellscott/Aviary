@@ -343,7 +343,7 @@
     "cards": {
       "profile_information": "Profilinformation",
       "change_password": "Skift Adgangskode",
-      "danger_zone": "Farezone",
+      "delete_account": "Slet Konto",
       "create_api_key": "Opret Ny API-nøgle",
       "your_api_keys": "Dine API-nøgler"
     },
@@ -395,7 +395,7 @@
     "messages": {
       "pair_to_load_folders": "Parr for at indlæse mapper",
       "pair_help": "Parr med reMarkable cloud for at vælge fra eksisterende mapper",
-      "delete_warning_intro": "Når du sletter din konto, er der ingen vej tilbage. Denne handling er permanent og vil fjerne alle dine data inklusive:",
+      "delete_warning_intro": "At klikke nedenfor vil åbne en bekræftelsesdialog. Når det er bekræftet, vil din konto blive slettet permanent sammen med alle tilknyttede data. Dette inkluderer:",
       "remarkable_unaffected": "Din reMarkable Cloud-konto og enhedsdata vil forblive helt upåvirket.",
       "api_key_created_title": "Ny API-nøgle Oprettet",
       "api_key_created_message": "Kopier denne nøgle nu - den vil ikke blive vist igen:",
@@ -442,6 +442,8 @@
       "api_key": "Min API-nøgle",
       "never_expires": "Udløber aldrig",
       "current_password": "Indtast din nuværende adgangskode",
+      "old_password": "gammeltkodeord",
+      "new_password": "nyttkodeord",
       "delete_confirm": "SLET MIN KONTO",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
@@ -462,6 +464,15 @@
     "never": "Aldrig",
     "tooltips": {
       "api_key_copied": "Kopieret!"
+    },
+    "errors": {
+      "update_profile": "Kunne ikke opdatere profil",
+      "unpair": "Kunne ikke afparre",
+      "passwords_mismatch": "Adgangskoder matcher ikke",
+      "update_password": "Kunne ikke opdatere adgangskode",
+      "create_api_key": "Kunne ikke oprette API-nøgle",
+      "delete_api_key": "Kunne ikke slette API-nøgle",
+      "delete_account": "Kunne ikke slette konto"
     }
   },
   "app": {
