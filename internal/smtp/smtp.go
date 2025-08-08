@@ -16,6 +16,22 @@ import (
 	"github.com/rmitchellscott/aviary/internal/database"
 )
 
+
+// sanitizeEmailAddress ensures the email address does not contain header-breaking characters
+func sanitizeEmailAddress(email string) (string, error) {
+	if strings.ContainsAny(email, "\r\n") {
+		return "", fmt.Errorf("email address contains invalid characters")
+	}
+	// Optionally, further validate using a regex for email format
+	// Basic RFC 5322 regex (not exhaustive, but good enough for most cases)
+	emailRegex := `^[a-zA-Z0-9.!#$%&'*+/=?^_` + "`" + `{|}~-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$`
+	matched, err := regexp.MatchString(emailRegex, email)
+	if err != nil || !matched {
+		return "", fmt.Errorf("invalid email address format")
+	}
+	return email, nil
+}
+
 // SMTPConfig holds SMTP configuration
 type SMTPConfig struct {
 	Host     string
@@ -263,10 +279,16 @@ func SendWelcomeEmail(email, username string) error {
 
 // sendEmail sends an email using SMTP
 func sendEmail(config *SMTPConfig, to, subject, textBody, htmlBody string) error {
+	// Sanitize recipient email address to prevent header injection
+	safeTo, err := sanitizeEmailAddress(to)
+	if err != nil {
+		return fmt.Errorf("invalid recipient email address: %w", err)
+	}
+
 	// Create message
 	headers := make(map[string]string)
 	headers["From"] = config.From
-	headers["To"] = to
+	headers["To"] = safeTo
 	headers["Subject"] = subject
 	headers["MIME-Version"] = "1.0"
 	headers["Content-Type"] = "multipart/alternative; boundary=\"boundary123\""
@@ -299,7 +321,7 @@ func sendEmail(config *SMTPConfig, to, subject, textBody, htmlBody string) error
 
 	// Send email
 	addr := fmt.Sprintf("%s:%d", config.Host, config.Port)
-	return smtp.SendMail(addr, auth, config.From, []string{to}, message.Bytes())
+	return smtp.SendMail(addr, auth, config.From, []string{safeTo}, message.Bytes())
 }
 
 // generatePasswordResetHTML generates HTML content for password reset email
