@@ -259,15 +259,20 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     }
   }, [user]);
 
-  // Fetch folders when user data is loaded and rmapi is paired
   useEffect(() => {
     if (isOpen && user && rmapiPaired) {
-      fetchFolders();
-    } else {
-      // Clear folders if not paired
+      const shouldForceRefresh = refreshTrigger > 0;
+      fetchFolders(shouldForceRefresh);
+    } else if (!rmapiPaired) {
       setFolders([]);
       setFoldersLoading(false);
     }
+    
+    return () => {
+      if (foldersFetchController) {
+        foldersFetchController.abort();
+      }
+    };
   }, [isOpen, user, rmapiPaired, refreshTrigger]);
 
   // Listen for logout event to clear sensitive state
@@ -356,11 +361,24 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   };
 
 
-  const fetchFolders = async () => {
+  const [foldersFetchController, setFoldersFetchController] = useState<AbortController | null>(null);
+
+  const fetchFolders = async (forceRefresh = false) => {
+    if (foldersFetchController) {
+      foldersFetchController.abort();
+    }
+    
+    const newController = new AbortController();
+    setFoldersFetchController(newController);
+    
     try {
       setFoldersLoading(true);
-      const response = await fetch("/api/folders?refresh=1", {
+      
+      const endpoint = forceRefresh ? "/api/folders?refresh=1" : "/api/folders";
+      
+      const response = await fetch(endpoint, {
         credentials: "include",
+        signal: newController.signal,
       });
 
       if (response.ok) {
@@ -372,8 +390,10 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           setFolders(cleaned);
         }
       }
-    } catch (error) {
-      console.error("Failed to fetch folders:", error);
+    } catch (error: any) {
+      if (error.name !== 'AbortError') {
+        console.error("Failed to fetch folders:", error);
+      }
     } finally {
       setFoldersLoading(false);
     }
@@ -831,6 +851,11 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         value={defaultRmdir} 
                         onValueChange={setDefaultRmdir}
                         disabled={!rmapiPaired}
+                        onOpenChange={(open) => {
+                          if (open && rmapiPaired && folders.length > 0) {
+                            fetchFolders(true);
+                          }
+                        }}
                       >
                         <SelectTrigger id="default-rmdir" className="mt-2 w-full">
                           <SelectValue />

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { LoginForm } from "@/components/LoginForm";
 import { PairingDialog } from "@/components/PairingDialog";
@@ -32,6 +32,14 @@ import i18n from "@/lib/i18n";
 
 const COMPRESSIBLE_EXTS = [".pdf", ".png", ".jpg", ".jpeg"];
 const POLL_INTERVAL_MS = 200;
+
+const globalFoldersFetch = {
+  isFetching: false,
+  lastFetchTime: 0,
+  abortController: null as AbortController | null,
+  currentPromise: null as Promise<any> | null,
+  requestCounter: 0,
+};
 
 interface JobStatus {
   status: string;
@@ -108,7 +116,6 @@ export default function HomePage() {
   const { t } = useTranslation();
   const { rmapiPaired, rmapiHost, loading: userDataLoading, updatePairingStatus } = useUserData();
   const { refreshTrigger } = useFolderRefresh();
-  
   const [url, setUrl] = useState<string>("");
   const [committedUrl, setCommittedUrl] = useState<string>("");
   const [urlMime, setUrlMime] = useState<string | null>(null);
@@ -128,7 +135,9 @@ export default function HomePage() {
   const [foldersLoading, setFoldersLoading] = useState<boolean>(false);
   const [rmDir, setRmDir] = useState<string>(DEFAULT_RM_DIR);
   
-  // Pairing dialog state
+  const isFetchingFolders = useRef(false);
+  const hasFetchedInitial = useRef(false);
+  
   const [pairingDialogOpen, setPairingDialogOpen] = useState(false);
 
   const isCompressibleFileOrUrl = useMemo(() => {
@@ -181,6 +190,53 @@ export default function HomePage() {
     }
   }, [isCompressibleFileOrUrl, compress]);
 
+  const fetchFoldersWithRefresh = async () => {
+    if (isFetchingFolders.current || globalFoldersFetch.isFetching) {
+      return;
+    }
+
+    const now = Date.now();
+    if (now - globalFoldersFetch.lastFetchTime < 1000) {
+      return;
+    }
+    
+    isFetchingFolders.current = true;
+    globalFoldersFetch.isFetching = true;
+    globalFoldersFetch.lastFetchTime = now;
+    
+    const abortController = new AbortController();
+    globalFoldersFetch.abortController = abortController;
+    
+    try {
+      const headers: HeadersInit = {
+        "Accept-Language": i18n.language,
+      };
+      if (uiSecret) {
+        headers["X-UI-Token"] = uiSecret;
+      }
+      
+      const res = await fetch("/api/folders?refresh=1", {
+        headers,
+        credentials: "include",
+        signal: abortController.signal,
+      }).then((r) => r.json());
+
+      if (Array.isArray(res.folders)) {
+        const cleaned = res.folders
+          .map((f: string) => f.replace(/^\//, ""))
+          .filter((f: string) => f !== "");
+        setFolders(cleaned);
+      }
+    } catch (error: any) {
+      if (error.name !== 'AbortError') {
+        console.error("Failed to refresh folders:", error);
+      }
+    } finally {
+      isFetchingFolders.current = false;
+      globalFoldersFetch.isFetching = false;
+    }
+  };
+
   useEffect(() => {
     if (!isAuthenticated || !rmapiPaired || userDataLoading) {
       setFolders([]);
@@ -188,57 +244,99 @@ export default function HomePage() {
       return;
     }
 
-    (async () => {
-      try {
-        if (folders.length === 0) {
-          setFoldersLoading(true);
+    if (hasFetchedInitial.current && refreshTrigger === 0) {
+      return;
+    }
+
+    if (globalFoldersFetch.currentPromise && globalFoldersFetch.isFetching) {
+      globalFoldersFetch.currentPromise.then((foldersData) => {
+        if (foldersData) {
+          setFolders(foldersData);
+          setFoldersLoading(false);
+          hasFetchedInitial.current = true;
         }
-        
+      }).catch((error) => {
+        if (error?.name !== 'AbortError') {
+          console.error("Failed to fetch folders:", error);
+        }
+      });
+      return;
+    }
+
+    const now = Date.now();
+    if (now - globalFoldersFetch.lastFetchTime < 500) {
+      return;
+    }
+
+    const abortController = new AbortController();
+    
+    const fetchPromise = (async () => {
+      try {
         const headers: HeadersInit = {
           "Accept-Language": i18n.language,
         };
         if (uiSecret) {
           headers["X-UI-Token"] = uiSecret;
         }
-        const res = await fetch("/api/folders", {
+        
+        const endpoint = refreshTrigger > 0 ? "/api/folders?refresh=1" : "/api/folders";
+        
+        const res = await fetch(endpoint, {
           headers,
           credentials: "include",
+          signal: abortController.signal,
         }).then((r) => r.json());
 
         if (Array.isArray(res.folders)) {
           const cleaned = res.folders
             .map((f: string) => f.replace(/^\//, ""))
             .filter((f: string) => f !== "");
-          setFolders(cleaned);
+          
+          return cleaned;
         }
-        
-        setFoldersLoading(false);
-
-        const refreshHeaders: HeadersInit = {
-          "Accept-Language": i18n.language,
-        };
-        if (uiSecret) {
-          refreshHeaders["X-UI-Token"] = uiSecret;
+        return null;
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          console.error("Failed to fetch folders:", error);
         }
-        fetch("/api/folders?refresh=1", {
-          headers: refreshHeaders,
-          credentials: "include",
-        })
-          .then((r) => r.json())
-          .then((fresh) => {
-            if (Array.isArray(fresh.folders)) {
-              const cleanedFresh = fresh.folders
-                .map((f: string) => f.replace(/^\//, ""))
-                .filter((f: string) => f !== "");
-              setFolders(cleanedFresh);
-            }
-          })
-          .catch((err) => console.error("Failed to refresh folders:", err));
-      } catch (error) {
-        console.error("Failed to fetch folders:", error);
-        setFoldersLoading(false);
+        throw error;
+      } finally {
+        globalFoldersFetch.currentPromise = null;
+        globalFoldersFetch.isFetching = false;
+        isFetchingFolders.current = false;
       }
     })();
+
+    globalFoldersFetch.currentPromise = fetchPromise;
+    globalFoldersFetch.isFetching = true;
+    globalFoldersFetch.lastFetchTime = now;
+    globalFoldersFetch.abortController = abortController;
+    isFetchingFolders.current = true;
+
+    if (folders.length === 0) {
+      setFoldersLoading(true);
+    }
+
+    fetchPromise.then((foldersData) => {
+      if (foldersData) {
+        setFolders(foldersData);
+        setFoldersLoading(false);
+        hasFetchedInitial.current = true;
+      }
+    }).catch((error) => {
+      if (error?.name !== 'AbortError') {
+        setFoldersLoading(false);
+      }
+    });
+
+    return () => {
+      abortController.abort();
+      if (globalFoldersFetch.abortController === abortController) {
+        globalFoldersFetch.isFetching = false;
+        globalFoldersFetch.currentPromise = null;
+      }
+      isFetchingFolders.current = false;
+    };
   }, [isAuthenticated, rmapiPaired, userDataLoading, refreshTrigger]);
 
   const handlePairingSuccess = () => {
@@ -572,6 +670,11 @@ export default function HomePage() {
               value={rmDir} 
               onValueChange={setRmDir}
               disabled={!rmapiPaired}
+              onOpenChange={(open) => {
+                if (open && rmapiPaired) {
+                  fetchFoldersWithRefresh();
+                }
+              }}
             >
               <SelectTrigger id="rmDir" className="flex-1">
                 <SelectValue />
