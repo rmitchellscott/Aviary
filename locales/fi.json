@@ -510,7 +510,11 @@
       "no_token": "Ei auth token -tunnusta tai API-avainta",
       "invalid_token": "Virheellinen token",
       "required": "Todennus vaaditaan",
-      "session_error": "Istunnon luominen epäonnistui"
+      "session_error": "Istunnon luominen epäonnistui",
+      "username_required": "Käyttäjänimi on pakollinen",
+      "username_too_short": "Käyttäjänimen tulee olla vähintään 3 merkkiä pitkä",
+      "username_too_long": "Käyttäjänimi saa olla enintään 50 merkkiä pitkä",
+      "username_invalid_format": "Käyttäjänimen tulee alkaa kirjaimella tai numerolla ja sisältää vain kirjaimia, numeroita, alaviivoja ja väliviivoja"
     },
     "status": {
       "job_not_found": "Työtä ei löytynyt",

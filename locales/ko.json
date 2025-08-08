@@ -510,7 +510,11 @@
       "no_token": "인증 토큰 또는 API 키 없음",
       "invalid_token": "잘못된 토큰",
       "required": "인증 필요",
-      "session_error": "세션을 생성할 수 없습니다"
+      "session_error": "세션을 생성할 수 없습니다",
+      "username_required": "사용자명이 필요합니다",
+      "username_too_short": "사용자명은 최소 3자 이상이어야 합니다",
+      "username_too_long": "사용자명은 50자를 초과할 수 없습니다",
+      "username_invalid_format": "사용자명은 영문자 또는 숫자로 시작해야 하며 영문자, 숫자, 밑줄, 하이픈만 포함할 수 있습니다"
     },
     "status": {
       "job_not_found": "작업을 찾을 수 없음",

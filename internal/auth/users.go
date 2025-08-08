@@ -220,9 +220,8 @@ func UpdateUserHandler(c *gin.Context) {
 	// Build update map
 	updates := make(map[string]interface{})
 	if req.Username != nil && *req.Username != "" {
-		// Check for username conflicts
 		var existingUser database.User
-		if err := database.DB.Where("username = ? AND id != ?", *req.Username, userID).First(&existingUser).Error; err == nil {
+		if err := database.DB.Where("LOWER(username) = LOWER(?) AND id != ?", *req.Username, userID).First(&existingUser).Error; err == nil {
 			c.JSON(http.StatusConflict, gin.H{"error": "Username already exists"})
 			return
 		}
@@ -341,11 +340,9 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 	// Build update map (non-admin users can't change admin/active status)
 	updates := make(map[string]interface{})
 
-	// Update fields only if they were provided in the request (pointers allow us to detect this)
 	if req.Username != nil && *req.Username != "" {
-		// Check for username conflicts
 		var existingUser database.User
-		if err := database.DB.Where("username = ? AND id != ?", *req.Username, user.ID).First(&existingUser).Error; err == nil {
+		if err := database.DB.Where("LOWER(username) = LOWER(?) AND id != ?", *req.Username, user.ID).First(&existingUser).Error; err == nil {
 			c.JSON(http.StatusConflict, gin.H{"error": "Username already exists"})
 			return
 		}

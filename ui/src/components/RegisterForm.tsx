@@ -90,7 +90,7 @@ export function RegisterForm() {
           } else if (data.error.includes("disabled")) {
             setError(t("register.disabled"));
           } else {
-            setError(t(data.error) || data.error);
+            setError(t(data.error));
           }
         } else {
           setError(t("register.fail"));
@@ -183,7 +183,7 @@ export function RegisterForm() {
                 disabled={loading}
                 minLength={3}
                 maxLength={50}
-                pattern="[a-zA-Z0-9_-]+"
+                pattern="^[a-zA-Z0-9][a-zA-Z0-9_-]{2,49}$"
                 title={t("register.username_help")}
               />
             </div>

@@ -2,6 +2,8 @@ package auth
 
 import (
 	"errors"
+	"regexp"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -29,11 +31,11 @@ func validationErrorMessage(err error) string {
 			case "Username":
 				switch ve.Tag() {
 				case "min":
-					return "Username must be at least 3 characters long"
+					return "backend.auth.username_too_short"
 				case "max":
-					return "Username must be no more than 50 characters long"
+					return "backend.auth.username_too_long"
 				case "required":
-					return "Username is required"
+					return "backend.auth.username_required"
 				}
 			case "CurrentPassword":
 				switch ve.Tag() {
@@ -44,4 +46,26 @@ func validationErrorMessage(err error) string {
 		}
 	}
 	return "Invalid request"
+}
+
+var usernameRegex = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]{2,49}$`)
+
+// ValidateNewUsername validates a username for new user creation.
+// This is only applied to NEW usernames during registration/creation,
+// not to existing usernames during login or updates.
+func ValidateNewUsername(username string) error {
+	username = strings.TrimSpace(username)
+	
+	if len(username) < 3 {
+		return errors.New("backend.auth.username_too_short")
+	}
+	if len(username) > 50 {
+		return errors.New("backend.auth.username_too_long")
+	}
+	
+	if !usernameRegex.MatchString(username) {
+		return errors.New("backend.auth.username_invalid_format")
+	}
+	
+	return nil
 }

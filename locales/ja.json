@@ -510,7 +510,11 @@
       "no_token": "認証トークンまたはAPIキーがありません",
       "invalid_token": "無効なトークン",
       "required": "認証が必要です",
-      "session_error": "セッションを生成できませんでした"
+      "session_error": "セッションを生成できませんでした",
+      "username_required": "ユーザー名が必要です",
+      "username_too_short": "ユーザー名は3文字以上である必要があります",
+      "username_too_long": "ユーザー名は50文字以下である必要があります",
+      "username_invalid_format": "ユーザー名は英数字で始まり、英数字、アンダースコア、ハイフンのみを含む必要があります"
     },
     "status": {
       "job_not_found": "ジョブが見つかりません",

@@ -44,9 +44,8 @@ func InvalidateUserCache(userID uuid.UUID) error {
 
 // CreateUser creates a new user with hashed password
 func (s *UserService) CreateUser(username, email, password string, isAdmin bool) (*User, error) {
-	// Check if user already exists
 	var existingUser User
-	if err := s.db.Where("username = ? OR email = ?", username, email).First(&existingUser).Error; err == nil {
+	if err := s.db.Where("LOWER(username) = LOWER(?) OR LOWER(email) = LOWER(?)", username, email).First(&existingUser).Error; err == nil {
 		return nil, errors.New("user with this username or email already exists")
 	}
 
@@ -104,7 +103,7 @@ func (s *UserService) CreateUser(username, email, password string, isAdmin bool)
 // AuthenticateUser validates user credentials and returns user if valid
 func (s *UserService) AuthenticateUser(username, password string) (*User, error) {
         var user User
-        if err := s.db.Where("username = ?", username).First(&user).Error; err != nil {
+        if err := s.db.Where("LOWER(username) = LOWER(?)", username).First(&user).Error; err != nil {
                 return nil, errors.New("invalid credentials")
         }
 

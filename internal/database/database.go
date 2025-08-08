@@ -257,7 +257,7 @@ func GetCurrentUser(userID uuid.UUID) (*User, error) {
 // GetUserByUsername gets a user by username
 func GetUserByUsername(username string) (*User, error) {
 	var user User
-	if err := DB.First(&user, "username = ? AND is_active = ?", username, true).Error; err != nil {
+	if err := DB.Where("LOWER(username) = LOWER(?) AND is_active = ?", username, true).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
@@ -275,7 +275,7 @@ func GetUserByOIDCSubject(oidcSubject string) (*User, error) {
 // GetUserByUsernameWithoutOIDC gets a user by username without an OIDC subject
 func GetUserByUsernameWithoutOIDC(username string) (*User, error) {
 	var user User
-	if err := DB.First(&user, "username = ? AND is_active = ? AND (oidc_subject IS NULL OR oidc_subject = '')", username, true).Error; err != nil {
+	if err := DB.Where("LOWER(username) = LOWER(?) AND is_active = ? AND (oidc_subject IS NULL OR oidc_subject = '')", username, true).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil

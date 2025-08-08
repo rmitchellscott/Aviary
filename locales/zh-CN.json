@@ -510,7 +510,11 @@
       "no_token": "无认证令牌或API密钥",
       "invalid_token": "无效令牌",
       "required": "需要认证",
-      "session_error": "无法生成会话"
+      "session_error": "无法生成会话",
+      "username_required": "用户名是必填项",
+      "username_too_short": "用户名必须至少3个字符",
+      "username_too_long": "用户名不能超过50个字符",
+      "username_invalid_format": "用户名必须以字母或数字开头，只能包含字母、数字、下划线和连字符"
     },
     "status": {
       "job_not_found": "未找到任务",

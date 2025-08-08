@@ -18,7 +18,7 @@
   "register": {
     "title": "Create Account",
     "username": "Username",
-    "username_help": "Username must be 3-50 characters long and contain only letters, numbers, underscores, and hyphens",
+    "username_help": "Username must start with a letter or number and be 3-50 characters long (letters, numbers, underscores, hyphens)",
     "email": "Email",
     "password": "Password",
     "password_help": "Password must be at least 8 characters long",
@@ -510,7 +510,11 @@
       "no_token": "No auth token or API key",
       "invalid_token": "Invalid token",
       "required": "Authentication required",
-      "session_error": "Could not generate session"
+      "session_error": "Could not generate session",
+      "username_required": "Username is required",
+      "username_too_short": "Username must be at least 3 characters long",
+      "username_too_long": "Username must be no more than 50 characters long",
+      "username_invalid_format": "Username must start with a letter or number and contain only letters, numbers, underscores, and hyphens"
     },
     "status": {
       "job_not_found": "Job not found",

@@ -471,7 +471,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         await fetchSystemStatus();
       } else {
         const errorData = await response.json();
-        setError(errorData.error || t("admin.errors.create_user"));
+        setError(errorData.error ? t(errorData.error) : t("admin.errors.create_user"));
       }
     } catch (error) {
       setError(t("admin.errors.create_user"));
@@ -550,7 +550,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         setViewUser(null);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || t("admin.errors.delete_user"));
+        setError(errorData.error ? t(errorData.error) : t("admin.errors.delete_user"));
       }
     } catch (error) {
       setError(t("admin.errors.delete_user"));
@@ -607,7 +607,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
         setError(null);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || t("admin.errors.reset_password"));
+        setError(errorData.error ? t(errorData.error) : t("admin.errors.reset_password"));
       }
     } catch (error) {
       setError(t("admin.errors.reset_password"));
@@ -1348,6 +1348,10 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         onChange={(e) => setNewUsername(e.target.value)}
                         placeholder={t("admin.placeholders.username")}
                         className="mt-2"
+                        minLength={3}
+                        maxLength={50}
+                        pattern="^[a-zA-Z0-9][a-zA-Z0-9_-]{2,49}$"
+                        title={t("register.username_help")}
                       />
                     </div>
                     <div>

@@ -510,7 +510,11 @@
       "no_token": "Ingen auth token eller API-nøkkel",
       "invalid_token": "Ugyldig token",
       "required": "Autentisering påkrevd",
-      "session_error": "Kunne ikke generere økt"
+      "session_error": "Kunne ikke generere økt",
+      "username_required": "Brukernavn er påkrevd",
+      "username_too_short": "Brukernavn må være minst 3 tegn langt",
+      "username_too_long": "Brukernavn kan ikke være lengre enn 50 tegn",
+      "username_invalid_format": "Brukernavn må begynne med en bokstav eller tall og kan bare inneholde bokstaver, tall, understreker og bindestreker"
     },
     "status": {
       "job_not_found": "Jobb ikke funnet",
