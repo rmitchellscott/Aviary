@@ -510,7 +510,11 @@
       "no_token": "Ingen auth-token eller API-nyckel",
       "invalid_token": "Ogiltig token",
       "required": "Autentisering krävs",
-      "session_error": "Kunde inte generera session"
+      "session_error": "Kunde inte generera session",
+      "username_required": "Användarnamn krävs",
+      "username_too_short": "Användarnamnet måste vara minst 3 tecken långt",
+      "username_too_long": "Användarnamnet får inte vara längre än 50 tecken",
+      "username_invalid_format": "Användarnamnet måste börja med en bokstav eller siffra och får endast innehålla bokstäver, siffror, understreck och bindestreck"
     },
     "status": {
       "job_not_found": "Jobb inte hittat",

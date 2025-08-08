@@ -510,7 +510,11 @@
       "no_token": "Geen auth token of API-sleutel",
       "invalid_token": "Ongeldige token",
       "required": "Authenticatie vereist",
-      "session_error": "Kon sessie niet genereren"
+      "session_error": "Kon sessie niet genereren",
+      "username_required": "Gebruikersnaam is vereist",
+      "username_too_short": "Gebruikersnaam moet minimaal 3 tekens lang zijn",
+      "username_too_long": "Gebruikersnaam mag maximaal 50 tekens lang zijn",
+      "username_invalid_format": "Gebruikersnaam moet beginnen met een letter of cijfer en mag alleen letters, cijfers, underscores en koppeltekens bevatten"
     },
     "status": {
       "job_not_found": "Taak niet gevonden",

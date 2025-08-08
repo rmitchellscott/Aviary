@@ -510,7 +510,11 @@
       "no_token": "Brak tokena uwierzytelniającego lub klucza API",
       "invalid_token": "Nieprawidłowy token",
       "required": "Wymagane uwierzytelnienie",
-      "session_error": "Nie można wygenerować sesji"
+      "session_error": "Nie można wygenerować sesji",
+      "username_required": "Nazwa użytkownika jest wymagana",
+      "username_too_short": "Nazwa użytkownika musi mieć co najmniej 3 znaki",
+      "username_too_long": "Nazwa użytkownika może mieć maksymalnie 50 znaków",
+      "username_invalid_format": "Nazwa użytkownika musi zaczynać się od litery lub cyfry i może zawierać tylko litery, cyfry, podkreślenia i myślniki"
     },
     "status": {
       "job_not_found": "Zadanie nie znalezione",

@@ -510,7 +510,11 @@
       "no_token": "Nenhum token de autenticação ou chave API",
       "invalid_token": "Token inválido",
       "required": "Autenticação obrigatória",
-      "session_error": "Não foi possível gerar sessão"
+      "session_error": "Não foi possível gerar sessão",
+      "username_required": "Nome de usuário é obrigatório",
+      "username_too_short": "Nome de usuário deve ter pelo menos 3 caracteres",
+      "username_too_long": "Nome de usuário deve ter no máximo 50 caracteres",
+      "username_invalid_format": "Nome de usuário deve começar com uma letra ou número e conter apenas letras, números, sublinhados e hífens"
     },
     "status": {
       "job_not_found": "Trabalho não encontrado",

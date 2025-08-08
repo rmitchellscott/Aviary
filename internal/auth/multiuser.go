@@ -101,6 +101,14 @@ func PublicRegisterHandler(c *gin.Context) {
 		return
 	}
 
+	req.Username = strings.TrimSpace(req.Username)
+	req.Email = strings.TrimSpace(req.Email)
+	
+	if err := ValidateNewUsername(req.Username); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	
 	firstUser := userCount == 0
 
 	userService := database.NewUserService(database.DB)
@@ -163,6 +171,14 @@ func RegisterHandler(c *gin.Context) {
 		return
 	}
 
+	req.Username = strings.TrimSpace(req.Username)
+	req.Email = strings.TrimSpace(req.Email)
+	
+	if err := ValidateNewUsername(req.Username); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	
 	// Admin can always create users regardless of registration_enabled setting
 
 	userService := database.NewUserService(database.DB)

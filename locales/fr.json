@@ -367,7 +367,11 @@
       "no_token": "Aucun token d'authentification ou clé API",
       "invalid_token": "Token invalide",
       "required": "Authentification requise",
-      "session_error": "Impossible de générer la session"
+      "session_error": "Impossible de générer la session",
+      "username_required": "Le nom d'utilisateur est requis",
+      "username_too_short": "Le nom d'utilisateur doit contenir au moins 3 caractères",
+      "username_too_long": "Le nom d'utilisateur ne peut pas dépasser 50 caractères",
+      "username_invalid_format": "Le nom d'utilisateur doit commencer par une lettre ou un chiffre et ne peut contenir que des lettres, des chiffres, des traits de soulignement et des tirets"
     },
     "status": {
       "job_not_found": "Tâche non trouvée",

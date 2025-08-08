@@ -510,7 +510,11 @@
       "no_token": "Kein Auth-Token oder API-Schlüssel",
       "invalid_token": "Ungültiger Token",
       "required": "Authentifizierung erforderlich",
-      "session_error": "Sitzung konnte nicht generiert werden"
+      "session_error": "Sitzung konnte nicht generiert werden",
+      "username_required": "Benutzername ist erforderlich",
+      "username_too_short": "Benutzername muss mindestens 3 Zeichen lang sein",
+      "username_too_long": "Benutzername darf höchstens 50 Zeichen lang sein",
+      "username_invalid_format": "Benutzername muss mit einem Buchstaben oder einer Zahl beginnen und darf nur Buchstaben, Zahlen, Unterstriche und Bindestriche enthalten"
     },
     "status": {
       "job_not_found": "Auftrag nicht gefunden",
