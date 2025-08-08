@@ -635,7 +635,9 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
       if (response.ok) {
         await fetchAPIKeys();
-        closeDeleteKeyDialog();
+        setDeleteKeyDialog({ isOpen: false, key: null });
+        setDeleteFromDetails(false);
+        setViewKey(null);
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to delete API key");
@@ -1215,15 +1217,15 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       <p className="text-sm text-primary/80 mb-2">
                         {t("settings.messages.api_key_created_message")}
                       </p>
-                      <div className="flex items-center gap-2 p-2 bg-card rounded border">
-                        <code className="flex-1 font-mono text-sm">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 p-2 bg-card rounded border">
+                        <code className="block min-w-0 w-full sm:flex-1 font-mono text-sm break-all">
                           {showNewKey}
                         </code>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => copyToClipboard(showNewKey)}
-                          className="w-full sm:w-auto"
+                          className="shrink-0"
                         >
                           {showCopiedText ? t('settings.tooltips.api_key_copied') : <Copy className="h-4 w-4" />}
                         </Button>
@@ -1255,7 +1257,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       <Table className="w-full table-fixed lg:table-auto">
                         <TableHeader>
                           <TableRow>
-                          <TableHead>{t("settings.labels.api_key_name")}</TableHead>
+                          <TableHead className="w-auto lg:w-[200px]">{t("settings.labels.api_key_name")}</TableHead>
                           <TableHead className="hidden lg:table-cell w-32">{t("settings.labels.key_preview")}</TableHead>
                           <TableHead className="hidden lg:table-cell text-center">{t("settings.labels.status")}</TableHead>
                           <TableHead className="hidden lg:table-cell">{t("settings.labels.created")}</TableHead>
@@ -1270,7 +1272,9 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                             return (
                               <TableRow key={key.id}>
                                 <TableCell className="font-medium">
-                                  {key.name}
+                                  <div className="truncate" title={key.name}>
+                                    {key.name}
+                                  </div>
                                 </TableCell>
                                 <TableCell className="hidden lg:table-cell w-32">
                                   <code className="text-sm">
