@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { useConfig } from './ConfigProvider'
 
 const AUTH_CHECK_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -52,6 +53,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [proxyAuthEnabled, setProxyAuthEnabled] = useState<boolean>(false)
   const [uiSecret, setUiSecret] = useState<string | null>(null)
   const [user, setUser] = useState<User | null>(null)
+  const { config: configData } = useConfig()
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       // Check if we have a UI secret injected (means web auth is disabled)
@@ -80,10 +82,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState<boolean>(true) // Always start loading
 
   const checkAuth = async () => {
+    if (!configData) return
+    
     try {
-      // First check if auth is configured
-      const configResponse = await fetch('/api/config')
-      const configData = await configResponse.json()
       
       // Check for proxy auth first (multi-user mode only)
       if (configData.multiUserMode && configData.proxyAuthEnabled) {
@@ -124,11 +125,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Get UI secret from window (injected by server when web auth is disabled)
       const uiSecret = (window as Window & { __UI_SECRET__?: string }).__UI_SECRET__ || null
       setUiSecret(uiSecret)
-      
-      // Set multi-user mode and auth methods
-      setMultiUserMode(configData.multiUserMode || false)
-      setOidcEnabled(configData.oidcEnabled || false)
-      setProxyAuthEnabled(configData.proxyAuthEnabled || false)
       
       if (configData.authEnabled) {
         // Web authentication is enabled - users need to log in
@@ -241,8 +237,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   useEffect(() => {
-    checkAuth()
-  }, [])
+    if (configData) {
+      // Set multi-user mode and auth methods from config
+      setMultiUserMode(configData.multiUserMode || false)
+      setOidcEnabled(configData.oidcEnabled || false)
+      setProxyAuthEnabled(configData.proxyAuthEnabled || false)
+      
+      checkAuth()
+    }
+  }, [configData])
 
   useEffect(() => {
     if (!isLoading && typeof window !== 'undefined') {

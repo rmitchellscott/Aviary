@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/components/AuthProvider";
+import { useConfig } from "@/components/ConfigProvider";
 
 interface LoginFormProps {
   onLogin: () => void;
@@ -15,17 +16,18 @@ interface LoginFormProps {
 export function LoginForm({ onLogin }: LoginFormProps) {
   const { t } = useTranslation();
   const { multiUserMode } = useAuth();
+  const { config } = useConfig();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [smtpConfigured, setSmtpConfigured] = useState(false);
   const [registrationEnabled, setRegistrationEnabled] = useState(false);
-  const [oidcEnabled, setOidcEnabled] = useState(false);
-  const [oidcSsoOnly, setOidcSsoOnly] = useState(false);
-  const [oidcButtonText, setOidcButtonText] = useState("");
-  const [proxyAuthEnabled, setProxyAuthEnabled] = useState(false);
-  const [configLoading, setConfigLoading] = useState(true);
+  
+  const smtpConfigured = config?.smtpConfigured || false;
+  const oidcEnabled = config?.oidcEnabled || false;
+  const oidcSsoOnly = config?.oidcSsoOnly || false;
+  const oidcButtonText = config?.oidcButtonText || "";
+  const proxyAuthEnabled = config?.proxyAuthEnabled || false;
 
   useEffect(() => {
     // Focus the username field when component mounts
@@ -34,22 +36,9 @@ export function LoginForm({ onLogin }: LoginFormProps) {
       usernameInput.focus();
     }
 
-    // Fetch config to check SMTP status and registration settings
-    const fetchConfig = async () => {
+    // Check registration settings using public endpoint
+    const fetchRegistrationStatus = async () => {
       try {
-        const response = await fetch("/api/config", {
-          credentials: "include",
-        });
-        if (response.ok) {
-          const config = await response.json();
-          setSmtpConfigured(config.smtpConfigured || false);
-          setOidcEnabled(config.oidcEnabled || false);
-          setOidcSsoOnly(config.oidcSsoOnly || false);
-          setOidcButtonText(config.oidcButtonText || "");
-          setProxyAuthEnabled(config.proxyAuthEnabled || false);
-        }
-        
-        // Check registration settings using public endpoint
         const registrationResponse = await fetch("/api/auth/registration-status", {
           credentials: "include",
         });
@@ -58,17 +47,12 @@ export function LoginForm({ onLogin }: LoginFormProps) {
           setRegistrationEnabled(registrationData.enabled || false);
         }
       } catch (error) {
-        console.error("Failed to fetch config:", error);
-      } finally {
-        setConfigLoading(false);
+        console.error("Failed to fetch registration status:", error);
       }
     };
 
     if (multiUserMode) {
-      fetchConfig();
-    } else {
-      // Not in multi-user mode, no need to load config
-      setConfigLoading(false);
+      fetchRegistrationStatus();
     }
   }, [multiUserMode]);
 
@@ -106,7 +90,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const isSsoOnly = multiUserMode && oidcEnabled && oidcSsoOnly;
 
   // Don't render anything until we have config data to prevent flash
-  if (multiUserMode && configLoading) {
+  if (multiUserMode && !config) {
     return null;
   }
 

@@ -6,6 +6,7 @@ import ThemeSwitcher from '@/components/ThemeSwitcher';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { Logo } from '@/components/Logo';
 import { AuthProvider, useAuth } from '@/components/AuthProvider';
+import { ConfigProvider } from '@/components/ConfigProvider';
 import { FolderRefreshProvider } from '@/hooks/useFolderRefresh';
 import { LogoutButton } from '@/components/LogoutButton';
 import { UserSettings } from '@/components/UserSettings';
@@ -127,11 +128,13 @@ function AppContent() {
 export default function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      <AuthProvider>
-        <FolderRefreshProvider>
-          <AppContent />
-        </FolderRefreshProvider>
-      </AuthProvider>
+      <ConfigProvider>
+        <AuthProvider>
+          <FolderRefreshProvider>
+            <AppContent />
+          </FolderRefreshProvider>
+        </AuthProvider>
+      </ConfigProvider>
     </ThemeProvider>
   );
 }
