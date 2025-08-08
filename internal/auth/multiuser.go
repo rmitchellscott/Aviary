@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/rmapi"
 	"github.com/rmitchellscott/aviary/internal/smtp"
@@ -131,8 +132,8 @@ func PublicRegisterHandler(c *gin.Context) {
 		}()
 	}
 
-	// Send welcome email if SMTP is configured
-	if smtp.IsSMTPConfigured() {
+	// Send welcome email if SMTP is configured and not disabled
+	if smtp.IsSMTPConfigured() && !config.GetBool("DISABLE_WELCOME_EMAIL", false) {
 		if err := smtp.SendWelcomeEmail(newUser.Email, newUser.Username); err != nil {
 			// Log error but don't fail user creation
 			fmt.Printf("Failed to send welcome email: %v\n", err)
@@ -192,8 +193,8 @@ func RegisterHandler(c *gin.Context) {
 		return
 	}
 
-	// Send welcome email if SMTP is configured
-	if smtp.IsSMTPConfigured() {
+	// Send welcome email if SMTP is configured and not disabled
+	if smtp.IsSMTPConfigured() && !config.GetBool("DISABLE_WELCOME_EMAIL", false) {
 		if err := smtp.SendWelcomeEmail(newUser.Email, newUser.Username); err != nil {
 			// Log error but don't fail user creation
 			fmt.Printf("Failed to send welcome email: %v\n", err)

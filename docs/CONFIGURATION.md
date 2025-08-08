@@ -103,6 +103,7 @@ For more rmapi-specific configuration, see [their documentation](https://github.
 | SMTP_FROM                | No        |         | From email address for system emails |
 | SMTP_TLS                 | No        | true    | Whether to use TLS for SMTP connection |
 | SITE_URL                 | No        | http://localhost:8000 | Base URL for the site (used in email links) |
+| DISABLE_WELCOME_EMAIL    | No        | false   | Set to `true` to disable sending welcome emails to new users |
 
 ## Authentication Configuration
 
