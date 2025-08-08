@@ -78,6 +78,12 @@ interface UserSettingsProps {
   onClose: () => void;
 }
 
+// Helper function to truncate long directory paths from the beginning
+const truncateFromStart = (path: string, maxLength: number = 30): string => {
+  if (path.length <= maxLength) return path;
+  return '...' + path.slice(-(maxLength - 3));
+};
+
 export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const { t } = useTranslation();
   const { user, loading: userDataLoading, rmapiPaired, rmapiHost, refetch, updatePairingStatus } = useUserData();
@@ -857,7 +863,9 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         }}
                       >
                         <SelectTrigger id="default-rmdir" className="mt-2 w-full">
-                          <SelectValue />
+                          <SelectValue>
+                            {defaultRmdir === "/" ? "/" : truncateFromStart(defaultRmdir)}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="/">
@@ -874,8 +882,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                             </SelectItem>
                           )}
                           {rmapiPaired && folders.map((f) => (
-                            <SelectItem key={f} value={f}>
-                              {f}
+                            <SelectItem key={f} value={f} title={f}>
+                              {truncateFromStart(f)}
                             </SelectItem>
                           ))}
                         </SelectContent>

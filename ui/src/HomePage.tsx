@@ -110,6 +110,12 @@ async function sniffMime(url: string): Promise<string | null> {
   }
 }
 
+// Helper function to truncate long directory paths from the beginning
+const truncateFromStart = (path: string, maxLength: number = 40): string => {
+  if (path.length <= maxLength) return path;
+  return '...' + path.slice(-(maxLength - 3));
+};
+
 export default function HomePage() {
   const { isAuthenticated, isLoading, login, authConfigured, uiSecret, multiUserMode, oidcEnabled, proxyAuthEnabled } =
     useAuth();
@@ -664,8 +670,8 @@ export default function HomePage() {
             )}
           </div>
 
-          <div className="flex items-center gap-2">
-            <Label htmlFor="rmDir" className="whitespace-nowrap">{t("home.destination_folder")}</Label>
+          <div className="space-y-2">
+            <Label htmlFor="rmDir">{t("home.destination_folder")}</Label>
             <Select 
               value={rmDir} 
               onValueChange={setRmDir}
@@ -676,8 +682,10 @@ export default function HomePage() {
                 }
               }}
             >
-              <SelectTrigger id="rmDir" className="flex-1">
-                <SelectValue />
+              <SelectTrigger id="rmDir" className="w-full">
+                <SelectValue>
+                  {rmDir === DEFAULT_RM_DIR ? t("home.default") : truncateFromStart(rmDir)}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={DEFAULT_RM_DIR}>
@@ -694,8 +702,8 @@ export default function HomePage() {
                   </SelectItem>
                 )}
                 {rmapiPaired && folders.map((f) => (
-                  <SelectItem key={f} value={f}>
-                    {f}
+                  <SelectItem key={f} value={f} title={f}>
+                    {truncateFromStart(f)}
                   </SelectItem>
                 ))}
               </SelectContent>
