@@ -635,7 +635,9 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
       if (response.ok) {
         await fetchAPIKeys();
-        closeDeleteKeyDialog();
+        setDeleteKeyDialog({ isOpen: false, key: null });
+        setDeleteFromDetails(false);
+        setViewKey(null);
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to delete API key");

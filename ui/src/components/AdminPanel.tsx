@@ -545,7 +545,8 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
       if (response.ok) {
         await fetchUsers();
         await fetchSystemStatus();
-        closeDeleteUserDialog();
+        setDeleteUserDialog({ isOpen: false, user: null });
+        setDeleteFromDetails(false);
         setViewUser(null);
       } else {
         const errorData = await response.json();
