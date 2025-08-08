@@ -5,7 +5,7 @@ import { Button } from './ui/button'
 import { useTranslation } from 'react-i18next'
 import { LogOut } from 'lucide-react'
 
-export function LogoutButton({ className = '' }: { className?: string }) {
+export function LogoutButton({ className = '', iconOnly = false }: { className?: string, iconOnly?: boolean }) {
   const { isAuthenticated, authConfigured, logout } = useAuth()
   const { t } = useTranslation()
 
@@ -17,7 +17,7 @@ export function LogoutButton({ className = '' }: { className?: string }) {
   return (
     <Button variant="ghost" size="sm" onClick={logout} className={`flex items-center gap-2 ${className}`}>
       <LogOut className="h-4 w-4" />
-      <span className="sm:hidden lg:inline">{t('logout')}</span>
+      {!iconOnly && <span className="sm:hidden lg:inline">{t('logout')}</span>}
     </Button>
   )
 }

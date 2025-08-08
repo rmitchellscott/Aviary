@@ -28,7 +28,7 @@ export function MobileMenu({
   if (!multiUserMode) {
     return (
       <div className="flex items-center gap-2">
-        <LogoutButton />
+        <LogoutButton iconOnly />
         <LanguageSwitcher />
         <ThemeSwitcher size={24} />
       </div>
