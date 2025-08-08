@@ -4,8 +4,11 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
+	"html"
 	"html/template"
 	"net/smtp"
+	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -31,6 +34,99 @@ type EmailData struct {
 	SiteName    string
 	SiteURL     string
 	ExpiryHours int
+}
+
+var usernameRegex = regexp.MustCompile(`^[a-zA-Z0-9._-]{1,64}$`)
+
+func sanitizeUsername(username string) string {
+	username = html.UnescapeString(strings.TrimSpace(username))
+	
+	if !usernameRegex.MatchString(username) {
+		username = regexp.MustCompile(`[^a-zA-Z0-9._-]`).ReplaceAllString(username, "")
+		if len(username) > 64 {
+			username = username[:64]
+		}
+		if username == "" {
+			username = "user"
+		}
+	}
+	
+	return username
+}
+
+func validateURL(rawURL string) (string, error) {
+	if rawURL == "" {
+		return "", fmt.Errorf("empty URL")
+	}
+	
+	parsedURL, err := url.Parse(rawURL)
+	if err != nil {
+		return "", fmt.Errorf("invalid URL format: %w", err)
+	}
+	
+	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+		return "", fmt.Errorf("invalid URL scheme: %s", parsedURL.Scheme)
+	}
+	
+	if parsedURL.Host == "" {
+		return "", fmt.Errorf("missing hostname")
+	}
+	
+	return parsedURL.String(), nil
+}
+
+func validateResetToken(token string) error {
+	if token == "" {
+		return fmt.Errorf("empty reset token")
+	}
+	
+	if len(token) < 16 || len(token) > 128 {
+		return fmt.Errorf("invalid token length")
+	}
+	
+	validToken := regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)
+	if !validToken.MatchString(token) {
+		return fmt.Errorf("invalid token format")
+	}
+	
+	return nil
+}
+
+func sanitizeEmailData(data *EmailData) error {
+	data.Username = sanitizeUsername(data.Username)
+	
+	if data.ResetToken != "" {
+		if err := validateResetToken(data.ResetToken); err != nil {
+			return fmt.Errorf("invalid reset token: %w", err)
+		}
+	}
+	
+	if data.SiteURL != "" {
+		validatedURL, err := validateURL(data.SiteURL)
+		if err != nil {
+			return fmt.Errorf("invalid site URL: %w", err)
+		}
+		data.SiteURL = validatedURL
+	}
+	
+	if data.ResetURL != "" {
+		validatedURL, err := validateURL(data.ResetURL)
+		if err != nil {
+			return fmt.Errorf("invalid reset URL: %w", err)
+		}
+		data.ResetURL = validatedURL
+	}
+	
+	data.SiteName = html.EscapeString(strings.TrimSpace(data.SiteName))
+	if data.SiteName == "" {
+		data.SiteName = "Aviary"
+	}
+	
+	if data.ExpiryHours <= 0 || data.ExpiryHours > 168 {
+		data.ExpiryHours = 24
+	}
+	
+	return nil
 }
 
 // GetSMTPConfig reads SMTP configuration from environment variables
@@ -85,13 +181,21 @@ func SendPasswordResetEmail(email, username, resetToken string) error {
 		return fmt.Errorf("SMTP not configured: %w", err)
 	}
 
-	// Get site URL from environment or use default
+	if err := validateResetToken(resetToken); err != nil {
+		return fmt.Errorf("invalid reset token: %w", err)
+	}
+
 	siteURL := config.Get("SITE_URL", "")
 	if siteURL == "" {
 		siteURL = "http://localhost:8000"
 	}
+	
+	validatedSiteURL, err := validateURL(siteURL)
+	if err != nil {
+		return fmt.Errorf("invalid site URL: %w", err)
+	}
+	siteURL = validatedSiteURL
 
-	// Build reset URL
 	resetURL := fmt.Sprintf("%s/reset-password?token=%s", siteURL, resetToken)
 
 	// Get expiry hours from system settings
@@ -102,7 +206,7 @@ func SendPasswordResetEmail(email, username, resetToken string) error {
 	}
 
 	emailData := EmailData{
-		Username:    username,
+		Username:    sanitizeUsername(username),
 		ResetToken:  resetToken,
 		ResetURL:    resetURL,
 		SiteName:    "Aviary",
@@ -135,10 +239,15 @@ func SendWelcomeEmail(email, username string) error {
 		siteURL = "http://localhost:8000"
 	}
 
+	validatedSiteURL, err := validateURL(siteURL)
+	if err != nil {
+		return fmt.Errorf("invalid site URL: %w", err)
+	}
+
 	emailData := EmailData{
-		Username: username,
+		Username: sanitizeUsername(username),
 		SiteName: "Aviary",
-		SiteURL:  siteURL,
+		SiteURL:  validatedSiteURL,
 	}
 
 	subject := "Welcome to Aviary!"
