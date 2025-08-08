@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { PairingDialog } from "@/components/PairingDialog";
 import { useUserData } from "@/hooks/useUserData";
-import { useConfig } from "@/hooks/useConfig";
+import { useConfig } from "@/components/ConfigProvider";
 import { useFolderRefresh } from "@/hooks/useFolderRefresh";
 import {
   Dialog,

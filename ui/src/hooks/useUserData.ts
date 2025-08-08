@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import { useConfig } from "@/components/ConfigProvider";
 
 interface UserData {
   id: string;
@@ -20,7 +21,8 @@ interface UserData {
 }
 
 export function useUserData() {
-  const { isAuthenticated, multiUserMode } = useAuth();
+  const { isAuthenticated, multiUserMode, user: authUser } = useAuth();
+  const { config } = useConfig();
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [rmapiPaired, setRmapiPaired] = useState(false);
@@ -38,37 +40,21 @@ export function useUserData() {
         return;
       }
       
-      // First, get config to determine if we're in multi-user mode
-      const configResponse = await fetch("/api/config", {
-        credentials: "include",
-      });
-      
-      let config: any = {};
-      if (configResponse.ok) {
-        config = await configResponse.json();
+      if (!config) {
+        setLoading(false);
+        return;
       }
       
       const isMultiUserMode = config.multiUserMode;
       
       if (isMultiUserMode) {
-        // Multi-user mode: check auth status for user data and pairing
-        const response = await fetch("/api/auth/check", {
-          credentials: "include",
-        });
-
-        if (response.ok) {
-          const authData = await response.json();
-          if (authData.authenticated && authData.user) {
-            setUser(authData.user);
-            setRmapiPaired(!!authData.user.rmapi_paired);
-            
-            // Use user's RMAPI_HOST setting, or empty string for official cloud
-            setRmapiHost(authData.user.rmapi_host || "");
-          } else {
-            setUser(null);
-            setRmapiPaired(false);
-            setRmapiHost(config.rmapi_host || "");
-          }
+        // Multi-user mode: use auth user from AuthProvider
+        if (authUser) {
+          setUser(authUser);
+          setRmapiPaired(!!authUser.rmapi_paired);
+          
+          // Use user's RMAPI_HOST setting, or empty string for official cloud
+          setRmapiHost(authUser.rmapi_host || "");
         } else {
           setUser(null);
           setRmapiPaired(false);
@@ -91,8 +77,10 @@ export function useUserData() {
   };
 
   useEffect(() => {
-    fetchUserData();
-  }, [isAuthenticated]); // Re-fetch when authentication status changes
+    if (config) {
+      fetchUserData();
+    }
+  }, [isAuthenticated, authUser, config]); // Re-fetch when authentication status or config changes
 
   // Listen for changes in localStorage to sync across components
   useEffect(() => {

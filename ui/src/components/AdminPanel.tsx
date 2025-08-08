@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useUserData } from "@/hooks/useUserData";
-import { useConfig } from "@/hooks/useConfig";
+import { useConfig } from "@/components/ConfigProvider";
 import { useAuth } from "@/components/AuthProvider";
 import { UserDeleteDialog } from "@/components/UserDeleteDialog";
 import {
