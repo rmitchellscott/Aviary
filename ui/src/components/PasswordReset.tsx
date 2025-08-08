@@ -142,17 +142,15 @@ export function PasswordReset({ onBack }: PasswordResetProps) {
         
         <CardContent className="space-y-4">
           {message && (
-            <Alert variant={message.type === 'error' ? 'destructive' : 'default'}>
-              <div className="flex items-center gap-3">
-                {message.type === 'success' ? (
-                  <CheckCircle className="h-4 w-4 flex-shrink-0" />
-                ) : (
-                  <XCircle className="h-4 w-4 flex-shrink-0" />
-                )}
-                <AlertDescription className="flex-1">
-                  {message.text}
-                </AlertDescription>
-              </div>
+            <Alert variant={message.type === 'error' ? 'destructive' : 'default'} className="items-center">
+              {message.type === 'success' ? (
+                <CheckCircle className="h-4 w-4" />
+              ) : (
+                <XCircle className="h-4 w-4" />
+              )}
+              <AlertDescription>
+                {message.text}
+              </AlertDescription>
             </Alert>
           )}
 
