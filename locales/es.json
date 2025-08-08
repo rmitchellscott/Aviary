@@ -390,7 +390,7 @@
     "cards": {
       "profile_information": "Información del Perfil",
       "change_password": "Cambiar Contraseña",
-      "danger_zone": "Zona de Peligro",
+      "delete_account": "Eliminar Cuenta",
       "create_api_key": "Crear Nueva Clave API",
       "your_api_keys": "Tus Claves API"
     },
@@ -442,7 +442,7 @@
     "messages": {
       "pair_to_load_folders": "Vincular para cargar carpetas",
       "pair_help": "Vincula con reMarkable cloud para seleccionar de carpetas existentes",
-      "delete_warning_intro": "Una vez que elimines tu cuenta, no hay vuelta atrás. Esta acción es permanente y eliminará todos tus datos incluyendo:",
+      "delete_warning_intro": "Hacer clic abajo abrirá un diálogo de confirmación. Una vez confirmado, tu cuenta será eliminada permanentemente junto con todos los datos asociados. Esto incluye:",
       "remarkable_unaffected": "Tu cuenta de reMarkable Cloud y datos del dispositivo permanecerán completamente intactos.",
       "api_key_created_title": "Nueva Clave API Creada",
       "api_key_created_message": "Copia esta clave ahora - no se mostrará de nuevo:",
@@ -489,6 +489,8 @@
       "api_key": "Mi Clave API",
       "never_expires": "Nunca expira",
       "current_password": "Ingresa tu contraseña actual",
+      "old_password": "contraseñaantigua",
+      "new_password": "contraseñanueva",
       "delete_confirm": "ELIMINAR MI CUENTA",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
@@ -509,6 +511,15 @@
     "never": "Nunca",
     "tooltips": {
       "api_key_copied": "¡Copiado!"
+    },
+    "errors": {
+      "update_profile": "Error al actualizar el perfil",
+      "unpair": "Error al desvincular",
+      "passwords_mismatch": "Las contraseñas no coinciden",
+      "update_password": "Error al actualizar la contraseña",
+      "create_api_key": "Error al crear la clave API",
+      "delete_api_key": "Error al eliminar la clave API",
+      "delete_account": "Error al eliminar la cuenta"
     }
   },
   "app": {

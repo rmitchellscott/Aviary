@@ -343,7 +343,7 @@
     "cards": {
       "profile_information": "Profiilin tiedot",
       "change_password": "Vaihda salasana",
-      "danger_zone": "Vaaravyöhyke",
+      "delete_account": "Poista tili",
       "create_api_key": "Luo uusi API-avain",
       "your_api_keys": "Sinun API-avaimesi"
     },
@@ -395,7 +395,7 @@
     "messages": {
       "pair_to_load_folders": "Yhdistä ladataksesi kansiot",
       "pair_help": "Yhdistä reMarkable-pilveen valitaksesi olemassa olevista kansioista",
-      "delete_warning_intro": "Kun poistat tilisi, paluuta ei ole. Tämä toiminto on pysyvä ja poistaa kaikki tietosi mukaan lukien:",
+      "delete_warning_intro": "Alla olevaa painikketta klikkaamalla avautuu vahvistusikkuna. Kun vahvistus on annettu, tilisi poistetaan pysyvästi kaikkine siihen liittyvine tietoineen. Tämä sisältää:",
       "remarkable_unaffected": "ReMarkable Cloud -tilisi ja laitetiedot pysyvät täysin koskemattomina.",
       "api_key_created_title": "Uusi API-avain luotu",
       "api_key_created_message": "Kopioi tämä avain nyt - sitä ei näytetä uudelleen:",
@@ -442,6 +442,8 @@
       "api_key": "Minun API-avaimeni",
       "never_expires": "Ei vanhene koskaan",
       "current_password": "Syötä nykyinen salasanasi",
+      "old_password": "vanhaalasalasana",
+      "new_password": "uusisalasana",
       "delete_confirm": "POISTA TILINI",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
@@ -462,6 +464,15 @@
     "never": "Ei koskaan",
     "tooltips": {
       "api_key_copied": "Kopioitu!"
+    },
+    "errors": {
+      "update_profile": "Profiilin päivitys epäonnistui",
+      "unpair": "Yhteyden katkaiseminen epäonnistui",
+      "passwords_mismatch": "Salasanat eivät täsmää",
+      "update_password": "Salasanan päivitys epäonnistui",
+      "create_api_key": "API-avaimen luominen epäonnistui",
+      "delete_api_key": "API-avaimen poistaminen epäonnistui",
+      "delete_account": "Tilin poistaminen epäonnistui"
     }
   },
   "app": {

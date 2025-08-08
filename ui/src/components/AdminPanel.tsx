@@ -1083,7 +1083,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
           </Button>
           <Button
             size="sm"
-            variant="destructive"
+            variant="outline"
             onClick={() => openDeleteBackupDialog(job)}
           >
             <Trash2 className="h-4 w-4 sm:hidden" />
@@ -1317,7 +1317,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                   <div className="flex flex-wrap gap-2 items-start">
                     <Badge variant="secondary">{t("admin.badges.multi_user")}</Badge>
                     {systemStatus.dry_run && (
-                      <Badge variant="destructive">{t("admin.badges.dry_run")}</Badge>
+                      <Badge variant="default">{t("admin.badges.dry_run")}</Badge>
                     )}
                     {systemStatus.auth?.oidc_enabled && (
                       <Badge variant="secondary">{t("admin.badges.oidc_enabled")}</Badge>
@@ -1386,8 +1386,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         creatingUser || !newUsername || !newEmail || !newPassword
                       }
                     >
-                      <Plus className="h-4 w-4 mr-2" />
-                      {t("admin.actions.create_user")}
+                      {creatingUser ? t("register.creating") : t("admin.actions.create_user")}
                     </Button>
                   </div>
                 </CardContent>
@@ -1539,7 +1538,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                               {!isCurrentUser(user) && (
                                 <Button
                                   size="sm"
-                                  variant="destructive"
+                                  variant="outline"
                                   onClick={() => openDeleteUserDialog(user)}
                                   className="hidden lg:inline-flex whitespace-nowrap"
                                 >
@@ -1771,7 +1770,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                       disabled={creatingBackup}
                       className="w-full"
                     >
-                      <Database className="h-4 w-4 mr-2" />
                       {creatingBackup ? t("admin.backup.creating_job") : t("admin.backup.create_backup")}
                     </Button>
                     
@@ -1791,7 +1789,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                           disabled={analyzingBackup || uploadPhase !== 'idle'}
                           className="w-full"
                         >
-                          <Database className="h-4 w-4 mr-2" />
                           {uploadPhase === 'uploading' ? t("admin.loading_states.uploading") : 
                            uploadPhase === 'extracting' ? t("admin.loading_states.extracting") :
                            uploadPhase === 'validating' ? t("admin.loading_states.validating") :
@@ -1813,7 +1810,6 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                         disabled={restoringBackup}
                         className="w-full"
                       >
-                        <Database className="h-4 w-4 mr-2" />
                         {restoringBackup ? t("admin.loading_states.restoring") : t("admin.actions.restore_backup")}
                       </Button>
                     )}
@@ -2053,7 +2049,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             <AlertDialogAction
               onClick={confirmDatabaseRestore}
               disabled={restoringBackup}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              variant="destructive"
             >
               {restoringBackup ? t("admin.loading_states.restoring") : t("admin.actions.restore_database")}
             </AlertDialogAction>
@@ -2226,7 +2222,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
             <AlertDialogAction
               onClick={confirmDeleteBackup}
               disabled={deleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              variant="destructive"
             >
               {deleting ? t("admin.loading_states.deleting") : t("admin.actions.delete")}
             </AlertDialogAction>

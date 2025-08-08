@@ -343,7 +343,7 @@
     "cards": {
       "profile_information": "Profielinformatie",
       "change_password": "Wachtwoord wijzigen",
-      "danger_zone": "Gevarenzone",
+      "delete_account": "Account verwijderen",
       "create_api_key": "Nieuwe API-sleutel maken",
       "your_api_keys": "Jouw API-sleutels"
     },
@@ -395,7 +395,7 @@
     "messages": {
       "pair_to_load_folders": "Koppel om mappen te laden",
       "pair_help": "Koppel met reMarkable cloud om te selecteren uit bestaande mappen",
-      "delete_warning_intro": "Zodra je je account verwijdert, is er geen weg terug. Deze actie is permanent en zal al je data verwijderen inclusief:",
+      "delete_warning_intro": "Hieronder klikken opent een bevestigingsdialoog. Eenmaal bevestigd, wordt je account permanent verwijderd samen met alle gerelateerde gegevens. Dit omvat:",
       "remarkable_unaffected": "Je reMarkable Cloud-account en apparaatdata blijven volledig onaangetast.",
       "api_key_created_title": "Nieuwe API-sleutel aangemaakt",
       "api_key_created_message": "Kopieer deze sleutel nu - deze wordt niet opnieuw getoond:",
@@ -442,6 +442,8 @@
       "api_key": "Mijn API-sleutel",
       "never_expires": "Verloopt nooit",
       "current_password": "Voer je huidige wachtwoord in",
+      "old_password": "oudwachtwoord",
+      "new_password": "nieuwwachtwoord",
       "delete_confirm": "VERWIJDER MIJN ACCOUNT",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
@@ -462,6 +464,15 @@
     "never": "Nooit",
     "tooltips": {
       "api_key_copied": "Gekopieerd!"
+    },
+    "errors": {
+      "update_profile": "Profiel bijwerken mislukt",
+      "unpair": "Ontkoppelen mislukt",
+      "passwords_mismatch": "Wachtwoorden komen niet overeen",
+      "update_password": "Wachtwoord bijwerken mislukt",
+      "create_api_key": "API-sleutel maken mislukt",
+      "delete_api_key": "API-sleutel verwijderen mislukt",
+      "delete_account": "Account verwijderen mislukt"
     }
   },
   "app": {

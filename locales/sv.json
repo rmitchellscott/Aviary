@@ -343,7 +343,7 @@
     "cards": {
       "profile_information": "Profilinformation",
       "change_password": "Ändra lösenord",
-      "danger_zone": "Riskzon",
+      "delete_account": "Radera konto",
       "create_api_key": "Skapa ny API-nyckel",
       "your_api_keys": "Dina API-nycklar"
     },
@@ -395,7 +395,7 @@
     "messages": {
       "pair_to_load_folders": "Para för att ladda mappar",
       "pair_help": "Para med reMarkable-molnet för att välja från befintliga mappar",
-      "delete_warning_intro": "När du raderar ditt konto finns det ingen återvändo. Denna åtgärd är permanent och kommer att ta bort all din data inklusive:",
+      "delete_warning_intro": "Att klicka nedan kommer att öppna en bekräftelsedialog. När den bekräftas kommer ditt konto att raderas permanent tillsammans med all tillhörande data. Detta inkluderar:",
       "remarkable_unaffected": "Ditt reMarkable Cloud-konto och enhetsdata kommer att förbli helt opåverkat.",
       "api_key_created_title": "Ny API-nyckel skapad",
       "api_key_created_message": "Kopiera denna nyckel nu - den kommer inte att visas igen:",
@@ -442,6 +442,8 @@
       "api_key": "Min API-nyckel",
       "never_expires": "Upphör aldrig",
       "current_password": "Ange ditt nuvarande lösenord",
+      "old_password": "gammaltlösenord",
+      "new_password": "nyttlösenord",
       "delete_confirm": "RADERA MITT KONTO",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
@@ -462,6 +464,15 @@
     "never": "Aldrig",
     "tooltips": {
       "api_key_copied": "Kopierad!"
+    },
+    "errors": {
+      "update_profile": "Misslyckades att uppdatera profil",
+      "unpair": "Misslyckades att koppla från",
+      "passwords_mismatch": "Lösenorden stämmer inte överens",
+      "update_password": "Misslyckades att uppdatera lösenord",
+      "create_api_key": "Misslyckades att skapa API-nyckel",
+      "delete_api_key": "Misslyckades att radera API-nyckel",
+      "delete_account": "Misslyckades att radera konto"
     }
   },
   "app": {

@@ -390,7 +390,7 @@
     "cards": {
       "profile_information": "Informazioni Profilo",
       "change_password": "Cambia Password",
-      "danger_zone": "Zona Pericolosa",
+      "delete_account": "Elimina Account",
       "create_api_key": "Crea Nuova Chiave API",
       "your_api_keys": "Le Tue Chiavi API"
     },
@@ -442,7 +442,7 @@
     "messages": {
       "pair_to_load_folders": "Collega per caricare cartelle",
       "pair_help": "Collega con il cloud reMarkable per selezionare tra cartelle esistenti",
-      "delete_warning_intro": "Una volta eliminato il tuo account, non si può tornare indietro. Questa azione è permanente e rimuoverà tutti i tuoi dati inclusi:",
+      "delete_warning_intro": "Cliccando qui sotto si aprirà una finestra di conferma. Una volta confermata, il tuo account verrà eliminato permanentemente insieme a tutti i dati associati. Questo include:",
       "remarkable_unaffected": "Il tuo account reMarkable Cloud e i dati del dispositivo rimarranno completamente inalterati.",
       "api_key_created_title": "Nuova Chiave API Creata",
       "api_key_created_message": "Copia questa chiave ora - non verrà mostrata di nuovo:",
@@ -489,6 +489,8 @@
       "api_key": "La Mia Chiave API",
       "never_expires": "Non scade mai",
       "current_password": "Inserisci la tua password attuale",
+      "old_password": "vecchiapassword",
+      "new_password": "nuovapassword",
       "delete_confirm": "ELIMINA IL MIO ACCOUNT",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
@@ -509,6 +511,15 @@
     "never": "Mai",
     "tooltips": {
       "api_key_copied": "Copiato!"
+    },
+    "errors": {
+      "update_profile": "Impossibile aggiornare il profilo",
+      "unpair": "Impossibile scollegare",
+      "passwords_mismatch": "Le password non corrispondono",
+      "update_password": "Impossibile aggiornare la password",
+      "create_api_key": "Impossibile creare la chiave API",
+      "delete_api_key": "Impossibile eliminare la chiave API",
+      "delete_account": "Impossibile eliminare l'account"
     }
   },
   "app": {

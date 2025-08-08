@@ -343,7 +343,7 @@
     "cards": {
       "profile_information": "Informações do Perfil",
       "change_password": "Alterar Senha",
-      "danger_zone": "Zona de Perigo",
+      "delete_account": "Excluir Conta",
       "create_api_key": "Criar Nova Chave API",
       "your_api_keys": "Suas Chaves API"
     },
@@ -395,7 +395,7 @@
     "messages": {
       "pair_to_load_folders": "Emparelhe para carregar pastas",
       "pair_help": "Emparelhe com a nuvem reMarkable para selecionar de pastas existentes",
-      "delete_warning_intro": "Uma vez que você excluir sua conta, não há volta. Esta ação é permanente e removerá todos os seus dados, incluindo:",
+      "delete_warning_intro": "Clicar abaixo abrirá um diálogo de confirmação. Uma vez confirmado, sua conta será permanentemente excluída junto com todos os dados associados. Isso inclui:",
       "remarkable_unaffected": "Sua conta reMarkable Cloud e dados do dispositivo permanecerão completamente inalterados.",
       "api_key_created_title": "Nova Chave API Criada",
       "api_key_created_message": "Copie esta chave agora - ela não será mostrada novamente:",
@@ -442,6 +442,8 @@
       "api_key": "Minha Chave API",
       "never_expires": "Nunca expira",
       "current_password": "Digite sua senha atual",
+      "old_password": "senhaantiga",
+      "new_password": "senhanova",
       "delete_confirm": "EXCLUIR MINHA CONTA",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
@@ -462,6 +464,15 @@
     "never": "Nunca",
     "tooltips": {
       "api_key_copied": "Copiado!"
+    },
+    "errors": {
+      "update_profile": "Falha ao atualizar perfil",
+      "unpair": "Falha ao desemparelhar",
+      "passwords_mismatch": "As senhas não coincidem",
+      "update_password": "Falha ao atualizar senha",
+      "create_api_key": "Falha ao criar chave API",
+      "delete_api_key": "Falha ao excluir chave API",
+      "delete_account": "Falha ao excluir conta"
     }
   },
   "app": {

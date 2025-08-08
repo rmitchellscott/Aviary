@@ -343,7 +343,7 @@
     "cards": {
       "profile_information": "프로필 정보",
       "change_password": "비밀번호 변경",
-      "danger_zone": "위험 구역",
+      "delete_account": "계정 삭제",
       "create_api_key": "새 API 키 생성",
       "your_api_keys": "내 API 키"
     },
@@ -395,7 +395,7 @@
     "messages": {
       "pair_to_load_folders": "폴더를 로드하기 위해 연결",
       "pair_help": "기존 폴더에서 선택하기 위해 reMarkable 클라우드와 연결",
-      "delete_warning_intro": "계정을 삭제하면 되돌릴 수 없습니다. 이 작업은 영구적이며 다음을 포함한 모든 데이터를 제거합니다:",
+      "delete_warning_intro": "아래를 클릭하면 확인 대화상자가 열립니다. 확인하면 계정과 관련된 모든 데이터가 영구적으로 삭제됩니다. 여기에는 다음이 포함됩니다:",
       "remarkable_unaffected": "reMarkable Cloud 계정과 기기 데이터는 전혀 영향을 받지 않습니다.",
       "api_key_created_title": "새 API 키 생성됨",
       "api_key_created_message": "지금 이 키를 복사하세요 - 다시 표시되지 않습니다:",
@@ -442,6 +442,8 @@
       "api_key": "내 API 키",
       "never_expires": "만료되지 않음",
       "current_password": "현재 비밀번호를 입력하세요",
+      "old_password": "기존비밀번호",
+      "new_password": "새비밀번호",
       "delete_confirm": "내 계정 삭제",
       "page_resolution": "1404x1872",
       "page_dpi": "226",
@@ -462,6 +464,15 @@
     "never": "없음",
     "tooltips": {
       "api_key_copied": "복사됨!"
+    },
+    "errors": {
+      "update_profile": "프로필 업데이트 실패",
+      "unpair": "연결 해제 실패",
+      "passwords_mismatch": "비밀번호가 일치하지 않습니다",
+      "update_password": "비밀번호 업데이트 실패",
+      "create_api_key": "API 키 생성 실패",
+      "delete_api_key": "API 키 삭제 실패",
+      "delete_account": "계정 삭제 실패"
     }
   },
   "app": {
