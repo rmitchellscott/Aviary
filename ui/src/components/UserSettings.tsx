@@ -1439,7 +1439,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
               <div className="lg:hidden flex flex-col gap-2 pt-4 border-t">
                 <Button
                   size="sm"
-                  variant="destructive"
+                  variant="outline"
                   onClick={() => {
                     setDeleteFromDetails(true);
                     openDeleteKeyDialog(viewKey);

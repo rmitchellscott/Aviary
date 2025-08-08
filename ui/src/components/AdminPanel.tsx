@@ -2149,7 +2149,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 {!isCurrentUser(viewUser) && (
                   <Button
                     size="sm"
-                    variant="destructive"
+                    variant="outline"
                     onClick={() => {
                       setDeleteFromDetails(true);
                       openDeleteUserDialog(viewUser);
