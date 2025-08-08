@@ -141,7 +141,7 @@ func (s *UserService) UpdateUserPassword(userID uuid.UUID, newPassword string) e
 // GeneratePasswordResetToken generates a reset token for password recovery
 func (s *UserService) GeneratePasswordResetToken(email string) (string, error) {
 	var user User
-	if err := s.db.Where("email = ? AND is_active = ?", email, true).First(&user).Error; err != nil {
+	if err := s.db.Where("LOWER(email) = LOWER(?) AND is_active = ?", email, true).First(&user).Error; err != nil {
 		return "", errors.New("user not found")
 	}
 
