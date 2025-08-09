@@ -15,6 +15,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/manager"
+	"github.com/rmitchellscott/aviary/internal/security"
 )
 
 const (
@@ -147,7 +148,13 @@ func DownloadPDFForUser(urlStr string, tmp bool, prefix string, userID uuid.UUID
 	}
 	
 	// Use the original filename in the temp directory
-	outPath := filepath.Join(tempDir, name)
+	// Validate and clean the filename to prevent path injection attacks
+	cleanName, err := security.ValidateAndCleanFilename(name)
+	if err != nil {
+		os.RemoveAll(tempDir)
+		return "", fmt.Errorf("invalid filename %q: %w", name, err)
+	}
+	outPath := filepath.Join(tempDir, cleanName)
 	f, err := os.Create(outPath)
 	if err != nil {
 		os.RemoveAll(tempDir)
