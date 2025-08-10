@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rmitchellscott/aviary/internal/logging"
+	"github.com/rmitchellscott/aviary/internal/security"
 )
 
 func StreamToResponse(ctx context.Context, c *gin.Context, storageKey, filename, contentType string) error {
@@ -46,6 +47,9 @@ func StreamToResponse(ctx context.Context, c *gin.Context, storageKey, filename,
 }
 
 func CopyFileToStorage(ctx context.Context, sourcePath, storageKey string) error {
+	if err := security.ValidateExistingFilePath(sourcePath); err != nil {
+		return fmt.Errorf("invalid source path %s: %w", sourcePath, err)
+	}
 	backend := GetStorageBackend()
 	sourceFile, err := os.Open(sourcePath)
 	if err != nil {

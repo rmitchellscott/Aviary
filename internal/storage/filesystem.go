@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/rmitchellscott/aviary/internal/logging"
+	"github.com/rmitchellscott/aviary/internal/security"
 )
 
 type FilesystemBackend struct {
@@ -23,7 +24,10 @@ func NewFilesystemBackend(basePath string) *FilesystemBackend {
 }
 
 func (fs *FilesystemBackend) Put(ctx context.Context, key string, data io.Reader) error {
-	filePath := fs.keyToPath(key)
+	filePath, err := fs.keyToPath(key)
+	if err != nil {
+		return fmt.Errorf("invalid storage key %s: %w", key, err)
+	}
 	dirPath := filepath.Dir(filePath)
 	if err := os.MkdirAll(dirPath, 0755); err != nil {
 		logging.Logf("[STORAGE] ERROR: Failed to create directory %s: %v", dirPath, err)
@@ -47,7 +51,10 @@ func (fs *FilesystemBackend) Put(ctx context.Context, key string, data io.Reader
 }
 
 func (fs *FilesystemBackend) Get(ctx context.Context, key string) (io.ReadCloser, error) {
-	filePath := fs.keyToPath(key)
+	filePath, err := fs.keyToPath(key)
+	if err != nil {
+		return nil, fmt.Errorf("invalid storage key %s: %w", key, err)
+	}
 
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -61,9 +68,12 @@ func (fs *FilesystemBackend) Get(ctx context.Context, key string) (io.ReadCloser
 }
 
 func (fs *FilesystemBackend) Delete(ctx context.Context, key string) error {
-	filePath := fs.keyToPath(key)
+	filePath, err := fs.keyToPath(key)
+	if err != nil {
+		return fmt.Errorf("invalid storage key %s: %w", key, err)
+	}
 
-	err := os.Remove(filePath)
+	err = os.Remove(filePath)
 	if err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("failed to delete %s: %w", key, err)
 	}
@@ -73,13 +83,16 @@ func (fs *FilesystemBackend) Delete(ctx context.Context, key string) error {
 }
 
 func (fs *FilesystemBackend) List(ctx context.Context, prefix string) ([]string, error) {
-	prefixPath := fs.keyToPath(prefix)
+	prefixPath, err := fs.keyToPath(prefix)
+	if err != nil {
+		return nil, fmt.Errorf("invalid storage prefix %s: %w", prefix, err)
+	}
 	var keys []string
 	if _, err := os.Stat(prefixPath); os.IsNotExist(err) {
 		return keys, nil
 	}
 
-	err := filepath.Walk(prefixPath, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(prefixPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -104,9 +117,12 @@ func (fs *FilesystemBackend) List(ctx context.Context, prefix string) ([]string,
 }
 
 func (fs *FilesystemBackend) Exists(ctx context.Context, key string) (bool, error) {
-	filePath := fs.keyToPath(key)
+	filePath, err := fs.keyToPath(key)
+	if err != nil {
+		return false, fmt.Errorf("invalid storage key %s: %w", key, err)
+	}
 
-	_, err := os.Stat(filePath)
+	_, err = os.Stat(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return false, nil
@@ -118,8 +134,14 @@ func (fs *FilesystemBackend) Exists(ctx context.Context, key string) (bool, erro
 }
 
 func (fs *FilesystemBackend) Copy(ctx context.Context, srcKey, dstKey string) error {
-	srcPath := fs.keyToPath(srcKey)
-	dstPath := fs.keyToPath(dstKey)
+	srcPath, err := fs.keyToPath(srcKey)
+	if err != nil {
+		return fmt.Errorf("invalid source storage key %s: %w", srcKey, err)
+	}
+	dstPath, err := fs.keyToPath(dstKey)
+	if err != nil {
+		return fmt.Errorf("invalid destination storage key %s: %w", dstKey, err)
+	}
 	if err := os.MkdirAll(filepath.Dir(dstPath), 0755); err != nil {
 		return fmt.Errorf("failed to create directory for %s: %w", dstKey, err)
 	}
@@ -146,13 +168,16 @@ func (fs *FilesystemBackend) Copy(ctx context.Context, srcKey, dstKey string) er
 }
 
 func (fs *FilesystemBackend) ListWithInfo(ctx context.Context, prefix string) ([]StorageInfo, error) {
-	prefixPath := fs.keyToPath(prefix)
+	prefixPath, err := fs.keyToPath(prefix)
+	if err != nil {
+		return nil, fmt.Errorf("invalid storage prefix %s: %w", prefix, err)
+	}
 	var infos []StorageInfo
 	if _, err := os.Stat(prefixPath); os.IsNotExist(err) {
 		return infos, nil
 	}
 
-	err := filepath.Walk(prefixPath, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(prefixPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -181,7 +206,10 @@ func (fs *FilesystemBackend) ListWithInfo(ctx context.Context, prefix string) ([
 }
 
 func (fs *FilesystemBackend) GetInfo(ctx context.Context, key string) (*StorageInfo, error) {
-	filePath := fs.keyToPath(key)
+	filePath, err := fs.keyToPath(key)
+	if err != nil {
+		return nil, fmt.Errorf("invalid storage key %s: %w", key, err)
+	}
 
 	info, err := os.Stat(filePath)
 	if err != nil {
@@ -198,8 +226,11 @@ func (fs *FilesystemBackend) GetInfo(ctx context.Context, key string) (*StorageI
 	}, nil
 }
 
-func (fs *FilesystemBackend) keyToPath(key string) string {
-	return filepath.Join(fs.basePath, filepath.FromSlash(key))
+func (fs *FilesystemBackend) keyToPath(key string) (string, error) {
+	if err := security.ValidateStorageKey(key); err != nil {
+		return "", err
+	}
+	return filepath.Join(fs.basePath, filepath.FromSlash(key)), nil
 }
 
 func (fs *FilesystemBackend) pathToKey(path string) string {

@@ -26,6 +26,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/downloader"
 	"github.com/rmitchellscott/aviary/internal/jobs"
 	"github.com/rmitchellscott/aviary/internal/manager"
+	"github.com/rmitchellscott/aviary/internal/security"
 	"github.com/rmitchellscott/aviary/internal/storage"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -340,19 +341,22 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 	}
 
 	// 2) If "Body" is already a valid local file path, skip download.
-	if fi, statErr := os.Stat(body); statErr == nil && !fi.IsDir() {
-		localPath = body
-		manager.Logf("processPDF: using local file path %q, skipping download", localPath)
-		jobStore.UpdateWithOperation(jobID, "Running", "backend.status.using_uploaded_file", nil, "processing")
-		// Ensure we delete this file (even on error) once we're done
-		defer func() {
-			// Only attempt removal if the file still exists
-			if _, statErr2 := os.Stat(localPath); statErr2 == nil {
-				if cleanupErr = os.Remove(localPath); cleanupErr != nil {
-					manager.Logf("⚠️ cleanup warning (on exit): could not remove %q: %v", localPath, cleanupErr)
+	// First validate the path to prevent path injection attacks
+	if err := security.ValidateExistingFilePath(body); err == nil {
+		if fi, statErr := os.Stat(body); statErr == nil && !fi.IsDir() {
+			localPath = body
+			manager.Logf("processPDF: using local file path %q, skipping download", localPath)
+			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.using_uploaded_file", nil, "processing")
+			// Ensure we delete this file (even on error) once we're done
+			defer func() {
+				// Only attempt removal if the file still exists
+				if _, statErr2 := os.Stat(localPath); statErr2 == nil {
+					if cleanupErr = os.Remove(localPath); cleanupErr != nil {
+						manager.Logf("⚠️ cleanup warning (on exit): could not remove %q: %v", localPath, cleanupErr)
+					}
 				}
-			}
-		}()
+			}()
+		}
 	} else {
 		// 2) Otherwise, extract a URL and download to a temp or permanent location.
 		match := urlRegex.FindString(body)
@@ -831,6 +835,13 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 	var filePaths []string
 	if err := json.Unmarshal([]byte(pathsJSON), &filePaths); err != nil {
 		return "backend.status.internal_error", nil, fmt.Errorf("failed to parse file paths: %w", err)
+	}
+	
+	// Validate all file paths to prevent path injection attacks
+	for i, filePath := range filePaths {
+		if err := security.ValidateFilePath(filePath); err != nil {
+			return "backend.status.internal_error", nil, fmt.Errorf("invalid file path at index %d: %w", i, err)
+		}
 	}
 
 	var (
