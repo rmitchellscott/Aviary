@@ -42,6 +42,15 @@ func isConflictError(err error) bool {
 		   strings.Contains(errStr, "error: entry already exists")
 }
 
+// secureCleanupPaths safely removes all files in the provided path list
+func secureCleanupPaths(paths []string) {
+	for _, pathStr := range paths {
+		if securePath, err := security.NewSecurePathFromExisting(pathStr); err == nil {
+			security.SafeRemove(securePath)
+		}
+	}
+}
+
 // keyToMessage converts i18n keys to human-readable messages for logging
 func keyToMessage(key string) string {
 	switch key {
@@ -342,16 +351,16 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 
 	// 2) If "Body" is already a valid local file path, skip download.
 	// First validate the path to prevent path injection attacks
-	if err := security.ValidateExistingFilePath(body); err == nil {
-		if fi, statErr := os.Stat(body); statErr == nil && !fi.IsDir() {
+	if secureBodyPath, err := security.NewSecurePathFromExisting(body); err == nil {
+		if fi, statErr := security.SafeStat(secureBodyPath); statErr == nil && !fi.IsDir() {
 			localPath = body
 			manager.Logf("processPDF: using local file path %q, skipping download", localPath)
 			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.using_uploaded_file", nil, "processing")
 			// Ensure we delete this file (even on error) once we're done
 			defer func() {
 				// Only attempt removal if the file still exists
-				if _, statErr2 := os.Stat(localPath); statErr2 == nil {
-					if cleanupErr = os.Remove(localPath); cleanupErr != nil {
+				if security.SafeStatExists(secureBodyPath) {
+					if cleanupErr = security.SafeRemove(secureBodyPath); cleanupErr != nil {
 						manager.Logf("⚠️ cleanup warning (on exit): could not remove %q: %v", localPath, cleanupErr)
 					}
 				}
@@ -374,9 +383,11 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		// Ensure we delete this file (even on error) once we're done
 		defer func() {
 			// Only attempt removal if the file still exists
-			if _, statErr2 := os.Stat(localPath); statErr2 == nil {
-				if cleanupErr = os.Remove(localPath); cleanupErr != nil {
-					manager.Logf("⚠️ cleanup warning (on exit): could not remove %q: %v", localPath, cleanupErr)
+			if secureLocalPath, pathErr := security.NewSecurePathFromExisting(localPath); pathErr == nil {
+				if security.SafeStatExists(secureLocalPath) {
+					if cleanupErr = security.SafeRemove(secureLocalPath); cleanupErr != nil {
+						manager.Logf("⚠️ cleanup warning (on exit): could not remove %q: %v", localPath, cleanupErr)
+					}
 				}
 			}
 		}()
@@ -923,9 +934,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 			}
 			if convErr != nil {
 				// Clean up any processed files before returning error
-				for _, path := range cleanupPaths {
-					os.Remove(path)
-				}
+				secureCleanupPaths(cleanupPaths)
 				return "backend.status.conversion_error", nil, convErr
 			}
 			cleanupPaths = append(cleanupPaths, pdfPath)
@@ -953,9 +962,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 			})
 			if compErr != nil {
 				// Clean up any processed files before returning error
-				for _, path := range cleanupPaths {
-					os.Remove(path)
-				}
+				secureCleanupPaths(cleanupPaths)
 				return "backend.status.compress_error", nil, compErr
 			}
 
@@ -963,17 +970,19 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 			processedPages += expectedPages
 
 			// Remove uncompressed version
-			os.Remove(filePath)
+			if secureFilePath, err := security.NewSecurePathFromExisting(filePath); err == nil {
+				security.SafeRemove(secureFilePath)
+			}
 			cleanupPaths = append(cleanupPaths, compressedPath)
 			
 			// Rename compressed file to remove "_compressed" suffix (to match single file flow)
 			origPath := strings.TrimSuffix(compressedPath, "_compressed.pdf") + ".pdf"
-			if err := os.Rename(compressedPath, origPath); err != nil {
+			secureCompressedPath, compErr := security.NewSecurePathFromExisting(compressedPath)
+			secureOrigPath, origErr := security.NewSecurePathFromExisting(origPath)
+			if compErr != nil || origErr != nil || security.SafeRename(secureCompressedPath, secureOrigPath) != nil {
 				// Clean up any processed files before returning error
-				for _, path := range cleanupPaths {
-					os.Remove(path)
-				}
-				return "backend.status.rename_error", nil, err
+				secureCleanupPaths(cleanupPaths)
+				return "backend.status.rename_error", nil, fmt.Errorf("failed to rename compressed file")
 			}
 			
 			// Update cleanup paths and file path
@@ -996,9 +1005,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 		remoteName, err := manager.SimpleUpload(filePath, rmDir, dbUser, requestConflictResolution, requestCoverpage)
 		if err != nil {
 			// Clean up any processed files before returning error
-			for _, path := range cleanupPaths {
-				os.Remove(path)
-			}
+			secureCleanupPaths(cleanupPaths)
 			if isConflictError(err) {
 				return "backend.status.conflict_entry_exists", map[string]string{
 					"conflict_resolution": "settings.labels.conflict_resolution",
@@ -1020,11 +1027,12 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 		}
 	}
 
-	// Clean up all temporary files
 	for _, path := range cleanupPaths {
-		if _, statErr := os.Stat(path); statErr == nil {
-			if err := os.Remove(path); err != nil {
-				manager.Logf("⚠️ cleanup warning: could not remove %q: %v", path, err)
+		if securePath, err := security.NewSecurePathFromExisting(path); err == nil {
+			if security.SafeStatExists(securePath) {
+				if err := security.SafeRemove(securePath); err != nil {
+					manager.Logf("⚠️ cleanup warning: could not remove %q: %v", path, err)
+				}
 			}
 		}
 	}

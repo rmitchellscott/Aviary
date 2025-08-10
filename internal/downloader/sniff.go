@@ -7,11 +7,16 @@ import (
 	"strings"
 
 	"github.com/gabriel-vasile/mimetype"
+	"github.com/rmitchellscott/aviary/internal/security"
 )
 
 // SniffMime fetches the first few bytes of urlStr and returns the detected MIME type.
 // It uses the Content-Type header as a fallback if detection fails.
 func SniffMime(urlStr string) (string, error) {
+	if err := security.ValidateURL(urlStr); err != nil {
+		return "", fmt.Errorf("URL validation failed: %w", err)
+	}
+
 	req, err := http.NewRequest("GET", urlStr, nil)
 	if err != nil {
 		return "", fmt.Errorf("creating request: %w", err)

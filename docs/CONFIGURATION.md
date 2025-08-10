@@ -50,6 +50,22 @@ This is particularly useful when using Docker secrets, Kubernetes secrets, or ot
 
 For more rmapi-specific configuration, see [their documentation](https://github.com/ddvk/rmapi?tab=readme-ov-file#environment-variables).
 
+## Security Configuration
+
+| Variable                 | Required? | Default | Description |
+|--------------------------|-----------|---------|-------------|
+| BLOCK_PRIVATE_IPS        | No        | false   | Set to `true` to block URLs pointing to private/local IP addresses (RFC1918, loopback, link-local) |
+| BLOCKED_DOMAINS          | No        |         | Comma-separated list of domains to block (e.g., `internal.corp,local.net`) |
+
+### Security Configuration Notes
+
+- **BLOCK_PRIVATE_IPS**: When enabled, prevents Server-Side Request Forgery (SSRF) attacks by blocking URLs that resolve to:
+  - Private IPv4 ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+  - Loopback addresses: 127.0.0.0/8, ::1
+  - Link-local addresses: 169.254.0.0/16, fe80::/10
+  - Other special-use addresses
+- **BLOCKED_DOMAINS**: Blocks specific domains and their subdomains. For example, setting `BLOCKED_DOMAINS=example.com` will block both `example.com` and `*.example.com`
+
 ## Multi-User Mode Configuration
 
 | Variable                 | Required? | Default | Description |

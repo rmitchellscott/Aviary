@@ -90,6 +90,11 @@ func DownloadPDF(urlStr string, tmp bool, prefix string, progress func(done, tot
 // Archival to storage backend happens later in the pipeline.
 // progress is an optional callback receiving bytes downloaded and total bytes.
 func DownloadPDFForUser(urlStr string, tmp bool, prefix string, userID uuid.UUID, progress func(done, total int64)) (string, error) {
+	// Validate URL before attempting download
+	if err := security.ValidateURL(urlStr); err != nil {
+		return "", fmt.Errorf("URL validation failed: %w", err)
+	}
+
 	// Sanitize prefix before using it in any paths
 	var err error
 	prefix, err = manager.SanitizePrefix(prefix)

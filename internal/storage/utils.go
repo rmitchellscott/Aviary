@@ -47,11 +47,12 @@ func StreamToResponse(ctx context.Context, c *gin.Context, storageKey, filename,
 }
 
 func CopyFileToStorage(ctx context.Context, sourcePath, storageKey string) error {
-	if err := security.ValidateExistingFilePath(sourcePath); err != nil {
+	secureSourcePath, err := security.NewSecurePathFromExisting(sourcePath)
+	if err != nil {
 		return fmt.Errorf("invalid source path %s: %w", sourcePath, err)
 	}
 	backend := GetStorageBackend()
-	sourceFile, err := os.Open(sourcePath)
+	sourceFile, err := security.SafeOpen(secureSourcePath)
 	if err != nil {
 		return fmt.Errorf("failed to open source file %s: %w", sourcePath, err)
 	}

@@ -24,26 +24,26 @@ func NewFilesystemBackend(basePath string) *FilesystemBackend {
 }
 
 func (fs *FilesystemBackend) Put(ctx context.Context, key string, data io.Reader) error {
-	filePath, err := fs.keyToPath(key)
+	securePath, err := fs.keyToPath(key)
 	if err != nil {
 		return fmt.Errorf("invalid storage key %s: %w", key, err)
 	}
-	dirPath := filepath.Dir(filePath)
-	if err := os.MkdirAll(dirPath, 0755); err != nil {
-		logging.Logf("[STORAGE] ERROR: Failed to create directory %s: %v", dirPath, err)
+	dirPath := securePath.Dir()
+	if err := security.SafeMkdirAll(dirPath, 0755); err != nil {
+		logging.Logf("[STORAGE] ERROR: Failed to create directory %s: %v", dirPath.String(), err)
 		return fmt.Errorf("failed to create directory for %s: %w", key, err)
 	}
 
-	file, err := os.Create(filePath)
+	file, err := security.SafeCreate(securePath)
 	if err != nil {
-		logging.Logf("[STORAGE] ERROR: Failed to create file %s: %v", filePath, err)
+		logging.Logf("[STORAGE] ERROR: Failed to create file %s: %v", securePath.String(), err)
 		return fmt.Errorf("failed to create file %s: %w", key, err)
 	}
 	defer file.Close()
 
 	_, err = io.Copy(file, data)
 	if err != nil {
-		logging.Logf("[STORAGE] ERROR: Failed to write data to %s: %v", filePath, err)
+		logging.Logf("[STORAGE] ERROR: Failed to write data to %s: %v", securePath.String(), err)
 		return fmt.Errorf("failed to write data to %s: %w", key, err)
 	}
 
@@ -51,12 +51,12 @@ func (fs *FilesystemBackend) Put(ctx context.Context, key string, data io.Reader
 }
 
 func (fs *FilesystemBackend) Get(ctx context.Context, key string) (io.ReadCloser, error) {
-	filePath, err := fs.keyToPath(key)
+	securePath, err := fs.keyToPath(key)
 	if err != nil {
 		return nil, fmt.Errorf("invalid storage key %s: %w", key, err)
 	}
 
-	file, err := os.Open(filePath)
+	file, err := security.SafeOpen(securePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, fmt.Errorf("key not found: %s", key)
@@ -68,12 +68,12 @@ func (fs *FilesystemBackend) Get(ctx context.Context, key string) (io.ReadCloser
 }
 
 func (fs *FilesystemBackend) Delete(ctx context.Context, key string) error {
-	filePath, err := fs.keyToPath(key)
+	securePath, err := fs.keyToPath(key)
 	if err != nil {
 		return fmt.Errorf("invalid storage key %s: %w", key, err)
 	}
 
-	err = os.Remove(filePath)
+	err = security.SafeRemoveIfExists(securePath)
 	if err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("failed to delete %s: %w", key, err)
 	}
@@ -83,10 +83,11 @@ func (fs *FilesystemBackend) Delete(ctx context.Context, key string) error {
 }
 
 func (fs *FilesystemBackend) List(ctx context.Context, prefix string) ([]string, error) {
-	prefixPath, err := fs.keyToPath(prefix)
+	securePrefix, err := fs.keyToPath(prefix)
 	if err != nil {
 		return nil, fmt.Errorf("invalid storage prefix %s: %w", prefix, err)
 	}
+	prefixPath := securePrefix.String()
 	var keys []string
 	if _, err := os.Stat(prefixPath); os.IsNotExist(err) {
 		return keys, nil
@@ -117,12 +118,12 @@ func (fs *FilesystemBackend) List(ctx context.Context, prefix string) ([]string,
 }
 
 func (fs *FilesystemBackend) Exists(ctx context.Context, key string) (bool, error) {
-	filePath, err := fs.keyToPath(key)
+	securePath, err := fs.keyToPath(key)
 	if err != nil {
 		return false, fmt.Errorf("invalid storage key %s: %w", key, err)
 	}
 
-	_, err = os.Stat(filePath)
+	_, err = security.SafeStat(securePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return false, nil
@@ -134,25 +135,26 @@ func (fs *FilesystemBackend) Exists(ctx context.Context, key string) (bool, erro
 }
 
 func (fs *FilesystemBackend) Copy(ctx context.Context, srcKey, dstKey string) error {
-	srcPath, err := fs.keyToPath(srcKey)
+	secureSrcPath, err := fs.keyToPath(srcKey)
 	if err != nil {
 		return fmt.Errorf("invalid source storage key %s: %w", srcKey, err)
 	}
-	dstPath, err := fs.keyToPath(dstKey)
+	secureDstPath, err := fs.keyToPath(dstKey)
 	if err != nil {
 		return fmt.Errorf("invalid destination storage key %s: %w", dstKey, err)
 	}
-	if err := os.MkdirAll(filepath.Dir(dstPath), 0755); err != nil {
+	dstDir := secureDstPath.Dir()
+	if err := security.SafeMkdirAll(dstDir, 0755); err != nil {
 		return fmt.Errorf("failed to create directory for %s: %w", dstKey, err)
 	}
 
-	srcFile, err := os.Open(srcPath)
+	srcFile, err := security.SafeOpen(secureSrcPath)
 	if err != nil {
 		return fmt.Errorf("failed to open source %s: %w", srcKey, err)
 	}
 	defer srcFile.Close()
 
-	dstFile, err := os.Create(dstPath)
+	dstFile, err := security.SafeCreate(secureDstPath)
 	if err != nil {
 		return fmt.Errorf("failed to create destination %s: %w", dstKey, err)
 	}
@@ -168,10 +170,11 @@ func (fs *FilesystemBackend) Copy(ctx context.Context, srcKey, dstKey string) er
 }
 
 func (fs *FilesystemBackend) ListWithInfo(ctx context.Context, prefix string) ([]StorageInfo, error) {
-	prefixPath, err := fs.keyToPath(prefix)
+	securePrefix, err := fs.keyToPath(prefix)
 	if err != nil {
 		return nil, fmt.Errorf("invalid storage prefix %s: %w", prefix, err)
 	}
+	prefixPath := securePrefix.String()
 	var infos []StorageInfo
 	if _, err := os.Stat(prefixPath); os.IsNotExist(err) {
 		return infos, nil
@@ -206,12 +209,12 @@ func (fs *FilesystemBackend) ListWithInfo(ctx context.Context, prefix string) ([
 }
 
 func (fs *FilesystemBackend) GetInfo(ctx context.Context, key string) (*StorageInfo, error) {
-	filePath, err := fs.keyToPath(key)
+	securePath, err := fs.keyToPath(key)
 	if err != nil {
 		return nil, fmt.Errorf("invalid storage key %s: %w", key, err)
 	}
 
-	info, err := os.Stat(filePath)
+	info, err := security.SafeStat(securePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, fmt.Errorf("key not found: %s", key)
@@ -226,11 +229,12 @@ func (fs *FilesystemBackend) GetInfo(ctx context.Context, key string) (*StorageI
 	}, nil
 }
 
-func (fs *FilesystemBackend) keyToPath(key string) (string, error) {
+func (fs *FilesystemBackend) keyToPath(key string) (*security.SecurePath, error) {
 	if err := security.ValidateStorageKey(key); err != nil {
-		return "", err
+		return nil, err
 	}
-	return filepath.Join(fs.basePath, filepath.FromSlash(key)), nil
+	fullPath := filepath.Join(fs.basePath, filepath.FromSlash(key))
+	return security.NewSecurePathFromExisting(fullPath)
 }
 
 func (fs *FilesystemBackend) pathToKey(path string) string {

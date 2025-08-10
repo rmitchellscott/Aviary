@@ -160,3 +160,65 @@ func ValidateExistingFilePath(path string) error {
 
 	return nil
 }
+
+type SecurePath struct {
+	path string
+}
+
+func NewSecurePath(userPath string) (*SecurePath, error) {
+	if err := ValidateFilePath(userPath); err != nil {
+		return nil, err
+	}
+	cleanPath := filepath.Clean(userPath)
+	return &SecurePath{path: cleanPath}, nil
+}
+
+func NewSecurePathFromExisting(existingPath string) (*SecurePath, error) {
+	if err := ValidateExistingFilePath(existingPath); err != nil {
+		return nil, err
+	}
+	cleanPath := filepath.Clean(existingPath)
+	return &SecurePath{path: cleanPath}, nil
+}
+
+func NewSecurePathInBase(userPath, baseDir string) (*SecurePath, error) {
+	if err := ValidateFilePathInBase(userPath, baseDir); err != nil {
+		return nil, err
+	}
+	fullPath := filepath.Join(baseDir, userPath)
+	cleanPath := filepath.Clean(fullPath)
+	return &SecurePath{path: cleanPath}, nil
+}
+
+func NewSecureStorageKey(key string) (*SecurePath, error) {
+	if err := ValidateStorageKey(key); err != nil {
+		return nil, err
+	}
+	return &SecurePath{path: key}, nil
+}
+
+func (sp *SecurePath) String() string {
+	if sp == nil {
+		return ""
+	}
+	return sp.path
+}
+
+func (sp *SecurePath) Dir() *SecurePath {
+	if sp == nil {
+		return nil
+	}
+	return &SecurePath{path: filepath.Dir(sp.path)}
+}
+
+func (sp *SecurePath) Join(elem string) (*SecurePath, error) {
+	if sp == nil {
+		return nil, fmt.Errorf("cannot join to nil SecurePath")
+	}
+	cleanElem := filepath.Clean(elem)
+	if strings.Contains(cleanElem, "..") {
+		return nil, ErrPathTraversal
+	}
+	joined := filepath.Join(sp.path, cleanElem)
+	return &SecurePath{path: joined}, nil
+}
