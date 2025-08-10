@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
@@ -74,11 +73,21 @@ func CopyFileFromStorage(ctx context.Context, storageKey, destPath string) error
 	}
 	defer reader.Close()
 	
-	if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+	secureDestPath, err := security.NewSecurePathFromExisting(destPath)
+	if err != nil {
+		return fmt.Errorf("invalid destination path %s: %w", destPath, err)
+	}
+	
+	dirPath, err := security.NewSecurePathFromExisting(filepath.Dir(destPath))
+	if err != nil {
+		return fmt.Errorf("invalid directory path %s: %w", filepath.Dir(destPath), err)
+	}
+	
+	if err := security.SafeMkdirAll(dirPath, 0755); err != nil {
 		return fmt.Errorf("failed to create destination directory: %w", err)
 	}
 	
-	destFile, err := os.Create(destPath)
+	destFile, err := security.SafeCreate(secureDestPath)
 	if err != nil {
 		return fmt.Errorf("failed to create destination file %s: %w", destPath, err)
 	}
@@ -116,7 +125,12 @@ func MoveFileToStorage(ctx context.Context, sourcePath, storageKey string) error
 		return err
 	}
 	
-	if err := os.Remove(sourcePath); err != nil {
+	secureSourcePath, err := security.NewSecurePathFromExisting(sourcePath)
+	if err != nil {
+		return fmt.Errorf("invalid source path %s: %w", sourcePath, err)
+	}
+	
+	if err := security.SafeRemove(secureSourcePath); err != nil {
 		logging.Logf("[WARNING] Failed to remove source file after move: %v", err)
 	}
 	

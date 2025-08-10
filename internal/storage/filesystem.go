@@ -89,7 +89,7 @@ func (fs *FilesystemBackend) List(ctx context.Context, prefix string) ([]string,
 	}
 	prefixPath := securePrefix.String()
 	var keys []string
-	if _, err := os.Stat(prefixPath); os.IsNotExist(err) {
+	if !security.SafeStatExists(securePrefix) {
 		return keys, nil
 	}
 
@@ -176,7 +176,7 @@ func (fs *FilesystemBackend) ListWithInfo(ctx context.Context, prefix string) ([
 	}
 	prefixPath := securePrefix.String()
 	var infos []StorageInfo
-	if _, err := os.Stat(prefixPath); os.IsNotExist(err) {
+	if !security.SafeStatExists(securePrefix) {
 		return infos, nil
 	}
 

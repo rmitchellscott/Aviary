@@ -416,9 +416,11 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 
 		// Schedule cleanup of the generated PDF at the end of processPDF
 		defer func() {
-			if _, statErr2 := os.Stat(pdfPath); statErr2 == nil {
-				if cleanupErr = os.Remove(pdfPath); cleanupErr != nil {
-					manager.Logf("⚠️ cleanup warning (on exit): could not remove generated PDF %q: %v", pdfPath, cleanupErr)
+			if securePdfPath, err := security.NewSecurePathFromExisting(pdfPath); err == nil {
+				if security.SafeStatExists(securePdfPath) {
+					if cleanupErr = security.SafeRemove(securePdfPath); cleanupErr != nil {
+						manager.Logf("⚠️ cleanup warning (on exit): could not remove generated PDF %q: %v", pdfPath, cleanupErr)
+					}
 				}
 			}
 		}()
@@ -441,8 +443,10 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		}
 
 		// Remove the uncompressed version if we created a new compressed file
-		if err := os.Remove(localPath); err != nil {
-			manager.Logf("⚠️ failed to remove uncompressed PDF %q: %v", localPath, err)
+		if secureLocalPath, err := security.NewSecurePathFromExisting(localPath); err == nil {
+			if err := security.SafeRemove(secureLocalPath); err != nil {
+				manager.Logf("⚠️ failed to remove uncompressed PDF %q: %v", localPath, err)
+			}
 		}
 
 		localPath = compressedPath
@@ -450,7 +454,15 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 
 		// Always rename the compressed file back to drop "_compressed" suffix
 		origPath := strings.TrimSuffix(localPath, "_compressed.pdf") + ".pdf"
-		if err := os.Rename(localPath, origPath); err != nil {
+		secureLocalPath, err := security.NewSecurePathFromExisting(localPath)
+		if err != nil {
+			return "backend.status.rename_error", nil, err
+		}
+		secureOrigPath, err := security.NewSecurePathFromExisting(origPath)
+		if err != nil {
+			return "backend.status.rename_error", nil, err
+		}
+		if err := security.SafeRename(secureLocalPath, secureOrigPath); err != nil {
 			return "backend.status.rename_error", nil, err
 		}
 		localPath = origPath
@@ -477,15 +489,25 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		finalLocalPath = filepath.Join(dir, newFilename)
 		
 		// Copy to new location
-		if err := os.Rename(localPath, finalLocalPath); err != nil {
+		secureLocalPath, err := security.NewSecurePathFromExisting(localPath)
+		if err != nil {
+			return "backend.status.rename_error", nil, err
+		}
+		secureFinalPath, err := security.NewSecurePathFromExisting(finalLocalPath)
+		if err != nil {
+			return "backend.status.rename_error", nil, err
+		}
+		if err := security.SafeRename(secureLocalPath, secureFinalPath); err != nil {
 			return "backend.status.rename_error", nil, err
 		}
 		
 		// Clean up the renamed file when done
 		defer func() {
-			if _, statErr := os.Stat(finalLocalPath); statErr == nil {
-				if cleanupErr := os.Remove(finalLocalPath); cleanupErr != nil {
-					manager.Logf("⚠️ cleanup warning: could not remove renamed file %q: %v", finalLocalPath, cleanupErr)
+			if secureFinalPath, err := security.NewSecurePathFromExisting(finalLocalPath); err == nil {
+				if security.SafeStatExists(secureFinalPath) {
+					if cleanupErr := security.SafeRemove(secureFinalPath); cleanupErr != nil {
+						manager.Logf("⚠️ cleanup warning: could not remove renamed file %q: %v", finalLocalPath, cleanupErr)
+					}
 				}
 			}
 		}()
@@ -798,8 +820,10 @@ func trackDocumentUpload(userID uuid.UUID, localPath, remoteName, rmDir string) 
 
 	// Get file info
 	var fileSize int64
-	if info, err := os.Stat(localPath); err == nil {
-		fileSize = info.Size()
+	if secureLocalPath, err := security.NewSecurePathFromExisting(localPath); err == nil {
+		if info, err := security.SafeStat(secureLocalPath); err == nil {
+			fileSize = info.Size()
+		}
 	}
 
 	// Determine document type from extension
