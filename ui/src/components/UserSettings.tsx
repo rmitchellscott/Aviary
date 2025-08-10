@@ -698,7 +698,15 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   };
 
   const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString();
+  };
+
+  const formatDateOnly = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
+  };
+
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleString();
   };
 
   const getKeyStatus = (key: APIKey) => {
@@ -1296,17 +1304,42 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                                   </Badge>
                                 </TableCell>
                                 <TableCell className="hidden lg:table-cell">
-                                  {formatDate(key.created_at)}
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span className="cursor-default">{formatDateOnly(key.created_at)}</span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      {formatDateTime(key.created_at)}
+                                    </TooltipContent>
+                                  </Tooltip>
                                 </TableCell>
                                 <TableCell className="hidden lg:table-cell">
-                                  {key.last_used
-                                    ? formatDate(key.last_used)
-                                    : t('settings.never')}
+                                  {key.last_used ? (
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <span className="cursor-default">{formatDateOnly(key.last_used)}</span>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        {formatDateTime(key.last_used)}
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  ) : (
+                                    t('settings.never')
+                                  )}
                                 </TableCell>
                                 <TableCell className="hidden lg:table-cell">
-                                  {key.expires_at
-                                    ? formatDate(key.expires_at)
-                                    : t('settings.never')}
+                                  {key.expires_at ? (
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <span className="cursor-default">{formatDateOnly(key.expires_at)}</span>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        {formatDateTime(key.expires_at)}
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  ) : (
+                                    t('settings.never')
+                                  )}
                                 </TableCell>
                                 <TableCell>
                                   <div className="flex flex-col sm:flex-row gap-2">
