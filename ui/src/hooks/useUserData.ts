@@ -28,7 +28,7 @@ export function useUserData() {
   const [rmapiPaired, setRmapiPaired] = useState(false);
   const [rmapiHost, setRmapiHost] = useState("");
 
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -74,13 +74,13 @@ export function useUserData() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isAuthenticated, authUser, config]);
 
   useEffect(() => {
     if (config) {
       fetchUserData();
     }
-  }, [isAuthenticated, authUser, config]); // Re-fetch when authentication status or config changes
+  }, [fetchUserData, config]);
 
   // Listen for changes in localStorage to sync across components
   useEffect(() => {
@@ -108,7 +108,7 @@ export function useUserData() {
 
   const refetch = useCallback(() => {
     fetchUserData();
-  }, [rmapiPaired, isAuthenticated]);
+  }, [fetchUserData]);
 
   const updatePairingStatus = useCallback((paired: boolean) => {
     setRmapiPaired(paired);
@@ -119,7 +119,7 @@ export function useUserData() {
       // Notify other components by triggering a custom event
       window.dispatchEvent(new CustomEvent('userDataChanged'));
     }, 50); // Reduced from 100ms to 50ms
-  }, [isAuthenticated]);
+  }, [fetchUserData]);
 
   return {
     user,

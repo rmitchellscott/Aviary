@@ -731,7 +731,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-7xl max-h-[85vh] sm:max-w-7xl sm:max-h-[90vh] overflow-y-auto !top-[0vh] !translate-y-0 sm:!top-[6vh]">
+        <DialogContent className="max-w-7xl mobile-dialog-content sm:max-w-7xl overflow-y-auto !top-[0vh] !translate-y-0 sm:!top-[6vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />

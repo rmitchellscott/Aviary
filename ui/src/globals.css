@@ -127,3 +127,25 @@
 html.auth-check body {
   visibility: hidden;
 }
+
+/* Universal mobile height utilities */
+.mobile-dialog-content {
+  /* Conservative fallback for older browsers and mobile Safari */
+  max-height: 85vh;
+  /* Small viewport height - excludes browser UI on mobile */
+  max-height: calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 2rem);
+  /* Dynamic viewport height for newest browsers */
+  max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 2rem);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .mobile-dialog-content {
+    /* Conservative fallback for mobile */
+    max-height: 80vh;
+    /* Small viewport height with less padding */
+    max-height: calc(100svh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 1rem);
+    /* Dynamic viewport height with less padding */
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 1rem);
+  }
+}

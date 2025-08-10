@@ -54,6 +54,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [uiSecret, setUiSecret] = useState<string | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const { config: configData } = useConfig()
+  
+  // Add request deduplication for auth checks
+  const [authPromise, setAuthPromise] = useState<Promise<void> | null>(null)
+  
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       // Check if we have a UI secret injected (means web auth is disabled)
@@ -84,7 +88,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const checkAuth = async () => {
     if (!configData) return
     
-    try {
+    // If an auth check is already in progress, return the existing promise
+    if (authPromise) {
+      return authPromise
+    }
+
+    const promise = (async () => {
+      try {
       
       // Check for proxy auth first (multi-user mode only)
       if (configData.multiUserMode && configData.proxyAuthEnabled) {
@@ -202,7 +212,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (typeof window !== 'undefined') {
         document.documentElement.classList.remove('auth-check')
       }
+      setAuthPromise(null) // Clear promise after completion
     }
+    })()
+
+    setAuthPromise(promise)
+    return promise
   }
 
   const login = async () => {
