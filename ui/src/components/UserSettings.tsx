@@ -1490,7 +1490,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                 </p>
                 <p>
                   <strong>{t('settings.labels.status')}:</strong>{' '}
-                  {getKeyStatus(viewKey)}
+                  {t(`settings.status.${getKeyStatus(viewKey)}`)}
                 </p>
                 <p>
                   <strong>{t('settings.labels.created')}:</strong>{' '}
