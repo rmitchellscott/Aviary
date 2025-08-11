@@ -2,7 +2,9 @@ package version
 
 import (
 	"fmt"
+	"regexp"
 	"runtime"
+	"strings"
 )
 
 // Build information. Populated at build-time via ldflags.
@@ -12,6 +14,9 @@ var (
 	BuildDate = "unknown"       // BuildDate is the build timestamp
 	GoVersion = runtime.Version() // GoVersion is the Go version used to build
 )
+
+// Regex to match semantic version pattern (X.Y.Z with optional prerelease and build metadata)
+var semverRegex = regexp.MustCompile(`^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z\-\.]+)?(?:\+[0-9A-Za-z\-\.]+)?$`)
 
 // Info returns version information as a struct
 type Info struct {
@@ -33,12 +38,24 @@ func Get() Info {
 
 // String returns a human-readable version string
 func String() string {
-	if Version == "dev" {
-		return fmt.Sprintf("aviary %s (commit %s, built %s with %s)", 
-			Version, GitCommit[:min(7, len(GitCommit))], BuildDate, GoVersion)
+	var versionStr string
+	
+	// Handle special cases without 'v' prefix
+	if Version == "dev" || Version == "main" || Version == "latest" {
+		versionStr = Version
+	} else if strings.HasPrefix(Version, "v") {
+		// Version already has 'v' prefix (from git tags like "v1.6.0")
+		versionStr = Version
+	} else if semverRegex.MatchString(Version) {
+		// It's a semantic version, add 'v' prefix
+		versionStr = fmt.Sprintf("v%s", Version)
+	} else {
+		// It's something else (branch name, commit hash, etc.), use as-is
+		versionStr = Version
 	}
-	return fmt.Sprintf("aviary v%s (commit %s, built %s with %s)", 
-		Version, GitCommit[:min(7, len(GitCommit))], BuildDate, GoVersion)
+	
+	return fmt.Sprintf("aviary %s (commit %s, built %s with %s)", 
+		versionStr, GitCommit[:min(7, len(GitCommit))], BuildDate, GoVersion)
 }
 
 func min(a, b int) int {
