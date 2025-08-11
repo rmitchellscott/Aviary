@@ -149,7 +149,8 @@
       "upload_restore": "Last opp gjenoppretting",
       "cancel": "Avbryt",
       "restore_database": "Gjenopprett",
-      "modify": "Endre"
+      "modify": "Endre",
+      "details": "Detaljer"
     },
     "tabs": {
       "overview": "Oversikt",
@@ -376,7 +377,8 @@
       "create_api_key": "Opprett API-nøkkel",
       "got_it": "Skjønt",
       "cancel": "Avbryt",
-      "delete_api_key": "Slett API-nøkkel"
+      "delete_api_key": "Slett API-nøkkel",
+      "details": "Detaljer"
     },
     "options": {
       "cover_current": "Nåværende side",

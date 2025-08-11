@@ -149,7 +149,8 @@
       "upload_restore": "Upload Herstel",
       "cancel": "Annuleren",
       "restore_database": "Herstellen",
-      "modify": "Wijzigen"
+      "modify": "Wijzigen",
+      "details": "Details"
     },
     "tabs": {
       "overview": "Overzicht",
@@ -376,7 +377,8 @@
       "create_api_key": "API-sleutel maken",
       "got_it": "Begrepen",
       "cancel": "Annuleren",
-      "delete_api_key": "API-sleutel verwijderen"
+      "delete_api_key": "API-sleutel verwijderen",
+      "details": "Details"
     },
     "options": {
       "cover_current": "Huidige pagina",

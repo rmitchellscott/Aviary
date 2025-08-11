@@ -149,7 +149,8 @@
       "upload_restore": "復元アップロード",
       "cancel": "キャンセル",
       "restore_database": "復元",
-      "modify": "変更"
+      "modify": "変更",
+      "details": "詳細"
     },
     "tabs": {
       "overview": "概要",
@@ -376,7 +377,8 @@
       "create_api_key": "APIキー作成",
       "got_it": "了解",
       "cancel": "キャンセル",
-      "delete_api_key": "APIキー削除"
+      "delete_api_key": "APIキー削除",
+      "details": "詳細"
     },
     "options": {
       "cover_current": "現在のページ",

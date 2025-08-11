@@ -149,7 +149,8 @@
       "upload_restore": "Lataa Palautus",
       "cancel": "Peruuta",
       "restore_database": "Palauta",
-      "modify": "Muokkaa"
+      "modify": "Muokkaa",
+      "details": "Tiedot"
     },
     "tabs": {
       "overview": "Yleiskatsaus",
@@ -376,7 +377,8 @@
       "create_api_key": "Luo API-avain",
       "got_it": "Selvä",
       "cancel": "Peruuta",
-      "delete_api_key": "Poista API-avain"
+      "delete_api_key": "Poista API-avain",
+      "details": "Tiedot"
     },
     "options": {
       "cover_current": "Nykyinen sivu",

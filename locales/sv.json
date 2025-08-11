@@ -149,7 +149,8 @@
       "upload_restore": "Ladda upp återställning",
       "cancel": "Avbryt",
       "restore_database": "Återställ",
-      "modify": "Redigera"
+      "modify": "Redigera",
+      "details": "Detaljer"
     },
     "tabs": {
       "overview": "Översikt",
@@ -376,7 +377,8 @@
       "create_api_key": "Skapa API-nyckel",
       "got_it": "Förstått",
       "cancel": "Avbryt",
-      "delete_api_key": "Radera API-nyckel"
+      "delete_api_key": "Radera API-nyckel",
+      "details": "Detaljer"
     },
     "options": {
       "cover_current": "Nuvarande sida",

@@ -149,7 +149,8 @@
       "upload_restore": "Wiederherstellung hochladen",
       "cancel": "Abbrechen",
       "restore_database": "Wiederherstellen",
-      "modify": "Bearbeiten"
+      "modify": "Bearbeiten",
+      "details": "Details"
     },
     "tabs": {
       "overview": "Übersicht",
@@ -376,7 +377,8 @@
       "create_api_key": "API-Schlüssel erstellen",
       "got_it": "Verstanden",
       "cancel": "Abbrechen",
-      "delete_api_key": "API-Schlüssel löschen"
+      "delete_api_key": "API-Schlüssel löschen",
+      "details": "Details"
     },
     "options": {
       "cover_current": "Aktuelle Seite",

@@ -149,7 +149,8 @@
       "upload_restore": "上传还原",
       "cancel": "取消",
       "restore_database": "还原",
-      "modify": "修改"
+      "modify": "修改",
+      "details": "详情"
     },
     "tabs": {
       "overview": "概览",
@@ -376,7 +377,8 @@
       "create_api_key": "创建API密钥",
       "got_it": "知道了",
       "cancel": "取消",
-      "delete_api_key": "删除API密钥"
+      "delete_api_key": "删除API密钥",
+      "details": "详情"
     },
     "options": {
       "cover_current": "当前页面",

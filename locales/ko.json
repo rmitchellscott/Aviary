@@ -149,7 +149,8 @@
       "upload_restore": "복원 업로드",
       "cancel": "취소",
       "restore_database": "복원",
-      "modify": "수정"
+      "modify": "수정",
+      "details": "상세정보"
     },
     "tabs": {
       "overview": "개요",
@@ -376,7 +377,8 @@
       "create_api_key": "API 키 생성",
       "got_it": "알겠습니다",
       "cancel": "취소",
-      "delete_api_key": "API 키 삭제"
+      "delete_api_key": "API 키 삭제",
+      "details": "상세정보"
     },
     "options": {
       "cover_current": "현재 페이지",

@@ -149,7 +149,8 @@
       "upload_restore": "Upload Gendan",
       "cancel": "Annuller",
       "restore_database": "Gendan",
-      "modify": "Rediger"
+      "modify": "Rediger",
+      "details": "Detaljer"
     },
     "tabs": {
       "overview": "Overblik",
@@ -376,7 +377,8 @@
       "create_api_key": "Opret API-nøgle",
       "got_it": "Forstået",
       "cancel": "Annuller",
-      "delete_api_key": "Slet API-nøgle"
+      "delete_api_key": "Slet API-nøgle",
+      "details": "Detaljer"
     },
     "options": {
       "cover_current": "Nuværende side",

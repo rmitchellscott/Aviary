@@ -149,7 +149,8 @@
       "upload_restore": "Télécharger la Restauration",
       "cancel": "Annuler",
       "restore_database": "Restaurer",
-      "modify": "Modifier"
+      "modify": "Modifier",
+      "details": "Détails"
     },
     "tabs": {
       "overview": "Aperçu",
@@ -451,7 +452,8 @@
       "create_api_key": "Créer une clé API",
       "got_it": "Compris",
       "cancel": "Annuler",
-      "delete_api_key": "Supprimer la clé API"
+      "delete_api_key": "Supprimer la clé API",
+      "details": "Détails"
     },
     "options": {
       "cover_current": "Page actuelle",

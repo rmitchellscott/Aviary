@@ -2187,7 +2187,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                 <code>{viewKey.key_prefix}...</code>
               </p>
               <p>
-                <strong>{t('admin.labels.status')}:</strong> {getKeyStatus(viewKey)}
+                <strong>{t('admin.labels.status')}:</strong> {t(`settings.status.${getKeyStatus(viewKey)}`)}
               </p>
               <p>
                 <strong>{t('admin.labels.created')}:</strong> {formatDate(viewKey.created_at)}

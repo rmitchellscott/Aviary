@@ -149,7 +149,8 @@
       "upload_restore": "Prześlij przywracanie",
       "cancel": "Anuluj",
       "restore_database": "Przywróć",
-      "modify": "Modyfikuj"
+      "modify": "Modyfikuj",
+      "details": "Szczegóły"
     },
     "tabs": {
       "overview": "Przegląd",
@@ -376,7 +377,8 @@
       "create_api_key": "Utwórz klucz API",
       "got_it": "Rozumiem",
       "cancel": "Anuluj",
-      "delete_api_key": "Usuń klucz API"
+      "delete_api_key": "Usuń klucz API",
+      "details": "Szczegóły"
     },
     "options": {
       "cover_current": "Bieżąca strona",

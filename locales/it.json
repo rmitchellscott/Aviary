@@ -149,7 +149,8 @@
       "upload_restore": "Carica Ripristino",
       "cancel": "Annulla",
       "restore_database": "Ripristina",
-      "modify": "Modifica"
+      "modify": "Modifica",
+      "details": "Dettagli"
     },
     "tabs": {
       "overview": "Panoramica",
@@ -427,7 +428,8 @@
       "create_api_key": "Crea Chiave API",
       "got_it": "Capito",
       "cancel": "Annulla",
-      "delete_api_key": "Elimina Chiave API"
+      "delete_api_key": "Elimina Chiave API",
+      "details": "Dettagli"
     },
     "options": {
       "cover_current": "Pagina corrente",

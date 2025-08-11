@@ -149,7 +149,8 @@
       "upload_restore": "Upload Restore",
       "cancel": "Cancel",
       "restore_database": "Restore",
-      "modify": "Modify"
+      "modify": "Modify",
+      "details": "Details"
     },
     "tabs": {
       "overview": "Overview",
@@ -376,7 +377,8 @@
       "create_api_key": "Create API Key",
       "got_it": "Got it",
       "cancel": "Cancel",
-      "delete_api_key": "Delete API Key"
+      "delete_api_key": "Delete API Key",
+      "details": "Details"
     },
     "options": {
       "cover_current": "Current page",

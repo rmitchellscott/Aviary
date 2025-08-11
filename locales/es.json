@@ -149,7 +149,8 @@
       "upload_restore": "Subir Restauración",
       "cancel": "Cancelar",
       "restore_database": "Restaurar",
-      "modify": "Modificar"
+      "modify": "Modificar",
+      "details": "Detalles"
     },
     "tabs": {
       "overview": "Resumen",
@@ -427,7 +428,8 @@
       "create_api_key": "Crear Clave API",
       "got_it": "Entendido",
       "cancel": "Cancelar",
-      "delete_api_key": "Eliminar Clave API"
+      "delete_api_key": "Eliminar Clave API",
+      "details": "Detalles"
     },
     "options": {
       "cover_current": "Página actual",
