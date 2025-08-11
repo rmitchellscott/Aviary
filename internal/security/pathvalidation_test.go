@@ -83,6 +83,8 @@ func TestValidateStorageKey(t *testing.T) {
 	}{
 		{"valid key", "dir/file.txt", false, nil},
 		{"valid single file", "file.txt", false, nil},
+		{"valid key with trailing slash", "users/123/pdfs/", false, nil},
+		{"valid nested prefix with trailing slash", "users/uuid/rmapi/", false, nil},
 		{"empty key", "", true, ErrEmptyPath},
 		{"path traversal", "../file.txt", true, ErrPathTraversal},
 		{"path traversal in middle", "dir/../file.txt", true, ErrPathTraversal},
@@ -91,6 +93,7 @@ func TestValidateStorageKey(t *testing.T) {
 		{"dot component", "dir/./file.txt", true, ErrPathTraversal},
 		{"double dot component", "dir/../file.txt", true, ErrPathTraversal},
 		{"empty component", "dir//file.txt", true, ErrPathTraversal},
+		{"empty component in middle", "users//pdfs/", true, ErrPathTraversal},
 	}
 
 	for _, tt := range tests {

@@ -92,8 +92,12 @@ func ValidateStorageKey(key string) error {
 	}
 
 	parts := strings.Split(key, "/")
-	for _, part := range parts {
-		if part == "" || part == "." || part == ".." {
+	for i, part := range parts {
+		if part == "." || part == ".." {
+			return ErrPathTraversal
+		}
+		// Allow empty parts only if it's the last component (trailing slash for prefixes)
+		if part == "" && i != len(parts)-1 {
 			return ErrPathTraversal
 		}
 	}

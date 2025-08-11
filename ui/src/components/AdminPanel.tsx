@@ -1841,7 +1841,7 @@ export function AdminPanel({ isOpen, onClose }: AdminPanelProps) {
                                    null}
                                 </div>
                                 {job.error_message && (
-                                  <div className="text-xs text-destructive mt-1 truncate">
+                                  <div className="text-xs text-destructive mt-1 break-words">
                                     {job.error_message}
                                   </div>
                                 )}
