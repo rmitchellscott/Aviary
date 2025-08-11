@@ -203,10 +203,275 @@ ws.onmessage = (event) => {
 };
 ```
 
+## Backup and Restore API (Admin Only)
+
+The backup and restore endpoints provide comprehensive data management capabilities for administrators. These endpoints are only available in multi-user mode and require admin authentication.
+
+### Backup Operations
+
+#### Create Backup Job
+**POST** `/api/admin/backup-job`
+
+Creates a background backup job that will be processed asynchronously.
+
+**Query Parameters:**
+| Parameter | Required? | Type | Description |
+|-----------|-----------|------|-------------|
+| include_files | No | boolean | Include user files in backup (default: true) |
+| include_configs | No | boolean | Include configuration data (default: true) |
+| user_ids | No | string | Comma-separated UUIDs of specific users to backup (all users if empty) |
+
+**Response (202 Accepted):**
+```json
+{
+  "success": true,
+  "job_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "Backup job created successfully"
+}
+```
+
+#### List Backup Jobs
+**GET** `/api/admin/backup-jobs`
+
+Returns the 10 most recent backup jobs for the authenticated admin user, ordered by creation date (newest first).
+
+**Response (200 OK):**
+```json
+{
+  "jobs": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "admin_user_id": "660e8400-e29b-41d4-a716-446655440000",
+      "status": "completed",
+      "filename": "backup_2024-01-01.tar.gz",
+      "file_size": 1024000,
+      "storage_key": "backups/backup_2024-01-01.tar.gz",
+      "error_message": null,
+      "created_at": "2024-01-01T00:00:00Z",
+      "completed_at": "2024-01-01T00:05:00Z"
+    }
+  ]
+}
+```
+
+**Note:** To find the last successful backup, filter the results for `status: "completed"` - the first match is your most recent successful backup.
+
+#### Get Backup Job Details
+**GET** `/api/admin/backup-job/:id`
+
+Returns details of a specific backup job.
+
+**Response (200 OK):** Same structure as individual job in list response.
+
+#### Download Backup
+**GET** `/api/admin/backup-job/:id/download`
+
+Downloads a completed backup file.
+
+**Response:** Binary file download with `Content-Type: application/gzip`
+
+#### Delete Backup Job
+**DELETE** `/api/admin/backup-job/:id`
+
+Deletes a backup job and its associated file.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Backup job deleted successfully"
+}
+```
+
+#### Analyze Backup File
+**POST** `/api/admin/backup/analyze`
+
+Analyzes a backup file before restore to validate its contents.
+
+**Request:** Multipart form with field `backup_file` containing .tar.gz or .tgz file (max 32MB)
+
+**Response (200 OK):**
+```json
+{
+  "valid": true,
+  "metadata": {
+    "version": "1.0.0",
+    "created_at": "2024-01-01T00:00:00Z",
+    "user_count": 10,
+    "file_count": 1000,
+    "total_size": 1024000000,
+    "includes_database": true,
+    "includes_files": true,
+    "database_tables": ["users", "files", "folders"],
+    "errors": []
+  }
+}
+```
+
+### Restore Operations
+
+#### Upload Restore File
+**POST** `/api/admin/restore/upload`
+
+Uploads a backup file for restoration. File is temporarily stored for 24 hours.
+
+**Request:** Multipart form with field `backup_file` containing .tar.gz or .tgz file
+
+**Response (200 OK):**
+```json
+{
+  "upload_id": "770e8400-e29b-41d4-a716-446655440000",
+  "filename": "backup_2024-01-01.tar.gz",
+  "status": "uploaded",
+  "file_size": 1024000,
+  "expires_at": "2024-01-02T00:00:00Z",
+  "message": "File uploaded successfully. Ready for restore."
+}
+```
+
+#### List Restore Uploads
+**GET** `/api/admin/restore/uploads`
+
+Returns all pending restore uploads for the admin user.
+
+**Response (200 OK):**
+```json
+{
+  "uploads": [
+    {
+      "id": "770e8400-e29b-41d4-a716-446655440000",
+      "admin_user_id": "660e8400-e29b-41d4-a716-446655440000",
+      "filename": "backup_2024-01-01.tar.gz",
+      "file_path": "/tmp/restore_770e8400_backup.tar.gz",
+      "file_size": 1024000,
+      "status": "uploaded",
+      "expires_at": "2024-01-02T00:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  ]
+}
+```
+
+**Status values:** `uploaded`, `analyzed`, `extracting`, `extracted`, `failed`
+
+#### Analyze Uploaded Restore File
+**POST** `/api/admin/restore/uploads/:id/analyze`
+
+Analyzes an already uploaded restore file.
+
+**Response (200 OK):** Same as backup file analysis response.
+
+#### Get Extraction Status
+**GET** `/api/admin/restore/uploads/:id/extraction-status`
+
+Gets the extraction progress for a restore upload.
+
+**Response (200 OK):**
+```json
+{
+  "status": "completed",
+  "progress": 100,
+  "error_message": null,
+  "extraction_path": "/tmp/restore_extracted_770e8400"
+}
+```
+
+#### Delete Restore Upload
+**DELETE** `/api/admin/restore/uploads/:id`
+
+Deletes a restore upload and its associated files.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Restore upload deleted successfully"
+}
+```
+
+#### Restore Database
+**POST** `/api/admin/restore`
+
+Initiates database restoration from an uploaded backup file.
+
+**Request Body:**
+```json
+{
+  "upload_id": "770e8400-e29b-41d4-a716-446655440000",
+  "overwrite_files": false,
+  "overwrite_database": false,
+  "selected_user_ids": ["user-uuid-1", "user-uuid-2"]
+}
+```
+
+**Parameters:**
+| Parameter | Required? | Type | Description |
+|-----------|-----------|------|-------------|
+| upload_id | Yes | string | ID of the uploaded backup file |
+| overwrite_files | No | boolean | Whether to overwrite existing files |
+| overwrite_database | No | boolean | Whether to overwrite database tables |
+| selected_user_ids | No | array | Specific users to restore (optional) |
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Database restored successfully",
+  "details": {
+    "users_restored": 10,
+    "files_restored": 1000,
+    "folders_restored": 50
+  }
+}
+```
+
+### Example Backup/Restore Workflow
+
+#### Creating a backup
+```shell
+# Create a backup job
+curl -X POST http://localhost:8000/api/admin/backup-job \
+  -H "Authorization: Bearer your-admin-api-key" \
+  -d "include_files=true" \
+  -d "include_configs=true"
+
+# Check job status
+curl http://localhost:8000/api/admin/backup-job/550e8400-e29b-41d4-a716-446655440000 \
+  -H "Authorization: Bearer your-admin-api-key"
+
+# Download completed backup
+curl http://localhost:8000/api/admin/backup-job/550e8400-e29b-41d4-a716-446655440000/download \
+  -H "Authorization: Bearer your-admin-api-key" \
+  -o backup.tar.gz
+```
+
+#### Restoring from backup
+```shell
+# Upload backup file
+curl -X POST http://localhost:8000/api/admin/restore/upload \
+  -H "Authorization: Bearer your-admin-api-key" \
+  -F "backup_file=@backup.tar.gz"
+
+# Analyze uploaded file
+curl -X POST http://localhost:8000/api/admin/restore/uploads/770e8400-e29b-41d4-a716-446655440000/analyze \
+  -H "Authorization: Bearer your-admin-api-key"
+
+# Perform restore
+curl -X POST http://localhost:8000/api/admin/restore \
+  -H "Authorization: Bearer your-admin-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "upload_id": "770e8400-e29b-41d4-a716-446655440000",
+    "overwrite_files": true,
+    "overwrite_database": false
+  }'
+```
+
 ## Rate Limiting
 
 Aviary implements basic rate limiting on API endpoints:
 - Webhook uploads: Limited by download timeout and processing time
 - Status checks: No specific limits
+- Backup/restore operations: Limited by processing time and storage
 
 For high-volume usage, consider implementing your own rate limiting or batching uploads.
