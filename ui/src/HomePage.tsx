@@ -121,7 +121,7 @@ export default function HomePage() {
     useAuth();
   const { t } = useTranslation();
   const { rmapiPaired, rmapiHost, loading: userDataLoading, updatePairingStatus } = useUserData();
-  const { refreshTrigger } = useFolderRefresh();
+  const { refreshTrigger, triggerRefresh } = useFolderRefresh();
   const [url, setUrl] = useState<string>("");
   const [committedUrl, setCommittedUrl] = useState<string>("");
   const [urlMime, setUrlMime] = useState<string | null>(null);
@@ -347,6 +347,12 @@ export default function HomePage() {
 
   const handlePairingSuccess = () => {
     updatePairingStatus(true);
+    setFolders([]);
+    setFoldersLoading(true);
+    hasFetchedInitial.current = false;
+    setTimeout(() => {
+      triggerRefresh();
+    }, 200);
   };
 
   // Listen for logout event to clear sensitive state

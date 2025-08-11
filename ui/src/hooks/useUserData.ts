@@ -21,8 +21,8 @@ interface UserData {
 }
 
 export function useUserData() {
-  const { isAuthenticated, multiUserMode, user: authUser } = useAuth();
-  const { config } = useConfig();
+  const { isAuthenticated, multiUserMode, user: authUser, refetchAuth } = useAuth();
+  const { config, refetch: refetchConfig } = useConfig();
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [rmapiPaired, setRmapiPaired] = useState(false);
@@ -110,16 +110,19 @@ export function useUserData() {
     fetchUserData();
   }, [fetchUserData]);
 
-  const updatePairingStatus = useCallback((paired: boolean) => {
+  const updatePairingStatus = useCallback(async (paired: boolean) => {
     setRmapiPaired(paired);
     
-    // Trigger a refetch to sync with backend state
-    setTimeout(() => {
-      fetchUserData();
-      // Notify other components by triggering a custom event
+    setTimeout(async () => {
+      if (multiUserMode && refetchAuth) {
+        await refetchAuth();
+      } else if (refetchConfig) {
+        await refetchConfig();
+      }
+      await fetchUserData();
       window.dispatchEvent(new CustomEvent('userDataChanged'));
-    }, 50); // Reduced from 100ms to 50ms
-  }, [fetchUserData]);
+    }, 100);
+  }, [fetchUserData, multiUserMode, refetchAuth, refetchConfig]);
 
   return {
     user,

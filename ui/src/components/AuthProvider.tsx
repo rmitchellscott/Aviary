@@ -11,6 +11,7 @@ interface User {
   email: string
   is_admin: boolean
   rmapi_host?: string
+  rmapi_paired?: boolean
   default_rmdir: string
   created_at: string
   last_login?: string
@@ -27,6 +28,7 @@ interface AuthContextType {
   proxyAuthEnabled: boolean
   login: () => Promise<void>
   logout: () => void
+  refetchAuth: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -269,7 +271,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [isLoading])
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout, authConfigured, multiUserMode, uiSecret, user, oidcEnabled, proxyAuthEnabled }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout, authConfigured, multiUserMode, uiSecret, user, oidcEnabled, proxyAuthEnabled, refetchAuth: checkAuth }}>
       {children}
     </AuthContext.Provider>
   )
