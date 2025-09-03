@@ -93,7 +93,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   // Device presets for image to PDF conversion
   const devicePresets = {
     remarkable_1_2: { resolution: "1404x1872", dpi: 226 },
-    remarkable_paper_pro: { resolution: "1620x2160", dpi: 229 }
+    remarkable_paper_pro: { resolution: "1620x2160", dpi: 229 },
+    remarkable_paper_pro_move: { resolution: "954x1696", dpi: 264 }
   };
 
   // Helper function to determine device preset from user settings
@@ -104,6 +105,10 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     
     if (pageResolution === "1620x2160" && pageDPI === 229) {
       return "remarkable_paper_pro";
+    }
+    
+    if (pageResolution === "954x1696" && pageDPI === 264) {
+      return "remarkable_paper_pro_move";
     }
     
     if (pageResolution === "1404x1872" && pageDPI === 226) {
@@ -999,6 +1004,9 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                           </SelectItem>
                           <SelectItem value="remarkable_paper_pro">
                             reMarkable Paper Pro
+                          </SelectItem>
+                          <SelectItem value="remarkable_paper_pro_move">
+                            reMarkable Paper Pro Move
                           </SelectItem>
                           <SelectItem value="manual">
                             {t("settings.options.manual")}
