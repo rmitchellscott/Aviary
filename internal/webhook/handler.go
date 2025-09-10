@@ -874,7 +874,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 	
 	// Validate all file paths to prevent path injection attacks
 	for i, filePath := range filePaths {
-		if err := security.ValidateFilePath(filePath); err != nil {
+		if err := security.ValidateExistingFilePath(filePath); err != nil {
 			return "backend.status.internal_error", nil, fmt.Errorf("invalid file path at index %d: %w", i, err)
 		}
 	}
