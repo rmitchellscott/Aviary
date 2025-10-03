@@ -63,10 +63,10 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react:
-        specifier: ^19.2.0
+        specifier: ^19.0.0
         version: 19.2.0
       react-dom:
-        specifier: ^19.2.0
+        specifier: ^19.0.0
         version: 19.2.0(react@19.2.0)
       react-dropzone:
         specifier: ^14.3.8
@@ -88,17 +88,17 @@ importers:
         specifier: ^4
         version: 4.1.11
       '@types/node':
-        specifier: ^22.0.0
-        version: 22.17.2
+        specifier: ^22.18.8
+        version: 22.18.8
       '@types/react':
-        specifier: ^19.2.0
+        specifier: ^19
         version: 19.2.0
       '@types/react-dom':
-        specifier: ^19.2.0
+        specifier: ^19
         version: 19.2.0(@types/react@19.2.0)
       '@vitejs/plugin-react':
         specifier: ^5.0.0
-        version: 5.0.4(vite@7.1.9(@types/node@22.17.2)(jiti@2.4.2)(lightningcss@1.30.1))
+        version: 5.0.4(vite@7.1.9(@types/node@22.18.8)(jiti@2.4.2)(lightningcss@1.30.1))
       autoprefixer:
         specifier: ^10
         version: 10.4.21(postcss@8.5.6)
@@ -112,14 +112,14 @@ importers:
         specifier: ^4
         version: 4.1.11
       tw-animate-css:
-        specifier: ^1.4.0
+        specifier: ^1.3.0
         version: 1.4.0
       typescript:
         specifier: ^5
         version: 5.9.2
       vite:
-        specifier: ^7.1.9
-        version: 7.1.9(@types/node@22.17.2)(jiti@2.4.2)(lightningcss@1.30.1)
+        specifier: ^7.0.0
+        version: 7.1.9(@types/node@22.18.8)(jiti@2.4.2)(lightningcss@1.30.1)
 
 packages:
 
@@ -1089,8 +1089,8 @@ packages:
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
-  '@types/node@22.17.2':
-    resolution: {integrity: sha512-gL6z5N9Jm9mhY+U2KXZpteb+09zyffliRkZyZOHODGATyC5B1Jt/7TzuuiLkFsSUMLbS1OLmlj/E+/3KF4Q/4w==}
+  '@types/node@22.18.8':
+    resolution: {integrity: sha512-pAZSHMiagDR7cARo/cch1f3rXy0AEXwsVsVH09FcyeJVAzCnGgmYis7P3JidtTUjyadhTeSo8TgRPswstghDaw==}
 
   '@types/react-dom@19.2.0':
     resolution: {integrity: sha512-brtBs0MnE9SMx7px208g39lRmC5uHZs96caOJfTjFcYSLHNamvaSMfJNagChVNkup2SdtOxKX1FDBkRSJe1ZAg==}
@@ -2708,7 +2708,7 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
-  '@types/node@22.17.2':
+  '@types/node@22.18.8':
     dependencies:
       undici-types: 6.21.0
 
@@ -2720,7 +2720,7 @@ snapshots:
     dependencies:
       csstype: 3.1.3
 
-  '@vitejs/plugin-react@5.0.4(vite@7.1.9(@types/node@22.17.2)(jiti@2.4.2)(lightningcss@1.30.1))':
+  '@vitejs/plugin-react@5.0.4(vite@7.1.9(@types/node@22.18.8)(jiti@2.4.2)(lightningcss@1.30.1))':
     dependencies:
       '@babel/core': 7.28.4
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.4)
@@ -2728,7 +2728,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.38
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
-      vite: 7.1.9(@types/node@22.17.2)(jiti@2.4.2)(lightningcss@1.30.1)
+      vite: 7.1.9(@types/node@22.18.8)(jiti@2.4.2)(lightningcss@1.30.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -3365,7 +3365,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.0
 
-  vite@7.1.9(@types/node@22.17.2)(jiti@2.4.2)(lightningcss@1.30.1):
+  vite@7.1.9(@types/node@22.18.8)(jiti@2.4.2)(lightningcss@1.30.1):
     dependencies:
       esbuild: 0.25.10
       fdir: 6.5.0(picomatch@4.0.3)
@@ -3374,7 +3374,7 @@ snapshots:
       rollup: 4.52.4
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 22.17.2
+      '@types/node': 22.18.8
       fsevents: 2.3.3
       jiti: 2.4.2
       lightningcss: 1.30.1
