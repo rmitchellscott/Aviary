@@ -214,7 +214,7 @@ func SimpleUpload(path, rmDir string, user *database.User, requestConflictResolu
 		// find the first "Error: " in the output
 		if idx := strings.Index(raw, "Error:"); idx != -1 {
 			// return just "Error: entry already exists" (or whatever follows)
-			return "", fmt.Errorf(raw[idx:])
+			return "", fmt.Errorf("%s", raw[idx:])
 		}
 		// fallback if we didn't find it
 		return "", fmt.Errorf("rmapi put failed: %s", raw)
@@ -315,7 +315,7 @@ func RenameAndUpload(storageKey, prefix, rmDir string, user *database.User, requ
 		// find the first "Error: " in the output
 		if idx := strings.Index(raw, "Error:"); idx != -1 {
 			// return just "Error: entry already exists" (or whatever follows)
-			return "", fmt.Errorf(raw[idx:])
+			return "", fmt.Errorf("%s", raw[idx:])
 		}
 		// fallback if we didn't find it
 		return "", fmt.Errorf("rmapi put failed: %s", raw)

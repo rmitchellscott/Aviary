@@ -1,6 +1,6 @@
 module github.com/rmitchellscott/aviary
 
-go 1.23.0
+go 1.24.0
 
 toolchain go1.25.1
 
@@ -24,7 +24,7 @@ require (
 	golang.org/x/oauth2 v0.30.0
 	golang.org/x/term v0.33.0
 	golang.org/x/text v0.27.0
-	golang.org/x/time v0.12.0
+	golang.org/x/time v0.13.0
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.0
 )
