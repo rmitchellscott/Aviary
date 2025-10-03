@@ -12,7 +12,7 @@ COPY ui/ ui/
 RUN cd ui && npm run build
 
 
-FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS go-base
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS go-base
 WORKDIR /app
 COPY --from=xx / /
 RUN apk add --no-cache git
