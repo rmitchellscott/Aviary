@@ -72,8 +72,8 @@ importers:
         specifier: ^14.3.8
         version: 14.3.8(react@19.1.1)
       react-i18next:
-        specifier: ^15.0.0
-        version: 15.5.3(i18next@25.3.0(typescript@5.9.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.9.2)
+        specifier: ^15.7.4
+        version: 15.7.4(i18next@25.3.0(typescript@5.9.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.9.2)
       tailwind-merge:
         specifier: ^3.3.0
         version: 3.3.1
@@ -88,7 +88,7 @@ importers:
         specifier: ^4
         version: 4.1.11
       '@types/node':
-        specifier: ^22.17.2
+        specifier: ^22.0.0
         version: 22.17.2
       '@types/react':
         specifier: ^19
@@ -200,6 +200,10 @@ packages:
 
   '@babel/runtime@7.27.6':
     resolution: {integrity: sha512-vbavdySgbTTrmFE+EsiqUTzlOr5bzlnJtUv9PynGCAKvfQqjIXbvFdumPM/GxMDfyuGMJaJAU6TO4zc1Jf1i8Q==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/runtime@7.28.4':
+    resolution: {integrity: sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.27.2':
@@ -1608,10 +1612,10 @@ packages:
     peerDependencies:
       react: '>= 16.8 || 18.0.0'
 
-  react-i18next@15.5.3:
-    resolution: {integrity: sha512-ypYmOKOnjqPEJZO4m1BI0kS8kWqkBNsKYyhVUfij0gvjy9xJNoG/VcGkxq5dRlVwzmrmY1BQMAmpbbUBLwC4Kw==}
+  react-i18next@15.7.4:
+    resolution: {integrity: sha512-nyU8iKNrI5uDJch0z9+Y5XEr34b0wkyYj3Rp+tfbahxtlswxSCjcUL9H0nqXo9IR3/t5Y5PKIA3fx3MfUyR9Xw==}
     peerDependencies:
-      i18next: '>= 23.2.3'
+      i18next: '>= 23.4.0'
       react: '>= 16.8.0'
       react-dom: '*'
       react-native: '*'
@@ -1927,6 +1931,8 @@ snapshots:
       '@babel/helper-plugin-utils': 7.27.1
 
   '@babel/runtime@7.27.6': {}
+
+  '@babel/runtime@7.28.4': {}
 
   '@babel/template@7.27.2':
     dependencies:
@@ -3175,9 +3181,9 @@ snapshots:
       prop-types: 15.8.1
       react: 19.1.1
 
-  react-i18next@15.5.3(i18next@25.3.0(typescript@5.9.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.9.2):
+  react-i18next@15.7.4(i18next@25.3.0(typescript@5.9.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.9.2):
     dependencies:
-      '@babel/runtime': 7.27.6
+      '@babel/runtime': 7.28.4
       html-parse-stringify: 3.0.1
       i18next: 25.3.0(typescript@5.9.2)
       react: 19.1.1
