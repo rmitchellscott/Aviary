@@ -83,6 +83,7 @@ ghcr.io/rmitchellscott/aviary
 docker run -d \
 -p 8000:8000 \
 -e MULTI_USER=true \
+-e ALLOW_INSECURE=true \ 
 -e AUTH_USERNAME=admin \
 -e AUTH_PASSWORD=secure-admin-password \
 -e ADMIN_EMAIL=admin@example.com \
@@ -93,6 +94,7 @@ ghcr.io/rmitchellscott/aviary
 docker run -d \
 -p 8000:8000 \
 -e MULTI_USER=true \
+-e ALLOW_INSECURE=true \
 -v ./data:/data \
 ghcr.io/rmitchellscott/aviary
 ```
@@ -136,6 +138,7 @@ services:
       AUTH_USERNAME: "${AUTH_USERNAME}"  # Optional: pre-create admin user
       AUTH_PASSWORD: "${AUTH_PASSWORD}"  # Optional: pre-create admin user
       ADMIN_EMAIL: "${ADMIN_EMAIL}"      # Optional: admin email
+      # ALLOW_INSECURE: true             # Uncomment if not using HTTPS
       # Optional SMTP for password resets:
       # SMTP_HOST: "${SMTP_HOST}"
       # SMTP_PORT: "${SMTP_PORT}"
@@ -161,6 +164,7 @@ services:
       AUTH_USERNAME: "${AUTH_USERNAME}"  # Optional: pre-create admin user
       AUTH_PASSWORD: "${AUTH_PASSWORD}"  # Optional: pre-create admin user
       ADMIN_EMAIL: "${ADMIN_EMAIL}"      # Optional: admin email
+      # ALLOW_INSECURE: true             # Uncomment if not using HTTPS
       DB_TYPE: "postgres"
       DB_HOST: "postgres"
       DB_PORT: "5432"
