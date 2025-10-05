@@ -21,8 +21,14 @@ type UserService struct {
 // UserCacheInvalidateFunc is a function type for invalidating user cache
 type UserCacheInvalidateFunc func(userID uuid.UUID) error
 
+// UserCacheCleanupFunc is a function type for cleaning up user cache files
+type UserCacheCleanupFunc func(userID uuid.UUID)
+
 // Global hook for cache invalidation to avoid import cycles
 var userCacheInvalidateHook UserCacheInvalidateFunc
+
+// Global hook for cache cleanup to avoid import cycles
+var userCacheCleanupHook UserCacheCleanupFunc
 
 // NewUserService creates a new user service
 func NewUserService(db *gorm.DB) *UserService {
@@ -32,6 +38,11 @@ func NewUserService(db *gorm.DB) *UserService {
 // SetUserCacheInvalidateHook sets the function to call when user cache needs invalidation
 func SetUserCacheInvalidateHook(hook UserCacheInvalidateFunc) {
 	userCacheInvalidateHook = hook
+}
+
+// SetUserCacheCleanupHook sets the function to call when user cache files need cleanup
+func SetUserCacheCleanupHook(hook UserCacheCleanupFunc) {
+	userCacheCleanupHook = hook
 }
 
 // InvalidateUserCache calls the hook to invalidate user cache if set
@@ -269,7 +280,7 @@ func (s *UserService) CleanupExpiredResetTokens() error {
 // DeleteUser permanently deletes a user and all associated data
 func (s *UserService) DeleteUser(userID uuid.UUID) error {
 	// Start a transaction to ensure atomicity
-	return s.db.Transaction(func(tx *gorm.DB) error {
+	err := s.db.Transaction(func(tx *gorm.DB) error {
 		// Delete all user sessions
 		if err := tx.Where("user_id = ?", userID).Delete(&UserSession{}).Error; err != nil {
 			return fmt.Errorf("failed to delete user sessions: %w", err)
@@ -297,6 +308,17 @@ func (s *UserService) DeleteUser(userID uuid.UUID) error {
 
 		return nil
 	})
+
+	if err != nil {
+		return err
+	}
+
+	// Cleanup user cache files after successful deletion
+	if userCacheCleanupHook != nil {
+		userCacheCleanupHook(userID)
+	}
+
+	return nil
 }
 
 // SaveUserRmapiConfig saves the rmapi configuration content to the database

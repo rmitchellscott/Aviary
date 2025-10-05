@@ -84,11 +84,38 @@ func CleanupTempConfigFile(configPath string) {
 	if configPath == "" {
 		return
 	}
-	
+
 	// Only cleanup files in temp directory with our naming pattern
-	if filepath.Dir(configPath) == os.TempDir() && 
+	if filepath.Dir(configPath) == os.TempDir() &&
 	   filepath.Base(configPath) != "rmapi.conf" { // Don't delete the standard config
 		os.Remove(configPath)
+	}
+}
+
+// GetUserCachePath returns the cache directory path for a user
+// This is used to isolate rmapi cache between users in multi-user mode
+func GetUserCachePath(userID uuid.UUID) string {
+	if database.IsMultiUserMode() && userID != uuid.Nil {
+		return filepath.Join(os.TempDir(), fmt.Sprintf("aviary-cache-%s", userID.String()))
+	}
+	// Single-user mode: use default cache
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return filepath.Join(os.TempDir(), "aviary-cache")
+	}
+	return filepath.Join(home, ".cache")
+}
+
+// CleanupUserCache removes a user's cache directory if it exists
+func CleanupUserCache(cachePath string) {
+	if cachePath == "" {
+		return
+	}
+
+	// Only cleanup cache directories in temp with our naming pattern
+	if filepath.Dir(cachePath) == os.TempDir() &&
+	   filepath.Base(cachePath) != ".cache" {
+		os.RemoveAll(cachePath)
 	}
 }
 

@@ -133,6 +133,12 @@ func main() {
 		}
 	})
 
+	// Set up cache cleanup hook for user deletion
+	database.SetUserCacheCleanupHook(func(userID uuid.UUID) {
+		cachePath := rmapi.GetUserCachePath(userID)
+		rmapi.CleanupUserCache(cachePath)
+	})
+
 	uiFS, err := fs.Sub(embeddedUI, "ui/dist")
 	if err != nil {
 		log.Fatalf("embed error: %v", err)

@@ -34,6 +34,10 @@ func NewCommand(user *database.User, args ...string) (*exec.Cmd, func()) {
 	var tempConfigPath string
 
 	if user != nil {
+		// Set user-specific cache directory to avoid cache collisions
+		cachePath := GetUserCachePath(user.ID)
+		env = append(env, "XDG_CACHE_HOME="+cachePath)
+
 		// Set user-specific RMAPI_HOST
 		if user.RmapiHost != "" {
 			env = append(env, "RMAPI_HOST="+user.RmapiHost)
@@ -66,6 +70,10 @@ func NewSimpleCommand(user *database.User, args ...string) *exec.Cmd {
 	env := os.Environ()
 
 	if user != nil {
+		// Set user-specific cache directory to avoid cache collisions
+		cachePath := GetUserCachePath(user.ID)
+		env = append(env, "XDG_CACHE_HOME="+cachePath)
+
 		if user.RmapiHost != "" {
 			env = append(env, "RMAPI_HOST="+user.RmapiHost)
 		} else {
