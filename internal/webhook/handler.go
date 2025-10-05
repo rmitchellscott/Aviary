@@ -667,9 +667,9 @@ func processDocumentForUser(jobID string, req DocumentRequest, userID uuid.UUID)
 		// Continue but log the mismatch - use detected type for processing
 	}
 
-	// Sanitize filename
-	filename := sanitizeFilename(req.Filename)
-	if filename == "" {
+	// Validate and clean filename
+	filename, err := security.ValidateAndCleanFilename(req.Filename)
+	if err != nil || filename == "" {
 		filename = "document"
 		// Add extension based on detected or claimed content type
 		contentTypeToUse := req.ContentType
@@ -773,30 +773,6 @@ func isContentTypeMatch(claimed, detected string) bool {
 	}
 }
 
-// sanitizeFilename removes dangerous characters from filenames
-func sanitizeFilename(filename string) string {
-	if filename == "" {
-		return ""
-	}
-
-	// Use only the base filename (no path traversal)
-	filename = filepath.Base(filename)
-
-	// Remove dangerous characters
-	dangerous := []string{"..", "~", "$", "`", "|", ";", "&", "<", ">", "(", ")", "{", "}", "[", "]", "'", `"`}
-	for _, char := range dangerous {
-		filename = strings.ReplaceAll(filename, char, "_")
-	}
-
-	// Limit length
-	if len(filename) > 200 {
-		ext := filepath.Ext(filename)
-		base := filename[:200-len(ext)]
-		filename = base + ext
-	}
-
-	return filename
-}
 
 // min returns the minimum of two integers
 func min(a, b int) int {
