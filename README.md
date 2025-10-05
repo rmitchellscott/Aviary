@@ -74,12 +74,14 @@ docker run -d -p 8000:8000 -v ~/.config/rmapi:/root/.config/rmapi ghcr.io/rmitch
 # Multi-user mode - first user becomes admin
 docker run -d -p 8000:8000 \
   -e MULTI_USER=true \
+  -e ALLOW_INSECURE=true \
   -v ./data:/data \
   ghcr.io/rmitchellscott/aviary
 
 # Or pre-create admin user
 docker run -d -p 8000:8000 \
   -e MULTI_USER=true \
+  -e ALLOW_INSECURE=true \
   -e AUTH_USERNAME=admin \
   -e AUTH_PASSWORD=secure-password \
   -v ./data:/data \
