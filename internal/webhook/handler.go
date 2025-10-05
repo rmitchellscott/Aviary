@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -38,8 +37,8 @@ func isConflictError(err error) bool {
 		return false
 	}
 	errStr := strings.ToLower(err.Error())
-	return strings.Contains(errStr, "entry already exists") || 
-		   strings.Contains(errStr, "error: entry already exists")
+	return strings.Contains(errStr, "entry already exists") ||
+		strings.Contains(errStr, "error: entry already exists")
 }
 
 // secureCleanupPaths safely removes all files in the provided path list
@@ -102,18 +101,18 @@ var (
 
 // DocumentRequest represents a webhook request that can contain either a URL or document content
 type DocumentRequest struct {
-	Body          string `form:"Body" json:"body"`               // URL or base64 content
-	ContentType   string `form:"ContentType" json:"contentType"` // MIME type for content
-	Filename      string `form:"Filename" json:"filename"`       // Original filename
-	IsContent     bool   `form:"IsContent" json:"isContent"`     // Flag: true=content, false=URL
-	Prefix        string `form:"prefix" json:"prefix"`
-	Compress      string `form:"compress" json:"compress"`
-	Manage        string `form:"manage" json:"manage"`
-	Archive       string `form:"archive" json:"archive"`
-	RmDir         string `form:"rm_dir" json:"rm_dir"`
-	RetentionDays string `form:"retention_days" json:"retention_days"`
+	Body               string `form:"Body" json:"body"`               // URL or base64 content
+	ContentType        string `form:"ContentType" json:"contentType"` // MIME type for content
+	Filename           string `form:"Filename" json:"filename"`       // Original filename
+	IsContent          bool   `form:"IsContent" json:"isContent"`     // Flag: true=content, false=URL
+	Prefix             string `form:"prefix" json:"prefix"`
+	Compress           string `form:"compress" json:"compress"`
+	Manage             string `form:"manage" json:"manage"`
+	Archive            string `form:"archive" json:"archive"`
+	RmDir              string `form:"rm_dir" json:"rm_dir"`
+	RetentionDays      string `form:"retention_days" json:"retention_days"`
 	ConflictResolution string `form:"conflict_resolution" json:"conflict_resolution"`
-	Coverpage     string `form:"coverpage" json:"coverpage"`
+	Coverpage          string `form:"coverpage" json:"coverpage"`
 }
 
 // enqueueJob creates a new job ID, logs form fields, starts processPDF(form) in a goroutine,
@@ -204,15 +203,15 @@ func EnqueueHandler(c *gin.Context) {
 		} else {
 			// JSON URL processing - convert to form map
 			form := map[string]string{
-				"Body":           req.Body,
-				"prefix":         req.Prefix,
-				"compress":       req.Compress,
-				"manage":         req.Manage,
-				"archive":        req.Archive,
-				"rm_dir":         req.RmDir,
-				"retention_days": req.RetentionDays,
+				"Body":                req.Body,
+				"prefix":              req.Prefix,
+				"compress":            req.Compress,
+				"manage":              req.Manage,
+				"archive":             req.Archive,
+				"rm_dir":              req.RmDir,
+				"retention_days":      req.RetentionDays,
 				"conflict_resolution": req.ConflictResolution,
-				"coverpage":      req.Coverpage,
+				"coverpage":           req.Coverpage,
 			}
 			// Set defaults for empty values
 			if form["compress"] == "" {
@@ -233,15 +232,15 @@ func EnqueueHandler(c *gin.Context) {
 	} else {
 		// Legacy form-encoded processing (for frontend compatibility)
 		form := map[string]string{
-			"Body":           c.PostForm("Body"),
-			"prefix":         c.PostForm("prefix"),
-			"compress":       c.DefaultPostForm("compress", "false"),
-			"manage":         c.DefaultPostForm("manage", "false"),
-			"archive":        c.DefaultPostForm("archive", "false"),
-			"rm_dir":         c.PostForm("rm_dir"),
-			"retention_days": c.DefaultPostForm("retention_days", "7"),
+			"Body":                c.PostForm("Body"),
+			"prefix":              c.PostForm("prefix"),
+			"compress":            c.DefaultPostForm("compress", "false"),
+			"manage":              c.DefaultPostForm("manage", "false"),
+			"archive":             c.DefaultPostForm("archive", "false"),
+			"rm_dir":              c.PostForm("rm_dir"),
+			"retention_days":      c.DefaultPostForm("retention_days", "7"),
 			"conflict_resolution": c.PostForm("conflict_resolution"),
-			"coverpage":      c.PostForm("coverpage"),
+			"coverpage":           c.PostForm("coverpage"),
 		}
 		id := enqueueJobForUser(form, userID)
 		c.JSON(http.StatusAccepted, gin.H{"jobId": id})
@@ -474,7 +473,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		// Create new filename with month and day but no year
 		today := time.Now()
 		month, day := today.Format("January"), today.Day()
-		
+
 		var newFilename string
 		if prefix != "" {
 			manager.Logf("🔄 Renaming file for managed workflow with prefix: %s", prefix)
@@ -483,11 +482,11 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			manager.Logf("🔄 Renaming file for managed workflow (no prefix)")
 			newFilename = fmt.Sprintf("%s %d.pdf", month, day)
 		}
-		
+
 		// Create renamed file in same directory as original
 		dir := filepath.Dir(localPath)
 		finalLocalPath = filepath.Join(dir, newFilename)
-		
+
 		// Copy to new location
 		secureLocalPath, err := security.NewSecurePathFromExisting(localPath)
 		if err != nil {
@@ -500,7 +499,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		if err := security.SafeRename(secureLocalPath, secureFinalPath); err != nil {
 			return "backend.status.rename_error", nil, err
 		}
-		
+
 		// Clean up the renamed file when done
 		defer func() {
 			if secureFinalPath, err := security.NewSecurePathFromExisting(finalLocalPath); err == nil {
@@ -523,7 +522,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		if isConflictError(err) {
 			return "backend.status.conflict_entry_exists", map[string]string{
 				"conflict_resolution": "settings.labels.conflict_resolution",
-				"settings": "app.settings",
+				"settings":            "app.settings",
 			}, err
 		}
 		return "backend.status.internal_error", nil, err
@@ -534,12 +533,12 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		manager.Logf("📦 Archiving to storage backend")
 		filename := filepath.Base(finalLocalPath)
 		multiUserMode := database.IsMultiUserMode()
-		
+
 		var storageKey string
 		if manage {
 			// For managed files, use no-year format first, then add year for archival
 			noYearKey := storage.GenerateUserDocumentKey(userID, prefix, filename, multiUserMode)
-			
+
 			// Copy to storage with no-year format
 			ctx := context.Background()
 			if err := storage.CopyFileToStorage(ctx, finalLocalPath, noYearKey); err != nil {
@@ -560,7 +559,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 				manager.Logf("⚠️ archival warning: failed to copy to storage: %v", err)
 			}
 		}
-		
+
 	}
 
 	// 7) If manage==true, perform cleanup
@@ -690,31 +689,32 @@ func processDocumentForUser(jobID string, req DocumentRequest, userID uuid.UUID)
 	}
 
 	// Create temp file with proper extension
-	tempFile, err := ioutil.TempFile("", "aviary-doc-*"+filepath.Ext(filename))
+	dstPath := filepath.Join(jobTempDir, filename)
+	tempFile, err := os.Create(dstPath)
 	if err != nil {
 		return "backend.status.save_error", nil, fmt.Errorf("failed to create temp file: %w", err)
 	}
-	tempFilePath := tempFile.Name()
-	
+	tempFilePath := dstPath
+
 	// Write content to temp file
 	if _, err := tempFile.Write(content); err != nil {
 		tempFile.Close()
-		os.Remove(tempFilePath)
+		os.Remove(dstPath)
 		return "backend.status.save_error", nil, fmt.Errorf("failed to write document: %w", err)
 	}
 	tempFile.Close()
 
 	// Create form map for existing processing pipeline
 	form := map[string]string{
-		"Body":           tempFilePath,
-		"prefix":         req.Prefix,
-		"compress":       req.Compress,
-		"manage":         req.Manage,
-		"archive":        req.Archive,
-		"rm_dir":         req.RmDir,
-		"retention_days": req.RetentionDays,
+		"Body":                tempFilePath,
+		"prefix":              req.Prefix,
+		"compress":            req.Compress,
+		"manage":              req.Manage,
+		"archive":             req.Archive,
+		"rm_dir":              req.RmDir,
+		"retention_days":      req.RetentionDays,
 		"conflict_resolution": req.ConflictResolution,
-		"coverpage":      req.Coverpage,
+		"coverpage":           req.Coverpage,
 	}
 
 	// Set defaults for empty values
@@ -871,7 +871,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 	if err := json.Unmarshal([]byte(pathsJSON), &filePaths); err != nil {
 		return "backend.status.internal_error", nil, fmt.Errorf("failed to parse file paths: %w", err)
 	}
-	
+
 	// Validate all file paths to prevent path injection attacks
 	for i, filePath := range filePaths {
 		if err := security.ValidateExistingFilePath(filePath); err != nil {
@@ -906,7 +906,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 	// Separate files by type and process compressible files first, then EPUBs
 	var compressibleFiles []string
 	var epubFiles []string
-	
+
 	for _, filePath := range filePaths {
 		ext := strings.ToLower(filepath.Ext(filePath))
 		if ext == ".epub" {
@@ -915,7 +915,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 			compressibleFiles = append(compressibleFiles, filePath)
 		}
 	}
-	
+
 	// Reorder file paths: compressible files first, then EPUBs
 	orderedPaths := append(compressibleFiles, epubFiles...)
 
@@ -998,7 +998,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 				security.SafeRemove(secureFilePath)
 			}
 			cleanupPaths = append(cleanupPaths, compressedPath)
-			
+
 			// Rename compressed file to remove "_compressed" suffix (to match single file flow)
 			origPath := strings.TrimSuffix(compressedPath, "_compressed.pdf") + ".pdf"
 			secureCompressedPath, compErr := security.NewSecurePathFromExisting(compressedPath)
@@ -1008,7 +1008,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 				secureCleanupPaths(cleanupPaths)
 				return "backend.status.rename_error", nil, fmt.Errorf("failed to rename compressed file")
 			}
-			
+
 			// Update cleanup paths and file path
 			cleanupPaths[len(cleanupPaths)-1] = origPath // Replace the last entry
 			filePath = origPath
@@ -1033,7 +1033,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 			if isConflictError(err) {
 				return "backend.status.conflict_entry_exists", map[string]string{
 					"conflict_resolution": "settings.labels.conflict_resolution",
-					"settings": "app.settings",
+					"settings":            "app.settings",
 				}, err
 			}
 			return "backend.status.internal_error", nil, err
