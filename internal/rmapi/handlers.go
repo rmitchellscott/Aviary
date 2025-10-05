@@ -184,5 +184,9 @@ func UnpairHandler(c *gin.Context) {
 	// Clear database config (no filesystem operations needed)
 	SaveUserConfig(user.ID, "")
 
+	// Cleanup user cache to ensure fresh state on next pairing
+	cachePath := GetUserCachePath(user.ID)
+	CleanupUserCache(cachePath)
+
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
