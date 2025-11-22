@@ -18,7 +18,7 @@ COPY --from=xx / /
 RUN apk add --no-cache git
 
 # Rmapi stage
-FROM ghcr.io/ddvk/rmapi:v0.0.31 AS rmapi-binary
+FROM ghcr.io/ddvk/rmapi:v0.0.32 AS rmapi-binary
 
 # Aviary build
 FROM --platform=$BUILDPLATFORM go-base AS aviary-builder
