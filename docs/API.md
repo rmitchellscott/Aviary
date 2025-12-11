@@ -12,15 +12,16 @@ Upload documents by providing a URL to download from.
 
 | Parameter                | Required? | Example | Description |
 |--------------------------|-----------|---------|-------------|
-| Body                     | Yes       | https://pdfobject.com/pdf/sample.pdf | URL to PDF to download
+| Body                     | Yes       | https://pdfobject.com/pdf/sample.pdf | URL to PDF/EPUB to download, or web article URL for extraction
 | prefix                   | No        | Reports     | Folder and file-name prefix, only used if `manage` is also `true` |
-| compress                 | No        | true/false  | Run Ghostscript compression |
+| compress                 | No        | true/false  | Run Ghostscript compression (PDF only) |
 | manage                   | No        | true/false  | Enable managed handling (renaming and cleanup) |
 | archive                  | No        | true/false  | Download to PDF_DIR instead of /tmp |
 | rm_dir                   | No        | Books       | Override default reMarkable upload directory |
 | retention_days           | No        | 30          | Optional integer (in days) for cleanup if manage=true. Defaults to 7. |
 | conflict_resolution      | No        | abort/overwrite/content_only | Override conflict resolution when file exists. Defaults to user/environment setting. |
 | coverpage                | No        | current/first | Override coverpage setting for PDF uploads. Defaults to user/environment setting. |
+| outputFormat             | No        | pdf/epub    | Output format for web articles, HTML, and Markdown. Defaults to CONVERSION_OUTPUT_FORMAT or pdf. |
 
 ### Document content uploads (JSON)
 
@@ -33,15 +34,16 @@ Upload documents by providing base64-encoded content directly.
 | filename                 | No        | document.pdf | Original filename |
 | isContent                | Yes       | true | Must be set to true for content uploads |
 | prefix                   | No        | Reports | Folder and file-name prefix |
-| compress                 | No        | true/false | Run Ghostscript compression |
+| compress                 | No        | true/false | Run Ghostscript compression (PDF only) |
 | manage                   | No        | true/false | Enable managed handling |
 | archive                  | No        | true/false | Save to PDF_DIR instead of /tmp |
 | rm_dir                   | No        | Books | Override default reMarkable upload directory |
 | retention_days           | No        | 30 | Optional integer (in days) for cleanup |
 | conflict_resolution      | No        | abort/overwrite/content_only | Override conflict resolution when file exists |
 | coverpage                | No        | current/first | Override coverpage setting for PDF uploads |
+| outputFormat             | No        | pdf/epub | Output format for HTML and Markdown files. Defaults to CONVERSION_OUTPUT_FORMAT or pdf. |
 
-**Supported content types:** PDF, JPEG, PNG, EPUB
+**Supported content types:** PDF, JPEG, PNG, EPUB, Markdown (.md), HTML (.html)
 
 **Note:** The `content_only` conflict resolution mode only works with PDF files. For non-PDF files (images, EPUB), it automatically falls back to `abort` behavior.
 
@@ -90,6 +92,17 @@ curl -X POST http://localhost:8000/api/webhook \
   -d "conflict_resolution=content_only"
 ```
 
+#### Extract web article and convert to EPUB
+```shell
+curl -X POST http://localhost:8000/api/webhook \
+  -H "Authorization: Bearer your-api-key" \
+  -d "Body=https://example.com/article" \
+  -d "outputFormat=epub" \
+  -d "rm_dir=Articles"
+```
+
+**Note:** When a URL does not end with `.pdf` or `.epub`, Aviary will extract the readable article content (removing ads, navigation, etc.) using Mozilla's Readability algorithm and convert it to your chosen format (PDF or EPUB).
+
 ### Document content uploads (JSON)
 
 #### Upload base64-encoded PDF content
@@ -122,6 +135,23 @@ curl -X POST http://localhost:8000/api/webhook \
     "conflict_resolution": "abort"
   }'
 ```
+
+#### Upload Markdown content and convert to PDF
+```shell
+curl -X POST http://localhost:8000/api/webhook \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer your-api-key" \
+  -d '{
+    "body": "IyBNeSBBcnRpY2xlCgpUaGlzIGlzIGEgKiptYXJrZG93bioqIGRvY3VtZW50Lg==",
+    "contentType": "text/markdown",
+    "filename": "article.md",
+    "isContent": true,
+    "outputFormat": "pdf",
+    "rm_dir": "Notes"
+  }'
+```
+
+**Note:** Markdown files with YAML frontmatter will have metadata (title, author, etc.) automatically extracted and used in the generated document.
 
 ## Response Format
 

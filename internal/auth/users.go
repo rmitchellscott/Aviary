@@ -14,18 +14,19 @@ import (
 
 // UpdateUserRequest represents a user update request
 type UpdateUserRequest struct {
-	Username            *string  `json:"username,omitempty"`
-	Email               *string  `json:"email,omitempty" binding:"omitempty,email"`
-	RmapiHost           *string  `json:"rmapi_host,omitempty"`
-	DefaultRmdir        *string  `json:"default_rmdir,omitempty"`
-	CoverpageSetting    *string  `json:"coverpage_setting,omitempty"`
-	ConflictResolution  *string  `json:"conflict_resolution,omitempty"`
-	FolderDepthLimit    *int     `json:"folder_depth_limit,omitempty"`
-	FolderExclusionList *string  `json:"folder_exclusion_list,omitempty"`
-	PageResolution      *string  `json:"page_resolution,omitempty"`
-	PageDPI             *float64 `json:"page_dpi,omitempty"`
-	IsAdmin             *bool    `json:"is_admin,omitempty"`
-	IsActive            *bool    `json:"is_active,omitempty"`
+	Username               *string  `json:"username,omitempty"`
+	Email                  *string  `json:"email,omitempty" binding:"omitempty,email"`
+	RmapiHost              *string  `json:"rmapi_host,omitempty"`
+	DefaultRmdir           *string  `json:"default_rmdir,omitempty"`
+	CoverpageSetting       *string  `json:"coverpage_setting,omitempty"`
+	ConflictResolution     *string  `json:"conflict_resolution,omitempty"`
+	FolderDepthLimit       *int     `json:"folder_depth_limit,omitempty"`
+	FolderExclusionList    *string  `json:"folder_exclusion_list,omitempty"`
+	PageResolution         *string  `json:"page_resolution,omitempty"`
+	PageDPI                *float64 `json:"page_dpi,omitempty"`
+	ConversionOutputFormat *string  `json:"conversion_output_format,omitempty"`
+	IsAdmin                *bool    `json:"is_admin,omitempty"`
+	IsActive               *bool    `json:"is_active,omitempty"`
 }
 
 // UpdatePasswordRequest represents a password update request
@@ -382,6 +383,10 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 
 	if req.PageDPI != nil {
 		updates["page_dpi"] = *req.PageDPI // Allow clearing by setting to 0
+	}
+
+	if req.ConversionOutputFormat != nil {
+		updates["conversion_output_format"] = *req.ConversionOutputFormat // Allow clearing by setting to empty string
 	}
 
 	if len(updates) == 0 {

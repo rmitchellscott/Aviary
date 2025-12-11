@@ -20,6 +20,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/auth"
 	"github.com/rmitchellscott/aviary/internal/compressor"
+	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/converter"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/downloader"
@@ -96,7 +97,15 @@ var (
 	// jobStore holds in-memory jobs for status polling.
 	jobStore = jobs.NewStore()
 	// supportedContentTypes lists MIME types we can process
-	supportedContentTypes = []string{"application/pdf", "image/jpeg", "image/png", "application/epub+zip"}
+	supportedContentTypes = []string{
+		"application/pdf",
+		"image/jpeg",
+		"image/png",
+		"application/epub+zip",
+		"text/markdown",
+		"text/html",
+		"text/plain", // for .md files that might be detected as plain text
+	}
 )
 
 // DocumentRequest represents a webhook request that can contain either a URL or document content
@@ -366,19 +375,75 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			}()
 		}
 	} else {
-		// 2) Otherwise, extract a URL and download to a temp or permanent location.
+		// 2) Otherwise, extract a URL
 		match := urlRegex.FindString(body)
 		if match == "" {
 			return "backend.status.no_url", nil, fmt.Errorf("no URL")
 		}
 
-		manager.Logf("DownloadPDF: tmp=true, prefix=%q", prefix)
-		jobStore.UpdateWithOperation(jobID, "Running", "backend.status.downloading", nil, "downloading")
-		localPath, err = downloader.DownloadPDFForUser(match, true, prefix, userID, nil)
-		if err != nil {
-			// Even if download fails, localPath may be empty—no cleanup needed here.
-			return "backend.status.download_error", nil, err
+		// Check if this is a direct PDF/EPUB URL or a web article
+		lowerURL := strings.ToLower(match)
+		if strings.HasSuffix(lowerURL, ".pdf") || strings.HasSuffix(lowerURL, ".epub") {
+			// Direct download of PDF/EPUB
+			manager.Logf("DownloadPDF: tmp=true, prefix=%q", prefix)
+			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.downloading", nil, "downloading")
+			localPath, err = downloader.DownloadPDFForUser(match, true, prefix, userID, nil)
+			if err != nil {
+				return "backend.status.download_error", nil, err
+			}
+		} else {
+			// Web article - extract readable content and convert to EPUB/PDF
+			manager.Logf("🌐 Extracting article from URL: %s", match)
+			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.fetching_url", nil, "fetching")
+
+			// Extract readable content from URL
+			articleContent, extractErr := converter.ExtractFromURL(match)
+			if extractErr != nil {
+				return "backend.status.download_error", nil, fmt.Errorf("failed to extract article: %w", extractErr)
+			}
+
+			// Determine output format
+			outputFormat := getOutputFormat(form, dbUser)
+			manager.Logf("📄 Output format: %s", outputFormat)
+
+			// Create temp file for the converted content
+			tempDir, tempErr := manager.CreateUserTempDir(userID)
+			if tempErr != nil {
+				return "backend.status.internal_error", nil, fmt.Errorf("failed to create temp dir: %w", tempErr)
+			}
+
+			var convertedPath string
+			var convErr error
+
+			if outputFormat == "epub" {
+				jobStore.UpdateWithOperation(jobID, "Running", "backend.status.generating_epub", nil, "generating")
+				convertedPath = filepath.Join(tempDir, "article.epub")
+
+				epubOptions := converter.EPUBOptions{
+					Title:    articleContent.Title,
+					Author:   articleContent.Byline,
+					Language: "en",
+				}
+
+				convErr = converter.ConvertHTMLToEPUB(articleContent.HTML, convertedPath, epubOptions)
+			} else {
+				jobStore.UpdateWithOperation(jobID, "Running", "backend.status.rendering_pdf", nil, "rendering")
+				convertedPath = filepath.Join(tempDir, "article.pdf")
+
+				pdfOptions := converter.GetPDFOptionsFromConfig()
+				pdfOptions.Title = articleContent.Title
+
+				convErr = converter.ConvertHTMLToPDF(articleContent.HTML, convertedPath, pdfOptions)
+			}
+
+			if convErr != nil {
+				return "backend.status.conversion_error", nil, fmt.Errorf("failed to convert article: %w", convErr)
+			}
+
+			localPath = convertedPath
+			manager.Logf("✅ Article converted: %s", localPath)
 		}
+
 		// Ensure we delete this file (even on error) once we're done
 		defer func() {
 			// Only attempt removal if the file still exists
@@ -426,6 +491,96 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 
 		// Replace localPath so the rest of the pipeline uses the PDF
 		localPath = pdfPath
+	}
+
+	// 3.5) Handle HTML/Markdown conversion to EPUB or PDF
+	if ext == ".html" || ext == ".htm" || ext == ".md" || ext == ".markdown" {
+		manager.Logf("🔄 Detected %s file – converting to EPUB/PDF", strings.ToUpper(strings.TrimPrefix(ext, ".")))
+
+		// Determine output format
+		outputFormat := getOutputFormat(form, dbUser)
+		manager.Logf("📄 Output format: %s", outputFormat)
+
+		var htmlContent *converter.ArticleContent
+		var title string
+		var convErr error
+
+		if ext == ".md" || ext == ".markdown" {
+			// Markdown → HTML (skip readability)
+			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.converting_markdown", nil, "converting")
+			mdResult, mdErr := converter.ConvertMarkdownToHTML(localPath)
+			if mdErr != nil {
+				return "backend.status.conversion_error", nil, fmt.Errorf("markdown conversion failed: %w", mdErr)
+			}
+			// Use metadata from frontmatter
+			title = mdResult.Metadata.Title
+			if title == "" {
+				title = strings.TrimSuffix(filepath.Base(localPath), ext)
+			}
+			htmlContent = &converter.ArticleContent{
+				HTML:   mdResult.HTML,
+				Title:  title,
+				Byline: mdResult.Metadata.Author,
+			}
+		} else {
+			// HTML → extract readable content via go-readability
+			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.extracting_article", nil, "extracting")
+			htmlContent, convErr = converter.ExtractFromHTML(localPath)
+			if convErr != nil {
+				return "backend.status.conversion_error", nil, fmt.Errorf("HTML extraction failed: %w", convErr)
+			}
+			title = htmlContent.Title
+			if title == "" {
+				title = strings.TrimSuffix(filepath.Base(localPath), ext)
+			}
+		}
+
+		// Convert to EPUB or PDF based on output format
+		var convertedPath string
+		if outputFormat == "epub" {
+			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.generating_epub", nil, "generating")
+			epubPath := strings.TrimSuffix(localPath, ext) + ".epub"
+
+			epubOptions := converter.EPUBOptions{
+				Title:   title,
+				Author:  htmlContent.Byline,
+				Language: "en",
+			}
+
+			convErr = converter.ConvertHTMLToEPUB(htmlContent.HTML, epubPath, epubOptions)
+			if convErr != nil {
+				return "backend.status.conversion_error", nil, fmt.Errorf("EPUB generation failed: %w", convErr)
+			}
+			convertedPath = epubPath
+		} else {
+			// PDF
+			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.rendering_pdf", nil, "rendering")
+			pdfPath := strings.TrimSuffix(localPath, ext) + ".pdf"
+
+			pdfOptions := converter.GetPDFOptionsFromConfig()
+			pdfOptions.Title = title
+
+			convErr = converter.ConvertHTMLToPDF(htmlContent.HTML, pdfPath, pdfOptions)
+			if convErr != nil {
+				return "backend.status.conversion_error", nil, fmt.Errorf("PDF generation failed: %w", convErr)
+			}
+			convertedPath = pdfPath
+		}
+
+		// Schedule cleanup of the generated file at the end
+		defer func() {
+			if secureConvertedPath, err := security.NewSecurePathFromExisting(convertedPath); err == nil {
+				if security.SafeStatExists(secureConvertedPath) {
+					if cleanupErr = security.SafeRemove(secureConvertedPath); cleanupErr != nil {
+						manager.Logf("⚠️ cleanup warning (on exit): could not remove generated file %q: %v", convertedPath, cleanupErr)
+					}
+				}
+			}
+		}()
+
+		// Replace localPath so the rest of the pipeline uses the converted file
+		localPath = convertedPath
+		manager.Logf("✅ Conversion complete: %s", localPath)
 	}
 
 	// 4) Optionally compress the PDF
@@ -786,6 +941,34 @@ func min(a, b int) int {
 func isTrue(s string) bool {
 	s = strings.ToLower(s)
 	return s == "true" || s == "1" || s == "yes"
+}
+
+// getOutputFormat determines the output format (pdf or epub) based on:
+// 1. Request parameter override (outputFormat in form)
+// 2. User's per-user setting (if multi-user mode)
+// 3. Global environment variable
+// Returns "pdf" or "epub"
+func getOutputFormat(form map[string]string, dbUser *database.User) string {
+	// Check for request override
+	if format := strings.ToLower(form["outputFormat"]); format == "pdf" || format == "epub" {
+		return format
+	}
+
+	// Check user preference in multi-user mode
+	if database.IsMultiUserMode() && dbUser != nil && dbUser.ConversionOutputFormat != "" {
+		format := strings.ToLower(dbUser.ConversionOutputFormat)
+		if format == "pdf" || format == "epub" {
+			return format
+		}
+	}
+
+	// Fall back to environment config
+	return config.GetConversionOutputFormat()
+}
+
+// isURL checks if the string is an HTTP(S) URL
+func isURL(s string) bool {
+	return strings.HasPrefix(s, "http://") || strings.HasPrefix(s, "https://")
 }
 
 // trackDocumentUpload records a document upload in the database

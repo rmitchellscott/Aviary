@@ -53,7 +53,7 @@ func init() {
 	}
 }
 
-func pickUA() string {
+func PickUA() string {
 	if len(userAgents) == 0 {
 		return defaultUA
 	}
@@ -107,7 +107,7 @@ func DownloadPDFForUser(urlStr string, tmp bool, prefix string, userID uuid.UUID
 	if err != nil {
 		return "", fmt.Errorf("creating request: %w", err)
 	}
-	req.Header.Set("User-Agent", pickUA())
+	req.Header.Set("User-Agent", PickUA())
 
 	resp, err := downloadClient.Do(req)
 	if err != nil {

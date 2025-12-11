@@ -148,6 +148,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [devicePreset, setDevicePreset] = useState("remarkable_1_2");
   const [manualPageResolution, setManualPageResolution] = useState("");
   const [manualPageDPI, setManualPageDPI] = useState("");
+  const [conversionOutputFormat, setConversionOutputFormat] = useState("pdf");
   const [folderDepthLimit, setFolderDepthLimit] = useState("");
   const [folderExclusionList, setFolderExclusionList] = useState("");
   
@@ -162,6 +163,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     devicePreset: "remarkable_1_2",
     manualPageResolution: "",
     manualPageDPI: "",
+    conversionOutputFormat: "pdf",
     folderDepthLimit: "",
     folderExclusionList: ""
   });
@@ -212,7 +214,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         const detectedPreset = getDevicePresetFromUser(user.page_resolution, user.page_dpi);
         const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
         const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
-        
+        const outputFormat = user.conversion_output_format || "pdf";
+
         setUsername(user.username);
         setEmail(email);
         setUserRmapiHost(userRmapiHost);
@@ -224,6 +227,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         setDevicePreset(detectedPreset);
         setManualPageResolution(manualResolution);
         setManualPageDPI(manualDPI);
+        setConversionOutputFormat(outputFormat);
       }
     }
   }, [isOpen, user]);
@@ -241,7 +245,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       const detectedPreset = getDevicePresetFromUser(user.page_resolution, user.page_dpi);
       const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
       const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
-      
+      const outputFormat = user.conversion_output_format || "pdf";
+
       setUsername(user.username);
       setEmail(email);
       setUserRmapiHost(userRmapiHost);
@@ -253,7 +258,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setDevicePreset(detectedPreset);
       setManualPageResolution(manualResolution);
       setManualPageDPI(manualDPI);
-      
+      setConversionOutputFormat(outputFormat);
+
       setOriginalValues({
         username: user.username,
         email,
@@ -265,7 +271,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         folderExclusionList,
         devicePreset: detectedPreset,
         manualPageResolution: manualResolution,
-        manualPageDPI: manualDPI
+        manualPageDPI: manualDPI,
+        conversionOutputFormat: outputFormat
       });
     }
   }, [user]);
@@ -317,6 +324,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setDevicePreset("remarkable_1_2");
       setManualPageResolution("");
       setManualPageDPI("");
+      setConversionOutputFormat("pdf");
       setFolderDepthLimit("");
       setFolderExclusionList("");
       
@@ -422,7 +430,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       folderExclusionList !== originalValues.folderExclusionList ||
       devicePreset !== originalValues.devicePreset ||
       manualPageResolution !== originalValues.manualPageResolution ||
-      manualPageDPI !== originalValues.manualPageDPI
+      manualPageDPI !== originalValues.manualPageDPI ||
+      conversionOutputFormat !== originalValues.conversionOutputFormat
     );
   };
 
@@ -446,6 +455,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           conflict_resolution: conflictResolution,
           folder_depth_limit: folderDepthLimit === "" ? 0 : parseInt(folderDepthLimit),
           folder_exclusion_list: folderExclusionList,
+          conversion_output_format: conversionOutputFormat,
           ...pageSettings,
         }),
       });
@@ -471,7 +481,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           folderExclusionList,
           devicePreset: detectedPreset,
           manualPageResolution: manualResolution,
-          manualPageDPI: manualDPI
+          manualPageDPI: manualDPI,
+          conversionOutputFormat: conversionOutputFormat
         });
 
         // Trigger folder refresh if folder settings changed
@@ -1049,6 +1060,29 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         </div>
                       </div>
                     )}
+
+                    <div>
+                      <Label htmlFor="conversion-output-format">{t("settings.labels.conversion_output_format")}</Label>
+                      <Select
+                        value={conversionOutputFormat}
+                        onValueChange={setConversionOutputFormat}
+                      >
+                        <SelectTrigger id="conversion-output-format" className="mt-2 w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pdf">
+                            {t("settings.options.pdf")}
+                          </SelectItem>
+                          <SelectItem value="epub">
+                            {t("settings.options.epub")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {t("settings.help.conversion_output_format")}
+                      </p>
+                    </div>
                   </div>
 
                   <div className="flex flex-col sm:flex-row sm:justify-end">

@@ -64,7 +64,7 @@
   },
   "filedrop": {
     "instruction": "Click to upload or drag and drop",
-    "invalid_type": "Please select a PDF, EPUB, JPEG, or a PNG file."
+    "invalid_type": "Please select a PDF, EPUB, JPEG, PNG, Markdown, or HTML file."
   },
   "theme": {
     "switch": "Switch to {{mode}} mode",
@@ -369,7 +369,8 @@
       "expires": "Expires",
       "pdf_conversion_device": "Conversion Target",
       "page_resolution": "Page Resolution",
-      "page_dpi": "Page DPI"
+      "page_dpi": "Page DPI",
+      "conversion_output_format": "Conversion Output Format"
     },
     "actions": {
       "unpair": "Unpair",
@@ -386,7 +387,9 @@
       "manual": "Manual",
       "conflict_abort": "Abort",
       "conflict_overwrite": "Overwrite",
-      "conflict_content_only": "Content Only"
+      "conflict_content_only": "Content Only",
+      "pdf": "PDF",
+      "epub": "EPUB"
     },
     "expiry_options": {
       "one_week": "1 week",
@@ -413,6 +416,7 @@
       "pdf_conversion_device": "Choose your reMarkable device model for optimal image to PDF conversion. This setting only affects image files (JPEG, PNG) that are converted to PDF.",
       "page_resolution": "Page resolution in WIDTHxHEIGHT format",
       "page_dpi": "Dots per inch",
+      "conversion_output_format": "Default format for web articles, HTML, and Markdown files. Can be overridden per-request via API.",
       "default_directory": "Choose the default folder on your reMarkable where your documents will be uploaded"
     },
     "status": {
@@ -527,8 +531,13 @@
       "no_url": "No URL found in request body",
       "downloading": "Downloading",
       "download_error": "Download error",
+      "fetching_url": "Fetching article from URL",
+      "extracting_article": "Extracting readable content",
+      "converting_markdown": "Converting Markdown to HTML",
       "converting_pdf": "Converting to PDF",
-      "conversion_error": "Image→PDF conversion error",
+      "conversion_error": "Conversion error",
+      "generating_epub": "Generating EPUB",
+      "rendering_pdf": "Rendering PDF",
       "compressing_pdf": "Compressing PDF",
       "compress_error": "Compress error",
       "rename_error": "Rename error",
