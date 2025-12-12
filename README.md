@@ -37,6 +37,8 @@ A webhook-driven document uploader that automatically downloads and sends PDFs t
 ### Document Processing
 - Webhook endpoint for HTTP integrations
 - Automatic PDF download with realistic browser User-Agent
+- Web article extraction (using Mozilla Readability algorithm)
+- Markdown and HTML to PDF/EPUB conversion
 - PNG/JPEG to PDF conversion
 - Optional Ghostscript compression
 - Configurable conflict resolution (abort/overwrite/content-only)

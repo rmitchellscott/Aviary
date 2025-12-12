@@ -369,7 +369,8 @@
       "expires": "Wygasa",
       "pdf_conversion_device": "Cel konwersji",
       "page_resolution": "Rozdzielczość strony",
-      "page_dpi": "DPI strony"
+      "page_dpi": "DPI strony",
+      "conversion_output_format": "Format Wyjściowy Konwersji"
     },
     "actions": {
       "unpair": "Odparuj",
@@ -386,7 +387,9 @@
       "manual": "Ręczny",
       "conflict_abort": "Przerwij",
       "conflict_overwrite": "Nadpisz",
-      "conflict_content_only": "Tylko Zawartość"
+      "conflict_content_only": "Tylko Zawartość",
+      "pdf": "PDF",
+      "epub": "EPUB"
     },
     "expiry_options": {
       "one_week": "1 tydzień",
@@ -407,13 +410,14 @@
     },
     "help": {
       "cover_page": "Kontroluje, czy pierwsza strona lub bieżąca strona jest używana jako okładka podczas przesyłania plików PDF",
+      "conflict_resolution": "Wybierz co się dzieje podczas przesyłania dokumentu o takiej samej nazwie jak istniejący dokument. Tylko Zawartość zachowuje adnotacje i działa tylko dla PDF-ów i obrazów - Przerwie dla EPUB-ów. Nadpisz całkowicie zastępuje dokumenty.",
+      "folder_depth_limit": "Maksymalna głębokość folderów do wyświetlenia (pozostaw puste dla nieograniczonej)",
+      "folder_exclusion_list": "Lista oddzielonych przecinkami nazw folderów do wykluczenia, wrażliwa na wielkość liter",
       "pdf_conversion_device": "Wybierz model swojego urządzenia reMarkable dla optymalnej konwersji obraz-PDF. To ustawienie wpływa tylko na pliki obrazowe (JPEG, PNG) konwertowane do PDF.",
       "page_resolution": "Rozdzielczość strony w formacie SZEROKoŚĆxWYSOKoŚĆ",
       "page_dpi": "Punkty na cal",
-      "default_directory": "Wybierz domyślny folder, do którego będą przesyłane Twoje dokumenty",
-      "conflict_resolution": "Wybierz co się dzieje podczas przesyłania dokumentu o takiej samej nazwie jak istniejący dokument. Tylko Zawartość zachowuje adnotacje i działa tylko dla PDF-ów i obrazów - Przerwie dla EPUB-ów. Nadpisz całkowicie zastępuje dokumenty.",
-      "folder_depth_limit": "Maksymalna głębokość folderów do wyświetlenia (pozostaw puste dla nieograniczonej)",
-      "folder_exclusion_list": "Lista oddzielonych przecinkami nazw folderów do wykluczenia, wrażliwa na wielkość liter"
+      "conversion_output_format": "Domyślny format dla artykułów internetowych, plików HTML i Markdown.",
+      "default_directory": "Wybierz domyślny folder, do którego będą przesyłane Twoje dokumenty"
     },
     "status": {
       "active": "Aktywny",
@@ -527,8 +531,13 @@
       "no_url": "Nie znaleziono URL w treści żądania",
       "downloading": "Pobieranie",
       "download_error": "Błąd pobierania",
+      "fetching_url": "Pobieranie artykułu z URL",
+      "extracting_article": "Ekstrakcja czytelnej treści",
+      "converting_markdown": "Konwersja Markdown do HTML",
       "converting_pdf": "Konwersja do PDF",
       "conversion_error": "Błąd konwersji obraz→PDF",
+      "generating_epub": "Generowanie EPUB",
+      "rendering_pdf": "Renderowanie PDF",
       "compressing_pdf": "Kompresja PDF",
       "compress_error": "Błąd kompresji",
       "rename_error": "Błąd zmiany nazwy",

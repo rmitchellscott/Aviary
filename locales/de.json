@@ -369,7 +369,8 @@
       "expires": "Läuft ab",
       "pdf_conversion_device": "Konvertierungsziel",
       "page_resolution": "Seitenauflösung",
-      "page_dpi": "Seiten-DPI"
+      "page_dpi": "Seiten-DPI",
+      "conversion_output_format": "Konvertierungs-Ausgabeformat"
     },
     "actions": {
       "unpair": "Entkoppeln",
@@ -386,7 +387,9 @@
       "manual": "Manuell",
       "conflict_abort": "Abbrechen",
       "conflict_overwrite": "Überschreiben",
-      "conflict_content_only": "Nur Inhalt"
+      "conflict_content_only": "Nur Inhalt",
+      "pdf": "PDF",
+      "epub": "EPUB"
     },
     "expiry_options": {
       "one_week": "1 Woche",
@@ -413,7 +416,8 @@
       "default_directory": "Wählen Sie den Standardordner, in den Ihre Dokumente hochgeladen werden",
       "conflict_resolution": "Wählen Sie, was passiert, wenn Sie ein Dokument mit demselben Namen wie ein vorhandenes Dokument hochladen. Nur Inhalt behält Anmerkungen bei und funktioniert nur bei PDFs und Bildern - es wird bei EPUBs abbrechen. Überschreiben ersetzt Dokumente vollständig.",
       "folder_depth_limit": "Maximale Ordnertiefe zur Anzeige (leer lassen für unbegrenzt)",
-      "folder_exclusion_list": "Kommagetrennte Liste von Ordnernamen zum Ausschließen, groß-/kleinschreibungsempfindlich"
+      "folder_exclusion_list": "Kommagetrennte Liste von Ordnernamen zum Ausschließen, groß-/kleinschreibungsempfindlich",
+      "conversion_output_format": "Standardformat für Web-Artikel, HTML- und Markdown-Dateien."
     },
     "status": {
       "active": "Aktiv",
@@ -527,8 +531,13 @@
       "no_url": "Keine URL im Anfragetext gefunden",
       "downloading": "Wird heruntergeladen",
       "download_error": "Download-Fehler",
+      "fetching_url": "Artikel wird von URL abgerufen",
+      "extracting_article": "Lesbarer Inhalt wird extrahiert",
+      "converting_markdown": "Markdown wird zu HTML konvertiert",
       "converting_pdf": "Wird zu PDF konvertiert",
       "conversion_error": "Bild→PDF-Konvertierungsfehler",
+      "generating_epub": "EPUB wird generiert",
+      "rendering_pdf": "PDF wird gerendert",
       "compressing_pdf": "PDF wird komprimiert",
       "compress_error": "Komprimierungsfehler",
       "rename_error": "Umbenennungsfehler",

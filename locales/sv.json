@@ -369,7 +369,8 @@
       "expires": "Upphör",
       "pdf_conversion_device": "Konverteringsmål",
       "page_resolution": "Sidupplösning",
-      "page_dpi": "Sid-DPI"
+      "page_dpi": "Sid-DPI",
+      "conversion_output_format": "Konverteringsutdataformat"
     },
     "actions": {
       "unpair": "Koppla från",
@@ -386,7 +387,9 @@
       "manual": "Manuell",
       "conflict_abort": "Avbryt",
       "conflict_overwrite": "Skriv över",
-      "conflict_content_only": "Endast Innehåll"
+      "conflict_content_only": "Endast Innehåll",
+      "pdf": "PDF",
+      "epub": "EPUB"
     },
     "expiry_options": {
       "one_week": "1 vecka",
@@ -413,7 +416,8 @@
       "default_directory": "Välj standardmappen där dina dokument kommer att laddas upp",
       "conflict_resolution": "Välj vad som händer när du laddar upp ett dokument med samma namn som ett befintligt dokument. Endast Innehåll bevarar anteckningar och fungerar bara för PDF:er och bilder - det kommer att Avbryta för EPUB:er. Skriv över ersätter dokument helt.",
       "folder_depth_limit": "Maximal mappdjup att visa (lämna tom för obegränsat)",
-      "folder_exclusion_list": "Kommaseparerad lista över mappnamn att utesluta, skiftlägeskänslig"
+      "folder_exclusion_list": "Kommaseparerad lista över mappnamn att utesluta, skiftlägeskänslig",
+      "conversion_output_format": "Standardformat för webbartiklar, HTML och Markdown-filer."
     },
     "status": {
       "active": "Aktiv",
@@ -527,8 +531,13 @@
       "no_url": "Ingen URL hittad i begärans kropp",
       "downloading": "Laddar ner",
       "download_error": "Nedladdningsfel",
+      "fetching_url": "Hämtar artikel från URL",
+      "extracting_article": "Extraherar läsbart innehåll",
+      "converting_markdown": "Konverterar Markdown till HTML",
       "converting_pdf": "Konverterar till PDF",
       "conversion_error": "Bild→PDF konverteringsfel",
+      "generating_epub": "Genererar EPUB",
+      "rendering_pdf": "Renderar PDF",
       "compressing_pdf": "Komprimerar PDF",
       "compress_error": "Komprimeringsfel",
       "rename_error": "Namnbytesfel",

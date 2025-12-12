@@ -13,6 +13,13 @@ interface User {
   rmapi_host?: string
   rmapi_paired?: boolean
   default_rmdir: string
+  coverpage_setting?: string
+  conflict_resolution?: string
+  folder_depth_limit?: number
+  folder_exclusion_list?: string
+  page_resolution?: string
+  page_dpi?: number
+  conversion_output_format?: string
   created_at: string
   last_login?: string
 }

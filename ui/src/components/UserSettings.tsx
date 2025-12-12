@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { PairingDialog } from "@/components/PairingDialog";
 import { useUserData } from "@/hooks/useUserData";
+import { useAuth } from "@/components/AuthProvider";
 import { useConfig } from "@/components/ConfigProvider";
 import { useFolderRefresh } from "@/hooks/useFolderRefresh";
 import {
@@ -88,6 +89,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const { t } = useTranslation();
   const { user, loading: userDataLoading, rmapiPaired, rmapiHost, refetch, updatePairingStatus } = useUserData();
   const { config } = useConfig();
+  const { refetchAuth } = useAuth();
   const { triggerRefresh, refreshTrigger } = useFolderRefresh();
 
   // Device presets for image to PDF conversion
@@ -148,6 +150,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [devicePreset, setDevicePreset] = useState("remarkable_1_2");
   const [manualPageResolution, setManualPageResolution] = useState("");
   const [manualPageDPI, setManualPageDPI] = useState("");
+  const [conversionOutputFormat, setConversionOutputFormat] = useState("epub");
   const [folderDepthLimit, setFolderDepthLimit] = useState("");
   const [folderExclusionList, setFolderExclusionList] = useState("");
   
@@ -162,6 +165,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     devicePreset: "remarkable_1_2",
     manualPageResolution: "",
     manualPageDPI: "",
+    conversionOutputFormat: "epub",
     folderDepthLimit: "",
     folderExclusionList: ""
   });
@@ -212,7 +216,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         const detectedPreset = getDevicePresetFromUser(user.page_resolution, user.page_dpi);
         const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
         const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
-        
+        const outputFormat = user.conversion_output_format || "epub";
+
         setUsername(user.username);
         setEmail(email);
         setUserRmapiHost(userRmapiHost);
@@ -224,6 +229,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         setDevicePreset(detectedPreset);
         setManualPageResolution(manualResolution);
         setManualPageDPI(manualDPI);
+        setConversionOutputFormat(outputFormat);
       }
     }
   }, [isOpen, user]);
@@ -241,7 +247,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       const detectedPreset = getDevicePresetFromUser(user.page_resolution, user.page_dpi);
       const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
       const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
-      
+      const outputFormat = user.conversion_output_format || "epub";
+
       setUsername(user.username);
       setEmail(email);
       setUserRmapiHost(userRmapiHost);
@@ -253,7 +260,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setDevicePreset(detectedPreset);
       setManualPageResolution(manualResolution);
       setManualPageDPI(manualDPI);
-      
+      setConversionOutputFormat(outputFormat);
+
       setOriginalValues({
         username: user.username,
         email,
@@ -265,7 +273,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         folderExclusionList,
         devicePreset: detectedPreset,
         manualPageResolution: manualResolution,
-        manualPageDPI: manualDPI
+        manualPageDPI: manualDPI,
+        conversionOutputFormat: outputFormat
       });
     }
   }, [user]);
@@ -317,6 +326,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setDevicePreset("remarkable_1_2");
       setManualPageResolution("");
       setManualPageDPI("");
+      setConversionOutputFormat("pdf");
       setFolderDepthLimit("");
       setFolderExclusionList("");
       
@@ -331,6 +341,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         devicePreset: "remarkable_1_2",
         manualPageResolution: "",
         manualPageDPI: "",
+        conversionOutputFormat: "epub",
         folderDepthLimit: "",
         folderExclusionList: ""
       });
@@ -422,7 +433,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       folderExclusionList !== originalValues.folderExclusionList ||
       devicePreset !== originalValues.devicePreset ||
       manualPageResolution !== originalValues.manualPageResolution ||
-      manualPageDPI !== originalValues.manualPageDPI
+      manualPageDPI !== originalValues.manualPageDPI ||
+      conversionOutputFormat !== originalValues.conversionOutputFormat
     );
   };
 
@@ -446,6 +458,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           conflict_resolution: conflictResolution,
           folder_depth_limit: folderDepthLimit === "" ? 0 : parseInt(folderDepthLimit),
           folder_exclusion_list: folderExclusionList,
+          conversion_output_format: conversionOutputFormat,
           ...pageSettings,
         }),
       });
@@ -471,17 +484,19 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           folderExclusionList,
           devicePreset: detectedPreset,
           manualPageResolution: manualResolution,
-          manualPageDPI: manualDPI
+          manualPageDPI: manualDPI,
+          conversionOutputFormat: conversionOutputFormat
         });
 
         // Trigger folder refresh if folder settings changed
         if (folderSettingsChanged && rmapiPaired) {
           triggerRefresh();
         }
-        
-        // Refetch user data to ensure we have the latest from server
+
+        // Refetch auth and user data to ensure we have the latest from server
         // This happens after updating originalValues to prevent flash
-        setTimeout(() => {
+        setTimeout(async () => {
+          await refetchAuth();
           refetch();
         }, 100);
       } else {
@@ -964,35 +979,9 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <Label htmlFor="conflict-resolution">{t("settings.labels.conflict_resolution")}</Label>
-                      <Select 
-                        value={conflictResolution} 
-                        onValueChange={setConflictResolution}
-                      >
-                        <SelectTrigger id="conflict-resolution" className="mt-2 w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="abort">
-                            {t("settings.options.conflict_abort")}
-                          </SelectItem>
-                          <SelectItem value="overwrite">
-                            {t("settings.options.conflict_overwrite")}
-                          </SelectItem>
-                          <SelectItem value="content_only">
-                            {t("settings.options.conflict_content_only")}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {t("settings.help.conflict_resolution")}
-                      </p>
-                    </div>
-
-                    <div>
                       <Label htmlFor="device-preset">{t("settings.labels.pdf_conversion_device")}</Label>
-                      <Select 
-                        value={devicePreset} 
+                      <Select
+                        value={devicePreset}
                         onValueChange={setDevicePreset}
                       >
                         <SelectTrigger id="device-preset" className="mt-2 w-full">
@@ -1017,7 +1006,30 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         {t("settings.help.pdf_conversion_device")}
                       </p>
                     </div>
-                    
+
+                    <div>
+                      <Label htmlFor="conversion-output-format">{t("settings.labels.conversion_output_format")}</Label>
+                      <Select
+                        value={conversionOutputFormat}
+                        onValueChange={setConversionOutputFormat}
+                      >
+                        <SelectTrigger id="conversion-output-format" className="mt-2 w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pdf">
+                            {t("settings.options.pdf")}
+                          </SelectItem>
+                          <SelectItem value="epub">
+                            {t("settings.options.epub")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {t("settings.help.conversion_output_format")}
+                      </p>
+                    </div>
+
                     {devicePreset === "manual" && (
                       <div className="md:col-span-2 mt-4 space-y-4 p-4 bg-muted/50 rounded-md border">
                         <div>
@@ -1049,6 +1061,34 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         </div>
                       </div>
                     )}
+                  </div>
+
+                  <div className="mt-6">
+                    <div>
+                      <Label htmlFor="conflict-resolution">{t("settings.labels.conflict_resolution")}</Label>
+                      <Select
+                        value={conflictResolution}
+                        onValueChange={setConflictResolution}
+                      >
+                        <SelectTrigger id="conflict-resolution" className="mt-2 w-full md:w-1/2">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="abort">
+                            {t("settings.options.conflict_abort")}
+                          </SelectItem>
+                          <SelectItem value="overwrite">
+                            {t("settings.options.conflict_overwrite")}
+                          </SelectItem>
+                          <SelectItem value="content_only">
+                            {t("settings.options.conflict_content_only")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-muted-foreground mt-1 md:w-1/2">
+                        {t("settings.help.conflict_resolution")}
+                      </p>
+                    </div>
                   </div>
 
                   <div className="flex flex-col sm:flex-row sm:justify-end">

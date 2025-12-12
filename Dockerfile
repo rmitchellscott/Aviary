@@ -53,6 +53,7 @@ RUN apk add --no-cache \
       ghostscript \
       imagemagick \
       postgresql-client \
+      mupdf-tools \
     && update-ca-certificates
 
 WORKDIR /app

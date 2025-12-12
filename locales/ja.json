@@ -369,7 +369,8 @@
       "expires": "有効期限",
       "pdf_conversion_device": "変換ターゲット",
       "page_resolution": "ページ解像度",
-      "page_dpi": "ページDPI"
+      "page_dpi": "ページDPI",
+      "conversion_output_format": "変換出力形式"
     },
     "actions": {
       "unpair": "ペアリング解除",
@@ -386,7 +387,9 @@
       "manual": "手動",
       "conflict_abort": "中止",
       "conflict_overwrite": "上書き",
-      "conflict_content_only": "コンテンツのみ"
+      "conflict_content_only": "コンテンツのみ",
+      "pdf": "PDF",
+      "epub": "EPUB"
     },
     "expiry_options": {
       "one_week": "1週間",
@@ -413,7 +416,8 @@
       "default_directory": "ドキュメントがアップロードされるデフォルトフォルダを選択してください",
       "conflict_resolution": "既存の文書と同じ名前の文書をアップロードするときに何が起こるかを選択します。コンテンツのみは注釈を保持し、PDFと画像にのみ機能します - EPUBでは中止されます。上書きは文書を完全に置き換えます。",
       "folder_depth_limit": "表示する最大フォルダ深度（空白で無制限）",
-      "folder_exclusion_list": "除外するフォルダ名のカンマ区切りリスト、大文字小文字を区別"
+      "folder_exclusion_list": "除外するフォルダ名のカンマ区切りリスト、大文字小文字を区別",
+      "conversion_output_format": "Webの記事、HTML、Markdownファイルのデフォルト形式。"
     },
     "status": {
       "active": "アクティブ",
@@ -527,8 +531,13 @@
       "no_url": "リクエストボディにURLが見つかりません",
       "downloading": "ダウンロード中",
       "download_error": "ダウンロードエラー",
+      "fetching_url": "URLから記事を取得中",
+      "extracting_article": "読み取り可能なコンテンツを抽出中",
+      "converting_markdown": "MarkdownをHTMLに変換中",
       "converting_pdf": "PDFに変換中",
       "conversion_error": "画像→PDF変換エラー",
+      "generating_epub": "EPUBを生成中",
+      "rendering_pdf": "PDFをレンダリング中",
       "compressing_pdf": "PDF圧縮中",
       "compress_error": "圧縮エラー",
       "rename_error": "名前変更エラー",

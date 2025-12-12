@@ -369,7 +369,8 @@
       "expires": "Vanhenee",
       "pdf_conversion_device": "Muunnoskohde",
       "page_resolution": "Sivun resoluutio",
-      "page_dpi": "Sivun DPI"
+      "page_dpi": "Sivun DPI",
+      "conversion_output_format": "Muunnoksen tulostusmuoto"
     },
     "actions": {
       "unpair": "Katkaise yhteys",
@@ -386,7 +387,9 @@
       "manual": "Manuaalinen",
       "conflict_abort": "Keskeytä",
       "conflict_overwrite": "Korvaa",
-      "conflict_content_only": "Vain sisältö"
+      "conflict_content_only": "Vain sisältö",
+      "pdf": "PDF",
+      "epub": "EPUB"
     },
     "expiry_options": {
       "one_week": "1 viikko",
@@ -410,6 +413,7 @@
       "pdf_conversion_device": "Valitse reMarkable-laitteesi malli optimaaliseen kuva-PDF-muunnokseen. Tämä asetus vaikuttaa vain kuvatiedostoihin (JPEG, PNG), jotka muunnetaan PDF:ksi.",
       "page_resolution": "Sivun resoluutio LEVEYSxKORKEUS muodossa",
       "page_dpi": "Pistettä tuumaa kohti",
+      "conversion_output_format": "Oletusmuoto verkkoartikkeleille, HTML- ja Markdown-tiedostoille.",
       "default_directory": "Valitse oletuskansio, johon asiakirjasi ladataan",
       "conflict_resolution": "Valitse mitä tapahtuu kun lataat asiakirjan samalla nimellä kuin olemassa oleva asiakirja. Vain sisältö säilyttää merkinnät ja toimii vain PDF:ille ja kuville - se Keskeytää EPUB:ille. Korvaa korvaa asiakirjat kokonaan.",
       "folder_depth_limit": "Maksimi kansiosyvyys näytettäväksi (jätä tyhjäksi rajattomaksi)",
@@ -527,8 +531,13 @@
       "no_url": "URL:ää ei löytynyt pyynnön rungosta",
       "downloading": "Ladataan",
       "download_error": "Latausvirhe",
+      "fetching_url": "Haetaan artikkelia URL:stä",
+      "extracting_article": "Puretaan luettavaa sisältöä",
+      "converting_markdown": "Muunnetaan Markdown HTML:ksi",
       "converting_pdf": "Muunnetaan PDF:ksi",
       "conversion_error": "Kuva→PDF muunnosvirhe",
+      "generating_epub": "Luodaan EPUB:ia",
+      "rendering_pdf": "Renderöidään PDF:ää",
       "compressing_pdf": "Pakataan PDF:ää",
       "compress_error": "Pakkausvirhe",
       "rename_error": "Uudelleennimeämisvirhe",

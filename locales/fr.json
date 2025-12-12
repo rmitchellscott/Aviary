@@ -383,8 +383,13 @@
       "no_url": "Aucune URL trouvée dans le corps de la requête",
       "downloading": "Téléchargement",
       "download_error": "Erreur de téléchargement",
+      "fetching_url": "Récupération de l'article depuis l'URL",
+      "extracting_article": "Extraction du contenu lisible",
+      "converting_markdown": "Conversion de Markdown vers HTML",
       "converting_pdf": "Conversion vers PDF",
       "conversion_error": "Erreur de conversion Image→PDF",
+      "generating_epub": "Génération de l'EPUB",
+      "rendering_pdf": "Rendu du PDF",
       "compressing_pdf": "Compression PDF",
       "compress_error": "Erreur de compression",
       "rename_error": "Erreur de renommage",
@@ -444,7 +449,8 @@
       "expires": "Expire",
       "pdf_conversion_device": "Cible de conversion",
       "page_resolution": "Résolution de page",
-      "page_dpi": "DPI de page"
+      "page_dpi": "DPI de page",
+      "conversion_output_format": "Format de sortie de conversion"
     },
     "actions": {
       "unpair": "Découpler",
@@ -461,7 +467,9 @@
       "manual": "Manuel",
       "conflict_abort": "Abandonner",
       "conflict_overwrite": "Écraser",
-      "conflict_content_only": "Contenu seulement"
+      "conflict_content_only": "Contenu seulement",
+      "pdf": "PDF",
+      "epub": "EPUB"
     },
     "expiry_options": {
       "one_week": "1 semaine",
@@ -485,6 +493,7 @@
       "pdf_conversion_device": "Choisissez le modèle de votre appareil reMarkable pour une conversion optimale d'image vers PDF. Ce paramètre n'affecte que les fichiers image (JPEG, PNG) convertis en PDF.",
       "page_resolution": "Résolution de page au format LARGEURxHAUTEUR",
       "page_dpi": "Points par pouce",
+      "conversion_output_format": "Format par défaut pour les articles web, les fichiers HTML et Markdown.",
       "default_directory": "Choisissez le dossier par défaut où vos documents seront téléchargés",
       "conflict_resolution": "Choisissez ce qui se passe lors du téléchargement d'un document avec le même nom qu'un document existant. Contenu seulement préserve les annotations et ne fonctionne que pour les PDFs et images - cela Abandonnera pour les EPUBs. Écraser remplace complètement les documents.",
       "folder_depth_limit": "Profondeur maximale des dossiers à afficher (laisser vide pour illimité)",

@@ -17,6 +17,8 @@ const ACCEPT_CONFIG = {
   'application/epub+zip': ['.epub'],
   'image/jpeg': ['.jpg', '.jpeg'],
   'image/png': ['.png'],
+  'text/markdown': ['.md', '.markdown'],
+  'text/html': ['.html', '.htm'],
 }
 
 /**

@@ -16,6 +16,7 @@ interface UserData {
   folder_exclusion_list: string;
   page_resolution?: string;
   page_dpi?: number;
+  conversion_output_format?: string;
   created_at: string;
   last_login?: string;
 }

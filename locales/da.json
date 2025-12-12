@@ -369,7 +369,8 @@
       "expires": "Udløber",
       "pdf_conversion_device": "Konverteringsmål",
       "page_resolution": "Sideopløsning",
-      "page_dpi": "Side DPI"
+      "page_dpi": "Side DPI",
+      "conversion_output_format": "Konverteringsoutputformat"
     },
     "actions": {
       "unpair": "Afpar",
@@ -386,7 +387,9 @@
       "manual": "Manuel",
       "conflict_abort": "Afbryd",
       "conflict_overwrite": "Overskriv",
-      "conflict_content_only": "Kun indhold"
+      "conflict_content_only": "Kun indhold",
+      "pdf": "PDF",
+      "epub": "EPUB"
     },
     "expiry_options": {
       "one_week": "1 uge",
@@ -413,7 +416,8 @@
       "default_directory": "Vælg standardmappen hvor dine dokumenter vil blive uploadet",
       "conflict_resolution": "Vælg hvad der sker når du uploader et dokument med samme navn som et eksisterende dokument. Kun indhold bevarer annotationer og virker kun for PDF'er og billeder - det vil Afbryde for EPUB'er. Overskriv erstatter dokumenter fuldstændigt.",
       "folder_depth_limit": "Maksimal mappedybde at vise (lad være tom for ubegrænset)",
-      "folder_exclusion_list": "Kommasepareret liste over mappenavne at ekskludere, forskel på store og små bogstaver"
+      "folder_exclusion_list": "Kommasepareret liste over mappenavne at ekskludere, forskel på store og små bogstaver",
+      "conversion_output_format": "Standardformat for webartikler, HTML og Markdown filer."
     },
     "status": {
       "active": "Aktiv",
@@ -527,8 +531,13 @@
       "no_url": "Ingen URL fundet i anmodningskroppen",
       "downloading": "Downloader",
       "download_error": "Download fejl",
+      "fetching_url": "Henter artikel fra URL",
+      "extracting_article": "Udtrækker læsbart indhold",
+      "converting_markdown": "Konverterer Markdown til HTML",
       "converting_pdf": "Konverterer til PDF",
       "conversion_error": "Billede→PDF konverteringsfejl",
+      "generating_epub": "Genererer EPUB",
+      "rendering_pdf": "Renderer PDF",
       "compressing_pdf": "Komprimerer PDF",
       "compress_error": "Komprimeringsfejl",
       "rename_error": "Omdøbningsfejl",

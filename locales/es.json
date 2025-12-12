@@ -359,8 +359,13 @@
       "no_url": "No se encontró URL en el cuerpo de la solicitud",
       "downloading": "Descargando",
       "download_error": "Error de descarga",
+      "fetching_url": "Obteniendo artículo desde URL",
+      "extracting_article": "Extrayendo contenido legible",
+      "converting_markdown": "Convirtiendo Markdown a HTML",
       "converting_pdf": "Convirtiendo a PDF",
       "conversion_error": "Error de conversión Imagen→PDF",
+      "generating_epub": "Generando EPUB",
+      "rendering_pdf": "Renderizando PDF",
       "compressing_pdf": "Comprimiendo PDF",
       "compress_error": "Error de compresión",
       "rename_error": "Error al renombrar",
@@ -420,7 +425,8 @@
       "expires": "Expira",
       "pdf_conversion_device": "Objetivo de Conversión",
       "page_resolution": "Resolución de Página",
-      "page_dpi": "DPI de Página"
+      "page_dpi": "DPI de Página",
+      "conversion_output_format": "Formato de Salida de Conversión"
     },
     "actions": {
       "unpair": "Desvincular",
@@ -437,7 +443,9 @@
       "manual": "Manual",
       "conflict_abort": "Abortar",
       "conflict_overwrite": "Sobrescribir",
-      "conflict_content_only": "Solo Contenido"
+      "conflict_content_only": "Solo Contenido",
+      "pdf": "PDF",
+      "epub": "EPUB"
     },
     "expiry_options": {
       "one_week": "1 semana",
@@ -461,6 +469,7 @@
       "pdf_conversion_device": "Elige el modelo de tu dispositivo reMarkable para una conversión óptima de imagen a PDF. Esta configuración solo afecta archivos de imagen (JPEG, PNG) que se convierten a PDF.",
       "page_resolution": "Resolución de página en formato ANCHOxALTO",
       "page_dpi": "Puntos por pulgada",
+      "conversion_output_format": "Formato predeterminado para artículos web, archivos HTML y Markdown.",
       "default_directory": "Elige la carpeta predeterminada donde se cargarán tus documentos",
       "conflict_resolution": "Elige qué sucede al subir un documento con el mismo nombre que un documento existente. Solo Contenido preserva anotaciones y solo funciona para PDFs e imágenes - Abortará para EPUBs. Sobrescribir reemplaza documentos completamente.",
       "folder_depth_limit": "Profundidad máxima de carpetas a mostrar (dejar vacío para ilimitado)",
