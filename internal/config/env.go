@@ -77,11 +77,11 @@ func GetDuration(key string, def time.Duration) time.Duration {
 // GetConversionOutputFormat returns the preferred output format (pdf or epub).
 // It checks for CONVERSION_OUTPUT_FORMAT environment variable and validates the value.
 // Valid values are "pdf" and "epub" (case-insensitive).
-// Defaults to "pdf" if unset or invalid.
+// Defaults to "epub" if unset or invalid.
 func GetConversionOutputFormat() string {
-	format := strings.ToLower(Get("CONVERSION_OUTPUT_FORMAT", "pdf"))
+	format := strings.ToLower(Get("CONVERSION_OUTPUT_FORMAT", "epub"))
 	if format == "epub" || format == "pdf" {
 		return format
 	}
-	return "pdf"
+	return "epub"
 }

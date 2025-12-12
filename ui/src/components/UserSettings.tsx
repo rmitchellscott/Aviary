@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { PairingDialog } from "@/components/PairingDialog";
 import { useUserData } from "@/hooks/useUserData";
+import { useAuth } from "@/components/AuthProvider";
 import { useConfig } from "@/components/ConfigProvider";
 import { useFolderRefresh } from "@/hooks/useFolderRefresh";
 import {
@@ -88,6 +89,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const { t } = useTranslation();
   const { user, loading: userDataLoading, rmapiPaired, rmapiHost, refetch, updatePairingStatus } = useUserData();
   const { config } = useConfig();
+  const { refetchAuth } = useAuth();
   const { triggerRefresh, refreshTrigger } = useFolderRefresh();
 
   // Device presets for image to PDF conversion
@@ -148,7 +150,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [devicePreset, setDevicePreset] = useState("remarkable_1_2");
   const [manualPageResolution, setManualPageResolution] = useState("");
   const [manualPageDPI, setManualPageDPI] = useState("");
-  const [conversionOutputFormat, setConversionOutputFormat] = useState("pdf");
+  const [conversionOutputFormat, setConversionOutputFormat] = useState("epub");
   const [folderDepthLimit, setFolderDepthLimit] = useState("");
   const [folderExclusionList, setFolderExclusionList] = useState("");
   
@@ -163,7 +165,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     devicePreset: "remarkable_1_2",
     manualPageResolution: "",
     manualPageDPI: "",
-    conversionOutputFormat: "pdf",
+    conversionOutputFormat: "epub",
     folderDepthLimit: "",
     folderExclusionList: ""
   });
@@ -214,7 +216,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         const detectedPreset = getDevicePresetFromUser(user.page_resolution, user.page_dpi);
         const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
         const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
-        const outputFormat = user.conversion_output_format || "pdf";
+        const outputFormat = user.conversion_output_format || "epub";
 
         setUsername(user.username);
         setEmail(email);
@@ -245,7 +247,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       const detectedPreset = getDevicePresetFromUser(user.page_resolution, user.page_dpi);
       const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
       const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
-      const outputFormat = user.conversion_output_format || "pdf";
+      const outputFormat = user.conversion_output_format || "epub";
 
       setUsername(user.username);
       setEmail(email);
@@ -339,6 +341,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         devicePreset: "remarkable_1_2",
         manualPageResolution: "",
         manualPageDPI: "",
+        conversionOutputFormat: "epub",
         folderDepthLimit: "",
         folderExclusionList: ""
       });
@@ -489,10 +492,11 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         if (folderSettingsChanged && rmapiPaired) {
           triggerRefresh();
         }
-        
-        // Refetch user data to ensure we have the latest from server
+
+        // Refetch auth and user data to ensure we have the latest from server
         // This happens after updating originalValues to prevent flash
-        setTimeout(() => {
+        setTimeout(async () => {
+          await refetchAuth();
           refetch();
         }, 100);
       } else {

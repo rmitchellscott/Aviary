@@ -415,9 +415,11 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			var convertedPath string
 			var convErr error
 
+			filename := sanitizeFilename(articleContent.Title)
+
 			if outputFormat == "epub" {
 				jobStore.UpdateWithOperation(jobID, "Running", "backend.status.generating_epub", nil, "generating")
-				convertedPath = filepath.Join(tempDir, "article.epub")
+				convertedPath = filepath.Join(tempDir, filename+".epub")
 
 				epubOptions := converter.EPUBOptions{
 					Title:    articleContent.Title,
@@ -428,9 +430,14 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 				convErr = converter.ConvertHTMLToEPUB(articleContent.HTML, convertedPath, epubOptions)
 			} else {
 				jobStore.UpdateWithOperation(jobID, "Running", "backend.status.rendering_pdf", nil, "rendering")
-				convertedPath = filepath.Join(tempDir, "article.pdf")
+				convertedPath = filepath.Join(tempDir, filename+".pdf")
 
-				pdfOptions := converter.GetPDFOptionsFromConfig()
+				var pdfOptions converter.PDFOptions
+				if database.IsMultiUserMode() && dbUser != nil {
+					pdfOptions = converter.GetPDFOptionsForUser(dbUser.PageResolution, dbUser.PageDPI)
+				} else {
+					pdfOptions = converter.GetPDFOptionsFromConfig()
+				}
 				pdfOptions.Title = articleContent.Title
 
 				convErr = converter.ConvertHTMLToPDF(articleContent.HTML, convertedPath, pdfOptions)
@@ -557,7 +564,12 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.rendering_pdf", nil, "rendering")
 			pdfPath := strings.TrimSuffix(localPath, ext) + ".pdf"
 
-			pdfOptions := converter.GetPDFOptionsFromConfig()
+			var pdfOptions converter.PDFOptions
+			if database.IsMultiUserMode() && dbUser != nil {
+				pdfOptions = converter.GetPDFOptionsForUser(dbUser.PageResolution, dbUser.PageDPI)
+			} else {
+				pdfOptions = converter.GetPDFOptionsFromConfig()
+			}
 			pdfOptions.Title = title
 
 			convErr = converter.ConvertHTMLToPDF(htmlContent.HTML, pdfPath, pdfOptions)
@@ -941,6 +953,31 @@ func min(a, b int) int {
 func isTrue(s string) bool {
 	s = strings.ToLower(s)
 	return s == "true" || s == "1" || s == "yes"
+}
+
+var invalidFilenameChars = regexp.MustCompile(`[<>:"/\\|?*\x00-\x1f]`)
+
+func sanitizeFilename(title string) string {
+	if title == "" {
+		return "article"
+	}
+
+	name := strings.TrimSpace(title)
+	name = invalidFilenameChars.ReplaceAllString(name, "_")
+	name = strings.ReplaceAll(name, "  ", " ")
+
+	if len(name) > 200 {
+		name = name[:200]
+	}
+
+	name = strings.TrimSpace(name)
+	name = strings.Trim(name, "._")
+
+	if name == "" {
+		return "article"
+	}
+
+	return name
 }
 
 // getOutputFormat determines the output format (pdf or epub) based on:

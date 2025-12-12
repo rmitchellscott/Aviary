@@ -27,7 +27,7 @@ type User struct {
 	FolderExclusionList string `gorm:"column:folder_exclusion_list" json:"folder_exclusion_list"`
 	PageResolution string `gorm:"column:page_resolution" json:"page_resolution,omitempty"`
 	PageDPI float64 `gorm:"column:page_dpi" json:"page_dpi,omitempty"`
-	ConversionOutputFormat string `gorm:"column:conversion_output_format;default:pdf" json:"conversion_output_format,omitempty"`
+	ConversionOutputFormat string `gorm:"column:conversion_output_format;default:epub" json:"conversion_output_format,omitempty"`
 	RmapiConfig string `gorm:"column:rmapi_config;type:text" json:"-"` // Never return config in JSON
 	
 	// Password reset
