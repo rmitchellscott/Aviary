@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -391,6 +392,75 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			if err != nil {
 				return "backend.status.download_error", nil, err
 			}
+		} else if strings.HasSuffix(lowerURL, ".md") || strings.HasSuffix(lowerURL, ".markdown") {
+			// Markdown URL - fetch raw content and convert
+			manager.Logf("Fetching markdown from URL: %s", match)
+			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.fetching_url", nil, "fetching")
+
+			resp, err := http.Get(match)
+			if err != nil {
+				return "backend.status.download_error", nil, fmt.Errorf("failed to fetch markdown: %w", err)
+			}
+			defer resp.Body.Close()
+
+			mdBytes, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return "backend.status.download_error", nil, fmt.Errorf("failed to read markdown: %w", err)
+			}
+
+			mdContent, err := converter.ConvertMarkdownStringToHTML(string(mdBytes))
+			if err != nil {
+				return "backend.status.conversion_error", nil, fmt.Errorf("failed to convert markdown: %w", err)
+			}
+
+			title := mdContent.Metadata.Title
+			if title == "" {
+				title = filepath.Base(match)
+				title = strings.TrimSuffix(title, filepath.Ext(title))
+			}
+
+			outputFormat := getOutputFormat(form, dbUser)
+			manager.Logf("Output format: %s", outputFormat)
+
+			tempDir, tempErr := manager.CreateUserTempDir(userID)
+			if tempErr != nil {
+				return "backend.status.internal_error", nil, fmt.Errorf("failed to create temp dir: %w", tempErr)
+			}
+
+			filename := sanitizeFilename(title)
+			var convertedPath string
+			var convErr error
+
+			if outputFormat == "epub" {
+				jobStore.UpdateWithOperation(jobID, "Running", "backend.status.generating_epub", nil, "generating")
+				convertedPath = filepath.Join(tempDir, filename+".epub")
+
+				epubOptions := converter.EPUBOptions{
+					Title:    title,
+					Author:   mdContent.Metadata.Author,
+					Language: "en",
+				}
+				convErr = converter.ConvertHTMLToEPUB(mdContent.HTML, convertedPath, epubOptions)
+			} else {
+				jobStore.UpdateWithOperation(jobID, "Running", "backend.status.rendering_pdf", nil, "rendering")
+				convertedPath = filepath.Join(tempDir, filename+".pdf")
+
+				var pdfOptions converter.PDFOptions
+				if database.IsMultiUserMode() && dbUser != nil {
+					pdfOptions = converter.GetPDFOptionsForUser(dbUser.PageResolution, dbUser.PageDPI)
+				} else {
+					pdfOptions = converter.GetPDFOptionsFromConfig()
+				}
+				pdfOptions.Title = title
+				convErr = converter.ConvertHTMLToPDF(mdContent.HTML, convertedPath, pdfOptions)
+			}
+
+			if convErr != nil {
+				return "backend.status.conversion_error", nil, fmt.Errorf("failed to convert markdown: %w", convErr)
+			}
+
+			localPath = convertedPath
+			manager.Logf("Markdown converted: %s", localPath)
 		} else {
 			// Web article - extract readable content and convert to EPUB/PDF
 			manager.Logf("🌐 Extracting article from URL: %s", match)
