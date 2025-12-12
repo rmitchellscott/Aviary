@@ -359,8 +359,13 @@
       "no_url": "Nessun URL trovato nel corpo della richiesta",
       "downloading": "Download in corso",
       "download_error": "Errore di download",
+      "fetching_url": "Recupero articolo da URL",
+      "extracting_article": "Estrazione contenuto leggibile",
+      "converting_markdown": "Conversione Markdown a HTML",
       "converting_pdf": "Conversione in PDF",
       "conversion_error": "Errore di conversione Immagine→PDF",
+      "generating_epub": "Generazione EPUB",
+      "rendering_pdf": "Rendering PDF",
       "compressing_pdf": "Compressione PDF",
       "compress_error": "Errore di compressione",
       "rename_error": "Errore di rinominazione",
@@ -420,7 +425,8 @@
       "expires": "Scade",
       "pdf_conversion_device": "Obiettivo di conversione",
       "page_resolution": "Risoluzione pagina",
-      "page_dpi": "DPI pagina"
+      "page_dpi": "DPI pagina",
+      "conversion_output_format": "Formato di Output Conversione"
     },
     "actions": {
       "unpair": "Scollega",
@@ -437,7 +443,9 @@
       "manual": "Manuale",
       "conflict_abort": "Interrompi",
       "conflict_overwrite": "Sovrascrivi",
-      "conflict_content_only": "Solo Contenuto"
+      "conflict_content_only": "Solo Contenuto",
+      "pdf": "PDF",
+      "epub": "EPUB"
     },
     "expiry_options": {
       "one_week": "1 settimana",
@@ -461,6 +469,7 @@
       "pdf_conversion_device": "Scegli il modello del tuo dispositivo reMarkable per una conversione ottimale da immagine a PDF. Questa impostazione influisce solo sui file immagine (JPEG, PNG) convertiti in PDF.",
       "page_resolution": "Risoluzione pagina nel formato LARGHEZZAxALTEZZA",
       "page_dpi": "Punti per pollice",
+      "conversion_output_format": "Formato predefinito per articoli web, file HTML e Markdown.",
       "default_directory": "Scegli la cartella predefinita dove verranno caricati i tuoi documenti",
       "conflict_resolution": "Scegli cosa succede quando carichi un documento con lo stesso nome di un documento esistente. Solo Contenuto preserva le annotazioni e funziona solo per PDF e immagini - Interromperà per gli EPUB. Sovrascrivi sostituisce completamente i documenti.",
       "folder_depth_limit": "Profondità massima delle cartelle da visualizzare (lascia vuoto per illimitato)",

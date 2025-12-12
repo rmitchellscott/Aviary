@@ -979,35 +979,9 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <Label htmlFor="conflict-resolution">{t("settings.labels.conflict_resolution")}</Label>
-                      <Select 
-                        value={conflictResolution} 
-                        onValueChange={setConflictResolution}
-                      >
-                        <SelectTrigger id="conflict-resolution" className="mt-2 w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="abort">
-                            {t("settings.options.conflict_abort")}
-                          </SelectItem>
-                          <SelectItem value="overwrite">
-                            {t("settings.options.conflict_overwrite")}
-                          </SelectItem>
-                          <SelectItem value="content_only">
-                            {t("settings.options.conflict_content_only")}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {t("settings.help.conflict_resolution")}
-                      </p>
-                    </div>
-
-                    <div>
                       <Label htmlFor="device-preset">{t("settings.labels.pdf_conversion_device")}</Label>
-                      <Select 
-                        value={devicePreset} 
+                      <Select
+                        value={devicePreset}
                         onValueChange={setDevicePreset}
                       >
                         <SelectTrigger id="device-preset" className="mt-2 w-full">
@@ -1032,7 +1006,30 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         {t("settings.help.pdf_conversion_device")}
                       </p>
                     </div>
-                    
+
+                    <div>
+                      <Label htmlFor="conversion-output-format">{t("settings.labels.conversion_output_format")}</Label>
+                      <Select
+                        value={conversionOutputFormat}
+                        onValueChange={setConversionOutputFormat}
+                      >
+                        <SelectTrigger id="conversion-output-format" className="mt-2 w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pdf">
+                            {t("settings.options.pdf")}
+                          </SelectItem>
+                          <SelectItem value="epub">
+                            {t("settings.options.epub")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {t("settings.help.conversion_output_format")}
+                      </p>
+                    </div>
+
                     {devicePreset === "manual" && (
                       <div className="md:col-span-2 mt-4 space-y-4 p-4 bg-muted/50 rounded-md border">
                         <div>
@@ -1064,27 +1061,32 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         </div>
                       </div>
                     )}
+                  </div>
 
+                  <div className="mt-6">
                     <div>
-                      <Label htmlFor="conversion-output-format">{t("settings.labels.conversion_output_format")}</Label>
+                      <Label htmlFor="conflict-resolution">{t("settings.labels.conflict_resolution")}</Label>
                       <Select
-                        value={conversionOutputFormat}
-                        onValueChange={setConversionOutputFormat}
+                        value={conflictResolution}
+                        onValueChange={setConflictResolution}
                       >
-                        <SelectTrigger id="conversion-output-format" className="mt-2 w-full">
+                        <SelectTrigger id="conflict-resolution" className="mt-2 w-full md:w-1/2">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="pdf">
-                            {t("settings.options.pdf")}
+                          <SelectItem value="abort">
+                            {t("settings.options.conflict_abort")}
                           </SelectItem>
-                          <SelectItem value="epub">
-                            {t("settings.options.epub")}
+                          <SelectItem value="overwrite">
+                            {t("settings.options.conflict_overwrite")}
+                          </SelectItem>
+                          <SelectItem value="content_only">
+                            {t("settings.options.conflict_content_only")}
                           </SelectItem>
                         </SelectContent>
                       </Select>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {t("settings.help.conversion_output_format")}
+                      <p className="text-sm text-muted-foreground mt-1 md:w-1/2">
+                        {t("settings.help.conflict_resolution")}
                       </p>
                     </div>
                   </div>

@@ -369,7 +369,8 @@
       "expires": "Utløper",
       "pdf_conversion_device": "Konverteringsmål",
       "page_resolution": "Sideoppøsning",
-      "page_dpi": "Side DPI"
+      "page_dpi": "Side DPI",
+      "conversion_output_format": "Konverteringsformat"
     },
     "actions": {
       "unpair": "Koble fra",
@@ -386,7 +387,9 @@
       "manual": "Manuell",
       "conflict_abort": "Avbryt",
       "conflict_overwrite": "Skriv over",
-      "conflict_content_only": "Kun Innhold"
+      "conflict_content_only": "Kun Innhold",
+      "pdf": "PDF",
+      "epub": "EPUB"
     },
     "expiry_options": {
       "one_week": "1 uke",
@@ -410,6 +413,7 @@
       "pdf_conversion_device": "Velg din reMarkable enhetsmodell for optimal bilde-til-PDF konvertering. Denne innstillingen påvirker kun bildefiler (JPEG, PNG) som konverteres til PDF.",
       "page_resolution": "Sideoppøsning i BREDDExHØYDE format",
       "page_dpi": "Punkter per tomme",
+      "conversion_output_format": "Standardformat for webartikler, HTML, og Markdown-filer.",
       "default_directory": "Velg standardmappen hvor dokumentene dine vil bli lastet opp",
       "conflict_resolution": "Velg hva som skjer når du laster opp et dokument med samme navn som et eksisterende dokument. Kun Innhold bevarer merknader og fungerer bare for PDF-er og bilder - det vil Avbryte for EPUB-er. Overskriv erstatter dokumenter fullstendig.",
       "folder_depth_limit": "Maksimal mappedybde å vise (la stå tom for ubegrenset)",
@@ -527,8 +531,13 @@
       "no_url": "Ingen URL funnet i forespørsel kropp",
       "downloading": "Laster ned",
       "download_error": "Nedlastingsfeil",
+      "fetching_url": "Henter artikkel fra URL",
+      "extracting_article": "Trekker ut lesbart innhold",
+      "converting_markdown": "Konverterer Markdown til HTML",
       "converting_pdf": "Konverterer til PDF",
       "conversion_error": "Bilde→PDF konverteringsfeil",
+      "generating_epub": "Genererer EPUB",
+      "rendering_pdf": "Rendrer PDF",
       "compressing_pdf": "Komprimerer PDF",
       "compress_error": "Komprimeringsfeil",
       "rename_error": "Omdøpingsfeil",

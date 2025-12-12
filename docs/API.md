@@ -21,7 +21,7 @@ Upload documents by providing a URL to download from.
 | retention_days           | No        | 30          | Optional integer (in days) for cleanup if manage=true. Defaults to 7. |
 | conflict_resolution      | No        | abort/overwrite/content_only | Override conflict resolution when file exists. Defaults to user/environment setting. |
 | coverpage                | No        | current/first | Override coverpage setting for PDF uploads. Defaults to user/environment setting. |
-| outputFormat             | No        | pdf/epub    | Output format for web articles, HTML, and Markdown. Defaults to CONVERSION_OUTPUT_FORMAT or pdf. |
+| outputFormat             | No        | pdf/epub    | Output format for web articles, HTML, and Markdown. Defaults to CONVERSION_OUTPUT_FORMAT or epub. |
 
 ### Document content uploads (JSON)
 
@@ -41,7 +41,7 @@ Upload documents by providing base64-encoded content directly.
 | retention_days           | No        | 30 | Optional integer (in days) for cleanup |
 | conflict_resolution      | No        | abort/overwrite/content_only | Override conflict resolution when file exists |
 | coverpage                | No        | current/first | Override coverpage setting for PDF uploads |
-| outputFormat             | No        | pdf/epub | Output format for HTML and Markdown files. Defaults to CONVERSION_OUTPUT_FORMAT or pdf. |
+| outputFormat             | No        | pdf/epub | Output format for HTML and Markdown files. Defaults to CONVERSION_OUTPUT_FORMAT or epub. |
 
 **Supported content types:** PDF, JPEG, PNG, EPUB, Markdown (.md), HTML (.html)
 

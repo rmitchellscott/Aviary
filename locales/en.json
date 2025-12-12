@@ -370,7 +370,7 @@
       "pdf_conversion_device": "Conversion Target",
       "page_resolution": "Page Resolution",
       "page_dpi": "Page DPI",
-      "conversion_output_format": "Conversion Output Format"
+      "conversion_output_format": "Conversion Format"
     },
     "actions": {
       "unpair": "Unpair",
@@ -413,10 +413,10 @@
       "conflict_resolution": "Choose what happens when uploading a document with the same name as an existing document. Content Only preserves annotations and only works for PDFs and images - it will Abort for EPUBs. Overwrite completely replaces documents.",
       "folder_depth_limit": "Maximum folder depth to display (leave empty for unlimited)",
       "folder_exclusion_list": "Comma-separated list of folder names to exclude, case-sensitive",
-      "pdf_conversion_device": "Choose your reMarkable device model for optimal image to PDF conversion. This setting only affects image files (JPEG, PNG) that are converted to PDF.",
+      "pdf_conversion_device": "Choose your reMarkable device model for optimal image, HTML, and markdown to PDF conversion.",
       "page_resolution": "Page resolution in WIDTHxHEIGHT format",
       "page_dpi": "Dots per inch",
-      "conversion_output_format": "Default format for web articles, HTML, and Markdown files. Can be overridden per-request via API.",
+      "conversion_output_format": "Default format for web articles, HTML, and Markdown files.",
       "default_directory": "Choose the default folder on your reMarkable where your documents will be uploaded"
     },
     "status": {
