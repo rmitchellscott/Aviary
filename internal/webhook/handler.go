@@ -397,6 +397,10 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			manager.Logf("Fetching markdown from URL: %s", match)
 			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.fetching_url", nil, "fetching")
 
+			if err := security.ValidateURL(match); err != nil {
+				return "backend.status.invalid_url", nil, fmt.Errorf("URL validation failed: %w", err)
+			}
+
 			resp, err := http.Get(match)
 			if err != nil {
 				return "backend.status.download_error", nil, fmt.Errorf("failed to fetch markdown: %w", err)

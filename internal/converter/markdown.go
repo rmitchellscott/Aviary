@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/rmitchellscott/aviary/internal/logging"
+	"github.com/rmitchellscott/aviary/internal/security"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
@@ -35,8 +36,14 @@ type MarkdownContent struct {
 func ConvertMarkdownToHTML(mdPath string) (*MarkdownContent, error) {
 	logging.Logf("[MARKDOWN] ConvertMarkdownToHTML: processing %s", mdPath)
 
+	// Validate path for security
+	securePath, err := security.NewSecurePathFromExisting(mdPath)
+	if err != nil {
+		return nil, fmt.Errorf("invalid markdown path: %w", err)
+	}
+
 	// Read the markdown file
-	content, err := os.ReadFile(mdPath)
+	content, err := security.SafeReadFile(securePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read markdown file: %w", err)
 	}

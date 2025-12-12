@@ -73,3 +73,11 @@ func SafeStatExists(sp *SecurePath) bool {
 	_, err := os.Stat(sp.path)
 	return err == nil
 }
+
+func SafeReadFile(sp *SecurePath) ([]byte, error) {
+	if sp == nil {
+		return nil, fmt.Errorf("cannot read file with nil SecurePath")
+	}
+	// CodeQL [go/path-injection] False positive: sp.path is validated and cleaned in NewSecurePath
+	return os.ReadFile(sp.path)
+}

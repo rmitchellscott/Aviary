@@ -15,6 +15,7 @@ import (
 	readability "codeberg.org/readeck/go-readability/v2"
 	"github.com/rmitchellscott/aviary/internal/downloader"
 	"github.com/rmitchellscott/aviary/internal/logging"
+	"github.com/rmitchellscott/aviary/internal/security"
 )
 
 // ArticleContent represents the extracted clean article content
@@ -47,13 +48,15 @@ func articleToContent(article readability.Article) (*ArticleContent, error) {
 func ExtractFromURL(urlStr string) (*ArticleContent, error) {
 	logging.Logf("[READER] ExtractFromURL: fetching %s", urlStr)
 
-	// Validate URL
+	// Validate URL for SSRF protection
+	if err := security.ValidateURL(urlStr); err != nil {
+		return nil, fmt.Errorf("URL validation failed: %w", err)
+	}
+
+	// Parse URL for readability
 	parsedURL, err := url.Parse(urlStr)
 	if err != nil {
 		return nil, fmt.Errorf("invalid URL %q: %w", urlStr, err)
-	}
-	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
-		return nil, fmt.Errorf("unsupported URL scheme %q (must be http or https)", parsedURL.Scheme)
 	}
 
 	// Fetch the webpage with timeout and realistic User-Agent
@@ -92,8 +95,14 @@ func ExtractFromURL(urlStr string) (*ArticleContent, error) {
 func ExtractFromHTML(htmlPath string) (*ArticleContent, error) {
 	logging.Logf("[READER] ExtractFromHTML: processing %s", htmlPath)
 
+	// Validate path for security
+	securePath, err := security.NewSecurePathFromExisting(htmlPath)
+	if err != nil {
+		return nil, fmt.Errorf("invalid HTML path: %w", err)
+	}
+
 	// Read the HTML file
-	file, err := os.Open(htmlPath)
+	file, err := security.SafeOpen(securePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open HTML file: %w", err)
 	}
