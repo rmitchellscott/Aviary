@@ -3,6 +3,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { LoginForm } from "@/components/LoginForm";
 import { PairingDialog } from "@/components/PairingDialog";
 import { useUserData } from "@/hooks/useUserData";
+import { useConfig } from "@/components/ConfigProvider";
 import { useFolderRefresh } from "@/hooks/useFolderRefresh";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -120,7 +121,8 @@ export default function HomePage() {
   const { isAuthenticated, isLoading, login, authConfigured, uiSecret, multiUserMode, oidcEnabled, proxyAuthEnabled } =
     useAuth();
   const { t } = useTranslation();
-  const { rmapiPaired, rmapiHost, loading: userDataLoading, updatePairingStatus } = useUserData();
+  const { rmapiPaired, rmapiHost, loading: userDataLoading, updatePairingStatus, user } = useUserData();
+  const { config } = useConfig();
   const { refreshTrigger, triggerRefresh } = useFolderRefresh();
   const [url, setUrl] = useState<string>("");
   const [committedUrl, setCommittedUrl] = useState<string>("");
@@ -128,6 +130,7 @@ export default function HomePage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [compress, setCompress] = useState<boolean>(false);
+  const [removeBackground, setRemoveBackground] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [status, setStatus] = useState<string>("");
   const [message, setMessage] = useState<string>("");
@@ -195,6 +198,33 @@ export default function HomePage() {
       setCompress(false);
     }
   }, [isCompressibleFileOrUrl, compress]);
+
+  // Check if the selected file/URL is a PDF
+  const isPDFFileOrUrl = useMemo(() => {
+    if (selectedFiles.length > 0) {
+      return selectedFiles.every(file => file.name.toLowerCase().endsWith('.pdf'));
+    }
+    if (selectedFile) {
+      return selectedFile.name.toLowerCase().endsWith('.pdf');
+    }
+    const trimmed = committedUrl.trim();
+    if (!trimmed) return false;
+    let path = trimmed;
+    try {
+      path = new URL(trimmed).pathname;
+    } catch {
+    }
+    return path.toLowerCase().endsWith('.pdf');
+  }, [selectedFile, selectedFiles, committedUrl]);
+
+  // Show background removal toggle if user has it enabled (multi-user) or config has it enabled (single-user)
+  const showBgRemovalToggle = user?.pdf_background_removal || (!multiUserMode && config?.pdf_background_removal);
+
+  useEffect(() => {
+    if (!showBgRemovalToggle || !isPDFFileOrUrl) {
+      setRemoveBackground(false);
+    }
+  }, [showBgRemovalToggle, isPDFFileOrUrl]);
 
   const fetchFoldersWithRefresh = async () => {
     if (isFetchingFolders.current || globalFoldersFetch.isFetching) {
@@ -489,6 +519,9 @@ export default function HomePage() {
         }
         
         formData.append("compress", compress ? "true" : "false");
+        if (removeBackground) {
+          formData.append("remove_background", "true");
+        }
         if (rmDir !== DEFAULT_RM_DIR) {
           formData.append("rm_dir", rmDir);
         }
@@ -523,6 +556,9 @@ export default function HomePage() {
       const form = new URLSearchParams();
       form.append("Body", url);
       form.append("compress", compress ? "true" : "false");
+      if (removeBackground) {
+        form.append("remove_background", "true");
+      }
       if (rmDir !== DEFAULT_RM_DIR) {
         form.append("rm_dir", rmDir);
       }
@@ -716,19 +752,37 @@ export default function HomePage() {
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2 mt-4">
-            <Label
-              htmlFor="compress"
-              className={!isCompressibleFileOrUrl ? "opacity-50" : ""}
-            >
-              {t("home.compress_pdf")}
-            </Label>
-            <Switch
-              id="compress"
-              checked={compress}
-              onCheckedChange={setCompress}
-              disabled={!isCompressibleFileOrUrl}
-            />
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="flex items-center space-x-2">
+              <Label
+                htmlFor="compress"
+                className={!isCompressibleFileOrUrl ? "opacity-50" : ""}
+              >
+                {t("home.compress_pdf")}
+              </Label>
+              <Switch
+                id="compress"
+                checked={compress}
+                onCheckedChange={setCompress}
+                disabled={!isCompressibleFileOrUrl}
+              />
+            </div>
+            {showBgRemovalToggle && (
+              <div className="flex items-center space-x-2">
+                <Label
+                  htmlFor="removeBackground"
+                  className={!isPDFFileOrUrl ? "opacity-50" : ""}
+                >
+                  {t("home.remove_background")}
+                </Label>
+                <Switch
+                  id="removeBackground"
+                  checked={removeBackground}
+                  onCheckedChange={setRemoveBackground}
+                  disabled={!isPDFFileOrUrl}
+                />
+              </div>
+            )}
           </div>
 
           {!rmapiPaired && !userDataLoading && (

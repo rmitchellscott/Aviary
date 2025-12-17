@@ -60,7 +60,8 @@
     "pair_with_cloud": "Mit Cloud koppeln, um Ordner zu laden",
     "pair_with_remarkable": "Mit reMarkable Cloud koppeln",
     "to_upload_documents": " um Dokumente hochzuladen.",
-    "settings_config": " Gehen Sie zu den Einstellungen für weitere Konfiguration."
+    "settings_config": " Gehen Sie zu den Einstellungen für weitere Konfiguration.",
+    "remove_background": "Hintergrund entfernen"
   },
   "filedrop": {
     "instruction": "Zum Hochladen klicken oder Datei hierher ziehen",
@@ -339,14 +340,16 @@
     "tabs": {
       "profile": "Profil",
       "account": "Konto",
-      "api_keys": "API-Schlüssel"
+      "api_keys": "API-Schlüssel",
+      "experimental": "Experimentell"
     },
     "cards": {
       "profile_information": "Profilinformationen",
       "change_password": "Passwort ändern",
       "delete_account": "Konto löschen",
       "create_api_key": "Neuen API-Schlüssel erstellen",
-      "your_api_keys": "Ihre API-Schlüssel"
+      "your_api_keys": "Ihre API-Schlüssel",
+      "experimental_features": "Experimentelle Funktionen"
     },
     "labels": {
       "username": "Benutzername",
@@ -370,7 +373,9 @@
       "pdf_conversion_device": "Konvertierungsziel",
       "page_resolution": "Seitenauflösung",
       "page_dpi": "Seiten-DPI",
-      "conversion_output_format": "Konvertierungs-Ausgabeformat"
+      "conversion_output_format": "Konvertierungs-Ausgabeformat",
+      "enable_experimental": "Experimentelle Funktionen aktivieren",
+      "pdf_background_removal": "PDF-Hintergrundentfernung"
     },
     "actions": {
       "unpair": "Entkoppeln",
@@ -417,7 +422,9 @@
       "conflict_resolution": "Wählen Sie, was passiert, wenn Sie ein Dokument mit demselben Namen wie ein vorhandenes Dokument hochladen. Nur Inhalt behält Anmerkungen bei und funktioniert nur bei PDFs und Bildern - es wird bei EPUBs abbrechen. Überschreiben ersetzt Dokumente vollständig.",
       "folder_depth_limit": "Maximale Ordnertiefe zur Anzeige (leer lassen für unbegrenzt)",
       "folder_exclusion_list": "Kommagetrennte Liste von Ordnernamen zum Ausschließen, groß-/kleinschreibungsempfindlich",
-      "conversion_output_format": "Standardformat für Web-Artikel, HTML- und Markdown-Dateien."
+      "conversion_output_format": "Standardformat für Web-Artikel, HTML- und Markdown-Dateien.",
+      "enable_experimental": "Aktivieren Sie den Zugriff auf experimentelle Funktionen, die sich in zukünftigen Versionen ändern oder entfernt werden können",
+      "pdf_background_removal": "Aktivieren Sie die Option zum Entfernen von Hintergrundbildern aus PDFs."
     },
     "status": {
       "active": "Aktiv",
@@ -540,6 +547,7 @@
       "rendering_pdf": "PDF wird gerendert",
       "compressing_pdf": "PDF wird komprimiert",
       "compress_error": "Komprimierungsfehler",
+      "removing_background": "Hintergrundbilder werden entfernt",
       "rename_error": "Umbenennungsfehler",
       "uploading": "Wird hochgeladen",
       "upload_success": "Ihr Dokument ist auf Ihrem reMarkable unter {{path}} verfügbar",

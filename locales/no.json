@@ -60,7 +60,8 @@
     "pair_with_cloud": "Koble med sky for å laste mapper",
     "pair_with_remarkable": "Koble med reMarkable sky",
     "to_upload_documents": " for å laste opp dokumenter.",
-    "settings_config": " Gå til Innstillinger for ytterligere konfigurasjon."
+    "settings_config": " Gå til Innstillinger for ytterligere konfigurasjon.",
+    "remove_background": "Fjern bakgrunn"
   },
   "filedrop": {
     "instruction": "Klikk for å laste opp eller dra og slipp",
@@ -339,14 +340,16 @@
     "tabs": {
       "profile": "Profil",
       "account": "Konto",
-      "api_keys": "API-nøkler"
+      "api_keys": "API-nøkler",
+      "experimental": "Eksperimentell"
     },
     "cards": {
       "profile_information": "Profilinformasjon",
       "change_password": "Endre passord",
       "delete_account": "Slett konto",
       "create_api_key": "Opprett ny API-nøkkel",
-      "your_api_keys": "Dine API-nøkler"
+      "your_api_keys": "Dine API-nøkler",
+      "experimental_features": "Eksperimentelle funksjoner"
     },
     "labels": {
       "username": "Brukernavn",
@@ -370,7 +373,9 @@
       "pdf_conversion_device": "Konverteringsmål",
       "page_resolution": "Sideoppøsning",
       "page_dpi": "Side DPI",
-      "conversion_output_format": "Konverteringsformat"
+      "conversion_output_format": "Konverteringsformat",
+      "enable_experimental": "Aktiver eksperimentelle funksjoner",
+      "pdf_background_removal": "PDF bakgrunnsfjerning"
     },
     "actions": {
       "unpair": "Koble fra",
@@ -417,7 +422,9 @@
       "default_directory": "Velg standardmappen hvor dokumentene dine vil bli lastet opp",
       "conflict_resolution": "Velg hva som skjer når du laster opp et dokument med samme navn som et eksisterende dokument. Kun Innhold bevarer merknader og fungerer bare for PDF-er og bilder - det vil Avbryte for EPUB-er. Overskriv erstatter dokumenter fullstendig.",
       "folder_depth_limit": "Maksimal mappedybde å vise (la stå tom for ubegrenset)",
-      "folder_exclusion_list": "Kommaseparert liste over mappenavn å ekskludere, skiller mellom store og små bokstaver"
+      "folder_exclusion_list": "Kommaseparert liste over mappenavn å ekskludere, skiller mellom store og små bokstaver",
+      "enable_experimental": "Aktiver tilgang til eksperimentelle funksjoner som kan endres eller fjernes i fremtidige versjoner",
+      "pdf_background_removal": "Aktiver mulighet til å fjerne bakgrunnsbilder fra PDF-er."
     },
     "status": {
       "active": "Aktiv",
@@ -540,6 +547,7 @@
       "rendering_pdf": "Rendrer PDF",
       "compressing_pdf": "Komprimerer PDF",
       "compress_error": "Komprimeringsfeil",
+      "removing_background": "Fjerner bakgrunnsbilder",
       "rename_error": "Omdøpingsfeil",
       "uploading": "Laster opp til sky",
       "upload_success": "Dokumentet ditt er tilgjengelig på din reMarkable på {{path}}",

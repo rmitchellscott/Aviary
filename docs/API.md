@@ -22,6 +22,7 @@ Upload documents by providing a URL to download from.
 | conflict_resolution      | No        | abort/overwrite/content_only | Override conflict resolution when file exists. Defaults to user/environment setting. |
 | coverpage                | No        | current/first | Override coverpage setting for PDF uploads. Defaults to user/environment setting. |
 | outputFormat             | No        | pdf/epub    | Output format for web articles, HTML, and Markdown. Defaults to CONVERSION_OUTPUT_FORMAT or epub. |
+| remove_background        | No        | true/false  | Remove background images from PDF (experimental). Defaults to user setting if enabled. |
 
 ### Document content uploads (JSON)
 
@@ -42,6 +43,7 @@ Upload documents by providing base64-encoded content directly.
 | conflict_resolution      | No        | abort/overwrite/content_only | Override conflict resolution when file exists |
 | coverpage                | No        | current/first | Override coverpage setting for PDF uploads |
 | outputFormat             | No        | pdf/epub | Output format for HTML and Markdown files. Defaults to CONVERSION_OUTPUT_FORMAT or epub. |
+| removeBackground         | No        | true/false | Remove background images from PDF (experimental). Defaults to user setting if enabled. |
 
 **Supported content types:** PDF, JPEG, PNG, EPUB, Markdown (.md), HTML (.html)
 

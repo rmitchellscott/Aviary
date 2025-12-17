@@ -60,7 +60,8 @@
     "pair_with_cloud": "Parr med cloud for at indlæse mapper",
     "pair_with_remarkable": "Parr med reMarkable cloud",
     "to_upload_documents": " for at uploade dokumenter.",
-    "settings_config": " Gå til Indstillinger for yderligere konfiguration."
+    "settings_config": " Gå til Indstillinger for yderligere konfiguration.",
+    "remove_background": "Fjern Baggrund"
   },
   "filedrop": {
     "instruction": "Klik for at uploade eller træk og slip",
@@ -339,14 +340,16 @@
     "tabs": {
       "profile": "Profil",
       "account": "Konto",
-      "api_keys": "API-nøgler"
+      "api_keys": "API-nøgler",
+      "experimental": "Eksperimentel"
     },
     "cards": {
       "profile_information": "Profilinformation",
       "change_password": "Skift Adgangskode",
       "delete_account": "Slet Konto",
       "create_api_key": "Opret Ny API-nøgle",
-      "your_api_keys": "Dine API-nøgler"
+      "your_api_keys": "Dine API-nøgler",
+      "experimental_features": "Eksperimentelle Funktioner"
     },
     "labels": {
       "username": "Brugernavn",
@@ -370,7 +373,9 @@
       "pdf_conversion_device": "Konverteringsmål",
       "page_resolution": "Sideopløsning",
       "page_dpi": "Side DPI",
-      "conversion_output_format": "Konverteringsoutputformat"
+      "conversion_output_format": "Konverteringsoutputformat",
+      "enable_experimental": "Aktiver Eksperimentelle Funktioner",
+      "pdf_background_removal": "PDF Baggrundsfjerning"
     },
     "actions": {
       "unpair": "Afpar",
@@ -417,7 +422,9 @@
       "conflict_resolution": "Vælg hvad der sker når du uploader et dokument med samme navn som et eksisterende dokument. Kun indhold bevarer annotationer og virker kun for PDF'er og billeder - det vil Afbryde for EPUB'er. Overskriv erstatter dokumenter fuldstændigt.",
       "folder_depth_limit": "Maksimal mappedybde at vise (lad være tom for ubegrænset)",
       "folder_exclusion_list": "Kommasepareret liste over mappenavne at ekskludere, forskel på store og små bogstaver",
-      "conversion_output_format": "Standardformat for webartikler, HTML og Markdown filer."
+      "conversion_output_format": "Standardformat for webartikler, HTML og Markdown filer.",
+      "enable_experimental": "Aktiver adgang til eksperimentelle funktioner der kan ændres eller fjernes i fremtidige versioner",
+      "pdf_background_removal": "Aktiver mulighed for at fjerne baggrundsbilleder fra PDF'er."
     },
     "status": {
       "active": "Aktiv",
@@ -540,6 +547,7 @@
       "rendering_pdf": "Renderer PDF",
       "compressing_pdf": "Komprimerer PDF",
       "compress_error": "Komprimeringsfejl",
+      "removing_background": "Fjerner baggrundsbilleder",
       "rename_error": "Omdøbningsfejl",
       "uploading": "Uploader til cloud",
       "upload_success": "Dit dokument er tilgængeligt på din reMarkable på {{path}}",

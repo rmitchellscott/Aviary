@@ -60,7 +60,8 @@
     "pair_with_cloud": "Para med molnet för att ladda mappar",
     "pair_with_remarkable": "Para med reMarkable-molnet",
     "to_upload_documents": " för att ladda upp dokument.",
-    "settings_config": " Gå till Inställningar för ytterligare konfiguration."
+    "settings_config": " Gå till Inställningar för ytterligare konfiguration.",
+    "remove_background": "Ta bort bakgrund"
   },
   "filedrop": {
     "instruction": "Klicka för att ladda upp eller dra och släpp",
@@ -339,14 +340,16 @@
     "tabs": {
       "profile": "Profil",
       "account": "Konto",
-      "api_keys": "API-nycklar"
+      "api_keys": "API-nycklar",
+      "experimental": "Experimentell"
     },
     "cards": {
       "profile_information": "Profilinformation",
       "change_password": "Ändra lösenord",
       "delete_account": "Radera konto",
       "create_api_key": "Skapa ny API-nyckel",
-      "your_api_keys": "Dina API-nycklar"
+      "your_api_keys": "Dina API-nycklar",
+      "experimental_features": "Experimentella funktioner"
     },
     "labels": {
       "username": "Användarnamn",
@@ -370,7 +373,9 @@
       "pdf_conversion_device": "Konverteringsmål",
       "page_resolution": "Sidupplösning",
       "page_dpi": "Sid-DPI",
-      "conversion_output_format": "Konverteringsutdataformat"
+      "conversion_output_format": "Konverteringsutdataformat",
+      "enable_experimental": "Aktivera experimentella funktioner",
+      "pdf_background_removal": "Ta bort PDF-bakgrund"
     },
     "actions": {
       "unpair": "Koppla från",
@@ -417,7 +422,9 @@
       "conflict_resolution": "Välj vad som händer när du laddar upp ett dokument med samma namn som ett befintligt dokument. Endast Innehåll bevarar anteckningar och fungerar bara för PDF:er och bilder - det kommer att Avbryta för EPUB:er. Skriv över ersätter dokument helt.",
       "folder_depth_limit": "Maximal mappdjup att visa (lämna tom för obegränsat)",
       "folder_exclusion_list": "Kommaseparerad lista över mappnamn att utesluta, skiftlägeskänslig",
-      "conversion_output_format": "Standardformat för webbartiklar, HTML och Markdown-filer."
+      "conversion_output_format": "Standardformat för webbartiklar, HTML och Markdown-filer.",
+      "enable_experimental": "Aktivera åtkomst till experimentella funktioner som kan ändras eller tas bort i framtida versioner",
+      "pdf_background_removal": "Aktivera alternativet att ta bort bakgrundsbilder från PDF:er."
     },
     "status": {
       "active": "Aktiv",
@@ -540,6 +547,7 @@
       "rendering_pdf": "Renderar PDF",
       "compressing_pdf": "Komprimerar PDF",
       "compress_error": "Komprimeringsfel",
+      "removing_background": "Tar bort bakgrundsbilder",
       "rename_error": "Namnbytesfel",
       "uploading": "Laddar upp till molnet",
       "upload_success": "Ditt dokument är tillgängligt på din reMarkable på {{path}}",

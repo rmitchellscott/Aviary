@@ -107,9 +107,10 @@ func ConfigHandler(c *gin.Context) {
 		"oidcGroupBasedAdmin": auth.IsOIDCGroupBasedAdminEnabled(),
 	}
 
-	// Add rmapi_paired for single-user mode only
+	// Add single-user mode specific settings
 	if !multiUserMode {
 		response["rmapi_paired"] = rmapiPaired
+		response["pdf_background_removal"] = config.GetBool("PDF_BACKGROUND_REMOVAL", false)
 	}
 
 	c.JSON(http.StatusOK, response)

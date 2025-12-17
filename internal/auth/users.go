@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/rmitchellscott/aviary/internal/database"
-	"github.com/rmitchellscott/aviary/internal/rmapi"
 )
 
 
@@ -27,6 +26,8 @@ type UpdateUserRequest struct {
 	ConversionOutputFormat *string  `json:"conversion_output_format,omitempty"`
 	IsAdmin                *bool    `json:"is_admin,omitempty"`
 	IsActive               *bool    `json:"is_active,omitempty"`
+	// PDF processing
+	PDFBackgroundRemoval *bool `json:"pdf_background_removal,omitempty"`
 }
 
 // UpdatePasswordRequest represents a password update request
@@ -111,22 +112,7 @@ func GetUsersHandler(c *gin.Context) {
 	// Convert to response format
 	response := make([]UserResponse, len(users))
 	for i, user := range users {
-		response[i] = UserResponse{
-			ID:                 user.ID,
-			Username:           user.Username,
-			Email:              user.Email,
-			IsAdmin:            user.IsAdmin,
-			IsActive:           user.IsActive,
-			RmapiHost:          user.RmapiHost,
-			RmapiPaired:        rmapi.IsUserPaired(user.ID),
-			DefaultRmdir:       user.DefaultRmdir,
-			CoverpageSetting:   user.CoverpageSetting,
-			ConflictResolution: user.ConflictResolution,
-			PageResolution:     user.PageResolution,
-			PageDPI:            user.PageDPI,
-			CreatedAt:          user.CreatedAt,
-			LastLogin:          user.LastLogin,
-		}
+		response[i] = userToResponse(&user)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -170,25 +156,8 @@ func GetUserHandler(c *gin.Context) {
 		stats = make(map[string]interface{})
 	}
 
-	response := UserResponse{
-		ID:                 user.ID,
-		Username:           user.Username,
-		Email:              user.Email,
-		IsAdmin:            user.IsAdmin,
-		IsActive:           user.IsActive,
-		RmapiHost:          user.RmapiHost,
-		RmapiPaired:        rmapi.IsUserPaired(user.ID),
-		DefaultRmdir:       user.DefaultRmdir,
-		CoverpageSetting:   user.CoverpageSetting,
-		ConflictResolution: user.ConflictResolution,
-		PageResolution:     user.PageResolution,
-		PageDPI:            user.PageDPI,
-		CreatedAt:          user.CreatedAt,
-		LastLogin:          user.LastLogin,
-	}
-
 	c.JSON(http.StatusOK, gin.H{
-		"user":  response,
+		"user":  userToResponse(user),
 		"stats": stats,
 	})
 }
@@ -387,6 +356,10 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 
 	if req.ConversionOutputFormat != nil {
 		updates["conversion_output_format"] = *req.ConversionOutputFormat // Allow clearing by setting to empty string
+	}
+
+	if req.PDFBackgroundRemoval != nil {
+		updates["pdf_background_removal"] = *req.PDFBackgroundRemoval
 	}
 
 	if len(updates) == 0 {

@@ -63,6 +63,8 @@ import {
   Clock,
   AlertTriangle,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 
 interface APIKey {
   id: string;
@@ -153,7 +155,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [conversionOutputFormat, setConversionOutputFormat] = useState("epub");
   const [folderDepthLimit, setFolderDepthLimit] = useState("");
   const [folderExclusionList, setFolderExclusionList] = useState("");
-  
+  const [pdfBackgroundRemoval, setPdfBackgroundRemoval] = useState(false);
+
   // Original values for change tracking
   const [originalValues, setOriginalValues] = useState({
     username: "",
@@ -167,7 +170,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     manualPageDPI: "",
     conversionOutputFormat: "epub",
     folderDepthLimit: "",
-    folderExclusionList: ""
+    folderExclusionList: "",
+    pdfBackgroundRemoval: false
   });
   
   const [folders, setFolders] = useState<string[]>([]);
@@ -217,6 +221,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
         const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
         const outputFormat = user.conversion_output_format || "epub";
+        const bgRemoval = user.pdf_background_removal ?? false;
 
         setUsername(user.username);
         setEmail(email);
@@ -230,6 +235,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         setManualPageResolution(manualResolution);
         setManualPageDPI(manualDPI);
         setConversionOutputFormat(outputFormat);
+        setPdfBackgroundRemoval(bgRemoval);
       }
     }
   }, [isOpen, user]);
@@ -248,6 +254,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
       const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
       const outputFormat = user.conversion_output_format || "epub";
+      const bgRemoval = user.pdf_background_removal ?? false;
 
       setUsername(user.username);
       setEmail(email);
@@ -261,6 +268,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setManualPageResolution(manualResolution);
       setManualPageDPI(manualDPI);
       setConversionOutputFormat(outputFormat);
+      setPdfBackgroundRemoval(bgRemoval);
 
       setOriginalValues({
         username: user.username,
@@ -274,7 +282,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         devicePreset: detectedPreset,
         manualPageResolution: manualResolution,
         manualPageDPI: manualDPI,
-        conversionOutputFormat: outputFormat
+        conversionOutputFormat: outputFormat,
+        pdfBackgroundRemoval: bgRemoval
       });
     }
   }, [user]);
@@ -329,8 +338,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setConversionOutputFormat("pdf");
       setFolderDepthLimit("");
       setFolderExclusionList("");
-      
-      // Reset original values
+      setPdfBackgroundRemoval(false);
+
       setOriginalValues({
         username: "",
         email: "",
@@ -343,7 +352,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         manualPageDPI: "",
         conversionOutputFormat: "epub",
         folderDepthLimit: "",
-        folderExclusionList: ""
+        folderExclusionList: "",
+        pdfBackgroundRemoval: false
       });
       
       setFolders([]);
@@ -434,7 +444,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       devicePreset !== originalValues.devicePreset ||
       manualPageResolution !== originalValues.manualPageResolution ||
       manualPageDPI !== originalValues.manualPageDPI ||
-      conversionOutputFormat !== originalValues.conversionOutputFormat
+      conversionOutputFormat !== originalValues.conversionOutputFormat ||
+      pdfBackgroundRemoval !== originalValues.pdfBackgroundRemoval
     );
   };
 
@@ -459,6 +470,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           folder_depth_limit: folderDepthLimit === "" ? 0 : parseInt(folderDepthLimit),
           folder_exclusion_list: folderExclusionList,
           conversion_output_format: conversionOutputFormat,
+          pdf_background_removal: pdfBackgroundRemoval,
           ...pageSettings,
         }),
       });
@@ -485,7 +497,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           devicePreset: detectedPreset,
           manualPageResolution: manualResolution,
           manualPageDPI: manualDPI,
-          conversionOutputFormat: conversionOutputFormat
+          conversionOutputFormat: conversionOutputFormat,
+          pdfBackgroundRemoval
         });
 
         // Trigger folder refresh if folder settings changed
@@ -1088,6 +1101,30 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       <p className="text-sm text-muted-foreground mt-1 md:w-1/2">
                         {t("settings.help.conflict_resolution")}
                       </p>
+                    </div>
+                  </div>
+
+                  <Separator className="my-6" />
+
+                  <div className="space-y-6">
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-medium">{t("settings.cards.experimental_features")}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {t("settings.help.enable_experimental")}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between md:w-1/2">
+                      <div className="space-y-0.5">
+                        <Label>{t("settings.labels.pdf_background_removal")}</Label>
+                        <p className="text-sm text-muted-foreground">
+                          {t("settings.help.pdf_background_removal")}
+                        </p>
+                      </div>
+                      <Switch
+                        checked={pdfBackgroundRemoval}
+                        onCheckedChange={setPdfBackgroundRemoval}
+                      />
                     </div>
                   </div>
 

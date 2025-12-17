@@ -60,7 +60,8 @@
     "pair_with_cloud": "폴더를 로드하기 위해 클라우드와 연결",
     "pair_with_remarkable": "reMarkable 클라우드와 연결",
     "to_upload_documents": " 문서를 업로드하기 위해.",
-    "settings_config": " 추가 설정을 위해 설정으로 이동하세요."
+    "settings_config": " 추가 설정을 위해 설정으로 이동하세요.",
+    "remove_background": "배경 제거"
   },
   "filedrop": {
     "instruction": "클릭하여 업로드하거나 드래그 앤 드롭하세요",
@@ -339,14 +340,16 @@
     "tabs": {
       "profile": "프로필",
       "account": "계정",
-      "api_keys": "API 키"
+      "api_keys": "API 키",
+      "experimental": "실험적"
     },
     "cards": {
       "profile_information": "프로필 정보",
       "change_password": "비밀번호 변경",
       "delete_account": "계정 삭제",
       "create_api_key": "새 API 키 생성",
-      "your_api_keys": "내 API 키"
+      "your_api_keys": "내 API 키",
+      "experimental_features": "실험적 기능"
     },
     "labels": {
       "username": "사용자명",
@@ -370,7 +373,9 @@
       "pdf_conversion_device": "변환 대상",
       "page_resolution": "페이지 해상도",
       "page_dpi": "페이지 DPI",
-      "conversion_output_format": "변환 출력 형식"
+      "conversion_output_format": "변환 출력 형식",
+      "enable_experimental": "실험적 기능 활성화",
+      "pdf_background_removal": "PDF 배경 제거"
     },
     "actions": {
       "unpair": "연결 해제",
@@ -417,7 +422,9 @@
       "conflict_resolution": "기존 문서와 같은 이름의 문서를 업로드할 때 어떤 일이 일어나는지 선택하세요. 내용만은 주석을 보존하며 PDF와 이미지에서만 작동합니다 - EPUB에서는 중단됩니다. 덮어쓰기는 문서를 완전히 교체합니다.",
       "folder_depth_limit": "표시할 최대 폴더 깊이 (무제한의 경우 비워두세요)",
       "folder_exclusion_list": "제외할 폴더 이름의 쉼표 구분 목록, 대소문자 구분",
-      "conversion_output_format": "웹 기사, HTML 및 Markdown 파일의 기본 형식입니다."
+      "conversion_output_format": "웹 기사, HTML 및 Markdown 파일의 기본 형식입니다.",
+      "enable_experimental": "향후 버전에서 변경되거나 제거될 수 있는 실험적 기능에 대한 액세스 활성화",
+      "pdf_background_removal": "PDF에서 배경 이미지를 제거하는 옵션을 활성화합니다."
     },
     "status": {
       "active": "활성",
@@ -540,6 +547,7 @@
       "rendering_pdf": "PDF 렌더링 중",
       "compressing_pdf": "PDF 압축 중",
       "compress_error": "압축 오류",
+      "removing_background": "배경 이미지 제거 중",
       "rename_error": "이름 변경 오류",
       "uploading": "클라우드에 업로드 중",
       "upload_success": "문서가 reMarkable의 {{path}}에서 사용 가능합니다",

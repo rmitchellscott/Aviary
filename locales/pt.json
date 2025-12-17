@@ -60,7 +60,8 @@
     "pair_with_cloud": "Emparelhe com a nuvem para carregar pastas",
     "pair_with_remarkable": "Emparelhe com a nuvem reMarkable",
     "to_upload_documents": " para enviar documentos.",
-    "settings_config": " Vá para Configurações para configuração adicional."
+    "settings_config": " Vá para Configurações para configuração adicional.",
+    "remove_background": "Remover Fundo"
   },
   "filedrop": {
     "instruction": "Clique para enviar ou arraste e solte",
@@ -339,14 +340,16 @@
     "tabs": {
       "profile": "Perfil",
       "account": "Conta",
-      "api_keys": "Chaves API"
+      "api_keys": "Chaves API",
+      "experimental": "Experimental"
     },
     "cards": {
       "profile_information": "Informações do Perfil",
       "change_password": "Alterar Senha",
       "delete_account": "Excluir Conta",
       "create_api_key": "Criar Nova Chave API",
-      "your_api_keys": "Suas Chaves API"
+      "your_api_keys": "Suas Chaves API",
+      "experimental_features": "Recursos Experimentais"
     },
     "labels": {
       "username": "Nome de usuário",
@@ -370,7 +373,9 @@
       "pdf_conversion_device": "Alvo de conversão",
       "page_resolution": "Resolução da página",
       "page_dpi": "DPI da página",
-      "conversion_output_format": "Formato de Saída de Conversão"
+      "conversion_output_format": "Formato de Saída de Conversão",
+      "enable_experimental": "Ativar Recursos Experimentais",
+      "pdf_background_removal": "Remoção de Fundo em PDF"
     },
     "actions": {
       "unpair": "Desemparelhar",
@@ -417,7 +422,9 @@
       "conflict_resolution": "Escolha o que acontece ao enviar um documento com o mesmo nome que um documento existente. Apenas Conteúdo preserva anotações e funciona apenas para PDFs e imagens - irá Abortar para EPUBs. Sobrescrever substitui documentos completamente.",
       "folder_depth_limit": "Profundidade máxima de pastas para exibir (deixe vazio para ilimitado)",
       "folder_exclusion_list": "Lista separada por vírgulas de nomes de pastas para excluir, sensível a maiúsculas e minúsculas",
-      "conversion_output_format": "Formato padrão para artigos da web, arquivos HTML e Markdown."
+      "conversion_output_format": "Formato padrão para artigos da web, arquivos HTML e Markdown.",
+      "enable_experimental": "Ativar acesso a recursos experimentais que podem mudar ou ser removidos em versões futuras",
+      "pdf_background_removal": "Ativar opção para remover imagens de fundo de PDFs."
     },
     "status": {
       "active": "Ativo",
@@ -540,6 +547,7 @@
       "rendering_pdf": "Renderizando PDF",
       "compressing_pdf": "Comprimindo PDF",
       "compress_error": "Erro de compressão",
+      "removing_background": "Removendo imagens de fundo",
       "rename_error": "Erro de renomeação",
       "uploading": "Enviando para a nuvem",
       "upload_success": "Seu documento está disponível no seu reMarkable em {{path}}",

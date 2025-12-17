@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"sync"
+	"time"
 )
 
 // Job represents the state of a single PDF process
@@ -27,7 +28,7 @@ func NewStore() *Store {
 // Subscribe returns a channel that receives job updates for the given id.
 // The returned function should be called to unsubscribe when done.
 func (s *Store) Subscribe(id string) (<-chan *Job, func()) {
-	ch := make(chan *Job, 10) // Increase buffer size to prevent drops
+	ch := make(chan *Job, 256)
 	s.mu.Lock()
 	s.watchers[id] = append(s.watchers[id], ch)
 	job := s.jobs[id]
@@ -65,7 +66,6 @@ func (s *Store) Subscribe(id string) (<-chan *Job, func()) {
 
 func (s *Store) broadcastLocked(id string) {
 	job := s.jobs[id]
-	// Create a copy of the job to prevent mutation issues
 	jobCopy := &Job{
 		Status:    job.Status,
 		Message:   job.Message,
@@ -73,17 +73,24 @@ func (s *Store) broadcastLocked(id string) {
 		Progress:  job.Progress,
 		Operation: job.Operation,
 	}
-	// Copy the data map
 	for k, v := range job.Data {
 		jobCopy.Data[k] = v
 	}
-	
+
+	isTerminal := job.Status == "success" || job.Status == "error"
 	watchers := append([]chan *Job(nil), s.watchers[id]...)
-	// lock held when called
+
 	for _, ch := range watchers {
-		select {
-		case ch <- jobCopy:
-		default:
+		if isTerminal {
+			select {
+			case ch <- jobCopy:
+			case <-time.After(5 * time.Second):
+			}
+		} else {
+			select {
+			case ch <- jobCopy:
+			default:
+			}
 		}
 	}
 }

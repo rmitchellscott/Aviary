@@ -29,6 +29,9 @@ type User struct {
 	PageDPI float64 `gorm:"column:page_dpi" json:"page_dpi,omitempty"`
 	ConversionOutputFormat string `gorm:"column:conversion_output_format;default:epub" json:"conversion_output_format,omitempty"`
 	RmapiConfig string `gorm:"column:rmapi_config;type:text" json:"-"` // Never return config in JSON
+
+	// PDF processing settings
+	PDFBackgroundRemoval *bool `gorm:"column:pdf_background_removal" json:"pdf_background_removal"`
 	
 	// Password reset
 	ResetToken        string    `gorm:"index" json:"-"`
