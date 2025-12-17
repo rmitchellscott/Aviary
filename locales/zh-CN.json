@@ -60,7 +60,8 @@
     "pair_with_cloud": "与云配对以加载文件夹",
     "pair_with_remarkable": "与reMarkable云配对",
     "to_upload_documents": " 以上传文档。",
-    "settings_config": " 转到设置进行其他配置。"
+    "settings_config": " 转到设置进行其他配置。",
+    "remove_background": "移除背景"
   },
   "filedrop": {
     "instruction": "点击上传或拖拽文件",
@@ -339,14 +340,16 @@
     "tabs": {
       "profile": "个人资料",
       "account": "账户",
-      "api_keys": "API密钥"
+      "api_keys": "API密钥",
+      "experimental": "实验性功能"
     },
     "cards": {
       "profile_information": "个人资料信息",
       "change_password": "更改密码",
       "delete_account": "删除账户",
       "create_api_key": "创建新API密钥",
-      "your_api_keys": "您的API密钥"
+      "your_api_keys": "您的API密钥",
+      "experimental_features": "实验性功能"
     },
     "labels": {
       "username": "用户名",
@@ -370,7 +373,9 @@
       "pdf_conversion_device": "转换目标",
       "page_resolution": "页面分辨率",
       "page_dpi": "页面DPI",
-      "conversion_output_format": "转换输出格式"
+      "conversion_output_format": "转换输出格式",
+      "enable_experimental": "启用实验性功能",
+      "pdf_background_removal": "PDF背景移除"
     },
     "actions": {
       "unpair": "取消配对",
@@ -417,7 +422,9 @@
       "default_directory": "选择您的文档将上传到的默认文件夹",
       "conflict_resolution": "选择上传与现有文档同名的文档时发生的情况。仅内容保留注释，仅适用于PDF和图像 - 对于EPUB将中止。覆盖完全替换文档。",
       "folder_depth_limit": "显示的最大文件夹深度（留空表示无限制）",
-      "folder_exclusion_list": "要排除的文件夹名称的逗号分隔列表，区分大小写"
+      "folder_exclusion_list": "要排除的文件夹名称的逗号分隔列表，区分大小写",
+      "enable_experimental": "启用对可能在未来版本中更改或移除的实验性功能的访问",
+      "pdf_background_removal": "启用从PDF中移除背景图像的选项。"
     },
     "status": {
       "active": "活动",
@@ -540,6 +547,7 @@
       "rendering_pdf": "渲染PDF",
       "compressing_pdf": "压缩PDF",
       "compress_error": "压缩错误",
+      "removing_background": "正在移除背景图像",
       "rename_error": "重命名错误",
       "uploading": "上传到云端",
       "upload_success": "您的文档在您的reMarkable上的{{path}}可用",

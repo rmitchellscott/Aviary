@@ -102,15 +102,17 @@ func UploadHandler(c *gin.Context) {
 	archiveVal := formValues["archive"]
 	rmDirVal := formValues["rm_dir"]
 	prefixVal := formValues["prefix"]
+	removeBackgroundVal := formValues["remove_background"]
 	var jobId string
 	if len(savedPaths) == 1 {
 		form := map[string]string{
-			"Body":     savedPaths[0],
-			"prefix":   prefixVal,
-			"compress": compressVal,
-			"manage":   manageVal,
-			"archive":  archiveVal,
-			"rm_dir":   rmDirVal,
+			"Body":              savedPaths[0],
+			"prefix":            prefixVal,
+			"compress":          compressVal,
+			"manage":            manageVal,
+			"archive":           archiveVal,
+			"rm_dir":            rmDirVal,
+			"remove_background": removeBackgroundVal,
 		}
 		jobId = enqueueJobForUser(form, userID)
 	} else {
@@ -120,12 +122,13 @@ func UploadHandler(c *gin.Context) {
 			return
 		}
 		form := map[string]string{
-			"Body":     fmt.Sprintf("files:%s", string(pathsJSON)),
-			"prefix":   prefixVal,
-			"compress": compressVal,
-			"manage":   manageVal,
-			"archive":  archiveVal,
-			"rm_dir":   rmDirVal,
+			"Body":              fmt.Sprintf("files:%s", string(pathsJSON)),
+			"prefix":            prefixVal,
+			"compress":          compressVal,
+			"manage":            manageVal,
+			"archive":           archiveVal,
+			"rm_dir":            rmDirVal,
+			"remove_background": removeBackgroundVal,
 		}
 		jobId = enqueueJobForUser(form, userID)
 	}

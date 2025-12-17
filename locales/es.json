@@ -60,7 +60,8 @@
     "pair_with_cloud": "Vincular con la nube para cargar carpetas",
     "pair_with_remarkable": "Vincular con reMarkable cloud",
     "to_upload_documents": " para subir documentos.",
-    "settings_config": " Ve a Configuración para configuración adicional."
+    "settings_config": " Ve a Configuración para configuración adicional.",
+    "remove_background": "Eliminar Fondo"
   },
   "filedrop": {
     "instruction": "Haz clic para subir o arrastra y suelta",
@@ -368,6 +369,7 @@
       "rendering_pdf": "Renderizando PDF",
       "compressing_pdf": "Comprimiendo PDF",
       "compress_error": "Error de compresión",
+      "removing_background": "Eliminando imágenes de fondo",
       "rename_error": "Error al renombrar",
       "uploading": "Subiendo",
       "upload_success": "Tu documento está disponible en tu reMarkable en {{path}}",
@@ -395,14 +397,16 @@
     "tabs": {
       "profile": "Perfil",
       "account": "Cuenta",
-      "api_keys": "Claves API"
+      "api_keys": "Claves API",
+      "experimental": "Experimental"
     },
     "cards": {
       "profile_information": "Información del Perfil",
       "change_password": "Cambiar Contraseña",
       "delete_account": "Eliminar Cuenta",
       "create_api_key": "Crear Nueva Clave API",
-      "your_api_keys": "Tus Claves API"
+      "your_api_keys": "Tus Claves API",
+      "experimental_features": "Funciones Experimentales"
     },
     "labels": {
       "username": "Usuario",
@@ -426,7 +430,9 @@
       "pdf_conversion_device": "Objetivo de Conversión",
       "page_resolution": "Resolución de Página",
       "page_dpi": "DPI de Página",
-      "conversion_output_format": "Formato de Salida de Conversión"
+      "conversion_output_format": "Formato de Salida de Conversión",
+      "enable_experimental": "Habilitar Funciones Experimentales",
+      "pdf_background_removal": "Eliminación de Fondo de PDF"
     },
     "actions": {
       "unpair": "Desvincular",
@@ -473,7 +479,9 @@
       "default_directory": "Elige la carpeta predeterminada donde se cargarán tus documentos",
       "conflict_resolution": "Elige qué sucede al subir un documento con el mismo nombre que un documento existente. Solo Contenido preserva anotaciones y solo funciona para PDFs e imágenes - Abortará para EPUBs. Sobrescribir reemplaza documentos completamente.",
       "folder_depth_limit": "Profundidad máxima de carpetas a mostrar (dejar vacío para ilimitado)",
-      "folder_exclusion_list": "Lista separada por comas de nombres de carpetas a excluir, sensible a mayúsculas y minúsculas"
+      "folder_exclusion_list": "Lista separada por comas de nombres de carpetas a excluir, sensible a mayúsculas y minúsculas",
+      "enable_experimental": "Habilitar acceso a funciones experimentales que pueden cambiar o eliminarse en versiones futuras",
+      "pdf_background_removal": "Habilitar opción para eliminar imágenes de fondo de los PDFs."
     },
     "status": {
       "active": "Activo",

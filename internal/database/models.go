@@ -29,6 +29,10 @@ type User struct {
 	PageDPI float64 `gorm:"column:page_dpi" json:"page_dpi,omitempty"`
 	ConversionOutputFormat string `gorm:"column:conversion_output_format;default:epub" json:"conversion_output_format,omitempty"`
 	RmapiConfig string `gorm:"column:rmapi_config;type:text" json:"-"` // Never return config in JSON
+
+	// Experimental features settings
+	EnableExperimentalFeatures  bool `gorm:"column:enable_experimental_features;default:false" json:"enable_experimental_features"`
+	PDFBackgroundRemovalDefault bool `gorm:"column:pdf_background_removal_default;default:false" json:"pdf_background_removal_default"`
 	
 	// Password reset
 	ResetToken        string    `gorm:"index" json:"-"`

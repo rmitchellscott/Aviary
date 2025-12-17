@@ -60,7 +60,8 @@
     "pair_with_cloud": "フォルダを読み込むためにクラウドとペアリング",
     "pair_with_remarkable": "reMarkableクラウドとペアリング",
     "to_upload_documents": "ドキュメントをアップロードするために。",
-    "settings_config": "追加設定のために設定に移動してください。"
+    "settings_config": "追加設定のために設定に移動してください。",
+    "remove_background": "背景を削除"
   },
   "filedrop": {
     "instruction": "クリックしてアップロードするか、ドラッグ&ドロップしてください",
@@ -339,14 +340,16 @@
     "tabs": {
       "profile": "プロフィール",
       "account": "アカウント",
-      "api_keys": "APIキー"
+      "api_keys": "APIキー",
+      "experimental": "実験的機能"
     },
     "cards": {
       "profile_information": "プロフィール情報",
       "change_password": "パスワード変更",
       "delete_account": "アカウント削除",
       "create_api_key": "新しいAPIキーを作成",
-      "your_api_keys": "あなたのAPIキー"
+      "your_api_keys": "あなたのAPIキー",
+      "experimental_features": "実験的機能"
     },
     "labels": {
       "username": "ユーザー名",
@@ -370,7 +373,9 @@
       "pdf_conversion_device": "変換ターゲット",
       "page_resolution": "ページ解像度",
       "page_dpi": "ページDPI",
-      "conversion_output_format": "変換出力形式"
+      "conversion_output_format": "変換出力形式",
+      "enable_experimental": "実験的機能を有効にする",
+      "pdf_background_removal": "PDF背景削除"
     },
     "actions": {
       "unpair": "ペアリング解除",
@@ -417,7 +422,9 @@
       "conflict_resolution": "既存の文書と同じ名前の文書をアップロードするときに何が起こるかを選択します。コンテンツのみは注釈を保持し、PDFと画像にのみ機能します - EPUBでは中止されます。上書きは文書を完全に置き換えます。",
       "folder_depth_limit": "表示する最大フォルダ深度（空白で無制限）",
       "folder_exclusion_list": "除外するフォルダ名のカンマ区切りリスト、大文字小文字を区別",
-      "conversion_output_format": "Webの記事、HTML、Markdownファイルのデフォルト形式。"
+      "conversion_output_format": "Webの記事、HTML、Markdownファイルのデフォルト形式。",
+      "enable_experimental": "将来のバージョンで変更または削除される可能性のある実験的機能へのアクセスを有効にする",
+      "pdf_background_removal": "PDFから背景画像を削除するオプションを有効にする。"
     },
     "status": {
       "active": "アクティブ",
@@ -540,6 +547,7 @@
       "rendering_pdf": "PDFをレンダリング中",
       "compressing_pdf": "PDF圧縮中",
       "compress_error": "圧縮エラー",
+      "removing_background": "背景画像を削除中",
       "rename_error": "名前変更エラー",
       "uploading": "クラウドにアップロード中",
       "upload_success": "ドキュメントはreMarkableの{{path}}で利用可能です",

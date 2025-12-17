@@ -60,7 +60,8 @@
     "pair_with_cloud": "Sparuj z chmurą, aby załadować foldery",
     "pair_with_remarkable": "Sparuj z chmurą reMarkable",
     "to_upload_documents": " aby przesłać dokumenty.",
-    "settings_config": " Przejdź do Ustawień dla dodatkowej konfiguracji."
+    "settings_config": " Przejdź do Ustawień dla dodatkowej konfiguracji.",
+    "remove_background": "Usuń Tło"
   },
   "filedrop": {
     "instruction": "Kliknij, aby przesłać lub przeciągnij i upuść",
@@ -339,14 +340,16 @@
     "tabs": {
       "profile": "Profil",
       "account": "Konto",
-      "api_keys": "Klucze API"
+      "api_keys": "Klucze API",
+      "experimental": "Eksperymentalne"
     },
     "cards": {
       "profile_information": "Informacje o profilu",
       "change_password": "Zmień hasło",
       "delete_account": "Usuń konto",
       "create_api_key": "Utwórz nowy klucz API",
-      "your_api_keys": "Twoje klucze API"
+      "your_api_keys": "Twoje klucze API",
+      "experimental_features": "Funkcje eksperymentalne"
     },
     "labels": {
       "username": "Nazwa użytkownika",
@@ -370,7 +373,9 @@
       "pdf_conversion_device": "Cel konwersji",
       "page_resolution": "Rozdzielczość strony",
       "page_dpi": "DPI strony",
-      "conversion_output_format": "Format Wyjściowy Konwersji"
+      "conversion_output_format": "Format Wyjściowy Konwersji",
+      "enable_experimental": "Włącz funkcje eksperymentalne",
+      "pdf_background_removal": "Usuwanie tła z PDF"
     },
     "actions": {
       "unpair": "Odparuj",
@@ -417,7 +422,9 @@
       "page_resolution": "Rozdzielczość strony w formacie SZEROKoŚĆxWYSOKoŚĆ",
       "page_dpi": "Punkty na cal",
       "conversion_output_format": "Domyślny format dla artykułów internetowych, plików HTML i Markdown.",
-      "default_directory": "Wybierz domyślny folder, do którego będą przesyłane Twoje dokumenty"
+      "default_directory": "Wybierz domyślny folder, do którego będą przesyłane Twoje dokumenty",
+      "enable_experimental": "Włącz dostęp do funkcji eksperymentalnych, które mogą ulec zmianie lub zostać usunięte w przyszłych wersjach",
+      "pdf_background_removal": "Włącz opcję usuwania obrazów tła z plików PDF."
     },
     "status": {
       "active": "Aktywny",
@@ -540,6 +547,7 @@
       "rendering_pdf": "Renderowanie PDF",
       "compressing_pdf": "Kompresja PDF",
       "compress_error": "Błąd kompresji",
+      "removing_background": "Usuwanie obrazów tła",
       "rename_error": "Błąd zmiany nazwy",
       "uploading": "Przesyłanie do chmury",
       "upload_success": "Twój dokument jest dostępny na twoim reMarkable w {{path}}",

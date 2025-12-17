@@ -38,23 +38,50 @@ type PasswordResetConfirmRequest struct {
 
 // UserResponse represents a user in API responses
 type UserResponse struct {
-	ID                     uuid.UUID  `json:"id"`
-	Username               string     `json:"username"`
-	Email                  string     `json:"email"`
-	IsAdmin                bool       `json:"is_admin"`
-	IsActive               bool       `json:"is_active"`
-	RmapiHost              string     `json:"rmapi_host,omitempty"`
-	DefaultRmdir           string     `json:"default_rmdir"`
-	CoverpageSetting       string     `json:"coverpage_setting"`
-	ConflictResolution     string     `json:"conflict_resolution"`
-	FolderDepthLimit       int        `json:"folder_depth_limit"`
-	FolderExclusionList    string     `json:"folder_exclusion_list"`
-	PageResolution         string     `json:"page_resolution,omitempty"`
-	PageDPI                float64    `json:"page_dpi,omitempty"`
-	ConversionOutputFormat string     `json:"conversion_output_format,omitempty"`
-	RmapiPaired            bool       `json:"rmapi_paired"`
-	CreatedAt              time.Time  `json:"created_at"`
-	LastLogin              *time.Time `json:"last_login,omitempty"`
+	ID                          uuid.UUID  `json:"id"`
+	Username                    string     `json:"username"`
+	Email                       string     `json:"email"`
+	IsAdmin                     bool       `json:"is_admin"`
+	IsActive                    bool       `json:"is_active"`
+	RmapiHost                   string     `json:"rmapi_host,omitempty"`
+	DefaultRmdir                string     `json:"default_rmdir"`
+	CoverpageSetting            string     `json:"coverpage_setting"`
+	ConflictResolution          string     `json:"conflict_resolution"`
+	FolderDepthLimit            int        `json:"folder_depth_limit"`
+	FolderExclusionList         string     `json:"folder_exclusion_list"`
+	PageResolution              string     `json:"page_resolution,omitempty"`
+	PageDPI                     float64    `json:"page_dpi,omitempty"`
+	ConversionOutputFormat      string     `json:"conversion_output_format,omitempty"`
+	RmapiPaired                 bool       `json:"rmapi_paired"`
+	EnableExperimentalFeatures  bool       `json:"enable_experimental_features"`
+	PDFBackgroundRemovalDefault bool       `json:"pdf_background_removal_default"`
+	CreatedAt                   time.Time  `json:"created_at"`
+	LastLogin                   *time.Time `json:"last_login,omitempty"`
+}
+
+// userToResponse converts a database.User to a UserResponse
+func userToResponse(user *database.User) UserResponse {
+	return UserResponse{
+		ID:                          user.ID,
+		Username:                    user.Username,
+		Email:                       user.Email,
+		IsAdmin:                     user.IsAdmin,
+		IsActive:                    user.IsActive,
+		RmapiHost:                   user.RmapiHost,
+		RmapiPaired:                 rmapi.IsUserPaired(user.ID),
+		DefaultRmdir:                user.DefaultRmdir,
+		CoverpageSetting:            user.CoverpageSetting,
+		ConflictResolution:          user.ConflictResolution,
+		FolderDepthLimit:            user.FolderDepthLimit,
+		FolderExclusionList:         user.FolderExclusionList,
+		PageResolution:              user.PageResolution,
+		PageDPI:                     user.PageDPI,
+		ConversionOutputFormat:      user.ConversionOutputFormat,
+		EnableExperimentalFeatures:  user.EnableExperimentalFeatures,
+		PDFBackgroundRemovalDefault: user.PDFBackgroundRemovalDefault,
+		CreatedAt:                   user.CreatedAt,
+		LastLogin:                   user.LastLogin,
+	}
 }
 
 // GetRegistrationStatusHandler returns whether registration is enabled (public endpoint)
@@ -202,30 +229,9 @@ func RegisterHandler(c *gin.Context) {
 		}
 	}
 
-	// Convert to response format
-	response := UserResponse{
-		ID:                  newUser.ID,
-		Username:            newUser.Username,
-		Email:               newUser.Email,
-		IsAdmin:             newUser.IsAdmin,
-		IsActive:            newUser.IsActive,
-		RmapiHost:           newUser.RmapiHost,
-		RmapiPaired:         rmapi.IsUserPaired(newUser.ID),
-		DefaultRmdir:        newUser.DefaultRmdir,
-		CoverpageSetting:    newUser.CoverpageSetting,
-		ConflictResolution:     newUser.ConflictResolution,
-		FolderDepthLimit:       newUser.FolderDepthLimit,
-		FolderExclusionList:    newUser.FolderExclusionList,
-		PageResolution:         newUser.PageResolution,
-		PageDPI:                newUser.PageDPI,
-		ConversionOutputFormat: newUser.ConversionOutputFormat,
-		CreatedAt:              newUser.CreatedAt,
-		LastLogin:              newUser.LastLogin,
-	}
-
 	c.JSON(http.StatusCreated, gin.H{
 		"success": true,
-		"user":    response,
+		"user":    userToResponse(newUser),
 	})
 }
 
@@ -311,25 +317,7 @@ func MultiUserLoginHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"user": UserResponse{
-			ID:                  user.ID,
-			Username:            user.Username,
-			Email:               user.Email,
-			IsAdmin:             user.IsAdmin,
-			IsActive:            user.IsActive,
-			RmapiHost:           user.RmapiHost,
-			RmapiPaired:         rmapi.IsUserPaired(user.ID),
-			DefaultRmdir:        user.DefaultRmdir,
-			CoverpageSetting:    user.CoverpageSetting,
-			ConflictResolution:     user.ConflictResolution,
-			FolderDepthLimit:       user.FolderDepthLimit,
-			FolderExclusionList:    user.FolderExclusionList,
-			PageResolution:         user.PageResolution,
-			PageDPI:                user.PageDPI,
-			ConversionOutputFormat: user.ConversionOutputFormat,
-			CreatedAt:              user.CreatedAt,
-			LastLogin:              user.LastLogin,
-		},
+		"user":    userToResponse(user),
 	})
 }
 
@@ -421,25 +409,7 @@ func GetCurrentUserHandler(c *gin.Context) {
 	}
 
 	user := currentUser.(*database.User)
-	response := UserResponse{
-		ID:                 user.ID,
-		Username:           user.Username,
-		Email:              user.Email,
-		IsAdmin:            user.IsAdmin,
-		IsActive:           user.IsActive,
-		RmapiHost:          user.RmapiHost,
-		RmapiPaired:        rmapi.IsUserPaired(user.ID),
-		DefaultRmdir:           user.DefaultRmdir,
-		CoverpageSetting:       user.CoverpageSetting,
-		ConflictResolution:     user.ConflictResolution,
-		PageResolution:         user.PageResolution,
-		PageDPI:                user.PageDPI,
-		ConversionOutputFormat: user.ConversionOutputFormat,
-		CreatedAt:              user.CreatedAt,
-		LastLogin:              user.LastLogin,
-	}
-
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, userToResponse(user))
 }
 
 // MultiUserCheckAuthHandler checks authentication for multi-user mode
@@ -498,25 +468,7 @@ func MultiUserCheckAuthHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"authenticated": true,
-		"user": UserResponse{
-			ID:                  user.ID,
-			Username:            user.Username,
-			Email:               user.Email,
-			IsAdmin:             user.IsAdmin,
-			IsActive:            user.IsActive,
-			RmapiHost:           user.RmapiHost,
-			RmapiPaired:         rmapi.IsUserPaired(user.ID),
-			DefaultRmdir:        user.DefaultRmdir,
-			CoverpageSetting:    user.CoverpageSetting,
-			ConflictResolution:     user.ConflictResolution,
-			FolderDepthLimit:       user.FolderDepthLimit,
-			FolderExclusionList:    user.FolderExclusionList,
-			PageResolution:         user.PageResolution,
-			PageDPI:                user.PageDPI,
-			ConversionOutputFormat: user.ConversionOutputFormat,
-			CreatedAt:              user.CreatedAt,
-			LastLogin:              user.LastLogin,
-		},
+		"user":          userToResponse(user),
 	})
 }
 

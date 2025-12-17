@@ -60,7 +60,8 @@
     "pair_with_cloud": "Coupler avec le cloud pour charger les dossiers",
     "pair_with_remarkable": "Coupler avec reMarkable cloud",
     "to_upload_documents": " pour télécharger des documents.",
-    "settings_config": " Allez dans Paramètres pour une configuration supplémentaire."
+    "settings_config": " Allez dans Paramètres pour une configuration supplémentaire.",
+    "remove_background": "Supprimer l'arrière-plan"
   },
   "filedrop": {
     "instruction": "Cliquez pour télécharger ou glissez-déposez",
@@ -392,6 +393,7 @@
       "rendering_pdf": "Rendu du PDF",
       "compressing_pdf": "Compression PDF",
       "compress_error": "Erreur de compression",
+      "removing_background": "Suppression des images d'arrière-plan",
       "rename_error": "Erreur de renommage",
       "uploading": "Téléchargement vers le serveur",
       "upload_success": "Votre document est disponible sur votre reMarkable à {{path}}",
@@ -419,14 +421,16 @@
     "tabs": {
       "profile": "Profil",
       "account": "Compte",
-      "api_keys": "Clés API"
+      "api_keys": "Clés API",
+      "experimental": "Expérimental"
     },
     "cards": {
       "profile_information": "Informations du profil",
       "change_password": "Changer le mot de passe",
       "delete_account": "Supprimer le compte",
       "create_api_key": "Créer une nouvelle clé API",
-      "your_api_keys": "Vos clés API"
+      "your_api_keys": "Vos clés API",
+      "experimental_features": "Fonctionnalités expérimentales"
     },
     "labels": {
       "username": "Nom d'utilisateur",
@@ -450,7 +454,9 @@
       "pdf_conversion_device": "Cible de conversion",
       "page_resolution": "Résolution de page",
       "page_dpi": "DPI de page",
-      "conversion_output_format": "Format de sortie de conversion"
+      "conversion_output_format": "Format de sortie de conversion",
+      "enable_experimental": "Activer les fonctionnalités expérimentales",
+      "pdf_background_removal": "Suppression de l'arrière-plan PDF"
     },
     "actions": {
       "unpair": "Découpler",
@@ -497,7 +503,9 @@
       "default_directory": "Choisissez le dossier par défaut où vos documents seront téléchargés",
       "conflict_resolution": "Choisissez ce qui se passe lors du téléchargement d'un document avec le même nom qu'un document existant. Contenu seulement préserve les annotations et ne fonctionne que pour les PDFs et images - cela Abandonnera pour les EPUBs. Écraser remplace complètement les documents.",
       "folder_depth_limit": "Profondeur maximale des dossiers à afficher (laisser vide pour illimité)",
-      "folder_exclusion_list": "Liste séparée par des virgules des noms de dossiers à exclure, sensible à la casse"
+      "folder_exclusion_list": "Liste séparée par des virgules des noms de dossiers à exclure, sensible à la casse",
+      "enable_experimental": "Activer l'accès aux fonctionnalités expérimentales qui peuvent être modifiées ou supprimées dans les versions futures",
+      "pdf_background_removal": "Activer l'option pour supprimer les images d'arrière-plan des PDF."
     },
     "status": {
       "active": "Actif",

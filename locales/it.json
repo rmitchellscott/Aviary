@@ -60,7 +60,8 @@
     "pair_with_cloud": "Collega con il cloud per caricare le cartelle",
     "pair_with_remarkable": "Collega con reMarkable cloud",
     "to_upload_documents": " per caricare documenti.",
-    "settings_config": " Vai su Impostazioni per configurazioni aggiuntive."
+    "settings_config": " Vai su Impostazioni per configurazioni aggiuntive.",
+    "remove_background": "Rimuovi Sfondo"
   },
   "filedrop": {
     "instruction": "Clicca per caricare o trascina e rilascia",
@@ -368,6 +369,7 @@
       "rendering_pdf": "Rendering PDF",
       "compressing_pdf": "Compressione PDF",
       "compress_error": "Errore di compressione",
+      "removing_background": "Rimozione immagini di sfondo",
       "rename_error": "Errore di rinominazione",
       "uploading": "Caricamento in corso",
       "upload_success": "Il tuo documento è disponibile sul tuo reMarkable in {{path}}",
@@ -395,14 +397,16 @@
     "tabs": {
       "profile": "Profilo",
       "account": "Account",
-      "api_keys": "Chiavi API"
+      "api_keys": "Chiavi API",
+      "experimental": "Sperimentale"
     },
     "cards": {
       "profile_information": "Informazioni Profilo",
       "change_password": "Cambia Password",
       "delete_account": "Elimina Account",
       "create_api_key": "Crea Nuova Chiave API",
-      "your_api_keys": "Le Tue Chiavi API"
+      "your_api_keys": "Le Tue Chiavi API",
+      "experimental_features": "Funzionalità Sperimentali"
     },
     "labels": {
       "username": "Nome utente",
@@ -426,7 +430,9 @@
       "pdf_conversion_device": "Obiettivo di conversione",
       "page_resolution": "Risoluzione pagina",
       "page_dpi": "DPI pagina",
-      "conversion_output_format": "Formato di Output Conversione"
+      "conversion_output_format": "Formato di Output Conversione",
+      "enable_experimental": "Abilita Funzionalità Sperimentali",
+      "pdf_background_removal": "Rimozione Sfondo PDF"
     },
     "actions": {
       "unpair": "Scollega",
@@ -473,7 +479,9 @@
       "default_directory": "Scegli la cartella predefinita dove verranno caricati i tuoi documenti",
       "conflict_resolution": "Scegli cosa succede quando carichi un documento con lo stesso nome di un documento esistente. Solo Contenuto preserva le annotazioni e funziona solo per PDF e immagini - Interromperà per gli EPUB. Sovrascrivi sostituisce completamente i documenti.",
       "folder_depth_limit": "Profondità massima delle cartelle da visualizzare (lascia vuoto per illimitato)",
-      "folder_exclusion_list": "Lista separata da virgole di nomi di cartelle da escludere, sensibile alle maiuscole"
+      "folder_exclusion_list": "Lista separata da virgole di nomi di cartelle da escludere, sensibile alle maiuscole",
+      "enable_experimental": "Abilita l'accesso a funzionalità sperimentali che potrebbero cambiare o essere rimosse nelle versioni future",
+      "pdf_background_removal": "Abilita l'opzione per rimuovere le immagini di sfondo dai PDF."
     },
     "status": {
       "active": "Attivo",

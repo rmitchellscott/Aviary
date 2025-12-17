@@ -60,7 +60,8 @@
     "pair_with_cloud": "Koppel met cloud om mappen te laden",
     "pair_with_remarkable": "Koppel met reMarkable cloud",
     "to_upload_documents": " om documenten te uploaden.",
-    "settings_config": " Ga naar Instellingen voor aanvullende configuratie."
+    "settings_config": " Ga naar Instellingen voor aanvullende configuratie.",
+    "remove_background": "Achtergrond Verwijderen"
   },
   "filedrop": {
     "instruction": "Klik om te uploaden of sleep en drop",
@@ -339,14 +340,16 @@
     "tabs": {
       "profile": "Profiel",
       "account": "Account",
-      "api_keys": "API-sleutels"
+      "api_keys": "API-sleutels",
+      "experimental": "Experimenteel"
     },
     "cards": {
       "profile_information": "Profielinformatie",
       "change_password": "Wachtwoord wijzigen",
       "delete_account": "Account verwijderen",
       "create_api_key": "Nieuwe API-sleutel maken",
-      "your_api_keys": "Jouw API-sleutels"
+      "your_api_keys": "Jouw API-sleutels",
+      "experimental_features": "Experimentele Functies"
     },
     "labels": {
       "username": "Gebruikersnaam",
@@ -370,7 +373,9 @@
       "pdf_conversion_device": "Conversiedoel",
       "page_resolution": "Paginaresolutie",
       "page_dpi": "Pagina DPI",
-      "conversion_output_format": "Conversie Uitvoerformaat"
+      "conversion_output_format": "Conversie Uitvoerformaat",
+      "enable_experimental": "Experimentele Functies Inschakelen",
+      "pdf_background_removal": "PDF Achtergrondverwijdering"
     },
     "actions": {
       "unpair": "Ontkoppelen",
@@ -417,7 +422,9 @@
       "conflict_resolution": "Kies wat er gebeurt bij het uploaden van een document met dezelfde naam als een bestaand document. Alleen Inhoud behoudt annotaties en werkt alleen voor PDF's en afbeeldingen - het zal Afbreken voor EPUB's. Overschrijven vervangt documenten volledig.",
       "folder_depth_limit": "Maximale mapdiepte om weer te geven (laat leeg voor onbeperkt)",
       "folder_exclusion_list": "Kommagescheiden lijst van mapnamen om uit te sluiten, hoofdlettergevoelig",
-      "conversion_output_format": "Standaardformaat voor webartikelen, HTML- en Markdown-bestanden."
+      "conversion_output_format": "Standaardformaat voor webartikelen, HTML- en Markdown-bestanden.",
+      "enable_experimental": "Schakel toegang in tot experimentele functies die in toekomstige versies kunnen worden gewijzigd of verwijderd",
+      "pdf_background_removal": "Schakel optie in om achtergrondafbeeldingen uit PDF's te verwijderen."
     },
     "status": {
       "active": "Actief",
@@ -540,6 +547,7 @@
       "rendering_pdf": "PDF weergeven",
       "compressing_pdf": "PDF comprimeren",
       "compress_error": "Compressie fout",
+      "removing_background": "Achtergrondafbeeldingen verwijderen",
       "rename_error": "Hernoem fout",
       "uploading": "Uploaden naar cloud",
       "upload_success": "Je document is beschikbaar op je reMarkable op {{path}}",

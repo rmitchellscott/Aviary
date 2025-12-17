@@ -27,6 +27,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/downloader"
 	"github.com/rmitchellscott/aviary/internal/jobs"
 	"github.com/rmitchellscott/aviary/internal/manager"
+	"github.com/rmitchellscott/aviary/internal/pdfprocessor"
 	"github.com/rmitchellscott/aviary/internal/security"
 	"github.com/rmitchellscott/aviary/internal/storage"
 	"golang.org/x/text/cases"
@@ -77,6 +78,8 @@ func keyToMessage(key string) string {
 		return "Compressing PDF"
 	case "backend.status.compress_error":
 		return "Compression error"
+	case "backend.status.removing_background":
+		return "Removing background images"
 	case "backend.status.rename_error":
 		return "Rename error"
 	case "backend.status.uploading":
@@ -123,6 +126,7 @@ type DocumentRequest struct {
 	RetentionDays      string `form:"retention_days" json:"retention_days"`
 	ConflictResolution string `form:"conflict_resolution" json:"conflict_resolution"`
 	Coverpage          string `form:"coverpage" json:"coverpage"`
+	RemoveBackground   string `form:"remove_background" json:"removeBackground"`
 }
 
 // enqueueJob creates a new job ID, logs form fields, starts processPDF(form) in a goroutine,
@@ -222,6 +226,7 @@ func EnqueueHandler(c *gin.Context) {
 				"retention_days":      req.RetentionDays,
 				"conflict_resolution": req.ConflictResolution,
 				"coverpage":           req.Coverpage,
+				"remove_background":   req.RemoveBackground,
 			}
 			// Set defaults for empty values
 			if form["compress"] == "" {
@@ -320,6 +325,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 	compress := isTrue(form["compress"])
 	manage := isTrue(form["manage"])
 	archive := isTrue(form["archive"])
+	removeBackground := form["remove_background"] // Will be resolved after dbUser is loaded
 	retentionStr := form["retention_days"]
 	requestConflictResolution := form["conflict_resolution"]
 	requestCoverpage := form["coverpage"]
@@ -669,7 +675,43 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		manager.Logf("✅ Conversion complete: %s", localPath)
 	}
 
-	// 4) Optionally compress the PDF
+	// 4) Optionally remove background images from PDF
+	shouldRemoveBackground := isTrue(removeBackground)
+	if removeBackground == "" && dbUser != nil && dbUser.EnableExperimentalFeatures && dbUser.PDFBackgroundRemovalDefault {
+		shouldRemoveBackground = true
+	}
+	if shouldRemoveBackground && strings.ToLower(filepath.Ext(localPath)) == ".pdf" {
+		manager.Logf("🔧 Removing background images from PDF")
+		jobStore.UpdateWithOperation(jobID, "Running", "backend.status.removing_background", nil, "removing_background")
+
+		processedPath := strings.TrimSuffix(localPath, ".pdf") + "_nobg.pdf"
+		removedCount, bgErr := pdfprocessor.RemoveBackgroundImages(localPath, processedPath)
+		if bgErr != nil {
+			manager.Logf("⚠️ Background removal warning: %v (continuing with original file)", bgErr)
+		} else if removedCount > 0 {
+			if secureLocalPath, err := security.NewSecurePathFromExisting(localPath); err == nil {
+				security.SafeRemove(secureLocalPath)
+			}
+			secureProcessedPath, err := security.NewSecurePathFromExisting(processedPath)
+			if err == nil {
+				secureLocalPath, err := security.NewSecurePathFromExisting(localPath)
+				if err == nil {
+					if err := security.SafeRename(secureProcessedPath, secureLocalPath); err != nil {
+						manager.Logf("⚠️ Failed to rename processed PDF: %v", err)
+						localPath = processedPath
+					}
+				}
+			}
+			manager.Logf("✅ Removed %d background image(s) from PDF", removedCount)
+		} else {
+			if secureProcessedPath, err := security.NewSecurePathFromExisting(processedPath); err == nil {
+				security.SafeRemove(secureProcessedPath)
+			}
+			manager.Logf("📄 No background images to remove")
+		}
+	}
+
+	// 5) Optionally compress the PDF
 	if compress {
 		manager.Logf("🔧 Compressing PDF")
 		jobStore.UpdateWithOperation(jobID, "Running", "backend.status.compressing_pdf", nil, "compressing")
@@ -682,7 +724,6 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			return "backend.status.compress_error", nil, compErr
 		}
 
-		// Remove the uncompressed version if we created a new compressed file
 		if secureLocalPath, err := security.NewSecurePathFromExisting(localPath); err == nil {
 			if err := security.SafeRemove(secureLocalPath); err != nil {
 				manager.Logf("⚠️ failed to remove uncompressed PDF %q: %v", localPath, err)
@@ -692,7 +733,6 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		localPath = compressedPath
 		jobStore.UpdateProgress(jobID, 100)
 
-		// Always rename the compressed file back to drop "_compressed" suffix
 		origPath := strings.TrimSuffix(localPath, "_compressed.pdf") + ".pdf"
 		secureLocalPath, err := security.NewSecurePathFromExisting(localPath)
 		if err != nil {
@@ -708,7 +748,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		localPath = origPath
 	}
 
-	// 4) Rename file for managed workflows
+	// 6) Rename file for managed workflows
 	var finalLocalPath string
 	if manage {
 		// Create new filename with month and day but no year
@@ -956,6 +996,7 @@ func processDocumentForUser(jobID string, req DocumentRequest, userID uuid.UUID)
 		"retention_days":      req.RetentionDays,
 		"conflict_resolution": req.ConflictResolution,
 		"coverpage":           req.Coverpage,
+		"remove_background":   req.RemoveBackground,
 	}
 
 	// Set defaults for empty values

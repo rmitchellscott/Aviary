@@ -20,6 +20,8 @@ interface User {
   page_resolution?: string
   page_dpi?: number
   conversion_output_format?: string
+  enable_experimental_features?: boolean
+  pdf_background_removal_default?: boolean
   created_at: string
   last_login?: string
 }

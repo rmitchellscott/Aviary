@@ -60,7 +60,8 @@
     "pair_with_cloud": "Yhdistä pilveen kansioiden lataamiseksi",
     "pair_with_remarkable": "Yhdistä reMarkable-pilveen",
     "to_upload_documents": " asiakirjojen lataamiseksi.",
-    "settings_config": " Siirry Asetuksiin lisämäärityksiä varten."
+    "settings_config": " Siirry Asetuksiin lisämäärityksiä varten.",
+    "remove_background": "Poista tausta"
   },
   "filedrop": {
     "instruction": "Klikkaa ladataksesi tai raahaa ja pudota",
@@ -339,14 +340,16 @@
     "tabs": {
       "profile": "Profiili",
       "account": "Tili",
-      "api_keys": "API-avaimet"
+      "api_keys": "API-avaimet",
+      "experimental": "Kokeellinen"
     },
     "cards": {
       "profile_information": "Profiilin tiedot",
       "change_password": "Vaihda salasana",
       "delete_account": "Poista tili",
       "create_api_key": "Luo uusi API-avain",
-      "your_api_keys": "Sinun API-avaimesi"
+      "your_api_keys": "Sinun API-avaimesi",
+      "experimental_features": "Kokeelliset ominaisuudet"
     },
     "labels": {
       "username": "Käyttäjänimi",
@@ -370,7 +373,9 @@
       "pdf_conversion_device": "Muunnoskohde",
       "page_resolution": "Sivun resoluutio",
       "page_dpi": "Sivun DPI",
-      "conversion_output_format": "Muunnoksen tulostusmuoto"
+      "conversion_output_format": "Muunnoksen tulostusmuoto",
+      "enable_experimental": "Ota käyttöön kokeelliset ominaisuudet",
+      "pdf_background_removal": "PDF-taustan poisto"
     },
     "actions": {
       "unpair": "Katkaise yhteys",
@@ -417,7 +422,9 @@
       "default_directory": "Valitse oletuskansio, johon asiakirjasi ladataan",
       "conflict_resolution": "Valitse mitä tapahtuu kun lataat asiakirjan samalla nimellä kuin olemassa oleva asiakirja. Vain sisältö säilyttää merkinnät ja toimii vain PDF:ille ja kuville - se Keskeytää EPUB:ille. Korvaa korvaa asiakirjat kokonaan.",
       "folder_depth_limit": "Maksimi kansiosyvyys näytettäväksi (jätä tyhjäksi rajattomaksi)",
-      "folder_exclusion_list": "Pilkuilla erotettu lista poissuljetuista kansionimistä, isojen ja pienten kirjainten erotteleva"
+      "folder_exclusion_list": "Pilkuilla erotettu lista poissuljetuista kansionimistä, isojen ja pienten kirjainten erotteleva",
+      "enable_experimental": "Ota käyttöön kokeelliset ominaisuudet, jotka voivat muuttua tai poistua tulevissa versioissa",
+      "pdf_background_removal": "Ota käyttöön vaihtoehto poistaa taustakuvat PDF-tiedostoista."
     },
     "status": {
       "active": "Aktiivinen",
@@ -540,6 +547,7 @@
       "rendering_pdf": "Renderöidään PDF:ää",
       "compressing_pdf": "Pakataan PDF:ää",
       "compress_error": "Pakkausvirhe",
+      "removing_background": "Poistetaan taustakuvia",
       "rename_error": "Uudelleennimeämisvirhe",
       "uploading": "Ladataan pilveen",
       "upload_success": "Asiakirjasi on saatavilla reMarkablessa polussa {{path}}",
