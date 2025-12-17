@@ -88,7 +88,7 @@ export function PairingDialog({
     }
   };
 
-  const displayHost = rmapiHost && rmapiHost.trim() !== "" ? rmapiHost : "my.remarkable.com";
+  const displayHost = rmapiHost && rmapiHost.trim() !== "" ? rmapiHost : "my.remarkable.com/pair";
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
