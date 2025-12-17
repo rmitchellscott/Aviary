@@ -30,9 +30,8 @@ type User struct {
 	ConversionOutputFormat string `gorm:"column:conversion_output_format;default:epub" json:"conversion_output_format,omitempty"`
 	RmapiConfig string `gorm:"column:rmapi_config;type:text" json:"-"` // Never return config in JSON
 
-	// Experimental features settings
-	EnableExperimentalFeatures  bool `gorm:"column:enable_experimental_features;default:false" json:"enable_experimental_features"`
-	PDFBackgroundRemovalDefault bool `gorm:"column:pdf_background_removal_default;default:false" json:"pdf_background_removal_default"`
+	// PDF processing settings
+	PDFBackgroundRemoval bool `gorm:"column:pdf_background_removal;default:false" json:"pdf_background_removal"`
 	
 	// Password reset
 	ResetToken        string    `gorm:"index" json:"-"`

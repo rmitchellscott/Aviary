@@ -19,8 +19,7 @@ interface UserData {
   conversion_output_format?: string;
   created_at: string;
   last_login?: string;
-  enable_experimental_features?: boolean;
-  pdf_background_removal_default?: boolean;
+  pdf_background_removal?: boolean;
 }
 
 export function useUserData() {

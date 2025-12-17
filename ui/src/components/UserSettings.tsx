@@ -155,7 +155,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [conversionOutputFormat, setConversionOutputFormat] = useState("epub");
   const [folderDepthLimit, setFolderDepthLimit] = useState("");
   const [folderExclusionList, setFolderExclusionList] = useState("");
-  const [pdfBackgroundRemovalDefault, setPdfBackgroundRemovalDefault] = useState(false);
+  const [pdfBackgroundRemoval, setPdfBackgroundRemoval] = useState(false);
 
   // Original values for change tracking
   const [originalValues, setOriginalValues] = useState({
@@ -171,7 +171,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     conversionOutputFormat: "epub",
     folderDepthLimit: "",
     folderExclusionList: "",
-    pdfBackgroundRemovalDefault: false
+    pdfBackgroundRemoval: false
   });
   
   const [folders, setFolders] = useState<string[]>([]);
@@ -221,7 +221,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
         const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
         const outputFormat = user.conversion_output_format || "epub";
-        const bgRemovalDefault = user.pdf_background_removal_default ?? false;
+        const bgRemoval = user.pdf_background_removal ?? false;
 
         setUsername(user.username);
         setEmail(email);
@@ -235,7 +235,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         setManualPageResolution(manualResolution);
         setManualPageDPI(manualDPI);
         setConversionOutputFormat(outputFormat);
-        setPdfBackgroundRemovalDefault(bgRemovalDefault);
+        setPdfBackgroundRemoval(bgRemoval);
       }
     }
   }, [isOpen, user]);
@@ -254,7 +254,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       const manualResolution = detectedPreset === "manual" ? (user.page_resolution || "") : "";
       const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
       const outputFormat = user.conversion_output_format || "epub";
-      const bgRemovalDefault = user.pdf_background_removal_default ?? false;
+      const bgRemoval = user.pdf_background_removal ?? false;
 
       setUsername(user.username);
       setEmail(email);
@@ -268,7 +268,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setManualPageResolution(manualResolution);
       setManualPageDPI(manualDPI);
       setConversionOutputFormat(outputFormat);
-      setPdfBackgroundRemovalDefault(bgRemovalDefault);
+      setPdfBackgroundRemoval(bgRemoval);
 
       setOriginalValues({
         username: user.username,
@@ -283,7 +283,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         manualPageResolution: manualResolution,
         manualPageDPI: manualDPI,
         conversionOutputFormat: outputFormat,
-        pdfBackgroundRemovalDefault: bgRemovalDefault
+        pdfBackgroundRemoval: bgRemoval
       });
     }
   }, [user]);
@@ -338,7 +338,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setConversionOutputFormat("pdf");
       setFolderDepthLimit("");
       setFolderExclusionList("");
-      setPdfBackgroundRemovalDefault(false);
+      setPdfBackgroundRemoval(false);
 
       setOriginalValues({
         username: "",
@@ -353,7 +353,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         conversionOutputFormat: "epub",
         folderDepthLimit: "",
         folderExclusionList: "",
-        pdfBackgroundRemovalDefault: false
+        pdfBackgroundRemoval: false
       });
       
       setFolders([]);
@@ -445,7 +445,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       manualPageResolution !== originalValues.manualPageResolution ||
       manualPageDPI !== originalValues.manualPageDPI ||
       conversionOutputFormat !== originalValues.conversionOutputFormat ||
-      pdfBackgroundRemovalDefault !== originalValues.pdfBackgroundRemovalDefault
+      pdfBackgroundRemoval !== originalValues.pdfBackgroundRemoval
     );
   };
 
@@ -470,7 +470,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           folder_depth_limit: folderDepthLimit === "" ? 0 : parseInt(folderDepthLimit),
           folder_exclusion_list: folderExclusionList,
           conversion_output_format: conversionOutputFormat,
-          pdf_background_removal_default: pdfBackgroundRemovalDefault,
+          pdf_background_removal: pdfBackgroundRemoval,
           ...pageSettings,
         }),
       });
@@ -498,7 +498,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           manualPageResolution: manualResolution,
           manualPageDPI: manualDPI,
           conversionOutputFormat: conversionOutputFormat,
-          pdfBackgroundRemovalDefault
+          pdfBackgroundRemoval
         });
 
         // Trigger folder refresh if folder settings changed
@@ -1122,8 +1122,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         </p>
                       </div>
                       <Switch
-                        checked={pdfBackgroundRemovalDefault}
-                        onCheckedChange={setPdfBackgroundRemovalDefault}
+                        checked={pdfBackgroundRemoval}
+                        onCheckedChange={setPdfBackgroundRemoval}
                       />
                     </div>
                   </div>

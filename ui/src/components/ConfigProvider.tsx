@@ -14,6 +14,7 @@ interface Config {
   proxyAuthEnabled: boolean;
   oidcGroupBasedAdmin: boolean;
   rmapi_paired?: boolean;
+  pdf_background_removal?: boolean;
 }
 
 interface ConfigContextType {

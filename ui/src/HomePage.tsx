@@ -3,6 +3,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { LoginForm } from "@/components/LoginForm";
 import { PairingDialog } from "@/components/PairingDialog";
 import { useUserData } from "@/hooks/useUserData";
+import { useConfig } from "@/components/ConfigProvider";
 import { useFolderRefresh } from "@/hooks/useFolderRefresh";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -121,6 +122,7 @@ export default function HomePage() {
     useAuth();
   const { t } = useTranslation();
   const { rmapiPaired, rmapiHost, loading: userDataLoading, updatePairingStatus, user } = useUserData();
+  const { config } = useConfig();
   const { refreshTrigger, triggerRefresh } = useFolderRefresh();
   const [url, setUrl] = useState<string>("");
   const [committedUrl, setCommittedUrl] = useState<string>("");
@@ -215,11 +217,14 @@ export default function HomePage() {
     return path.toLowerCase().endsWith('.pdf');
   }, [selectedFile, selectedFiles, committedUrl]);
 
+  // Show background removal toggle if user has it enabled (multi-user) or config has it enabled (single-user)
+  const showBgRemovalToggle = user?.pdf_background_removal || (!multiUserMode && config?.pdf_background_removal);
+
   useEffect(() => {
-    if (!user?.pdf_background_removal_default || !isPDFFileOrUrl) {
+    if (!showBgRemovalToggle || !isPDFFileOrUrl) {
       setRemoveBackground(false);
     }
-  }, [user?.pdf_background_removal_default, isPDFFileOrUrl]);
+  }, [showBgRemovalToggle, isPDFFileOrUrl]);
 
   const fetchFoldersWithRefresh = async () => {
     if (isFetchingFolders.current || globalFoldersFetch.isFetching) {
@@ -762,7 +767,7 @@ export default function HomePage() {
                 disabled={!isCompressibleFileOrUrl}
               />
             </div>
-            {user?.pdf_background_removal_default && (
+            {showBgRemovalToggle && (
               <div className="flex items-center space-x-2">
                 <Label
                   htmlFor="removeBackground"

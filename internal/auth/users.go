@@ -26,9 +26,8 @@ type UpdateUserRequest struct {
 	ConversionOutputFormat *string  `json:"conversion_output_format,omitempty"`
 	IsAdmin                *bool    `json:"is_admin,omitempty"`
 	IsActive               *bool    `json:"is_active,omitempty"`
-	// Experimental features
-	EnableExperimentalFeatures  *bool `json:"enable_experimental_features,omitempty"`
-	PDFBackgroundRemovalDefault *bool `json:"pdf_background_removal_default,omitempty"`
+	// PDF processing
+	PDFBackgroundRemoval *bool `json:"pdf_background_removal,omitempty"`
 }
 
 // UpdatePasswordRequest represents a password update request
@@ -359,12 +358,8 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 		updates["conversion_output_format"] = *req.ConversionOutputFormat // Allow clearing by setting to empty string
 	}
 
-	if req.EnableExperimentalFeatures != nil {
-		updates["enable_experimental_features"] = *req.EnableExperimentalFeatures
-	}
-
-	if req.PDFBackgroundRemovalDefault != nil {
-		updates["pdf_background_removal_default"] = *req.PDFBackgroundRemovalDefault
+	if req.PDFBackgroundRemoval != nil {
+		updates["pdf_background_removal"] = *req.PDFBackgroundRemoval
 	}
 
 	if len(updates) == 0 {

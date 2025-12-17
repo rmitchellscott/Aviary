@@ -256,6 +256,7 @@ func EnqueueHandler(c *gin.Context) {
 			"retention_days":      c.DefaultPostForm("retention_days", "7"),
 			"conflict_resolution": c.PostForm("conflict_resolution"),
 			"coverpage":           c.PostForm("coverpage"),
+			"remove_background":   c.PostForm("remove_background"),
 		}
 		id := enqueueJobForUser(form, userID)
 		c.JSON(http.StatusAccepted, gin.H{"jobId": id})
@@ -677,8 +678,12 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 
 	// 4) Optionally remove background images from PDF
 	shouldRemoveBackground := isTrue(removeBackground)
-	if removeBackground == "" && dbUser != nil && dbUser.EnableExperimentalFeatures && dbUser.PDFBackgroundRemovalDefault {
-		shouldRemoveBackground = true
+	if removeBackground == "" {
+		if dbUser != nil && dbUser.PDFBackgroundRemoval {
+			shouldRemoveBackground = true
+		} else if dbUser == nil && config.GetBool("PDF_BACKGROUND_REMOVAL", false) {
+			shouldRemoveBackground = true
+		}
 	}
 	if shouldRemoveBackground && strings.ToLower(filepath.Ext(localPath)) == ".pdf" {
 		manager.Logf("🔧 Removing background images from PDF")
