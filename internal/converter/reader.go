@@ -69,6 +69,7 @@ func ExtractFromURL(urlStr string) (*ArticleContent, error) {
 	client := &http.Client{
 		Timeout: 30 * time.Second,
 	}
+	// codeql[go/request-forgery]: URL is validated by security.ValidateURL above
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch URL: %w", err)

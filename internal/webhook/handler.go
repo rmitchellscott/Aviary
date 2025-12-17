@@ -407,6 +407,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 				return "backend.status.invalid_url", nil, fmt.Errorf("URL validation failed: %w", err)
 			}
 
+			// codeql[go/request-forgery]: URL is validated by security.ValidateURL above
 			resp, err := http.Get(match)
 			if err != nil {
 				return "backend.status.download_error", nil, fmt.Errorf("failed to fetch markdown: %w", err)

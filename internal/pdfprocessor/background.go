@@ -4,13 +4,13 @@ package pdfprocessor
 import (
 	"fmt"
 	"io"
-	"os"
 	"sort"
 
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 	"github.com/rmitchellscott/aviary/internal/logging"
+	"github.com/rmitchellscott/aviary/internal/security"
 )
 
 // imageInfo holds metadata about an embedded image for sorting
@@ -27,8 +27,16 @@ type imageInfo struct {
 // assumed to be a background or watermark.
 // Returns the number of images removed, or an error.
 func RemoveBackgroundImages(inputPath, outputPath string) (int, error) {
-	// Open the input file
-	inFile, err := os.Open(inputPath)
+	secureInput, err := security.NewSecurePathFromExisting(inputPath)
+	if err != nil {
+		return 0, fmt.Errorf("invalid input path: %w", err)
+	}
+	secureOutput, err := security.NewSecurePathFromExisting(outputPath)
+	if err != nil {
+		return 0, fmt.Errorf("invalid output path: %w", err)
+	}
+
+	inFile, err := security.SafeOpen(secureInput)
 	if err != nil {
 		return 0, fmt.Errorf("failed to open input PDF: %w", err)
 	}
@@ -105,7 +113,7 @@ func RemoveBackgroundImages(inputPath, outputPath string) (int, error) {
 	if removedCount == 0 {
 		logging.Logf("[PDFPROCESSOR] No background images to remove, copying file as-is")
 		inFile.Seek(0, io.SeekStart)
-		outFile, err := os.Create(outputPath)
+		outFile, err := security.SafeCreate(secureOutput)
 		if err != nil {
 			return 0, fmt.Errorf("failed to create output file: %w", err)
 		}
@@ -117,7 +125,7 @@ func RemoveBackgroundImages(inputPath, outputPath string) (int, error) {
 	}
 
 	// Write the modified PDF
-	outFile, err := os.Create(outputPath)
+	outFile, err := security.SafeCreate(secureOutput)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create output file: %w", err)
 	}

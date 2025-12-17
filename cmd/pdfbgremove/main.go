@@ -9,6 +9,7 @@ import (
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
+	"github.com/rmitchellscott/aviary/internal/security"
 )
 
 type imageInfo struct {
@@ -42,7 +43,16 @@ func main() {
 }
 
 func removeBackgroundImages(inputPath, outputPath string) (int, error) {
-	inFile, err := os.Open(inputPath)
+	secureInput, err := security.NewSecurePathFromExisting(inputPath)
+	if err != nil {
+		return 0, fmt.Errorf("invalid input path: %w", err)
+	}
+	secureOutput, err := security.NewSecurePathFromExisting(outputPath)
+	if err != nil {
+		return 0, fmt.Errorf("invalid output path: %w", err)
+	}
+
+	inFile, err := security.SafeOpen(secureInput)
 	if err != nil {
 		return 0, fmt.Errorf("failed to open input PDF: %w", err)
 	}
@@ -110,7 +120,7 @@ func removeBackgroundImages(inputPath, outputPath string) (int, error) {
 	if removedCount == 0 {
 		fmt.Println("No background images to remove, copying file as-is")
 		inFile.Seek(0, io.SeekStart)
-		outFile, err := os.Create(outputPath)
+		outFile, err := security.SafeCreate(secureOutput)
 		if err != nil {
 			return 0, fmt.Errorf("failed to create output file: %w", err)
 		}
@@ -121,7 +131,7 @@ func removeBackgroundImages(inputPath, outputPath string) (int, error) {
 		return 0, nil
 	}
 
-	outFile, err := os.Create(outputPath)
+	outFile, err := security.SafeCreate(secureOutput)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create output file: %w", err)
 	}
