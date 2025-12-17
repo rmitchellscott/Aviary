@@ -326,7 +326,6 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 	compress := isTrue(form["compress"])
 	manage := isTrue(form["manage"])
 	archive := isTrue(form["archive"])
-	removeBackground := form["remove_background"] // Will be resolved after dbUser is loaded
 	retentionStr := form["retention_days"]
 	requestConflictResolution := form["conflict_resolution"]
 	requestCoverpage := form["coverpage"]
@@ -677,15 +676,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 	}
 
 	// 4) Optionally remove background images from PDF
-	shouldRemoveBackground := isTrue(removeBackground)
-	if removeBackground == "" {
-		if dbUser != nil && dbUser.PDFBackgroundRemoval {
-			shouldRemoveBackground = true
-		} else if dbUser == nil && config.GetBool("PDF_BACKGROUND_REMOVAL", false) {
-			shouldRemoveBackground = true
-		}
-	}
-	if shouldRemoveBackground && strings.ToLower(filepath.Ext(localPath)) == ".pdf" {
+	if shouldRemoveBackground(form, dbUser) && strings.ToLower(filepath.Ext(localPath)) == ".pdf" {
 		manager.Logf("🔧 Removing background images from PDF")
 		jobStore.UpdateWithOperation(jobID, "Running", "backend.status.removing_background", nil, "removing_background")
 
@@ -1121,6 +1112,18 @@ func getOutputFormat(form map[string]string, dbUser *database.User) string {
 
 	// Fall back to environment config
 	return config.GetConversionOutputFormat()
+}
+
+func shouldRemoveBackground(form map[string]string, dbUser *database.User) bool {
+	if val := form["remove_background"]; val != "" {
+		return isTrue(val)
+	}
+
+	if database.IsMultiUserMode() && dbUser != nil && dbUser.PDFBackgroundRemoval != nil {
+		return *dbUser.PDFBackgroundRemoval
+	}
+
+	return config.GetBool("PDF_BACKGROUND_REMOVAL", false)
 }
 
 // isURL checks if the string is an HTTP(S) URL

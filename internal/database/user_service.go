@@ -87,25 +87,21 @@ func (s *UserService) CreateUser(username, email, password string, isAdmin bool)
 	}
 	folderExclusionList := config.Get("RMAPI_FOLDER_EXCLUSION_LIST", "")
 
-	// Set PDF background removal from environment variable
-	pdfBackgroundRemoval := config.GetBool("PDF_BACKGROUND_REMOVAL", false)
-
 	user := &User{
-		ID:                   uuid.New(),
-		Username:             username,
-		Email:                email,
-		Password:             string(hashedPassword),
-		IsAdmin:              isAdmin,
-		IsActive:             true,
-		RmapiHost:            rmapiHost,
-		DefaultRmdir:         "/",
-		CoverpageSetting:     coverpageSetting,
-		ConflictResolution:   conflictResolution,
-		FolderDepthLimit:     folderDepthLimit,
-		FolderExclusionList:  folderExclusionList,
-		PDFBackgroundRemoval: pdfBackgroundRemoval,
-		CreatedAt:            time.Now(),
-		UpdatedAt:            time.Now(),
+		ID:                  uuid.New(),
+		Username:            username,
+		Email:               email,
+		Password:            string(hashedPassword),
+		IsAdmin:             isAdmin,
+		IsActive:            true,
+		RmapiHost:           rmapiHost,
+		DefaultRmdir:        "/",
+		CoverpageSetting:    coverpageSetting,
+		ConflictResolution:  conflictResolution,
+		FolderDepthLimit:    folderDepthLimit,
+		FolderExclusionList: folderExclusionList,
+		CreatedAt:           time.Now(),
+		UpdatedAt:           time.Now(),
 	}
 
 	if err := s.db.Create(user).Error; err != nil {

@@ -53,7 +53,7 @@ type UserResponse struct {
 	PageDPI                float64    `json:"page_dpi,omitempty"`
 	ConversionOutputFormat string     `json:"conversion_output_format,omitempty"`
 	RmapiPaired            bool       `json:"rmapi_paired"`
-	PDFBackgroundRemoval   bool       `json:"pdf_background_removal"`
+	PDFBackgroundRemoval   *bool      `json:"pdf_background_removal,omitempty"`
 	CreatedAt              time.Time  `json:"created_at"`
 	LastLogin              *time.Time `json:"last_login,omitempty"`
 }

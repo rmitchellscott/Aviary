@@ -31,7 +31,7 @@ type User struct {
 	RmapiConfig string `gorm:"column:rmapi_config;type:text" json:"-"` // Never return config in JSON
 
 	// PDF processing settings
-	PDFBackgroundRemoval bool `gorm:"column:pdf_background_removal;default:false" json:"pdf_background_removal"`
+	PDFBackgroundRemoval *bool `gorm:"column:pdf_background_removal" json:"pdf_background_removal"`
 	
 	// Password reset
 	ResetToken        string    `gorm:"index" json:"-"`
