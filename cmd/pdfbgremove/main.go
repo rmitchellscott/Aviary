@@ -17,6 +17,7 @@ type imageInfo struct {
 	Width  int
 	Height int
 	Area   int
+	Size   int64
 	PageNr int
 }
 
@@ -93,6 +94,7 @@ func removeBackgroundImages(inputPath, outputPath string) (int, error) {
 						Width:  img.Width,
 						Height: img.Height,
 						Area:   img.Width * img.Height,
+						Size:   img.Size,
 						PageNr: pageNum,
 					})
 				}
@@ -104,11 +106,11 @@ func removeBackgroundImages(inputPath, outputPath string) (int, error) {
 		}
 
 		sort.Slice(pageImages, func(i, j int) bool {
-			return pageImages[i].Area < pageImages[j].Area
+			return pageImages[i].Size < pageImages[j].Size
 		})
 
 		smallest := pageImages[0]
-		fmt.Printf("Page %d: removing background (%dx%d)\n", pageNum, smallest.Width, smallest.Height)
+		fmt.Printf("Page %d: removing background (%dx%d, %d bytes)\n", pageNum, smallest.Width, smallest.Height, smallest.Size)
 
 		if err := removeImageFromPage(ctx, pageNum, smallest.ObjNr); err != nil {
 			fmt.Printf("  Warning: %v\n", err)

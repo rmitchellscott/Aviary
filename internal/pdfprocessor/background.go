@@ -19,6 +19,7 @@ type imageInfo struct {
 	Width  int
 	Height int
 	Area   int
+	Size   int64
 	PageNr int
 }
 
@@ -83,6 +84,7 @@ func RemoveBackgroundImages(inputPath, outputPath string) (int, error) {
 						Width:  img.Width,
 						Height: img.Height,
 						Area:   img.Width * img.Height,
+						Size:   img.Size,
 						PageNr: pageNum,
 					})
 				}
@@ -94,14 +96,14 @@ func RemoveBackgroundImages(inputPath, outputPath string) (int, error) {
 			continue
 		}
 
-		// Sort by area to find smallest
+		// Sort by file size to find smallest (backgrounds compress well, text doesn't)
 		sort.Slice(pageImages, func(i, j int) bool {
-			return pageImages[i].Area < pageImages[j].Area
+			return pageImages[i].Size < pageImages[j].Size
 		})
 
 		// Remove smallest image (assumed to be background)
 		smallest := pageImages[0]
-		logging.Logf("[PDFPROCESSOR] Page %d: removing background image (%dx%d)", pageNum, smallest.Width, smallest.Height)
+		logging.Logf("[PDFPROCESSOR] Page %d: removing background image (%dx%d, %d bytes)", pageNum, smallest.Width, smallest.Height, smallest.Size)
 
 		if err := removeImageFromPage(ctx, pageNum, smallest.ObjNr); err != nil {
 			logging.Logf("[PDFPROCESSOR] Warning: failed to remove image from page %d: %v", pageNum, err)
