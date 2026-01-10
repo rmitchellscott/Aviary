@@ -1115,16 +1115,11 @@ func getOutputFormat(form map[string]string, dbUser *database.User) string {
 	return config.GetConversionOutputFormat()
 }
 
-func shouldRemoveBackground(form map[string]string, dbUser *database.User) bool {
+func shouldRemoveBackground(form map[string]string, _ *database.User) bool {
 	if val := form["remove_background"]; val != "" {
 		return isTrue(val)
 	}
-
-	if database.IsMultiUserMode() && dbUser != nil && dbUser.PDFBackgroundRemoval != nil {
-		return *dbUser.PDFBackgroundRemoval
-	}
-
-	return config.GetBool("PDF_BACKGROUND_REMOVAL", false)
+	return false
 }
 
 // isURL checks if the string is an HTTP(S) URL
