@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -388,9 +389,10 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			return "backend.status.no_url", nil, fmt.Errorf("no URL")
 		}
 
-		// Check if this is a direct PDF/EPUB URL or a web article
-		lowerURL := strings.ToLower(match)
-		if strings.HasSuffix(lowerURL, ".pdf") || strings.HasSuffix(lowerURL, ".epub") {
+		// Detect content type from URL path extension or HTTP sniffing
+		contentType := detectURLContentType(match)
+
+		if contentType == "application/pdf" || contentType == "application/epub+zip" {
 			// Direct download of PDF/EPUB
 			manager.Logf("DownloadPDF: tmp=true, prefix=%q", prefix)
 			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.downloading", nil, "downloading")
@@ -398,7 +400,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			if err != nil {
 				return "backend.status.download_error", nil, err
 			}
-		} else if strings.HasSuffix(lowerURL, ".md") || strings.HasSuffix(lowerURL, ".markdown") {
+		} else if contentType == "text/markdown" || contentType == "text/plain" {
 			// Markdown URL - fetch raw content and convert
 			manager.Logf("Fetching markdown from URL: %s", match)
 			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.fetching_url", nil, "fetching")
@@ -1125,6 +1127,28 @@ func shouldRemoveBackground(form map[string]string, _ *database.User) bool {
 // isURL checks if the string is an HTTP(S) URL
 func isURL(s string) bool {
 	return strings.HasPrefix(s, "http://") || strings.HasPrefix(s, "https://")
+}
+
+// detectURLContentType determines content type for a URL.
+// First checks URL path extension (fast), then falls back to HTTP sniffing.
+func detectURLContentType(urlStr string) string {
+	if parsedURL, err := url.Parse(urlStr); err == nil {
+		ext := strings.ToLower(filepath.Ext(parsedURL.Path))
+		switch ext {
+		case ".pdf":
+			return "application/pdf"
+		case ".epub":
+			return "application/epub+zip"
+		case ".md", ".markdown":
+			return "text/markdown"
+		}
+	}
+
+	if mime, err := downloader.SniffMime(urlStr); err == nil {
+		return mime
+	}
+
+	return "text/html"
 }
 
 // trackDocumentUpload records a document upload in the database
