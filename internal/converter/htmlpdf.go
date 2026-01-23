@@ -19,13 +19,14 @@ import (
 
 // PDFOptions contains options for PDF generation
 type PDFOptions struct {
-	Title       string
-	PageSize    string  // e.g., "A4", "Letter", or custom like "1404x1872"
-	MarginTop   string  // e.g., "10mm"
+	Title        string
+	PageSize     string // e.g., "A4", "Letter", or custom like "1404x1872"
+	MarginTop    string // e.g., "10mm"
 	MarginBottom string
 	MarginLeft   string
 	MarginRight  string
-	DPI          uint    // Dots per inch for rendering
+	DPI          uint   // Dots per inch for rendering
+	SourceURL    string
 }
 
 // defaultPDFCSS provides readable styling for PDF content optimized for reMarkable
@@ -127,8 +128,9 @@ func ConvertHTMLToPDF(htmlContent string, outputPath string, options PDFOptions)
 	tempEPUBPath := filepath.Join(tempDir, "temp.epub")
 
 	epubOptions := EPUBOptions{
-		Title:    options.Title,
-		Language: "en",
+		Title:     options.Title,
+		Language:  "en",
+		SourceURL: options.SourceURL,
 	}
 
 	if err := ConvertHTMLToEPUB(htmlContent, tempEPUBPath, epubOptions); err != nil {

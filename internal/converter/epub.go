@@ -22,6 +22,7 @@ type EPUBOptions struct {
 	Description string
 	Language    string
 	CSSContent  string
+	SourceURL   string
 }
 
 // defaultEPUBCSS provides readable styling for EPUB content
@@ -118,6 +119,13 @@ func ConvertHTMLToEPUB(htmlContent string, outputPath string, options EPUBOption
 		logging.Logf("[EPUB] Warning: failed to process some images: %v", err)
 		// Continue with unprocessed HTML
 		processedHTML = htmlContent
+	}
+
+	// Prepend source URL if provided
+	if options.SourceURL != "" {
+		sourceHeader := fmt.Sprintf(`<p style="font-size: 0.85em; color: #666; margin-bottom: 1.5em;">Source: <a href="%s">%s</a></p>`,
+			options.SourceURL, options.SourceURL)
+		processedHTML = sourceHeader + processedHTML
 	}
 
 	// Add the main content section
