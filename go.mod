@@ -23,7 +23,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/pdfcpu/pdfcpu v0.11.1
-	github.com/vincent-petithory/dataurl v0.0.0-20191104211930-d1553a71de50
+	github.com/vincent-petithory/dataurl v1.0.0
 	github.com/yuin/goldmark v1.7.13
 	golang.org/x/crypto v0.45.0
 	golang.org/x/oauth2 v0.31.0
