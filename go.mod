@@ -2,7 +2,7 @@ module github.com/rmitchellscott/aviary
 
 go 1.24.0
 
-toolchain go1.25.1
+toolchain go1.25.7
 
 require (
 	codeberg.org/readeck/go-readability/v2 v2.1.0
