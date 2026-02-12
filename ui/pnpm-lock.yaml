@@ -69,8 +69,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.0(react@19.2.0)
       react-dropzone:
-        specifier: ^14.3.8
-        version: 14.3.8(react@19.2.0)
+        specifier: ^14.4.1
+        version: 14.4.1(react@19.2.0)
       react-i18next:
         specifier: ^16.0.0
         version: 16.0.0(i18next@25.3.0(typescript@5.9.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
@@ -82,7 +82,7 @@ importers:
         specifier: ^3
         version: 3.3.3
       '@eslint/js':
-        specifier: ^9.39.2
+        specifier: ^9
         version: 9.39.2
       '@tailwindcss/postcss':
         specifier: ^4
@@ -103,7 +103,7 @@ importers:
         specifier: ^10
         version: 10.4.21(postcss@8.5.6)
       eslint:
-        specifier: ^9.39.2
+        specifier: ^9
         version: 9.39.2(jiti@2.6.1)
       eslint-config-prettier:
         specifier: ^10.0.0
@@ -1623,8 +1623,8 @@ packages:
     peerDependencies:
       react: ^19.2.0
 
-  react-dropzone@14.3.8:
-    resolution: {integrity: sha512-sBgODnq+lcA4P296DY4wacOZz3JFpD99fp+hb//iBO2HHnyeZU3FwWyXJ6salNpqQdsZrgMrotuko/BdJMV8Ug==}
+  react-dropzone@14.4.1:
+    resolution: {integrity: sha512-QDuV76v3uKbHiH34SpwifZ+gOLi1+RdsCO1kl5vxMT4wW8R82+sthjvBw4th3NHF/XX6FBsqDYZVNN+pnhaw0g==}
     engines: {node: '>= 10.13'}
     peerDependencies:
       react: '>= 16.8 || 18.0.0'
@@ -1735,7 +1735,7 @@ packages:
   tar@7.5.1:
     resolution: {integrity: sha512-nlGpxf+hv0v7GkWBK2V9spgactGOp0qvfWRxUMjqHyzrt3SgwE48DIv/FhqPHJYLHpgW1opq3nERbz5Anq7n1g==}
     engines: {node: '>=18'}
-    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   tinyglobby@0.2.15:
     resolution: {integrity: sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ==}
@@ -3202,7 +3202,7 @@ snapshots:
       react: 19.2.0
       scheduler: 0.27.0
 
-  react-dropzone@14.3.8(react@19.2.0):
+  react-dropzone@14.4.1(react@19.2.0):
     dependencies:
       attr-accept: 2.2.5
       file-selector: 2.1.2
