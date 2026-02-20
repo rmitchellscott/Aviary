@@ -51,8 +51,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1(@types/react-dom@19.2.0(@types/react@19.2.0))(@types/react@19.2.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       i18next:
-        specifier: ^25.0.0
-        version: 25.3.0(typescript@5.9.3)
+        specifier: ^25.8.13
+        version: 25.8.13(typescript@5.9.3)
       i18next-browser-languagedetector:
         specifier: ^8.2.0
         version: 8.2.0
@@ -73,7 +73,7 @@ importers:
         version: 14.3.8(react@19.2.0)
       react-i18next:
         specifier: ^16.0.0
-        version: 16.0.0(i18next@25.3.0(typescript@5.9.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
+        version: 16.0.0(i18next@25.8.13(typescript@5.9.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
       tailwind-merge:
         specifier: ^3.3.0
         version: 3.3.1
@@ -82,7 +82,7 @@ importers:
         specifier: ^3
         version: 3.3.3
       '@eslint/js':
-        specifier: ^9.39.2
+        specifier: ^9
         version: 9.39.2
       '@tailwindcss/postcss':
         specifier: ^4
@@ -103,7 +103,7 @@ importers:
         specifier: ^10
         version: 10.4.21(postcss@8.5.6)
       eslint:
-        specifier: ^9.39.2
+        specifier: ^9
         version: 9.39.2(jiti@2.6.1)
       eslint-config-prettier:
         specifier: ^10.0.0
@@ -205,6 +205,10 @@ packages:
 
   '@babel/runtime@7.27.6':
     resolution: {integrity: sha512-vbavdySgbTTrmFE+EsiqUTzlOr5bzlnJtUv9PynGCAKvfQqjIXbvFdumPM/GxMDfyuGMJaJAU6TO4zc1Jf1i8Q==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/runtime@7.28.6':
+    resolution: {integrity: sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.27.2':
@@ -1372,8 +1376,8 @@ packages:
   i18next-browser-languagedetector@8.2.0:
     resolution: {integrity: sha512-P+3zEKLnOF0qmiesW383vsLdtQVyKtCNA9cjSoKCppTKPQVfKd2W8hbVo5ZhNJKDqeM7BOcvNoKJOjpHh4Js9g==}
 
-  i18next@25.3.0:
-    resolution: {integrity: sha512-ZSQIiNGfqSG6yoLHaCvrkPp16UejHI8PCDxFYaNG/1qxtmqNmqEg4JlWKlxkrUmrin2sEjsy+Mjy1TRozBhOgw==}
+  i18next@25.8.13:
+    resolution: {integrity: sha512-E0vzjBY1yM+nsFrtgkjLhST2NBkirkvOVoQa0MSldhsuZ3jUge7ZNpuwG0Cfc74zwo5ZwRzg3uOgT+McBn32iA==}
     peerDependencies:
       typescript: ^5
     peerDependenciesMeta:
@@ -1735,7 +1739,7 @@ packages:
   tar@7.5.1:
     resolution: {integrity: sha512-nlGpxf+hv0v7GkWBK2V9spgactGOp0qvfWRxUMjqHyzrt3SgwE48DIv/FhqPHJYLHpgW1opq3nERbz5Anq7n1g==}
     engines: {node: '>=18'}
-    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   tinyglobby@0.2.15:
     resolution: {integrity: sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ==}
@@ -1950,6 +1954,8 @@ snapshots:
       '@babel/helper-plugin-utils': 7.27.1
 
   '@babel/runtime@7.27.6': {}
+
+  '@babel/runtime@7.28.6': {}
 
   '@babel/template@7.27.2':
     dependencies:
@@ -3006,9 +3012,9 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.27.6
 
-  i18next@25.3.0(typescript@5.9.3):
+  i18next@25.8.13(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.27.6
+      '@babel/runtime': 7.28.6
     optionalDependencies:
       typescript: 5.9.3
 
@@ -3209,11 +3215,11 @@ snapshots:
       prop-types: 15.8.1
       react: 19.2.0
 
-  react-i18next@16.0.0(i18next@25.3.0(typescript@5.9.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3):
+  react-i18next@16.0.0(i18next@25.8.13(typescript@5.9.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3):
     dependencies:
       '@babel/runtime': 7.27.6
       html-parse-stringify: 3.0.1
-      i18next: 25.3.0(typescript@5.9.3)
+      i18next: 25.8.13(typescript@5.9.3)
       react: 19.2.0
     optionalDependencies:
       react-dom: 19.2.0(react@19.2.0)
