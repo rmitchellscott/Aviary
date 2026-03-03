@@ -140,6 +140,25 @@ html.auth-check body {
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
+  html.native-app [data-slot="dialog-content"] {
+    --tw-translate-x: 0;
+    --tw-translate-y: 0;
+    transform: none;
+    translate: none;
+    inset: 0;
+    max-width: 100%;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    border: none;
+    overflow-y: auto;
+  }
+
+  html.native-app .mobile-dialog-content {
+    max-height: 100%;
+  }
+
   .mobile-dialog-content {
     /* Conservative fallback for mobile */
     max-height: 80vh;

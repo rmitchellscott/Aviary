@@ -146,7 +146,8 @@ export default function HomePage() {
   
   const isFetchingFolders = useRef(false);
   const hasFetchedInitial = useRef(false);
-  
+  const hasHandledShareUrl = useRef(false);
+
   const [pairingDialogOpen, setPairingDialogOpen] = useState(false);
 
   const isCompressibleFileOrUrl = useMemo(() => {
@@ -414,6 +415,67 @@ export default function HomePage() {
     return () => {
       window.removeEventListener('logout', handleLogout);
     };
+  }, []);
+
+  useEffect(() => {
+    if (hasHandledShareUrl.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const shareUrl = params.get("share_url");
+    if (shareUrl) {
+      hasHandledShareUrl.current = true;
+      setUrl(shareUrl);
+      setCommittedUrl(shareUrl);
+      sniffMime(shareUrl).then((mt) => setUrlMime(mt));
+      params.delete("share_url");
+      const newSearch = params.toString();
+      window.history.replaceState({}, "", newSearch ? `?${newSearch}` : window.location.pathname);
+    }
+  }, []);
+
+  useEffect(() => {
+    (window as any).aviaryInjectFile = (base64: string, filename: string, mimeType: string) => {
+      const binaryString = atob(base64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const file = new File([bytes], filename, { type: mimeType });
+      setSelectedFile(null);
+      setSelectedFiles(prev => [...prev, file]);
+      setUrl("");
+      setUrlMime(null);
+    };
+    (window as any).aviaryInjectFiles = (filesArray: Array<[string, string, string]>) => {
+      const files = filesArray.map(([base64, filename, mimeType]) => {
+        const binaryString = atob(base64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        return new File([bytes], filename, { type: mimeType });
+      });
+      setSelectedFile(null);
+      setSelectedFiles(files);
+      setUrl("");
+      setUrlMime(null);
+    };
+    return () => {
+      delete (window as any).aviaryInjectFile;
+      delete (window as any).aviaryInjectFiles;
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleShareUrlEvent = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (typeof detail === "string" && detail) {
+        setUrl(detail);
+        setCommittedUrl(detail);
+        sniffMime(detail).then((mt) => setUrlMime(mt));
+      }
+    };
+    window.addEventListener("aviary-share-url", handleShareUrlEvent);
+    return () => window.removeEventListener("aviary-share-url", handleShareUrlEvent);
   }, []);
 
   if (isLoading) {
