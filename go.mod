@@ -5,7 +5,7 @@ go 1.24.0
 toolchain go1.25.1
 
 require (
-	codeberg.org/readeck/go-readability/v2 v2.1.0
+	codeberg.org/readeck/go-readability/v2 v2.1.1
 	github.com/aws/aws-sdk-go-v2 v1.39.2
 	github.com/aws/aws-sdk-go-v2/config v1.31.12
 	github.com/aws/aws-sdk-go-v2/credentials v1.18.16
