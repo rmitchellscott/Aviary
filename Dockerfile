@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.7.0 AS xx
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:1.9.0 AS xx
 
 
 # Frontend build
