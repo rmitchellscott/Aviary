@@ -15,22 +15,22 @@ importers:
         specifier: ^1.1.14
         version: 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@radix-ui/react-label':
-        specifier: ^2.1.8
+        specifier: ^2.1.7
         version: 2.1.8(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@radix-ui/react-popover':
         specifier: ^1.1.14
         version: 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@radix-ui/react-progress':
-        specifier: ^1.1.8
+        specifier: ^1.1.7
         version: 1.1.8(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@radix-ui/react-select':
         specifier: ^2.2.5
         version: 2.2.6(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@radix-ui/react-separator':
-        specifier: ^1.1.8
+        specifier: ^1.1.7
         version: 1.1.8(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@radix-ui/react-slot':
-        specifier: ^1.2.4
+        specifier: ^1.2.3
         version: 1.2.4(@types/react@19.2.14)(react@19.2.4)
       '@radix-ui/react-switch':
         specifier: ^1.2.5
@@ -72,8 +72,8 @@ importers:
         specifier: ^14.3.8
         version: 14.3.8(react@19.2.4)
       react-i18next:
-        specifier: ^16.0.0
-        version: 16.0.0(i18next@25.3.0(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)
+        specifier: ^16.0.1
+        version: 16.0.1(i18next@25.3.0(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)
       tailwind-merge:
         specifier: ^3.3.0
         version: 3.3.1
@@ -85,7 +85,7 @@ importers:
         specifier: ^9
         version: 9.39.3
       '@tailwindcss/postcss':
-        specifier: ^4.1.18
+        specifier: ^4
         version: 4.1.18
       '@types/node':
         specifier: ^22.0.0
@@ -109,7 +109,7 @@ importers:
         specifier: ^10.0.0
         version: 10.1.8(eslint@9.39.3(jiti@2.6.1))
       tailwindcss:
-        specifier: ^4.1.18
+        specifier: ^4
         version: 4.1.18
       tw-animate-css:
         specifier: ^1.3.0
@@ -1671,8 +1671,8 @@ packages:
     peerDependencies:
       react: '>= 16.8 || 18.0.0'
 
-  react-i18next@16.0.0:
-    resolution: {integrity: sha512-JQ+dFfLnFSKJQt7W01lJHWRC0SX7eDPobI+MSTJ3/gP39xH2g33AuTE7iddAfXYHamJdAeMGM0VFboPaD3G68Q==}
+  react-i18next@16.0.1:
+    resolution: {integrity: sha512-0S//bpYEkCPjzuVmxDf9Z6+Y+ArNvpAUk7eDL4qNCZXjDh6Z9j6MZ+NThU7kMCOsmYmDCun3GYEwkiOjjZo9Ug==}
     peerDependencies:
       i18next: '>= 25.5.2'
       react: '>= 16.8.0'
@@ -3264,9 +3264,9 @@ snapshots:
       prop-types: 15.8.1
       react: 19.2.4
 
-  react-i18next@16.0.0(i18next@25.3.0(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3):
+  react-i18next@16.0.1(i18next@25.3.0(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3):
     dependencies:
-      '@babel/runtime': 7.27.6
+      '@babel/runtime': 7.28.6
       html-parse-stringify: 3.0.1
       i18next: 25.3.0(typescript@5.9.3)
       react: 19.2.4
