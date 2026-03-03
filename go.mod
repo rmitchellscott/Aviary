@@ -14,7 +14,7 @@ require (
 	github.com/bmaupin/go-epub v1.1.0
 	github.com/coder/websocket v1.8.14
 	github.com/coreos/go-oidc/v3 v3.15.0
-	github.com/gabriel-vasile/mimetype v1.4.10
+	github.com/gabriel-vasile/mimetype v1.4.13
 	github.com/gin-gonic/gin v1.10.1
 	github.com/glebarez/sqlite v1.11.0
 	github.com/go-gormigrate/gormigrate/v2 v2.1.5
