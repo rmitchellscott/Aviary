@@ -26,7 +26,7 @@ require (
 	github.com/vincent-petithory/dataurl v1.0.0
 	github.com/yuin/goldmark v1.7.16
 	golang.org/x/crypto v0.48.0
-	golang.org/x/oauth2 v0.31.0
+	golang.org/x/oauth2 v0.35.0
 	golang.org/x/term v0.40.0
 	golang.org/x/text v0.34.0
 	golang.org/x/time v0.14.0
