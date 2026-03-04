@@ -45,7 +45,7 @@ RUN --mount=type=cache,target=/root/.cache \
 
 
 # Final image
-FROM alpine:3.22
+FROM alpine:3.23
 
 # Install runtime dependencies
 RUN apk add --no-cache \
