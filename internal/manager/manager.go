@@ -85,9 +85,10 @@ func RenameStorageNoYear(ctx context.Context, srcKey, prefix string, userID uuid
 	today := time.Now()
 	month, day := today.Format("January"), today.Day()
 
-	filename := fmt.Sprintf("%s %s %d.pdf", prefix, month, day)
+	ext := filepath.Ext(srcKey)
+	filename := fmt.Sprintf("%s %s %d%s", prefix, month, day, ext)
 	if prefix == "" {
-		filename = fmt.Sprintf("%s %d.pdf", month, day)
+		filename = fmt.Sprintf("%s %d%s", month, day, ext)
 	}
 
 	// Generate destination key
@@ -110,8 +111,9 @@ func AppendYearStorage(ctx context.Context, noYearKey string, userID uuid.UUID) 
 	// Extract filename from storage key
 	parts := strings.Split(noYearKey, "/")
 	filename := parts[len(parts)-1]
-	base := strings.TrimSuffix(filename, ".pdf")
-	newFilename := fmt.Sprintf("%s %d.pdf", base, year)
+	ext := filepath.Ext(filename)
+	base := strings.TrimSuffix(filename, ext)
+	newFilename := fmt.Sprintf("%s %d%s", base, year, ext)
 
 	// Extract prefix from storage key structure
 	var prefix string
@@ -245,7 +247,8 @@ func RenameAndUpload(storageKey, prefix, rmDir string, user *database.User, requ
 	}
 
 	// Create temp file for rmapi upload
-	tempFile, err := ioutil.TempFile("", "aviary-rmapi-*.pdf")
+	ext := filepath.Ext(storageKey)
+	tempFile, err := ioutil.TempFile("", "aviary-rmapi-*"+ext)
 	if err != nil {
 		return "", fmt.Errorf("failed to create temp file: %w", err)
 	}
@@ -368,11 +371,11 @@ func CleanupOld(prefix, rmDir string, retentionDays int, user *database.User) er
 	if prefix != "" {
 		// e.g. "DUMMY May 7" or "DUMMY May 7.pdf"
 		dateRe = regexp.MustCompile(
-			`^` + regexp.QuoteMeta(prefix+` `) + `([A-Za-z]+)\s+(\d+)(?:\.pdf)?$`,
+			`^` + regexp.QuoteMeta(prefix+` `) + `([A-Za-z]+)\s+(\d+)(?:\.\w+)?$`,
 		)
 	} else {
 		dateRe = regexp.MustCompile(
-			`^([A-Za-z]+)\s+(\d+)(?:\.pdf)?$`,
+			`^([A-Za-z]+)\s+(\d+)(?:\.\w+)?$`,
 		)
 	}
 
