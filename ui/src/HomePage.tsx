@@ -30,6 +30,7 @@ import { Loader2, CircleCheck, XCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
+import { getSharedFiles, getSharedData, clearSharedFiles, clearSharedData } from "@/lib/sharedFiles";
 
 const COMPRESSIBLE_EXTS = [".pdf", ".png", ".jpg", ".jpeg"];
 const POLL_INTERVAL_MS = 200;
@@ -430,6 +431,36 @@ export default function HomePage() {
       const newSearch = params.toString();
       window.history.replaceState({}, "", newSearch ? `?${newSearch}` : window.location.pathname);
     }
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("shared") !== "1") return;
+
+    (async () => {
+      const [files, data] = await Promise.all([getSharedFiles(), getSharedData()]);
+
+      if (files.length > 0) {
+        setSelectedFile(null);
+        setSelectedFiles(files);
+        setUrl("");
+        setUrlMime(null);
+      } else if (data?.url) {
+        setUrl(data.url);
+        setCommittedUrl(data.url);
+        sniffMime(data.url).then((mt) => setUrlMime(mt));
+      } else if (data?.text) {
+        setUrl(data.text);
+        setCommittedUrl(data.text);
+        sniffMime(data.text).then((mt) => setUrlMime(mt));
+      }
+
+      await Promise.all([clearSharedFiles(), clearSharedData()]);
+
+      params.delete("shared");
+      const newSearch = params.toString();
+      window.history.replaceState({}, "", newSearch ? `?${newSearch}` : window.location.pathname);
+    })();
   }, []);
 
   useEffect(() => {
