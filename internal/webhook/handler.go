@@ -505,9 +505,10 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 				convertedPath = filepath.Join(tempDir, filename+".epub")
 
 				epubOptions := converter.EPUBOptions{
-					Title:    articleContent.Title,
-					Author:   articleContent.Byline,
-					Language: "en",
+					Title:     articleContent.Title,
+					Author:    articleContent.Byline,
+					Language:  "en",
+					SourceURL: match,
 				}
 
 				convErr = converter.ConvertHTMLToEPUB(articleContent.HTML, convertedPath, epubOptions)
@@ -522,6 +523,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 					pdfOptions = converter.GetPDFOptionsFromConfig()
 				}
 				pdfOptions.Title = articleContent.Title
+				pdfOptions.SourceURL = match
 
 				convErr = converter.ConvertHTMLToPDF(articleContent.HTML, convertedPath, pdfOptions)
 			}
