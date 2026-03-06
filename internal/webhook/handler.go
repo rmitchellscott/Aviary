@@ -756,13 +756,14 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		today := time.Now()
 		month, day := today.Format("January"), today.Day()
 
+		ext := filepath.Ext(localPath)
 		var newFilename string
 		if prefix != "" {
 			manager.Logf("🔄 Renaming file for managed workflow with prefix: %s", prefix)
-			newFilename = fmt.Sprintf("%s %s %d.pdf", prefix, month, day)
+			newFilename = fmt.Sprintf("%s %s %d%s", prefix, month, day, ext)
 		} else {
 			manager.Logf("🔄 Renaming file for managed workflow (no prefix)")
-			newFilename = fmt.Sprintf("%s %d.pdf", month, day)
+			newFilename = fmt.Sprintf("%s %d%s", month, day, ext)
 		}
 
 		// Create renamed file in same directory as original
