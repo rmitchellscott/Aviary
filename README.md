@@ -127,3 +127,8 @@ See [API Reference](docs/API.md) for webhook details and integration examples.
 ## Building from Source
 
 See [Deployment Guide](docs/DEPLOYMENT.md) for local build instructions and requirements.
+
+## License
+Copyright (C) 2025 Mitchell Scott
+
+Licensed under the GNU Affero General Public License v3.0.
