@@ -18,6 +18,7 @@ type UpdateUserRequest struct {
 	RmapiHost              *string  `json:"rmapi_host,omitempty"`
 	DefaultRmdir           *string  `json:"default_rmdir,omitempty"`
 	CoverpageSetting       *string  `json:"coverpage_setting,omitempty"`
+	ContrastSetting        *string  `json:"contrast_setting,omitempty"`
 	ConflictResolution     *string  `json:"conflict_resolution,omitempty"`
 	FolderDepthLimit       *int     `json:"folder_depth_limit,omitempty"`
 	FolderExclusionList    *string  `json:"folder_exclusion_list,omitempty"`
@@ -209,6 +210,9 @@ func UpdateUserHandler(c *gin.Context) {
 	if req.CoverpageSetting != nil && *req.CoverpageSetting != "" {
 		updates["coverpage_setting"] = *req.CoverpageSetting
 	}
+	if req.ContrastSetting != nil && *req.ContrastSetting != "" {
+		updates["contrast_setting"] = *req.ContrastSetting
+	}
 	if req.ConflictResolution != nil && *req.ConflictResolution != "" {
 		updates["conflict_resolution"] = *req.ConflictResolution
 	}
@@ -332,6 +336,10 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 
 	if req.CoverpageSetting != nil && *req.CoverpageSetting != "" {
 		updates["coverpage_setting"] = *req.CoverpageSetting
+	}
+
+	if req.ContrastSetting != nil && *req.ContrastSetting != "" {
+		updates["contrast_setting"] = *req.ContrastSetting
 	}
 
 	if req.ConflictResolution != nil && *req.ConflictResolution != "" {

@@ -357,6 +357,7 @@
       "rmapi_host": "reMarkable-värd (valfritt)",
       "default_directory": "Standardkatalog",
       "cover_page": "Omslagssida",
+      "contrast": "Kontrastfilter",
       "conflict_resolution": "Vid Konflikt",
       "folder_depth_limit": "Mappdjupsgräns",
       "folder_exclusion_list": "Uteslutna mappar",
@@ -393,6 +394,10 @@
       "conflict_abort": "Avbryt",
       "conflict_overwrite": "Skriv över",
       "conflict_content_only": "Endast Innehåll",
+      "contrast_none": "Ingen (standard)",
+      "contrast_off": "Av",
+      "contrast_fullpage": "Hela Sidan",
+      "contrast_adaptive": "Adaptiv",
       "pdf": "PDF",
       "epub": "EPUB"
     },
@@ -415,6 +420,7 @@
     },
     "help": {
       "cover_page": "Kontrollerar om första sidan eller nuvarande sida används som omslag vid uppladdning av PDF-filer",
+      "contrast": "Använd ett kontrastfilter på uppladdade PDF:er och EPUB:er för förbättrad läsbarhet på reMarkable-skärmen",
       "pdf_conversion_device": "Välj din reMarkable enhetsmodell för optimal bild-till-PDF konvertering. Den här inställningen påverkar endast bildfiler (JPEG, PNG) som konverteras till PDF.",
       "page_resolution": "Sidupplösning i BREDDxHÖJD format",
       "page_dpi": "Punkter per tum",

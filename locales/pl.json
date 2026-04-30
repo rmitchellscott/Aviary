@@ -357,6 +357,7 @@
       "rmapi_host": "Host reMarkable (opcjonalny)",
       "default_directory": "Domyślny katalog",
       "cover_page": "Strona okładki",
+      "contrast": "Filtr Kontrastu",
       "conflict_resolution": "W Konflikcie",
       "folder_depth_limit": "Limit głębokości folderów",
       "folder_exclusion_list": "Wykluczone foldery",
@@ -393,6 +394,10 @@
       "conflict_abort": "Przerwij",
       "conflict_overwrite": "Nadpisz",
       "conflict_content_only": "Tylko Zawartość",
+      "contrast_none": "Brak (domyślny)",
+      "contrast_off": "Wyłączony",
+      "contrast_fullpage": "Cała Strona",
+      "contrast_adaptive": "Adaptywny",
       "pdf": "PDF",
       "epub": "EPUB"
     },
@@ -415,6 +420,7 @@
     },
     "help": {
       "cover_page": "Kontroluje, czy pierwsza strona lub bieżąca strona jest używana jako okładka podczas przesyłania plików PDF",
+      "contrast": "Zastosuj filtr kontrastu do przesłanych plików PDF i EPUB, aby poprawić czytelność na ekranie reMarkable",
       "conflict_resolution": "Wybierz co się dzieje podczas przesyłania dokumentu o takiej samej nazwie jak istniejący dokument. Tylko Zawartość zachowuje adnotacje i działa tylko dla PDF-ów i obrazów - Przerwie dla EPUB-ów. Nadpisz całkowicie zastępuje dokumenty.",
       "folder_depth_limit": "Maksymalna głębokość folderów do wyświetlenia (pozostaw puste dla nieograniczonej)",
       "folder_exclusion_list": "Lista oddzielonych przecinkami nazw folderów do wykluczenia, wrażliwa na wielkość liter",

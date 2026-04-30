@@ -357,6 +357,7 @@
       "rmapi_host": "reMarkable 호스트 (선택사항)",
       "default_directory": "기본 디렉토리",
       "cover_page": "표지 페이지",
+      "contrast": "대비 필터",
       "conflict_resolution": "충돌 시",
       "folder_depth_limit": "폴더 깊이 제한",
       "folder_exclusion_list": "제외 폴더",
@@ -393,6 +394,10 @@
       "conflict_abort": "중단",
       "conflict_overwrite": "덮어쓰기",
       "conflict_content_only": "내용만",
+      "contrast_none": "없음 (기본값)",
+      "contrast_off": "끄기",
+      "contrast_fullpage": "전체 페이지",
+      "contrast_adaptive": "적응형",
       "pdf": "PDF",
       "epub": "EPUB"
     },
@@ -415,6 +420,7 @@
     },
     "help": {
       "cover_page": "PDF 업로드 시 첫 번째 페이지 또는 현재 페이지를 표지로 사용할지 제어",
+      "contrast": "업로드된 PDF 및 EPUB에 대비 필터를 적용하여 reMarkable 화면에서의 가독성을 향상시킵니다",
       "pdf_conversion_device": "최적의 이미지-PDF 변환을 위해 reMarkable 디바이스 모델을 선택하세요. 이 설정은 PDF로 변환되는 이미지 파일(JPEG, PNG)에만 영향을 줍니다.",
       "page_resolution": "너비x높이 형식의 페이지 해상도",
       "page_dpi": "인치당 도트 수",

@@ -682,6 +682,9 @@ func mapUserRecord(data map[string]interface{}, user *database.User) error {
 	if coverpageSetting, ok := data["coverpage_setting"].(string); ok {
 		user.CoverpageSetting = coverpageSetting
 	}
+	if contrastSetting, ok := data["contrast_setting"].(string); ok {
+		user.ContrastSetting = contrastSetting
+	}
 	if resetToken, ok := data["reset_token"].(string); ok {
 		user.ResetToken = resetToken
 	}

@@ -14,6 +14,7 @@ interface User {
   rmapi_paired?: boolean
   default_rmdir: string
   coverpage_setting?: string
+  contrast_setting?: string
   conflict_resolution?: string
   folder_depth_limit?: number
   folder_exclusion_list?: string

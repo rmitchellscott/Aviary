@@ -127,6 +127,8 @@ type DocumentRequest struct {
 	RetentionDays      string `form:"retention_days" json:"retention_days"`
 	ConflictResolution string `form:"conflict_resolution" json:"conflict_resolution"`
 	Coverpage          string `form:"coverpage" json:"coverpage"`
+	Contrast           string `form:"contrast" json:"contrast"`
+	CurrentPage        string `form:"currentpage" json:"currentpage"`
 	RemoveBackground   string `form:"remove_background" json:"removeBackground"`
 }
 
@@ -167,7 +169,7 @@ func enqueueJobForUser(form map[string]string, userID uuid.UUID) string {
 		// Catch panics
 		defer func() {
 			if r := recover(); r != nil {
-				manager.LogfWithUser(user, "❌ Panic in processPDF: %v", r)
+				manager.LogfWithUser(user, "Panic in processPDF: %v", r)
 				jobStore.Update(id, "Error", "backend.status.internal_error", nil)
 			}
 		}()
@@ -175,14 +177,14 @@ func enqueueJobForUser(form map[string]string, userID uuid.UUID) string {
 		// Do the actual work
 		msgKey, data, err := processPDFForUser(id, form, userID)
 		if err != nil {
-			manager.LogfWithUser(user, "❌ processPDF error: %v, message: %s", err, keyToMessage(msgKey))
+			manager.LogfWithUser(user, "processPDF error: %v, message: %s", err, keyToMessage(msgKey))
 			jobStore.Update(id, "error", msgKey, data)
 		} else {
 			logMsg := keyToMessage(msgKey)
 			if data != nil && data["path"] != "" {
 				logMsg += " -> " + data["path"]
 			}
-			manager.LogfWithUser(user, "✅ processPDF success: %s", logMsg)
+			manager.LogfWithUser(user, "processPDF success: %s", logMsg)
 			jobStore.Update(id, "success", msgKey, data)
 		}
 	}()
@@ -227,6 +229,8 @@ func EnqueueHandler(c *gin.Context) {
 				"retention_days":      req.RetentionDays,
 				"conflict_resolution": req.ConflictResolution,
 				"coverpage":           req.Coverpage,
+				"contrast":            req.Contrast,
+				"currentpage":         req.CurrentPage,
 				"remove_background":   req.RemoveBackground,
 			}
 			// Set defaults for empty values
@@ -257,6 +261,8 @@ func EnqueueHandler(c *gin.Context) {
 			"retention_days":      c.DefaultPostForm("retention_days", "7"),
 			"conflict_resolution": c.PostForm("conflict_resolution"),
 			"coverpage":           c.PostForm("coverpage"),
+			"contrast":            c.PostForm("contrast"),
+			"currentpage":         c.PostForm("currentpage"),
 			"remove_background":   c.PostForm("remove_background"),
 		}
 		id := enqueueJobForUser(form, userID)
@@ -328,8 +334,12 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 	manage := isTrue(form["manage"])
 	archive := isTrue(form["archive"])
 	retentionStr := form["retention_days"]
-	requestConflictResolution := form["conflict_resolution"]
-	requestCoverpage := form["coverpage"]
+	uploadOpts := manager.UploadOptions{
+		ConflictResolution: form["conflict_resolution"],
+		Coverpage:          form["coverpage"],
+		Contrast:           form["contrast"],
+		CurrentPage:        form["currentpage"],
+	}
 
 	retentionDays := 7
 	if rd, err := strconv.Atoi(retentionStr); err == nil && rd > 0 {
@@ -377,7 +387,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 				// Only attempt removal if the file still exists
 				if security.SafeStatExists(secureBodyPath) {
 					if cleanupErr = security.SafeRemove(secureBodyPath); cleanupErr != nil {
-						manager.Logf("⚠️ cleanup warning (on exit): could not remove %q: %v", localPath, cleanupErr)
+						manager.Logf("cleanup warning (on exit): could not remove %q: %v", localPath, cleanupErr)
 					}
 				}
 			}()
@@ -476,7 +486,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			manager.Logf("Markdown converted: %s", localPath)
 		} else {
 			// Web article - extract readable content and convert to EPUB/PDF
-			manager.Logf("🌐 Extracting article from URL: %s", match)
+			manager.Logf("Extracting article from URL: %s", match)
 			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.fetching_url", nil, "fetching")
 
 			// Extract readable content from URL
@@ -487,7 +497,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 
 			// Determine output format
 			outputFormat := getOutputFormat(form, dbUser)
-			manager.Logf("📄 Output format: %s", outputFormat)
+			manager.Logf("Output format: %s", outputFormat)
 
 			// Create temp file for the converted content
 			tempDir, tempErr := manager.CreateUserTempDir(userID)
@@ -533,7 +543,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			}
 
 			localPath = convertedPath
-			manager.Logf("✅ Article converted: %s", localPath)
+			manager.Logf("Article converted: %s", localPath)
 		}
 
 		// Ensure we delete this file (even on error) once we're done
@@ -542,7 +552,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			if secureLocalPath, pathErr := security.NewSecurePathFromExisting(localPath); pathErr == nil {
 				if security.SafeStatExists(secureLocalPath) {
 					if cleanupErr = security.SafeRemove(secureLocalPath); cleanupErr != nil {
-						manager.Logf("⚠️ cleanup warning (on exit): could not remove %q: %v", localPath, cleanupErr)
+						manager.Logf("cleanup warning (on exit): could not remove %q: %v", localPath, cleanupErr)
 					}
 				}
 			}
@@ -552,7 +562,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 	// 3) If the file is an image, convert it to PDF now.
 	ext := strings.ToLower(filepath.Ext(localPath))
 	if ext == ".jpg" || ext == ".jpeg" || ext == ".png" {
-		manager.Logf("🔄 Detected image %q – converting to PDF", localPath)
+		manager.Logf("Detected image %q – converting to PDF", localPath)
 		jobStore.UpdateWithOperation(jobID, "Running", "backend.status.converting_pdf", nil, "converting")
 		origPath := localPath
 
@@ -575,7 +585,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			if securePdfPath, err := security.NewSecurePathFromExisting(pdfPath); err == nil {
 				if security.SafeStatExists(securePdfPath) {
 					if cleanupErr = security.SafeRemove(securePdfPath); cleanupErr != nil {
-						manager.Logf("⚠️ cleanup warning (on exit): could not remove generated PDF %q: %v", pdfPath, cleanupErr)
+						manager.Logf("cleanup warning (on exit): could not remove generated PDF %q: %v", pdfPath, cleanupErr)
 					}
 				}
 			}
@@ -587,11 +597,11 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 
 	// 3.5) Handle HTML/Markdown conversion to EPUB or PDF
 	if ext == ".html" || ext == ".htm" || ext == ".md" || ext == ".markdown" {
-		manager.Logf("🔄 Detected %s file – converting to EPUB/PDF", strings.ToUpper(strings.TrimPrefix(ext, ".")))
+		manager.Logf("Detected %s file – converting to EPUB/PDF", strings.ToUpper(strings.TrimPrefix(ext, ".")))
 
 		// Determine output format
 		outputFormat := getOutputFormat(form, dbUser)
-		manager.Logf("📄 Output format: %s", outputFormat)
+		manager.Logf("Output format: %s", outputFormat)
 
 		var htmlContent *converter.ArticleContent
 		var title string
@@ -669,7 +679,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			if secureConvertedPath, err := security.NewSecurePathFromExisting(convertedPath); err == nil {
 				if security.SafeStatExists(secureConvertedPath) {
 					if cleanupErr = security.SafeRemove(secureConvertedPath); cleanupErr != nil {
-						manager.Logf("⚠️ cleanup warning (on exit): could not remove generated file %q: %v", convertedPath, cleanupErr)
+						manager.Logf("cleanup warning (on exit): could not remove generated file %q: %v", convertedPath, cleanupErr)
 					}
 				}
 			}
@@ -677,18 +687,18 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 
 		// Replace localPath so the rest of the pipeline uses the converted file
 		localPath = convertedPath
-		manager.Logf("✅ Conversion complete: %s", localPath)
+		manager.Logf("Conversion complete: %s", localPath)
 	}
 
 	// 4) Optionally remove background images from PDF
 	if shouldRemoveBackground(form, dbUser) && strings.ToLower(filepath.Ext(localPath)) == ".pdf" {
-		manager.Logf("🔧 Removing background images from PDF")
+		manager.Logf("Removing background images from PDF")
 		jobStore.UpdateWithOperation(jobID, "Running", "backend.status.removing_background", nil, "removing_background")
 
 		processedPath := strings.TrimSuffix(localPath, ".pdf") + "_nobg.pdf"
 		removedCount, bgErr := pdfprocessor.RemoveBackgroundImages(localPath, processedPath)
 		if bgErr != nil {
-			manager.Logf("⚠️ Background removal warning: %v (continuing with original file)", bgErr)
+			manager.Logf("Background removal warning: %v (continuing with original file)", bgErr)
 		} else if removedCount > 0 {
 			if secureLocalPath, err := security.NewSecurePathFromExisting(localPath); err == nil {
 				security.SafeRemove(secureLocalPath)
@@ -698,23 +708,23 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 				secureLocalPath, err := security.NewSecurePathFromExisting(localPath)
 				if err == nil {
 					if err := security.SafeRename(secureProcessedPath, secureLocalPath); err != nil {
-						manager.Logf("⚠️ Failed to rename processed PDF: %v", err)
+						manager.Logf("Failed to rename processed PDF: %v", err)
 						localPath = processedPath
 					}
 				}
 			}
-			manager.Logf("✅ Removed %d background image(s) from PDF", removedCount)
+			manager.Logf("Removed %d background image(s) from PDF", removedCount)
 		} else {
 			if secureProcessedPath, err := security.NewSecurePathFromExisting(processedPath); err == nil {
 				security.SafeRemove(secureProcessedPath)
 			}
-			manager.Logf("📄 No background images to remove")
+			manager.Logf("No background images to remove")
 		}
 	}
 
 	// 5) Optionally compress the PDF
 	if compress {
-		manager.Logf("🔧 Compressing PDF")
+		manager.Logf("Compressing PDF")
 		jobStore.UpdateWithOperation(jobID, "Running", "backend.status.compressing_pdf", nil, "compressing")
 		jobStore.UpdateProgress(jobID, 0)
 		compressedPath, compErr := compressor.CompressPDFWithProgress(localPath, func(page, total int) {
@@ -727,7 +737,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 
 		if secureLocalPath, err := security.NewSecurePathFromExisting(localPath); err == nil {
 			if err := security.SafeRemove(secureLocalPath); err != nil {
-				manager.Logf("⚠️ failed to remove uncompressed PDF %q: %v", localPath, err)
+				manager.Logf("failed to remove uncompressed PDF %q: %v", localPath, err)
 			}
 		}
 
@@ -759,10 +769,10 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 		ext := filepath.Ext(localPath)
 		var newFilename string
 		if prefix != "" {
-			manager.Logf("🔄 Renaming file for managed workflow with prefix: %s", prefix)
+			manager.Logf("Renaming file for managed workflow with prefix: %s", prefix)
 			newFilename = fmt.Sprintf("%s %s %d%s", prefix, month, day, ext)
 		} else {
-			manager.Logf("🔄 Renaming file for managed workflow (no prefix)")
+			manager.Logf("Renaming file for managed workflow (no prefix)")
 			newFilename = fmt.Sprintf("%s %d%s", month, day, ext)
 		}
 
@@ -788,7 +798,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			if secureFinalPath, err := security.NewSecurePathFromExisting(finalLocalPath); err == nil {
 				if security.SafeStatExists(secureFinalPath) {
 					if cleanupErr := security.SafeRemove(secureFinalPath); cleanupErr != nil {
-						manager.Logf("⚠️ cleanup warning: could not remove renamed file %q: %v", finalLocalPath, cleanupErr)
+						manager.Logf("cleanup warning: could not remove renamed file %q: %v", finalLocalPath, cleanupErr)
 					}
 				}
 			}
@@ -799,8 +809,8 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 
 	// 5) Upload to rmapi
 	jobStore.UpdateWithOperation(jobID, "Running", "backend.status.uploading", nil, "uploading")
-	manager.Logf("📤 Uploading to reMarkable")
-	remoteName, err = manager.SimpleUpload(finalLocalPath, rmDir, dbUser, requestConflictResolution, requestCoverpage)
+	manager.Logf("Uploading to reMarkable")
+	remoteName, err = manager.SimpleUpload(finalLocalPath, rmDir, dbUser, uploadOpts)
 	if err != nil {
 		if isConflictError(err) {
 			return "backend.status.conflict_entry_exists", map[string]string{
@@ -813,7 +823,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 
 	// 6) Archive to storage backend if requested
 	if archive {
-		manager.Logf("📦 Archiving to storage backend")
+		manager.Logf("Archiving to storage backend")
 		filename := filepath.Base(finalLocalPath)
 		multiUserMode := database.IsMultiUserMode()
 
@@ -825,11 +835,11 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			// Copy to storage with no-year format
 			ctx := context.Background()
 			if err := storage.CopyFileToStorage(ctx, finalLocalPath, noYearKey); err != nil {
-				manager.Logf("⚠️ archival warning: failed to copy to storage: %v", err)
+				manager.Logf("archival warning: failed to copy to storage: %v", err)
 			} else {
 				// Add year for archival copy
 				if yearKey, err2 := manager.AppendYearStorage(ctx, noYearKey, userID); err2 != nil {
-					manager.Logf("⚠️ archival warning: failed to create year copy: %v", err2)
+					manager.Logf("archival warning: failed to create year copy: %v", err2)
 				} else {
 					storageKey = yearKey
 				}
@@ -839,7 +849,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			storageKey = storage.GenerateUserDocumentKey(userID, "", filename, multiUserMode)
 			ctx := context.Background()
 			if err := storage.CopyFileToStorage(ctx, finalLocalPath, storageKey); err != nil {
-				manager.Logf("⚠️ archival warning: failed to copy to storage: %v", err)
+				manager.Logf("archival warning: failed to copy to storage: %v", err)
 			}
 		}
 
@@ -855,7 +865,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 	// 8) Track document in database if in multi-user mode
 	if database.IsMultiUserMode() && userID != uuid.Nil {
 		if err := trackDocumentUpload(userID, finalLocalPath, remoteName, rmDir); err != nil {
-			manager.Logf("⚠️ failed to track document upload: %v", err)
+			manager.Logf("failed to track document upload: %v", err)
 			// Continue anyway - the upload was successful
 		}
 	}
@@ -889,7 +899,7 @@ func enqueueDocumentJobForUser(req DocumentRequest, userID uuid.UUID) string {
 		// Catch panics
 		defer func() {
 			if r := recover(); r != nil {
-				manager.Logf("❌ Panic in processDocument: %v", r)
+				manager.Logf("Panic in processDocument: %v", r)
 				jobStore.Update(id, "Error", "backend.status.internal_error", nil)
 			}
 		}()
@@ -897,10 +907,10 @@ func enqueueDocumentJobForUser(req DocumentRequest, userID uuid.UUID) string {
 		// Process the document content
 		msgKey, data, err := processDocumentForUser(id, req, userID)
 		if err != nil {
-			manager.Logf("❌ processDocument error: %v, message: %q", err, msgKey)
+			manager.Logf("processDocument error: %v, message: %q", err, msgKey)
 			jobStore.Update(id, "error", msgKey, data)
 		} else {
-			manager.Logf("✅ processDocument success: %s", msgKey)
+			manager.Logf("processDocument success: %s", msgKey)
 			jobStore.Update(id, "success", msgKey, data)
 		}
 	}()
@@ -924,7 +934,7 @@ func processDocumentForUser(jobID string, req DocumentRequest, userID uuid.UUID)
 	// Ensure cleanup of job temp directory
 	defer func() {
 		if err := os.RemoveAll(jobTempDir); err != nil {
-			manager.Logf("⚠️ cleanup warning: could not remove job temp directory %q: %v", jobTempDir, err)
+			manager.Logf("cleanup warning: could not remove job temp directory %q: %v", jobTempDir, err)
 		}
 	}()
 
@@ -946,7 +956,7 @@ func processDocumentForUser(jobID string, req DocumentRequest, userID uuid.UUID)
 	// Verify content type matches actual content
 	detectedType := http.DetectContentType(content[:min(512, len(content))])
 	if req.ContentType != "" && !isContentTypeMatch(req.ContentType, detectedType) {
-		manager.Logf("⚠️ Content type mismatch: claimed %s, detected %s", req.ContentType, detectedType)
+		manager.Logf("Content type mismatch: claimed %s, detected %s", req.ContentType, detectedType)
 		// Continue but log the mismatch - use detected type for processing
 	}
 
@@ -998,6 +1008,8 @@ func processDocumentForUser(jobID string, req DocumentRequest, userID uuid.UUID)
 		"retention_days":      req.RetentionDays,
 		"conflict_resolution": req.ConflictResolution,
 		"coverpage":           req.Coverpage,
+		"contrast":            req.Contrast,
+		"currentpage":         req.CurrentPage,
 		"remove_background":   req.RemoveBackground,
 	}
 
@@ -1204,8 +1216,12 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 
 	body := form["Body"]
 	compress := isTrue(form["compress"])
-	requestConflictResolution := form["conflict_resolution"]
-	requestCoverpage := form["coverpage"]
+	uploadOpts := manager.UploadOptions{
+		ConflictResolution: form["conflict_resolution"],
+		Coverpage:          form["coverpage"],
+		Contrast:           form["contrast"],
+		CurrentPage:        form["currentpage"],
+	}
 
 	// Extract file paths from the "files:" prefix
 	pathsJSON := strings.TrimPrefix(body, "files:")
@@ -1290,7 +1306,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 		// Convert images to PDF if needed
 		ext := strings.ToLower(filepath.Ext(filePath))
 		if ext == ".jpg" || ext == ".jpeg" || ext == ".png" {
-			manager.Logf("🔄 Converting image %q to PDF", filePath)
+			manager.Logf("Converting image %q to PDF", filePath)
 			var pdfPath string
 			var convErr error
 			if database.IsMultiUserMode() && dbUser != nil {
@@ -1309,7 +1325,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 
 		// Compress PDF if requested and file is PDF
 		if compress && (strings.ToLower(filepath.Ext(filePath)) == ".pdf") {
-			manager.Logf("🔧 Compressing PDF %q", filePath)
+			manager.Logf("Compressing PDF %q", filePath)
 
 			// Get the expected page count for this file from our pre-calculation
 			expectedPages := 1 // fallback
@@ -1368,7 +1384,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 
 	for _, filePath := range finalPaths {
 		// Use simple upload for each file
-		remoteName, err := manager.SimpleUpload(filePath, rmDir, dbUser, requestConflictResolution, requestCoverpage)
+		remoteName, err := manager.SimpleUpload(filePath, rmDir, dbUser, uploadOpts)
 		if err != nil {
 			// Clean up any processed files before returning error
 			secureCleanupPaths(cleanupPaths)
@@ -1388,7 +1404,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 		// Track document in database if in multi-user mode
 		if database.IsMultiUserMode() && userID != uuid.Nil {
 			if err := trackDocumentUpload(userID, filePath, remoteName, rmDir); err != nil {
-				manager.Logf("⚠️ failed to track document upload: %v", err)
+				manager.Logf("failed to track document upload: %v", err)
 			}
 		}
 	}
@@ -1397,7 +1413,7 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 		if securePath, err := security.NewSecurePathFromExisting(path); err == nil {
 			if security.SafeStatExists(securePath) {
 				if err := security.SafeRemove(securePath); err != nil {
-					manager.Logf("⚠️ cleanup warning: could not remove %q: %v", path, err)
+					manager.Logf("cleanup warning: could not remove %q: %v", path, err)
 				}
 			}
 		}

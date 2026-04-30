@@ -357,6 +357,7 @@
       "rmapi_host": "Host reMarkable (opcional)",
       "default_directory": "Diretório Padrão",
       "cover_page": "Página de Capa",
+      "contrast": "Filtro de Contraste",
       "conflict_resolution": "Em Conflito",
       "folder_depth_limit": "Limite de Profundidade de Pastas",
       "folder_exclusion_list": "Pastas Excluídas",
@@ -393,6 +394,10 @@
       "conflict_abort": "Abortar",
       "conflict_overwrite": "Sobrescrever",
       "conflict_content_only": "Apenas Conteúdo",
+      "contrast_none": "Nenhum (padrão)",
+      "contrast_off": "Desativado",
+      "contrast_fullpage": "Página Inteira",
+      "contrast_adaptive": "Adaptativo",
       "pdf": "PDF",
       "epub": "EPUB"
     },
@@ -415,6 +420,7 @@
     },
     "help": {
       "cover_page": "Controla se a primeira página ou página atual é usada como capa ao enviar PDFs",
+      "contrast": "Aplicar um filtro de contraste aos PDFs e EPUBs carregados para melhor legibilidade na tela do reMarkable",
       "pdf_conversion_device": "Escolha o modelo do seu dispositivo reMarkable para conversão ótima de imagem para PDF. Esta configuração afeta apenas arquivos de imagem (JPEG, PNG) convertidos para PDF.",
       "page_resolution": "Resolução da página no formato LARGURAxALTURA",
       "page_dpi": "Pontos por polegada",

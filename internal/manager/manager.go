@@ -1,8 +1,8 @@
 package manager
 
 import (
-	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -18,6 +18,14 @@ import (
 	"github.com/rmitchellscott/aviary/internal/rmapi"
 	"github.com/rmitchellscott/aviary/internal/storage"
 )
+
+// UploadOptions bundles all rmapi put flags for SimpleUpload and RenameAndUpload.
+type UploadOptions struct {
+	ConflictResolution string
+	Coverpage          string
+	Contrast           string
+	CurrentPage        string
+}
 
 // ExecCommand is exec.Command by default, but can be overridden in tests.
 var ExecCommand = exec.Command
@@ -158,14 +166,13 @@ func RenameStorage(ctx context.Context, srcKey, prefix string, userID uuid.UUID)
 	return withYearKey, nil
 }
 
-// SimpleUpload calls `rmapi put` and returns the uploaded filename or a detailed error.
-func SimpleUpload(path, rmDir string, user *database.User, requestConflictResolution string, requestCoverpage string) (string, error) {
+// buildPutArgs constructs the rmapi put argument list from user settings and request options.
+func buildPutArgs(path string, user *database.User, opts UploadOptions) []string {
 	args := []string{"put"}
+	ext := strings.ToLower(filepath.Ext(path))
 
-	coverpageSetting := ""
-	if requestCoverpage != "" {
-		coverpageSetting = requestCoverpage
-	} else if user != nil {
+	coverpageSetting := opts.Coverpage
+	if coverpageSetting == "" && user != nil {
 		coverpageSetting = user.CoverpageSetting
 	}
 	if coverpageSetting == "" {
@@ -175,58 +182,73 @@ func SimpleUpload(path, rmDir string, user *database.User, requestConflictResolu
 			coverpageSetting = "current"
 		}
 	}
-
 	if coverpageSetting == "first" {
 		args = append(args, "--coverpage=1")
 	}
 
-	conflictResolution := ""
-	if requestConflictResolution != "" {
-		conflictResolution = requestConflictResolution
-	} else if user != nil {
+	conflictResolution := opts.ConflictResolution
+	if conflictResolution == "" && user != nil {
 		conflictResolution = user.ConflictResolution
 	}
 	if conflictResolution == "" {
 		conflictResolution = config.Get("RMAPI_CONFLICT_RESOLUTION", "abort")
 	}
-
-	// Determine effective conflict resolution based on file type
-	// content_only only works with PDF files, so fallback to abort for other file types
 	effectiveConflictResolution := conflictResolution
-	if conflictResolution == "content_only" {
-		ext := strings.ToLower(filepath.Ext(path))
-		if ext != ".pdf" {
-			effectiveConflictResolution = "abort"
-		}
+	if conflictResolution == "content_only" && ext != ".pdf" {
+		effectiveConflictResolution = "abort"
 	}
-
 	switch effectiveConflictResolution {
 	case "overwrite":
 		args = append(args, "--force")
 	case "content_only":
-		args = append(args, "--content-only") // Only reached for PDFs
+		args = append(args, "--content-only")
 	}
 
+	if ext == ".pdf" || ext == ".epub" {
+		contrastSetting := opts.Contrast
+		if contrastSetting == "" && user != nil {
+			contrastSetting = user.ContrastSetting
+		}
+		if contrastSetting == "" {
+			contrastSetting = config.Get("RMAPI_CONTRAST", "")
+		}
+		if contrastSetting != "" && contrastSetting != "none" {
+			args = append(args, "--contrast="+contrastSetting)
+		}
+	}
+
+	if opts.CurrentPage != "" && ext == ".pdf" {
+		args = append(args, "--currentpage="+opts.CurrentPage)
+	}
+
+	return args
+}
+
+// runPutCommand executes rmapi put and returns the parsed result.
+func runPutCommand(path, rmDir string, user *database.User, args []string) (string, error) {
 	args = append(args, path, rmDir)
 	cmd, cleanup := rmapi.NewCommand(user, args...)
 	defer cleanup()
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		raw := strings.TrimSpace(string(out))
-		// find the first "Error: " in the output
 		if idx := strings.Index(raw, "Error:"); idx != -1 {
-			// return just "Error: entry already exists" (or whatever follows)
 			return "", fmt.Errorf("%s", raw[idx:])
 		}
-		// fallback if we didn't find it
 		return "", fmt.Errorf("rmapi put failed: %s", raw)
 	}
 	remoteName := filepath.Base(path)
 	return remoteName, nil
 }
 
+// SimpleUpload calls `rmapi put` and returns the uploaded filename or a detailed error.
+func SimpleUpload(path, rmDir string, user *database.User, opts UploadOptions) (string, error) {
+	args := buildPutArgs(path, user, opts)
+	return runPutCommand(path, rmDir, user, args)
+}
+
 // RenameAndUpload takes a storage key, renames it in storage, uploads via rmapi, and creates archival copy
-func RenameAndUpload(storageKey, prefix, rmDir string, user *database.User, requestConflictResolution string, requestCoverpage string) (string, error) {
+func RenameAndUpload(storageKey, prefix, rmDir string, user *database.User, opts UploadOptions) (string, error) {
 	// Validate prefix early
 	var err error
 	prefix, err = SanitizePrefix(prefix)
@@ -261,67 +283,11 @@ func RenameAndUpload(storageKey, prefix, rmDir string, user *database.User, requ
 		return "", fmt.Errorf("failed to download from storage: %w", err)
 	}
 
-	// Prepare rmapi upload
-	args := []string{"put"}
-
-	coverpageSetting := ""
-	if requestCoverpage != "" {
-		coverpageSetting = requestCoverpage
-	} else if user != nil {
-		coverpageSetting = user.CoverpageSetting
-	}
-	if coverpageSetting == "" {
-		if config.Get("RMAPI_COVERPAGE", "") == "first" {
-			coverpageSetting = "first"
-		} else {
-			coverpageSetting = "current"
-		}
-	}
-
-	if coverpageSetting == "first" {
-		args = append(args, "--coverpage=1")
-	}
-
-	conflictResolution := ""
-	if requestConflictResolution != "" {
-		conflictResolution = requestConflictResolution
-	} else if user != nil {
-		conflictResolution = user.ConflictResolution
-	}
-	if conflictResolution == "" {
-		conflictResolution = config.Get("RMAPI_CONFLICT_RESOLUTION", "abort")
-	}
-
-	// Determine effective conflict resolution based on file type
-	// content_only only works with PDF files, so fallback to abort for other file types
-	effectiveConflictResolution := conflictResolution
-	if conflictResolution == "content_only" {
-		ext := strings.ToLower(filepath.Ext(tempFilePath))
-		if ext != ".pdf" {
-			effectiveConflictResolution = "abort"
-		}
-	}
-
-	switch effectiveConflictResolution {
-	case "overwrite":
-		args = append(args, "--force")
-	case "content_only":
-		args = append(args, "--content-only") // Only reached for PDFs
-	}
-
-	args = append(args, tempFilePath, rmDir)
-	cmd, cleanup := rmapi.NewCommand(user, args...)
-	defer cleanup()
-	out, err := cmd.CombinedOutput()
+	// Upload via rmapi
+	args := buildPutArgs(tempFilePath, user, opts)
+	_, err = runPutCommand(tempFilePath, rmDir, user, args)
 	if err != nil {
-		raw := strings.TrimSpace(string(out))
-		// find the first "Error: " in the output
-		if idx := strings.Index(raw, "Error:"); idx != -1 {
-			// return just "Error: entry already exists" (or whatever follows)
-			return "", fmt.Errorf("%s", raw[idx:])
-		}
-		// fallback if we didn't find it
-		return "", fmt.Errorf("rmapi put failed: %s", raw)
+		return "", err
 	}
 
 	// Append year in storage for archival
@@ -354,22 +320,27 @@ func CleanupOld(prefix, rmDir string, retentionDays int, user *database.User) er
 			today.Format("2006-01-02"), cutoff.Format("2006-01-02"))
 	}
 
-	// 1) List remote files
-	proc, cleanup := rmapi.NewCommand(user, "ls", rmDir)
+	// 1) List remote files using JSON output for reliable parsing
+	proc, cleanup := rmapi.NewCommand(user, "ls", "--json", rmDir)
 	defer cleanup()
 	out, err := proc.Output()
 	if err != nil {
 		return err
 	}
 
-	// 2) Compile regexes
-	// match any file entry (we'll strip .pdf later if present)
-	lineRe := regexp.MustCompile(`^\[f\]\s+(.*)$`)
+	type lsEntry struct {
+		Name string `json:"name"`
+		Type string `json:"type"`
+	}
 
-	// date pattern: optional prefix, Month, Day, with or without ".pdf"
+	var entries []lsEntry
+	if err := json.Unmarshal(out, &entries); err != nil {
+		return fmt.Errorf("failed to parse rmapi ls --json output: %w", err)
+	}
+
+	// 2) Compile date regex
 	var dateRe *regexp.Regexp
 	if prefix != "" {
-		// e.g. "DUMMY May 7" or "DUMMY May 7.pdf"
 		dateRe = regexp.MustCompile(
 			`^` + regexp.QuoteMeta(prefix+` `) + `([A-Za-z]+)\s+(\d+)(?:\.\w+)?$`,
 		)
@@ -379,26 +350,18 @@ func CleanupOld(prefix, rmDir string, retentionDays int, user *database.User) er
 		)
 	}
 
-	// 3) Scan lines
-	scanner := bufio.NewScanner(strings.NewReader(string(out)))
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		// grab the name field (might end in ".pdf" or not)
-		m := lineRe.FindStringSubmatch(line)
-		if m == nil {
+	// 3) Check each file entry
+	for _, entry := range entries {
+		if entry.Type != "DocumentType" {
 			continue
 		}
-		fname := strings.TrimSpace(m[1])
 
-		// match date portion
-		md := dateRe.FindStringSubmatch(fname)
+		md := dateRe.FindStringSubmatch(entry.Name)
 		if md == nil {
 			continue
 		}
 		monthStr, dayStr := md[1], md[2]
 
-		// parse month and day into a time.Time
 		t, err := time.Parse("January 2", monthStr+" "+dayStr)
 		if err != nil {
 			Logf("  ↳ parse error: %v", err)
@@ -409,11 +372,10 @@ func CleanupOld(prefix, rmDir string, retentionDays int, user *database.User) er
 			fileDate = fileDate.AddDate(-1, 0, 0)
 		}
 
-		// decide whether to remove
 		if fileDate.Before(cutoff) {
 			Logf("Removing %s (dated %s < %s)",
-				fname, fileDate.Format("2006-01-02"), cutoff.Format("2006-01-02"))
-			rmCmd, rmCleanup := rmapi.NewCommand(user, "rm", filepath.Join(rmDir, fname))
+				entry.Name, fileDate.Format("2006-01-02"), cutoff.Format("2006-01-02"))
+			rmCmd, rmCleanup := rmapi.NewCommand(user, "rm", filepath.Join(rmDir, entry.Name))
 			rmCmd.Run()
 			rmCleanup()
 		}

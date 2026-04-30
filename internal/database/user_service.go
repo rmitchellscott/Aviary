@@ -72,6 +72,8 @@ func (s *UserService) CreateUser(username, email, password string, isAdmin bool)
 		coverpageSetting = "first"
 	}
 
+	contrastSetting := config.Get("RMAPI_CONTRAST", "none")
+
 	// Set conflict resolution based on server's RMAPI_CONFLICT_RESOLUTION environment variable
 	conflictResolution := config.Get("RMAPI_CONFLICT_RESOLUTION", "abort")
 
@@ -97,6 +99,7 @@ func (s *UserService) CreateUser(username, email, password string, isAdmin bool)
 		RmapiHost:           rmapiHost,
 		DefaultRmdir:        "/",
 		CoverpageSetting:    coverpageSetting,
+		ContrastSetting:     contrastSetting,
 		ConflictResolution:  conflictResolution,
 		FolderDepthLimit:    folderDepthLimit,
 		FolderExclusionList: folderExclusionList,

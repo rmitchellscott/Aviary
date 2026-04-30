@@ -357,6 +357,7 @@
       "rmapi_host": "reMarkable-isäntä (valinnainen)",
       "default_directory": "Oletuskansio",
       "cover_page": "Kansilehti",
+      "contrast": "Kontrastitsuodatin",
       "conflict_resolution": "Konfliktissa",
       "folder_depth_limit": "Kansion syvyysraja",
       "folder_exclusion_list": "Poissuljetut kansiot",
@@ -393,6 +394,10 @@
       "conflict_abort": "Keskeytä",
       "conflict_overwrite": "Korvaa",
       "conflict_content_only": "Vain sisältö",
+      "contrast_none": "Ei mitään (oletus)",
+      "contrast_off": "Pois",
+      "contrast_fullpage": "Koko Sivu",
+      "contrast_adaptive": "Adaptiivinen",
       "pdf": "PDF",
       "epub": "EPUB"
     },
@@ -415,6 +420,7 @@
     },
     "help": {
       "cover_page": "Ohjaa käytetäänkö ensimmäistä sivua vai nykyistä sivua kansikuvana PDF-tiedostoja ladattaessa",
+      "contrast": "Käytä kontrastitsuodatinta ladattuihin PDF- ja EPUB-tiedostoihin parantaaksesi luettavuutta reMarkable-näytöllä",
       "pdf_conversion_device": "Valitse reMarkable-laitteesi malli optimaaliseen kuva-PDF-muunnokseen. Tämä asetus vaikuttaa vain kuvatiedostoihin (JPEG, PNG), jotka muunnetaan PDF:ksi.",
       "page_resolution": "Sivun resoluutio LEVEYSxKORKEUS muodossa",
       "page_dpi": "Pistettä tuumaa kohti",

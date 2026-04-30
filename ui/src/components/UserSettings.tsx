@@ -148,6 +148,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [userRmapiHost, setUserRmapiHost] = useState("");
   const [defaultRmdir, setDefaultRmdir] = useState("/");
   const [coverpageSetting, setCoverpageSetting] = useState("current");
+  const [contrastSetting, setContrastSetting] = useState("none");
   const [conflictResolution, setConflictResolution] = useState("abort");
   const [devicePreset, setDevicePreset] = useState("remarkable_1_2");
   const [manualPageResolution, setManualPageResolution] = useState("");
@@ -164,6 +165,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     userRmapiHost: "",
     defaultRmdir: "/",
     coverpageSetting: "current",
+    contrastSetting: "none",
     conflictResolution: "abort",
     devicePreset: "remarkable_1_2",
     manualPageResolution: "",
@@ -214,6 +216,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         const userRmapiHost = user.rmapi_host || "";
         const defaultRmdir = user.default_rmdir || "/";
         const coverpageSetting = user.coverpage_setting || "current";
+        const contrastSetting = user.contrast_setting || "none";
         const conflictResolution = user.conflict_resolution || "abort";
         const folderDepthLimit = user.folder_depth_limit && user.folder_depth_limit > 0 ? user.folder_depth_limit.toString() : "";
         const folderExclusionList = user.folder_exclusion_list || "";
@@ -228,6 +231,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         setUserRmapiHost(userRmapiHost);
         setDefaultRmdir(defaultRmdir);
         setCoverpageSetting(coverpageSetting);
+        setContrastSetting(contrastSetting);
         setConflictResolution(conflictResolution);
         setFolderDepthLimit(folderDepthLimit);
         setFolderExclusionList(folderExclusionList);
@@ -247,6 +251,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       const userRmapiHost = user.rmapi_host || "";
       const defaultRmdir = user.default_rmdir || "/";
       const coverpageSetting = user.coverpage_setting || "current";
+      const contrastSetting = user.contrast_setting || "none";
       const conflictResolution = user.conflict_resolution || "abort";
       const folderDepthLimit = user.folder_depth_limit && user.folder_depth_limit > 0 ? user.folder_depth_limit.toString() : "";
       const folderExclusionList = user.folder_exclusion_list || "";
@@ -261,6 +266,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setUserRmapiHost(userRmapiHost);
       setDefaultRmdir(defaultRmdir);
       setCoverpageSetting(coverpageSetting);
+      setContrastSetting(contrastSetting);
       setConflictResolution(conflictResolution);
       setFolderDepthLimit(folderDepthLimit);
       setFolderExclusionList(folderExclusionList);
@@ -276,6 +282,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         userRmapiHost,
         defaultRmdir,
         coverpageSetting,
+        contrastSetting,
         conflictResolution,
         folderDepthLimit,
         folderExclusionList,
@@ -331,6 +338,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setUserRmapiHost("");
       setDefaultRmdir("/");
       setCoverpageSetting("current");
+      setContrastSetting("none");
       setConflictResolution("abort");
       setDevicePreset("remarkable_1_2");
       setManualPageResolution("");
@@ -346,6 +354,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         userRmapiHost: "",
         defaultRmdir: "/",
         coverpageSetting: "current",
+        contrastSetting: "none",
         conflictResolution: "abort",
         devicePreset: "remarkable_1_2",
         manualPageResolution: "",
@@ -438,6 +447,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       userRmapiHost !== originalValues.userRmapiHost ||
       defaultRmdir !== originalValues.defaultRmdir ||
       coverpageSetting !== originalValues.coverpageSetting ||
+      contrastSetting !== originalValues.contrastSetting ||
       conflictResolution !== originalValues.conflictResolution ||
       folderDepthLimit !== originalValues.folderDepthLimit ||
       folderExclusionList !== originalValues.folderExclusionList ||
@@ -466,6 +476,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           rmapi_host: userRmapiHost,
           default_rmdir: defaultRmdir,
           coverpage_setting: coverpageSetting,
+          contrast_setting: contrastSetting,
           conflict_resolution: conflictResolution,
           folder_depth_limit: folderDepthLimit === "" ? 0 : parseInt(folderDepthLimit),
           folder_exclusion_list: folderExclusionList,
@@ -491,6 +502,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           userRmapiHost,
           defaultRmdir,
           coverpageSetting,
+          contrastSetting,
           conflictResolution,
           folderDepthLimit,
           folderExclusionList,
@@ -968,8 +980,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
 
                     <div>
                       <Label htmlFor="coverpage-setting">{t("settings.labels.cover_page")}</Label>
-                      <Select 
-                        value={coverpageSetting} 
+                      <Select
+                        value={coverpageSetting}
                         onValueChange={setCoverpageSetting}
                       >
                         <SelectTrigger id="coverpage-setting" className="mt-2 w-full">
@@ -986,6 +998,35 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       </Select>
                       <p className="text-sm text-muted-foreground mt-1">
                         {t("settings.help.cover_page")}
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="contrast-setting">{t("settings.labels.contrast")}</Label>
+                      <Select
+                        value={contrastSetting}
+                        onValueChange={setContrastSetting}
+                      >
+                        <SelectTrigger id="contrast-setting" className="mt-2 w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">
+                            {t("settings.options.contrast_none")}
+                          </SelectItem>
+                          <SelectItem value="off">
+                            {t("settings.options.contrast_off")}
+                          </SelectItem>
+                          <SelectItem value="fullpage">
+                            {t("settings.options.contrast_fullpage")}
+                          </SelectItem>
+                          <SelectItem value="adaptive">
+                            {t("settings.options.contrast_adaptive")}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {t("settings.help.contrast")}
                       </p>
                     </div>
                   </div>
