@@ -2,11 +2,14 @@
 package pdfprocessor
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"sort"
+	"strings"
 
 	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 	"github.com/rmitchellscott/aviary/internal/logging"
@@ -96,16 +99,10 @@ func RemoveBackgroundImages(inputPath, outputPath string) (int, error) {
 			continue
 		}
 
-		// Sort by file size to find smallest (backgrounds compress well, text doesn't)
-		sort.Slice(pageImages, func(i, j int) bool {
-			return pageImages[i].Size < pageImages[j].Size
-		})
+		target := selectBackgroundImage(ctx, pageNum, pageImages)
+		logging.Logf("[PDFPROCESSOR] Page %d: removing background image (%dx%d, %d bytes)", pageNum, target.Width, target.Height, target.Size)
 
-		// Remove smallest image (assumed to be background)
-		smallest := pageImages[0]
-		logging.Logf("[PDFPROCESSOR] Page %d: removing background image (%dx%d, %d bytes)", pageNum, smallest.Width, smallest.Height, smallest.Size)
-
-		if err := removeImageFromPage(ctx, pageNum, smallest.ObjNr); err != nil {
+		if err := removeImageFromPage(ctx, pageNum, target.ObjNr); err != nil {
 			logging.Logf("[PDFPROCESSOR] Warning: failed to remove image from page %d: %v", pageNum, err)
 			continue
 		}
@@ -139,6 +136,99 @@ func RemoveBackgroundImages(inputPath, outputPath string) (int, error) {
 
 	logging.Logf("[PDFPROCESSOR] Successfully removed %d background image(s)", removedCount)
 	return removedCount, nil
+}
+
+func selectBackgroundImage(ctx *model.Context, pageNum int, images []imageInfo) imageInfo {
+	sameDims := true
+	for i := 1; i < len(images); i++ {
+		if images[i].Area != images[0].Area {
+			sameDims = false
+			break
+		}
+	}
+
+	if sameDims {
+		objNr, err := getFirstImageObjNr(ctx, pageNum)
+		if err == nil {
+			for _, img := range images {
+				if img.ObjNr == objNr {
+					return img
+				}
+			}
+		}
+		logging.Logf("[PDFPROCESSOR] Page %d: content stream fallback to file size heuristic", pageNum)
+	}
+
+	sort.Slice(images, func(i, j int) bool {
+		return images[i].Size < images[j].Size
+	})
+	return images[0]
+}
+
+func getFirstImageObjNr(ctx *model.Context, pageNum int) (int, error) {
+	if ctx == nil {
+		return 0, fmt.Errorf("nil context")
+	}
+	reader, err := pdfcpu.ExtractPageContent(ctx, pageNum)
+	if err != nil {
+		return 0, fmt.Errorf("extract content: %w", err)
+	}
+	content, err := io.ReadAll(reader)
+	if err != nil {
+		return 0, fmt.Errorf("read content: %w", err)
+	}
+
+	pageDict, _, inheritedAttrs, err := ctx.PageDict(pageNum, true)
+	if err != nil {
+		return 0, fmt.Errorf("page dict: %w", err)
+	}
+	var resDict types.Dict
+	if inheritedAttrs != nil && inheritedAttrs.Resources != nil {
+		resDict = inheritedAttrs.Resources
+	} else {
+		resDict = pageDict.DictEntry("Resources")
+	}
+	if resDict == nil {
+		return 0, fmt.Errorf("no resources")
+	}
+	xobjEntry, found := resDict.Find("XObject")
+	if !found {
+		return 0, fmt.Errorf("no XObject")
+	}
+	var xobjDict types.Dict
+	switch v := xobjEntry.(type) {
+	case types.Dict:
+		xobjDict = v
+	case types.IndirectRef:
+		deref, err := ctx.Dereference(v)
+		if err != nil {
+			return 0, fmt.Errorf("dereference: %w", err)
+		}
+		var ok bool
+		xobjDict, ok = deref.(types.Dict)
+		if !ok {
+			return 0, fmt.Errorf("XObject not a dict")
+		}
+	default:
+		return 0, fmt.Errorf("unexpected XObject type")
+	}
+
+	scanner := bufio.NewScanner(strings.NewReader(string(content)))
+	scanner.Split(bufio.ScanWords)
+	var prev string
+	for scanner.Scan() {
+		token := scanner.Text()
+		if token == "Do" && strings.HasPrefix(prev, "/") {
+			name := strings.TrimPrefix(prev, "/")
+			if entry, found := xobjDict.Find(name); found {
+				if ref, ok := entry.(types.IndirectRef); ok {
+					return int(ref.ObjectNumber), nil
+				}
+			}
+		}
+		prev = token
+	}
+	return 0, fmt.Errorf("no image Do operator found")
 }
 
 func removeImageFromPage(ctx *model.Context, pageNr int, objNr int) error {
