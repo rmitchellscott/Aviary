@@ -1002,7 +1002,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="remarkable_1_2">
-                            reMarkable 1 & 2
+                            reMarkable 1, 2 & Paper Pure
                           </SelectItem>
                           <SelectItem value="remarkable_paper_pro">
                             reMarkable Paper Pro
