@@ -46,6 +46,7 @@ type UserResponse struct {
 	RmapiHost              string     `json:"rmapi_host,omitempty"`
 	DefaultRmdir           string     `json:"default_rmdir"`
 	CoverpageSetting       string     `json:"coverpage_setting"`
+	ContrastSetting        string     `json:"contrast_setting"`
 	ConflictResolution     string     `json:"conflict_resolution"`
 	FolderDepthLimit       int        `json:"folder_depth_limit"`
 	FolderExclusionList    string     `json:"folder_exclusion_list"`
@@ -70,6 +71,7 @@ func userToResponse(user *database.User) UserResponse {
 		RmapiPaired:            rmapi.IsUserPaired(user.ID),
 		DefaultRmdir:           user.DefaultRmdir,
 		CoverpageSetting:       user.CoverpageSetting,
+		ContrastSetting:        user.ContrastSetting,
 		ConflictResolution:     user.ConflictResolution,
 		FolderDepthLimit:       user.FolderDepthLimit,
 		FolderExclusionList:    user.FolderExclusionList,

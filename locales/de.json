@@ -357,6 +357,7 @@
       "rmapi_host": "reMarkable Host (optional)",
       "default_directory": "Standardverzeichnis",
       "cover_page": "Deckblatt",
+      "contrast": "Kontrastfilter",
       "conflict_resolution": "Bei Konflikt",
       "folder_depth_limit": "Ordnertiefenbegrenzung",
       "folder_exclusion_list": "Ausgeschlossene Ordner",
@@ -393,6 +394,10 @@
       "conflict_abort": "Abbrechen",
       "conflict_overwrite": "Überschreiben",
       "conflict_content_only": "Nur Inhalt",
+      "contrast_none": "Keine (Standard)",
+      "contrast_off": "Aus",
+      "contrast_fullpage": "Gesamte Seite",
+      "contrast_adaptive": "Adaptiv",
       "pdf": "PDF",
       "epub": "EPUB"
     },
@@ -415,6 +420,7 @@
     },
     "help": {
       "cover_page": "Steuert, ob die erste Seite oder die aktuelle Seite als Deckblatt beim Hochladen von PDFs verwendet wird",
+      "contrast": "Einen Kontrastfilter auf hochgeladene PDFs und EPUBs anwenden, um die Lesbarkeit auf dem reMarkable-Bildschirm zu verbessern",
       "pdf_conversion_device": "Wählen Sie Ihr reMarkable Gerätemodell für optimale Bild-zu-PDF-Konvertierung. Diese Einstellung betrifft nur Bilddateien (JPEG, PNG), die zu PDF konvertiert werden.",
       "page_resolution": "Seitenauflösung im BREITExHÖHE Format",
       "page_dpi": "Punkte pro Zoll",

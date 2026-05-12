@@ -357,6 +357,7 @@
       "rmapi_host": "reMarkableホスト（オプション）",
       "default_directory": "デフォルトディレクトリ",
       "cover_page": "カバーページ",
+      "contrast": "コントラストフィルター",
       "conflict_resolution": "競合時",
       "folder_depth_limit": "フォルダ深度制限",
       "folder_exclusion_list": "除外フォルダ",
@@ -393,6 +394,10 @@
       "conflict_abort": "中止",
       "conflict_overwrite": "上書き",
       "conflict_content_only": "コンテンツのみ",
+      "contrast_none": "なし（デフォルト）",
+      "contrast_off": "オフ",
+      "contrast_fullpage": "ページ全体",
+      "contrast_adaptive": "アダプティブ",
       "pdf": "PDF",
       "epub": "EPUB"
     },
@@ -415,6 +420,7 @@
     },
     "help": {
       "cover_page": "PDFアップロード時に最初のページまたは現在のページをカバーとして使用するかを制御",
+      "contrast": "アップロードされたPDFとEPUBにコントラストフィルターを適用して、reMarkable画面での読みやすさを向上させる",
       "pdf_conversion_device": "最適な画像かPDFへの変換のためにreMarkableデバイスモデルを選択してください。この設定はPDFに変換される画像ファイル（JPEG、PNG）のみに影響します。",
       "page_resolution": "幅x高さ形式のページ解像度",
       "page_dpi": "1インチあたりのドット数",

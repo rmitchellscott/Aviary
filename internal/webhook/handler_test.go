@@ -96,7 +96,7 @@ func TestProcessPDFRmapiCommands(t *testing.T) {
 				// When manage is true, the file is renamed in the same directory
 				dest := filepath.Join(tmpDir, fmt.Sprintf("Report %s %d.pdf", month, day))
 				expect = append(expect, []string{"rmapi", "put", dest, rmDir})
-				expect = append(expect, []string{"rmapi", "ls", rmDir})
+				expect = append(expect, []string{"rmapi", "ls", "--json", rmDir})
 			} else {
 				expect = append(expect, []string{"rmapi", "put", input, rmDir})
 			}

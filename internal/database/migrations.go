@@ -86,6 +86,22 @@ func RunMigrations(logPrefix string) error {
 			},
 		},
 		{
+			ID: "202504300001_add_contrast_setting_to_users",
+			Migrate: func(tx *gorm.DB) error {
+				if !tx.Migrator().HasColumn(&User{}, "contrast_setting") {
+					if err := tx.Migrator().AddColumn(&User{}, "ContrastSetting"); err != nil {
+						return fmt.Errorf("failed to add contrast_setting column: %w", err)
+					}
+					logging.Logf("[MIGRATE] Added contrast_setting column to users table")
+				}
+				tx.Model(&User{}).Where("contrast_setting IS NULL OR contrast_setting = ''").Update("contrast_setting", "none")
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.Migrator().DropColumn(&User{}, "contrast_setting")
+			},
+		},
+		{
 			ID: "202508020001_add_rmapi_config_to_users",
 			Migrate: func(tx *gorm.DB) error {
 				// Add rmapi_config column to users table

@@ -357,6 +357,7 @@
       "rmapi_host": "reMarkable Host (valgfrit)",
       "default_directory": "Standard Mappe",
       "cover_page": "Forside",
+      "contrast": "Kontrastfilter",
       "conflict_resolution": "Ved konflikt",
       "folder_depth_limit": "Mappedybdegrænse",
       "folder_exclusion_list": "Ekskluderede Mapper",
@@ -393,6 +394,10 @@
       "conflict_abort": "Afbryd",
       "conflict_overwrite": "Overskriv",
       "conflict_content_only": "Kun indhold",
+      "contrast_none": "Ingen (standard)",
+      "contrast_off": "Fra",
+      "contrast_fullpage": "Hele Side",
+      "contrast_adaptive": "Adaptiv",
       "pdf": "PDF",
       "epub": "EPUB"
     },
@@ -415,6 +420,7 @@
     },
     "help": {
       "cover_page": "Styrer om første side eller nuværende side bruges som forside ved upload af PDF'er",
+      "contrast": "Anvend et kontrastfilter på uploadede PDF'er og EPUB'er for forbedret læsbarhed på reMarkable-skærmen",
       "pdf_conversion_device": "Vælg din reMarkable enhedsmodel for optimal billede til PDF konvertering. Denne indstilling påvirker kun billedfiler (JPEG, PNG) der konverteres til PDF.",
       "page_resolution": "Sideopløsning i BREDDExHØJDE format",
       "page_dpi": "Punkter pr. tomme",

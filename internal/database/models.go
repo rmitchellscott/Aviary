@@ -22,6 +22,7 @@ type User struct {
 	DefaultRmdir string `gorm:"column:default_rmdir;default:/" json:"default_rmdir"`
 	FolderRefreshPercent int `gorm:"column:folder_refresh_percent;default:0" json:"folder_refresh_percent"`
 	CoverpageSetting string `gorm:"column:coverpage_setting" json:"coverpage_setting"`
+	ContrastSetting string `gorm:"column:contrast_setting;default:none" json:"contrast_setting"`
 	ConflictResolution string `gorm:"column:conflict_resolution;default:abort" json:"conflict_resolution"`
 	FolderDepthLimit int `gorm:"column:folder_depth_limit;default:0" json:"folder_depth_limit"`
 	FolderExclusionList string `gorm:"column:folder_exclusion_list" json:"folder_exclusion_list"`

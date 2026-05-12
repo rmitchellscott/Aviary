@@ -357,6 +357,7 @@
       "rmapi_host": "reMarkable host (optioneel)",
       "default_directory": "Standaardmap",
       "cover_page": "Omslagpagina",
+      "contrast": "Contrastfilter",
       "conflict_resolution": "Bij Conflict",
       "folder_depth_limit": "Mapdieptelimiet",
       "folder_exclusion_list": "Uitgesloten mappen",
@@ -393,6 +394,10 @@
       "conflict_abort": "Afbreken",
       "conflict_overwrite": "Overschrijven",
       "conflict_content_only": "Alleen Inhoud",
+      "contrast_none": "Geen (standaard)",
+      "contrast_off": "Uit",
+      "contrast_fullpage": "Volledige Pagina",
+      "contrast_adaptive": "Adaptief",
       "pdf": "PDF",
       "epub": "EPUB"
     },
@@ -415,6 +420,7 @@
     },
     "help": {
       "cover_page": "Bepaalt of de eerste pagina of huidige pagina wordt gebruikt als omslag bij het uploaden van PDF's",
+      "contrast": "Pas een contrastfilter toe op geüploade PDF's en EPUB's voor verbeterde leesbaarheid op het reMarkable-scherm",
       "pdf_conversion_device": "Kies je reMarkable apparaatmodel voor optimale afbeelding-naar-PDF conversie. Deze instelling heeft alleen effect op afbeeldingsbestanden (JPEG, PNG) die naar PDF worden geconverteerd.",
       "page_resolution": "Paginaresolutie in BREEDTExHOOGTE formaat",
       "page_dpi": "Punten per inch",

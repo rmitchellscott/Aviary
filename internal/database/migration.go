@@ -87,6 +87,14 @@ func MigrateToMultiUser() error {
 		logging.Logf("[WARNING] failed to set coverpage_setting for admin user: %v", err)
 	}
 
+	contrastSetting := config.Get("RMAPI_CONTRAST", "none")
+	err = userService.UpdateUserSettings(adminUser.ID, map[string]interface{}{
+		"contrast_setting": contrastSetting,
+	})
+	if err != nil {
+		logging.Logf("[WARNING] failed to set contrast_setting for admin user: %v", err)
+	}
+
 	// Migrate API key from environment to database
 	if envApiKey := config.Get("API_KEY", ""); envApiKey != "" {
 		logging.Logf("[STARTUP] Migrating API_KEY environment variable to database for admin user")
@@ -107,6 +115,10 @@ func MigrateToMultiUser() error {
 	// Ensure all existing users have coverpage setting set
 	if err := ensureUsersHaveCoverpageSetting(); err != nil {
 		logging.Logf("[WARNING] failed to set coverpage setting for existing users: %v", err)
+	}
+
+	if err := ensureUsersHaveContrastSetting(); err != nil {
+		logging.Logf("[WARNING] failed to set contrast setting for existing users: %v", err)
 	}
 
 	// Run schema migrations after user creation
@@ -438,6 +450,21 @@ func copyFile(src, dst string) error {
 		return err
 	}
 	return os.Chmod(dst, sourceInfo.Mode())
+}
+
+func ensureUsersHaveContrastSetting() error {
+	contrastSetting := config.Get("RMAPI_CONTRAST", "none")
+
+	result := DB.Model(&User{}).Where("contrast_setting = ? OR contrast_setting IS NULL", "").Update("contrast_setting", contrastSetting)
+	if result.Error != nil {
+		return fmt.Errorf("failed to update contrast setting for existing users: %w", result.Error)
+	}
+
+	if result.RowsAffected > 0 {
+		logging.Logf("[STARTUP] Updated contrast setting to '%s' for %d existing users", contrastSetting, result.RowsAffected)
+	}
+
+	return nil
 }
 
 // ensureUsersHaveCoverpageSetting sets coverpage setting for users who don't have it set

@@ -136,7 +136,7 @@ function generateMissingKeysTemplate(missingKeys) {
  * Main validation function
  */
 function main() {
-  console.log(`${colors.bold}${colors.cyan}🌐 Aviary Translation Validator${colors.reset}\n`);
+  console.log(`${colors.bold}${colors.cyan}Aviary Translation Validator${colors.reset}\n`);
 
   // Load reference locale
   const referenceData = loadLocaleFile(REFERENCE_LOCALE);
@@ -146,7 +146,7 @@ function main() {
   }
 
   const referenceKeys = getAllKeys(referenceData);
-  console.log(`${colors.blue}📋 Reference (${REFERENCE_LOCALE}): ${referenceKeys.length} keys${colors.reset}\n`);
+  console.log(`${colors.blue}Reference (${REFERENCE_LOCALE}): ${referenceKeys.length} keys${colors.reset}\n`);
 
   // Get all locales to validate
   const locales = getAvailableLocales();
@@ -166,21 +166,21 @@ function main() {
   results.sort((a, b) => b.coverage - a.coverage);
 
   // Display results
-  console.log(`${colors.bold}📊 Translation Coverage Report${colors.reset}`);
+  console.log(`${colors.bold}Translation Coverage Report${colors.reset}`);
   console.log('='.repeat(60));
 
   const fullyTranslated = results.filter(r => r.isComplete);
   const partiallyTranslated = results.filter(r => !r.isComplete);
 
   if (fullyTranslated.length > 0) {
-    console.log(`\n${colors.green}✅ Fully Translated (${fullyTranslated.length} languages):${colors.reset}`);
+    console.log(`\n${colors.green}Fully Translated (${fullyTranslated.length} languages):${colors.reset}`);
     fullyTranslated.forEach(result => {
       console.log(`   ${colors.green}${result.locale}${colors.reset} (${result.displayName}) - ${result.coverage}%`);
     });
   }
 
   if (partiallyTranslated.length > 0) {
-    console.log(`\n${colors.yellow}⚠️  Needs Translation (${partiallyTranslated.length} languages):${colors.reset}`);
+    console.log(`\n${colors.yellow}Needs Translation (${partiallyTranslated.length} languages):${colors.reset}`);
     partiallyTranslated.forEach(result => {
       const coverageColor = result.coverage >= 80 ? colors.yellow : colors.red;
       console.log(`   ${coverageColor}${result.locale}${colors.reset} (${result.displayName}) - ${coverageColor}${result.coverage}%${colors.reset} (${result.missingKeys.length} missing)`);
@@ -201,14 +201,14 @@ function main() {
   const avgCoverage = results.reduce((sum, r) => sum + r.coverage, 0) / results.length;
   const totalMissingKeys = results.reduce((sum, r) => sum + r.missingKeys.length, 0);
 
-  console.log(`\n${colors.bold}📈 Summary:${colors.reset}`);
+  console.log(`\n${colors.bold}Summary:${colors.reset}`);
   console.log(`   Average coverage: ${avgCoverage.toFixed(1)}%`);
   console.log(`   Total missing translations: ${totalMissingKeys}`);
   console.log(`   Languages needing work: ${partiallyTranslated.length}/${results.length}`);
 
   // Generate templates for missing translations
   if (process.argv.includes('--generate-templates')) {
-    console.log(`\n${colors.cyan}🔧 Generating translation templates...${colors.reset}`);
+    console.log(`\n${colors.cyan}Generating translation templates...${colors.reset}`);
     
     partiallyTranslated.forEach(result => {
       if (result.missingKeys.length > 0) {
@@ -230,7 +230,7 @@ function main() {
     console.log(`\n${colors.yellow}Use --generate-templates flag to create missing key templates${colors.reset}`);
     process.exit(1);
   } else {
-    console.log(`\n${colors.green}🎉 All translations are complete!${colors.reset}`);
+    console.log(`\n${colors.green}All translations are complete!${colors.reset}`);
     process.exit(0);
   }
 }

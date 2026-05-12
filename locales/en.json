@@ -357,6 +357,7 @@
       "rmapi_host": "reMarkable Host (optional)",
       "default_directory": "Default Directory",
       "cover_page": "Cover Page",
+      "contrast": "Contrast Filter",
       "conflict_resolution": "On Conflict",
       "folder_depth_limit": "Folder Depth Limit",
       "folder_exclusion_list": "Excluded Folders",
@@ -393,6 +394,10 @@
       "conflict_abort": "Abort",
       "conflict_overwrite": "Overwrite",
       "conflict_content_only": "Content Only",
+      "contrast_none": "None (default)",
+      "contrast_off": "Off",
+      "contrast_fullpage": "Full Page",
+      "contrast_adaptive": "Adaptive",
       "pdf": "PDF",
       "epub": "EPUB"
     },
@@ -415,6 +420,7 @@
     },
     "help": {
       "cover_page": "Controls whether the first page or current page is used as the cover for uploaded documents",
+      "contrast": "Apply a contrast filter to uploaded PDFs and EPUBs for improved readability on the reMarkable screen",
       "conflict_resolution": "Choose what happens when uploading a document with the same name as an existing document. Content Only preserves annotations and only works for PDFs and images - it will Abort for EPUBs. Overwrite completely replaces documents.",
       "folder_depth_limit": "Maximum folder depth to display (leave empty for unlimited)",
       "folder_exclusion_list": "Comma-separated list of folder names to exclude, case-sensitive",
