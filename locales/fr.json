@@ -61,7 +61,8 @@
     "pair_with_remarkable": "Coupler avec reMarkable cloud",
     "to_upload_documents": " pour télécharger des documents.",
     "settings_config": " Allez dans Paramètres pour une configuration supplémentaire.",
-    "remove_background": "Supprimer l'arrière-plan"
+    "remove_background": "Supprimer l'arrière-plan",
+    "download_copy": "Télécharger une copie"
   },
   "filedrop": {
     "instruction": "Cliquez pour télécharger ou glissez-déposez",
@@ -457,7 +458,8 @@
       "page_dpi": "DPI de page",
       "conversion_output_format": "Format de sortie de conversion",
       "enable_experimental": "Activer les fonctionnalités expérimentales",
-      "pdf_background_removal": "Suppression de l'arrière-plan PDF"
+      "pdf_background_removal": "Suppression de l'arrière-plan PDF",
+      "experimental_download_link": "Lien de téléchargement"
     },
     "actions": {
       "unpair": "Découpler",
@@ -511,7 +513,8 @@
       "folder_depth_limit": "Profondeur maximale des dossiers à afficher (laisser vide pour illimité)",
       "folder_exclusion_list": "Liste séparée par des virgules des noms de dossiers à exclure, sensible à la casse",
       "enable_experimental": "Activer l'accès aux fonctionnalités expérimentales qui peuvent être modifiées ou supprimées dans les versions futures",
-      "pdf_background_removal": "Activer l'option pour supprimer les images d'arrière-plan des PDF."
+      "pdf_background_removal": "Activer l'option pour supprimer les images d'arrière-plan des PDF.",
+      "experimental_download_link": "Afficher un lien de téléchargement temporaire après l'envoi d'un document sur votre appareil."
     },
     "status": {
       "active": "Actif",

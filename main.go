@@ -2,6 +2,7 @@ package main
 
 import (
 	// standard library
+	"context"
 	"embed"
 	"fmt"
 	"io/fs"
@@ -9,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	// third-party
 	"github.com/gin-gonic/gin"
@@ -21,6 +23,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/downloader"
+	"github.com/rmitchellscott/aviary/internal/downloads"
 	"github.com/rmitchellscott/aviary/internal/handlers"
 	"github.com/rmitchellscott/aviary/internal/logging"
 	"github.com/rmitchellscott/aviary/internal/manager"
@@ -44,6 +47,13 @@ func main() {
 	// Initialize storage backend early
 	if err := storage.InitializeStorage(); err != nil {
 		log.Fatalf("Failed to initialize storage: %v", err)
+	}
+
+	if config.GetBool("EXPERIMENTAL_DOWNLOAD_LINK", false) {
+		downloads.CleanupAll(context.Background())
+		downloads.StartCleanup(5 * time.Minute)
+		logging.Logf("[STARTUP] Experimental download link feature enabled (TTL: %v)",
+			config.GetDuration("DOWNLOAD_LINK_TTL", 1*time.Hour))
 	}
 
 	if len(os.Args) > 1 && (os.Args[1] == "--version" || os.Args[1] == "-v") {
@@ -247,6 +257,7 @@ func main() {
 	protected.GET("/status/:id", webhook.StatusHandler)
 	protected.GET("/status/ws/:id", webhook.StatusWSHandler)
 	protected.GET("/sniff", downloader.SniffHandler)
+	protected.GET("/download/:token", downloads.DownloadHandler)
 	protected.GET("/folders", manager.FoldersHandler)
 	protected.GET("/version", func(c *gin.Context) {
 		c.JSON(http.StatusOK, version.Get())

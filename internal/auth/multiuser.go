@@ -55,6 +55,7 @@ type UserResponse struct {
 	ConversionOutputFormat string     `json:"conversion_output_format,omitempty"`
 	RmapiPaired            bool       `json:"rmapi_paired"`
 	PDFBackgroundRemoval   *bool      `json:"pdf_background_removal,omitempty"`
+	ExperimentalDownloadLink *bool   `json:"experimental_download_link,omitempty"`
 	CreatedAt              time.Time  `json:"created_at"`
 	LastLogin              *time.Time `json:"last_login,omitempty"`
 }
@@ -78,8 +79,9 @@ func userToResponse(user *database.User) UserResponse {
 		PageResolution:         user.PageResolution,
 		PageDPI:                user.PageDPI,
 		ConversionOutputFormat: user.ConversionOutputFormat,
-		PDFBackgroundRemoval:   user.PDFBackgroundRemoval,
-		CreatedAt:              user.CreatedAt,
+		PDFBackgroundRemoval:     user.PDFBackgroundRemoval,
+		ExperimentalDownloadLink: user.ExperimentalDownloadLink,
+		CreatedAt:                user.CreatedAt,
 		LastLogin:              user.LastLogin,
 	}
 }

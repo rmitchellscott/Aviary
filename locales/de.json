@@ -61,7 +61,8 @@
     "pair_with_remarkable": "Mit reMarkable Cloud koppeln",
     "to_upload_documents": " um Dokumente hochzuladen.",
     "settings_config": " Gehen Sie zu den Einstellungen für weitere Konfiguration.",
-    "remove_background": "Hintergrund entfernen"
+    "remove_background": "Hintergrund entfernen",
+    "download_copy": "Eine Kopie herunterladen"
   },
   "filedrop": {
     "instruction": "Zum Hochladen klicken oder Datei hierher ziehen",
@@ -376,7 +377,8 @@
       "page_dpi": "Seiten-DPI",
       "conversion_output_format": "Konvertierungs-Ausgabeformat",
       "enable_experimental": "Experimentelle Funktionen aktivieren",
-      "pdf_background_removal": "PDF-Hintergrundentfernung"
+      "pdf_background_removal": "PDF-Hintergrundentfernung",
+      "experimental_download_link": "Download-Link"
     },
     "actions": {
       "unpair": "Entkoppeln",
@@ -430,7 +432,8 @@
       "folder_exclusion_list": "Kommagetrennte Liste von Ordnernamen zum Ausschließen, groß-/kleinschreibungsempfindlich",
       "conversion_output_format": "Standardformat für Web-Artikel, HTML- und Markdown-Dateien.",
       "enable_experimental": "Aktivieren Sie den Zugriff auf experimentelle Funktionen, die sich in zukünftigen Versionen ändern oder entfernt werden können",
-      "pdf_background_removal": "Aktivieren Sie die Option zum Entfernen von Hintergrundbildern aus PDFs."
+      "pdf_background_removal": "Aktivieren Sie die Option zum Entfernen von Hintergrundbildern aus PDFs.",
+      "experimental_download_link": "Zeigt nach dem Hochladen eines Dokuments auf Ihr Gerät einen temporären Download-Link an."
     },
     "status": {
       "active": "Aktiv",

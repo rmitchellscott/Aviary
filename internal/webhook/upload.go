@@ -113,6 +113,7 @@ func UploadHandler(c *gin.Context) {
 			"archive":           archiveVal,
 			"rm_dir":            rmDirVal,
 			"remove_background": removeBackgroundVal,
+			"source":            "ui",
 		}
 		jobId = enqueueJobForUser(form, userID)
 	} else {
@@ -129,6 +130,7 @@ func UploadHandler(c *gin.Context) {
 			"archive":           archiveVal,
 			"rm_dir":            rmDirVal,
 			"remove_background": removeBackgroundVal,
+			"source":            "ui",
 		}
 		jobId = enqueueJobForUser(form, userID)
 	}

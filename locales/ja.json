@@ -61,7 +61,8 @@
     "pair_with_remarkable": "reMarkableクラウドとペアリング",
     "to_upload_documents": "ドキュメントをアップロードするために。",
     "settings_config": "追加設定のために設定に移動してください。",
-    "remove_background": "背景を削除"
+    "remove_background": "背景を削除",
+    "download_copy": "コピーをダウンロード"
   },
   "filedrop": {
     "instruction": "クリックしてアップロードするか、ドラッグ&ドロップしてください",
@@ -376,7 +377,8 @@
       "page_dpi": "ページDPI",
       "conversion_output_format": "変換出力形式",
       "enable_experimental": "実験的機能を有効にする",
-      "pdf_background_removal": "PDF背景削除"
+      "pdf_background_removal": "PDF背景削除",
+      "experimental_download_link": "ダウンロードリンク"
     },
     "actions": {
       "unpair": "ペアリング解除",
@@ -430,7 +432,8 @@
       "folder_exclusion_list": "除外するフォルダ名のカンマ区切りリスト、大文字小文字を区別",
       "conversion_output_format": "Webの記事、HTML、Markdownファイルのデフォルト形式。",
       "enable_experimental": "将来のバージョンで変更または削除される可能性のある実験的機能へのアクセスを有効にする",
-      "pdf_background_removal": "PDFから背景画像を削除するオプションを有効にする。"
+      "pdf_background_removal": "PDFから背景画像を削除するオプションを有効にする。",
+      "experimental_download_link": "デバイスへのドキュメントのアップロード後に一時的なダウンロードリンクを表示します。"
     },
     "status": {
       "active": "アクティブ",

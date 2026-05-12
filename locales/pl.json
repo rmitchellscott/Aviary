@@ -61,7 +61,8 @@
     "pair_with_remarkable": "Sparuj z chmurą reMarkable",
     "to_upload_documents": " aby przesłać dokumenty.",
     "settings_config": " Przejdź do Ustawień dla dodatkowej konfiguracji.",
-    "remove_background": "Usuń Tło"
+    "remove_background": "Usuń Tło",
+    "download_copy": "Pobierz kopię"
   },
   "filedrop": {
     "instruction": "Kliknij, aby przesłać lub przeciągnij i upuść",
@@ -376,7 +377,8 @@
       "page_dpi": "DPI strony",
       "conversion_output_format": "Format Wyjściowy Konwersji",
       "enable_experimental": "Włącz funkcje eksperymentalne",
-      "pdf_background_removal": "Usuwanie tła z PDF"
+      "pdf_background_removal": "Usuwanie tła z PDF",
+      "experimental_download_link": "Link do pobrania"
     },
     "actions": {
       "unpair": "Odparuj",
@@ -430,7 +432,8 @@
       "conversion_output_format": "Domyślny format dla artykułów internetowych, plików HTML i Markdown.",
       "default_directory": "Wybierz domyślny folder, do którego będą przesyłane Twoje dokumenty",
       "enable_experimental": "Włącz dostęp do funkcji eksperymentalnych, które mogą ulec zmianie lub zostać usunięte w przyszłych wersjach",
-      "pdf_background_removal": "Włącz opcję usuwania obrazów tła z plików PDF."
+      "pdf_background_removal": "Włącz opcję usuwania obrazów tła z plików PDF.",
+      "experimental_download_link": "Pokaż tymczasowy link do pobrania po przesłaniu dokumentu na urządzenie."
     },
     "status": {
       "active": "Aktywny",

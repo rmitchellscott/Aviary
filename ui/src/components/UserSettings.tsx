@@ -157,6 +157,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
   const [folderDepthLimit, setFolderDepthLimit] = useState("");
   const [folderExclusionList, setFolderExclusionList] = useState("");
   const [pdfBackgroundRemoval, setPdfBackgroundRemoval] = useState(false);
+  const [experimentalDownloadLink, setExperimentalDownloadLink] = useState(false);
 
   // Original values for change tracking
   const [originalValues, setOriginalValues] = useState({
@@ -173,7 +174,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
     conversionOutputFormat: "epub",
     folderDepthLimit: "",
     folderExclusionList: "",
-    pdfBackgroundRemoval: false
+    pdfBackgroundRemoval: false,
+    experimentalDownloadLink: false
   });
   
   const [folders, setFolders] = useState<string[]>([]);
@@ -225,6 +227,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
         const outputFormat = user.conversion_output_format || "epub";
         const bgRemoval = user.pdf_background_removal ?? false;
+        const dlLink = user.experimental_download_link ?? false;
 
         setUsername(user.username);
         setEmail(email);
@@ -240,6 +243,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         setManualPageDPI(manualDPI);
         setConversionOutputFormat(outputFormat);
         setPdfBackgroundRemoval(bgRemoval);
+        setExperimentalDownloadLink(dlLink);
       }
     }
   }, [isOpen, user]);
@@ -260,6 +264,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       const manualDPI = detectedPreset === "manual" ? (user.page_dpi?.toString() || "") : "";
       const outputFormat = user.conversion_output_format || "epub";
       const bgRemoval = user.pdf_background_removal ?? false;
+      const dlLink = user.experimental_download_link ?? false;
 
       setUsername(user.username);
       setEmail(email);
@@ -275,6 +280,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setManualPageDPI(manualDPI);
       setConversionOutputFormat(outputFormat);
       setPdfBackgroundRemoval(bgRemoval);
+      setExperimentalDownloadLink(dlLink);
 
       setOriginalValues({
         username: user.username,
@@ -290,7 +296,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         manualPageResolution: manualResolution,
         manualPageDPI: manualDPI,
         conversionOutputFormat: outputFormat,
-        pdfBackgroundRemoval: bgRemoval
+        pdfBackgroundRemoval: bgRemoval,
+        experimentalDownloadLink: dlLink
       });
     }
   }, [user]);
@@ -347,6 +354,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       setFolderDepthLimit("");
       setFolderExclusionList("");
       setPdfBackgroundRemoval(false);
+      setExperimentalDownloadLink(false);
 
       setOriginalValues({
         username: "",
@@ -362,7 +370,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
         conversionOutputFormat: "epub",
         folderDepthLimit: "",
         folderExclusionList: "",
-        pdfBackgroundRemoval: false
+        pdfBackgroundRemoval: false,
+        experimentalDownloadLink: false
       });
       
       setFolders([]);
@@ -455,7 +464,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
       manualPageResolution !== originalValues.manualPageResolution ||
       manualPageDPI !== originalValues.manualPageDPI ||
       conversionOutputFormat !== originalValues.conversionOutputFormat ||
-      pdfBackgroundRemoval !== originalValues.pdfBackgroundRemoval
+      pdfBackgroundRemoval !== originalValues.pdfBackgroundRemoval ||
+      experimentalDownloadLink !== originalValues.experimentalDownloadLink
     );
   };
 
@@ -482,6 +492,7 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           folder_exclusion_list: folderExclusionList,
           conversion_output_format: conversionOutputFormat,
           pdf_background_removal: pdfBackgroundRemoval,
+          experimental_download_link: experimentalDownloadLink,
           ...pageSettings,
         }),
       });
@@ -510,7 +521,8 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
           manualPageResolution: manualResolution,
           manualPageDPI: manualDPI,
           conversionOutputFormat: conversionOutputFormat,
-          pdfBackgroundRemoval
+          pdfBackgroundRemoval,
+          experimentalDownloadLink
         });
 
         // Trigger folder refresh if folder settings changed
@@ -1165,6 +1177,19 @@ export function UserSettings({ isOpen, onClose }: UserSettingsProps) {
                       <Switch
                         checked={pdfBackgroundRemoval}
                         onCheckedChange={setPdfBackgroundRemoval}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between md:w-1/2">
+                      <div className="space-y-0.5">
+                        <Label>{t("settings.labels.experimental_download_link")}</Label>
+                        <p className="text-sm text-muted-foreground">
+                          {t("settings.help.experimental_download_link")}
+                        </p>
+                      </div>
+                      <Switch
+                        checked={experimentalDownloadLink}
+                        onCheckedChange={setExperimentalDownloadLink}
                       />
                     </div>
                   </div>

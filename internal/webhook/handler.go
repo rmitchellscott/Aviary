@@ -24,6 +24,7 @@ import (
 	"github.com/rmitchellscott/aviary/internal/compressor"
 	"github.com/rmitchellscott/aviary/internal/config"
 	"github.com/rmitchellscott/aviary/internal/converter"
+	"github.com/rmitchellscott/aviary/internal/downloads"
 	"github.com/rmitchellscott/aviary/internal/database"
 	"github.com/rmitchellscott/aviary/internal/downloader"
 	"github.com/rmitchellscott/aviary/internal/jobs"
@@ -264,6 +265,7 @@ func EnqueueHandler(c *gin.Context) {
 			"contrast":            c.PostForm("contrast"),
 			"currentpage":         c.PostForm("currentpage"),
 			"remove_background":   c.PostForm("remove_background"),
+			"source":              "ui",
 		}
 		id := enqueueJobForUser(form, userID)
 		c.JSON(http.StatusAccepted, gin.H{"jobId": id})
@@ -874,7 +876,18 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 	fullPath := filepath.Join(rmDir, remoteName)
 	fullPath = strings.TrimPrefix(fullPath, "/")
 	jobStore.UpdateProgress(jobID, 100)
-	return "backend.status.upload_success", map[string]string{"path": fullPath}, nil
+
+	data := map[string]string{"path": fullPath}
+
+	if shouldOfferDownloadLink(dbUser) && form["source"] == "ui" {
+		if token, dlErr := downloads.Register(finalLocalPath, filepath.Base(finalLocalPath)); dlErr != nil {
+			manager.Logf("download link warning: %v", dlErr)
+		} else {
+			data["download_token"] = token
+		}
+	}
+
+	return "backend.status.upload_success", data, nil
 }
 
 // enqueueDocumentJob processes document content instead of URLs
@@ -1130,6 +1143,13 @@ func getOutputFormat(form map[string]string, dbUser *database.User) string {
 
 	// Fall back to environment config
 	return config.GetConversionOutputFormat()
+}
+
+func shouldOfferDownloadLink(dbUser *database.User) bool {
+	if dbUser != nil && dbUser.ExperimentalDownloadLink != nil {
+		return *dbUser.ExperimentalDownloadLink
+	}
+	return config.GetBool("EXPERIMENTAL_DOWNLOAD_LINK", false)
 }
 
 func shouldRemoveBackground(form map[string]string, _ *database.User) bool {
@@ -1409,6 +1429,17 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 		}
 	}
 
+	var downloadTokens []string
+	if shouldOfferDownloadLink(dbUser) && form["source"] == "ui" {
+		for _, filePath := range finalPaths {
+			if token, dlErr := downloads.Register(filePath, filepath.Base(filePath)); dlErr != nil {
+				manager.Logf("download link warning: %v", dlErr)
+			} else {
+				downloadTokens = append(downloadTokens, token)
+			}
+		}
+	}
+
 	for _, path := range cleanupPaths {
 		if securePath, err := security.NewSecurePathFromExisting(path); err == nil {
 			if security.SafeStatExists(securePath) {
@@ -1426,6 +1457,13 @@ func processMultipleFilesForUser(jobID string, form map[string]string, userID uu
 		return "backend.status.upload_success_multiple", map[string]string{"paths": strings.Join(uploadedPaths, "\n")}, nil
 	}
 
+	data := map[string]string{"paths": string(pathsJSONBytes)}
+	if len(downloadTokens) > 0 {
+		if tokensJSON, jsonErr := json.Marshal(downloadTokens); jsonErr == nil {
+			data["download_tokens"] = string(tokensJSON)
+		}
+	}
+
 	jobStore.UpdateProgress(jobID, 100)
-	return "backend.status.upload_success_multiple", map[string]string{"paths": string(pathsJSONBytes)}, nil
+	return "backend.status.upload_success_multiple", data, nil
 }

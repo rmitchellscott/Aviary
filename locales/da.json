@@ -61,7 +61,8 @@
     "pair_with_remarkable": "Parr med reMarkable cloud",
     "to_upload_documents": " for at uploade dokumenter.",
     "settings_config": " Gå til Indstillinger for yderligere konfiguration.",
-    "remove_background": "Fjern Baggrund"
+    "remove_background": "Fjern Baggrund",
+    "download_copy": "Download en kopi"
   },
   "filedrop": {
     "instruction": "Klik for at uploade eller træk og slip",
@@ -376,7 +377,8 @@
       "page_dpi": "Side DPI",
       "conversion_output_format": "Konverteringsoutputformat",
       "enable_experimental": "Aktiver Eksperimentelle Funktioner",
-      "pdf_background_removal": "PDF Baggrundsfjerning"
+      "pdf_background_removal": "PDF Baggrundsfjerning",
+      "experimental_download_link": "Downloadlink"
     },
     "actions": {
       "unpair": "Afpar",
@@ -430,7 +432,8 @@
       "folder_exclusion_list": "Kommasepareret liste over mappenavne at ekskludere, forskel på store og små bogstaver",
       "conversion_output_format": "Standardformat for webartikler, HTML og Markdown filer.",
       "enable_experimental": "Aktiver adgang til eksperimentelle funktioner der kan ændres eller fjernes i fremtidige versioner",
-      "pdf_background_removal": "Aktiver mulighed for at fjerne baggrundsbilleder fra PDF'er."
+      "pdf_background_removal": "Aktiver mulighed for at fjerne baggrundsbilleder fra PDF'er.",
+      "experimental_download_link": "Vis et midlertidigt downloadlink efter upload af et dokument til din enhed."
     },
     "status": {
       "active": "Aktiv",

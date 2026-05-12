@@ -61,7 +61,8 @@
     "pair_with_remarkable": "Collega con reMarkable cloud",
     "to_upload_documents": " per caricare documenti.",
     "settings_config": " Vai su Impostazioni per configurazioni aggiuntive.",
-    "remove_background": "Rimuovi Sfondo"
+    "remove_background": "Rimuovi Sfondo",
+    "download_copy": "Scarica una copia"
   },
   "filedrop": {
     "instruction": "Clicca per caricare o trascina e rilascia",
@@ -433,7 +434,8 @@
       "page_dpi": "DPI pagina",
       "conversion_output_format": "Formato di Output Conversione",
       "enable_experimental": "Abilita Funzionalità Sperimentali",
-      "pdf_background_removal": "Rimozione Sfondo PDF"
+      "pdf_background_removal": "Rimozione Sfondo PDF",
+      "experimental_download_link": "Link di Download"
     },
     "actions": {
       "unpair": "Scollega",
@@ -487,7 +489,8 @@
       "folder_depth_limit": "Profondità massima delle cartelle da visualizzare (lascia vuoto per illimitato)",
       "folder_exclusion_list": "Lista separata da virgole di nomi di cartelle da escludere, sensibile alle maiuscole",
       "enable_experimental": "Abilita l'accesso a funzionalità sperimentali che potrebbero cambiare o essere rimosse nelle versioni future",
-      "pdf_background_removal": "Abilita l'opzione per rimuovere le immagini di sfondo dai PDF."
+      "pdf_background_removal": "Abilita l'opzione per rimuovere le immagini di sfondo dai PDF.",
+      "experimental_download_link": "Mostra un link di download temporaneo dopo aver caricato un documento sul tuo dispositivo."
     },
     "status": {
       "active": "Attivo",

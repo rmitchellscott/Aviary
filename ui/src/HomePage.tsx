@@ -221,6 +221,7 @@ export default function HomePage() {
 
   // Show background removal toggle if user has it enabled (multi-user) or config has it enabled (single-user)
   const showBgRemovalToggle = user?.pdf_background_removal || (!multiUserMode && config?.pdf_background_removal);
+  const showDownloadLink = user?.experimental_download_link || (!multiUserMode && config?.experimentalDownloadLink);
 
   useEffect(() => {
     if (!showBgRemovalToggle || !isPDFFileOrUrl) {
@@ -943,6 +944,42 @@ export default function HomePage() {
               })()}
             </div>
           )}
+          {status === "success" && showDownloadLink && (() => {
+            const singleToken = statusData?.download_token;
+            let multiTokens: string[] = [];
+            if (statusData?.download_tokens) {
+              try { multiTokens = JSON.parse(statusData.download_tokens); } catch {}
+            }
+            if (singleToken) {
+              return (
+                <a
+                  href={`/api/download/${singleToken}`}
+                  className="mt-1 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                  download
+                >
+                  {t("home.download_copy")}
+                </a>
+              );
+            }
+            if (multiTokens.length > 0) {
+              return (
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {multiTokens.map((token, i) => (
+                    <a
+                      key={token}
+                      href={`/api/download/${token}`}
+                      className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                      download
+                    >
+                      <Download className="size-3.5" />
+                      {t("home.download_copy")} {multiTokens.length > 1 ? `(${i + 1})` : ""}
+                    </a>
+                  ))}
+                </div>
+              );
+            }
+            return null;
+          })()}
           {(uploadPhase === 'uploading' && uploadProgress > 0 && uploadProgress < 100) ||
            (status === "running" && progress > 0 && progress < 100) ? (
               <Progress

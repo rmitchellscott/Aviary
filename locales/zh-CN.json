@@ -61,7 +61,8 @@
     "pair_with_remarkable": "与reMarkable云配对",
     "to_upload_documents": " 以上传文档。",
     "settings_config": " 转到设置进行其他配置。",
-    "remove_background": "移除背景"
+    "remove_background": "移除背景",
+    "download_copy": "下载副本"
   },
   "filedrop": {
     "instruction": "点击上传或拖拽文件",
@@ -376,7 +377,8 @@
       "page_dpi": "页面DPI",
       "conversion_output_format": "转换输出格式",
       "enable_experimental": "启用实验性功能",
-      "pdf_background_removal": "PDF背景移除"
+      "pdf_background_removal": "PDF背景移除",
+      "experimental_download_link": "下载链接"
     },
     "actions": {
       "unpair": "取消配对",
@@ -430,7 +432,8 @@
       "folder_depth_limit": "显示的最大文件夹深度（留空表示无限制）",
       "folder_exclusion_list": "要排除的文件夹名称的逗号分隔列表，区分大小写",
       "enable_experimental": "启用对可能在未来版本中更改或移除的实验性功能的访问",
-      "pdf_background_removal": "启用从PDF中移除背景图像的选项。"
+      "pdf_background_removal": "启用从PDF中移除背景图像的选项。",
+      "experimental_download_link": "上传文档到您的设备后显示临时下载链接。"
     },
     "status": {
       "active": "活动",

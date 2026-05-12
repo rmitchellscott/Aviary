@@ -29,6 +29,7 @@ type UpdateUserRequest struct {
 	IsActive               *bool    `json:"is_active,omitempty"`
 	// PDF processing
 	PDFBackgroundRemoval *bool `json:"pdf_background_removal,omitempty"`
+	ExperimentalDownloadLink *bool `json:"experimental_download_link,omitempty"`
 }
 
 // UpdatePasswordRequest represents a password update request
@@ -368,6 +369,10 @@ func UpdateCurrentUserHandler(c *gin.Context) {
 
 	if req.PDFBackgroundRemoval != nil {
 		updates["pdf_background_removal"] = *req.PDFBackgroundRemoval
+	}
+
+	if req.ExperimentalDownloadLink != nil {
+		updates["experimental_download_link"] = *req.ExperimentalDownloadLink
 	}
 
 	if len(updates) == 0 {

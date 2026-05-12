@@ -15,6 +15,7 @@ interface Config {
   oidcGroupBasedAdmin: boolean;
   rmapi_paired?: boolean;
   pdf_background_removal?: boolean;
+  experimentalDownloadLink?: boolean;
 }
 
 interface ConfigContextType {

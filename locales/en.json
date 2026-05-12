@@ -61,7 +61,8 @@
     "pair_with_remarkable": "Pair with reMarkable cloud",
     "to_upload_documents": " to upload documents.",
     "settings_config": " Go to Settings for additional configuration.",
-    "remove_background": "Remove Background"
+    "remove_background": "Remove Background",
+    "download_copy": "Download a copy"
   },
   "filedrop": {
     "instruction": "Click to upload or drag and drop",
@@ -376,7 +377,8 @@
       "page_dpi": "Page DPI",
       "conversion_output_format": "Conversion Format",
       "enable_experimental": "Enable Experimental Features",
-      "pdf_background_removal": "PDF Background Removal"
+      "pdf_background_removal": "PDF Background Removal",
+      "experimental_download_link": "Download Link"
     },
     "actions": {
       "unpair": "Unpair",
@@ -430,7 +432,8 @@
       "conversion_output_format": "Default format for web articles, HTML, and Markdown files.",
       "default_directory": "Choose the default folder on your reMarkable where your documents will be uploaded",
       "enable_experimental": "Enable access to experimental features that may change or be removed in future versions",
-      "pdf_background_removal": "Enable option to remove background images from PDFs."
+      "pdf_background_removal": "Enable option to remove background images from PDFs.",
+      "experimental_download_link": "Show a temporary download link after uploading a document to your device."
     },
     "status": {
       "active": "Active",

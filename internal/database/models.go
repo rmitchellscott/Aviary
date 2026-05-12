@@ -33,6 +33,7 @@ type User struct {
 
 	// PDF processing settings
 	PDFBackgroundRemoval *bool `gorm:"column:pdf_background_removal" json:"pdf_background_removal"`
+	ExperimentalDownloadLink *bool `gorm:"column:experimental_download_link" json:"experimental_download_link"`
 	
 	// Password reset
 	ResetToken        string    `gorm:"index" json:"-"`
