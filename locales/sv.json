@@ -61,7 +61,8 @@
     "pair_with_remarkable": "Para med reMarkable-molnet",
     "to_upload_documents": " för att ladda upp dokument.",
     "settings_config": " Gå till Inställningar för ytterligare konfiguration.",
-    "remove_background": "Ta bort bakgrund"
+    "remove_background": "Ta bort bakgrund",
+    "download_copy": "Ladda ner en kopia"
   },
   "filedrop": {
     "instruction": "Klicka för att ladda upp eller dra och släpp",
@@ -376,7 +377,8 @@
       "page_dpi": "Sid-DPI",
       "conversion_output_format": "Konverteringsutdataformat",
       "enable_experimental": "Aktivera experimentella funktioner",
-      "pdf_background_removal": "Ta bort PDF-bakgrund"
+      "pdf_background_removal": "Ta bort PDF-bakgrund",
+      "experimental_download_link": "Nedladdningslänk"
     },
     "actions": {
       "unpair": "Koppla från",
@@ -430,7 +432,8 @@
       "folder_exclusion_list": "Kommaseparerad lista över mappnamn att utesluta, skiftlägeskänslig",
       "conversion_output_format": "Standardformat för webbartiklar, HTML och Markdown-filer.",
       "enable_experimental": "Aktivera åtkomst till experimentella funktioner som kan ändras eller tas bort i framtida versioner",
-      "pdf_background_removal": "Aktivera alternativet att ta bort bakgrundsbilder från PDF:er."
+      "pdf_background_removal": "Aktivera alternativet att ta bort bakgrundsbilder från PDF:er.",
+      "experimental_download_link": "Visa en tillfällig nedladdningslänk efter uppladdning av ett dokument till din enhet."
     },
     "status": {
       "active": "Aktiv",

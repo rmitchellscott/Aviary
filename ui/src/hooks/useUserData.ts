@@ -21,6 +21,7 @@ interface UserData {
   created_at: string;
   last_login?: string;
   pdf_background_removal?: boolean;
+  experimental_download_link?: boolean;
 }
 
 export function useUserData() {

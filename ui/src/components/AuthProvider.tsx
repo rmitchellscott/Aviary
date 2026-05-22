@@ -22,6 +22,7 @@ interface User {
   page_dpi?: number
   conversion_output_format?: string
   pdf_background_removal?: boolean
+  experimental_download_link?: boolean
   created_at: string
   last_login?: string
 }

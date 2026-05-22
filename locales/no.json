@@ -61,7 +61,8 @@
     "pair_with_remarkable": "Koble med reMarkable sky",
     "to_upload_documents": " for å laste opp dokumenter.",
     "settings_config": " Gå til Innstillinger for ytterligere konfigurasjon.",
-    "remove_background": "Fjern bakgrunn"
+    "remove_background": "Fjern bakgrunn",
+    "download_copy": "Last ned en kopi"
   },
   "filedrop": {
     "instruction": "Klikk for å laste opp eller dra og slipp",
@@ -376,7 +377,8 @@
       "page_dpi": "Side DPI",
       "conversion_output_format": "Konverteringsformat",
       "enable_experimental": "Aktiver eksperimentelle funksjoner",
-      "pdf_background_removal": "PDF bakgrunnsfjerning"
+      "pdf_background_removal": "PDF bakgrunnsfjerning",
+      "experimental_download_link": "Nedlastingslenke"
     },
     "actions": {
       "unpair": "Koble fra",
@@ -430,7 +432,8 @@
       "folder_depth_limit": "Maksimal mappedybde å vise (la stå tom for ubegrenset)",
       "folder_exclusion_list": "Kommaseparert liste over mappenavn å ekskludere, skiller mellom store og små bokstaver",
       "enable_experimental": "Aktiver tilgang til eksperimentelle funksjoner som kan endres eller fjernes i fremtidige versjoner",
-      "pdf_background_removal": "Aktiver mulighet til å fjerne bakgrunnsbilder fra PDF-er."
+      "pdf_background_removal": "Aktiver mulighet til å fjerne bakgrunnsbilder fra PDF-er.",
+      "experimental_download_link": "Vis en midlertidig nedlastingslenke etter opplasting av et dokument til enheten din."
     },
     "status": {
       "active": "Aktiv",

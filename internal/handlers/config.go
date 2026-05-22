@@ -104,7 +104,8 @@ func ConfigHandler(c *gin.Context) {
 		"oidcSsoOnly":      oidcSsoOnly,
 		"oidcButtonText":   oidcButtonText,
 		"proxyAuthEnabled": proxyAuthEnabled,
-		"oidcGroupBasedAdmin": auth.IsOIDCGroupBasedAdminEnabled(),
+		"oidcGroupBasedAdmin":       auth.IsOIDCGroupBasedAdminEnabled(),
+		"experimentalDownloadLink":  config.GetBool("EXPERIMENTAL_DOWNLOAD_LINK", false),
 	}
 
 	// Add single-user mode specific settings

@@ -61,7 +61,8 @@
     "pair_with_remarkable": "Koppel met reMarkable cloud",
     "to_upload_documents": " om documenten te uploaden.",
     "settings_config": " Ga naar Instellingen voor aanvullende configuratie.",
-    "remove_background": "Achtergrond Verwijderen"
+    "remove_background": "Achtergrond Verwijderen",
+    "download_copy": "Een kopie downloaden"
   },
   "filedrop": {
     "instruction": "Klik om te uploaden of sleep en drop",
@@ -376,7 +377,8 @@
       "page_dpi": "Pagina DPI",
       "conversion_output_format": "Conversie Uitvoerformaat",
       "enable_experimental": "Experimentele Functies Inschakelen",
-      "pdf_background_removal": "PDF Achtergrondverwijdering"
+      "pdf_background_removal": "PDF Achtergrondverwijdering",
+      "experimental_download_link": "Downloadlink"
     },
     "actions": {
       "unpair": "Ontkoppelen",
@@ -430,7 +432,8 @@
       "folder_exclusion_list": "Kommagescheiden lijst van mapnamen om uit te sluiten, hoofdlettergevoelig",
       "conversion_output_format": "Standaardformaat voor webartikelen, HTML- en Markdown-bestanden.",
       "enable_experimental": "Schakel toegang in tot experimentele functies die in toekomstige versies kunnen worden gewijzigd of verwijderd",
-      "pdf_background_removal": "Schakel optie in om achtergrondafbeeldingen uit PDF's te verwijderen."
+      "pdf_background_removal": "Schakel optie in om achtergrondafbeeldingen uit PDF's te verwijderen.",
+      "experimental_download_link": "Toon een tijdelijke downloadlink na het uploaden van een document naar uw apparaat."
     },
     "status": {
       "active": "Actief",

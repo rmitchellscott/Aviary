@@ -61,7 +61,8 @@
     "pair_with_remarkable": "Yhdistä reMarkable-pilveen",
     "to_upload_documents": " asiakirjojen lataamiseksi.",
     "settings_config": " Siirry Asetuksiin lisämäärityksiä varten.",
-    "remove_background": "Poista tausta"
+    "remove_background": "Poista tausta",
+    "download_copy": "Lataa kopio"
   },
   "filedrop": {
     "instruction": "Klikkaa ladataksesi tai raahaa ja pudota",
@@ -376,7 +377,8 @@
       "page_dpi": "Sivun DPI",
       "conversion_output_format": "Muunnoksen tulostusmuoto",
       "enable_experimental": "Ota käyttöön kokeelliset ominaisuudet",
-      "pdf_background_removal": "PDF-taustan poisto"
+      "pdf_background_removal": "PDF-taustan poisto",
+      "experimental_download_link": "Latauslinkki"
     },
     "actions": {
       "unpair": "Katkaise yhteys",
@@ -430,7 +432,8 @@
       "folder_depth_limit": "Maksimi kansiosyvyys näytettäväksi (jätä tyhjäksi rajattomaksi)",
       "folder_exclusion_list": "Pilkuilla erotettu lista poissuljetuista kansionimistä, isojen ja pienten kirjainten erotteleva",
       "enable_experimental": "Ota käyttöön kokeelliset ominaisuudet, jotka voivat muuttua tai poistua tulevissa versioissa",
-      "pdf_background_removal": "Ota käyttöön vaihtoehto poistaa taustakuvat PDF-tiedostoista."
+      "pdf_background_removal": "Ota käyttöön vaihtoehto poistaa taustakuvat PDF-tiedostoista.",
+      "experimental_download_link": "Näytä väliaikainen latauslinkki asiakirjan laitteellesi lataamisen jälkeen."
     },
     "status": {
       "active": "Aktiivinen",

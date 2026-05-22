@@ -61,7 +61,8 @@
     "pair_with_remarkable": "reMarkable 클라우드와 연결",
     "to_upload_documents": " 문서를 업로드하기 위해.",
     "settings_config": " 추가 설정을 위해 설정으로 이동하세요.",
-    "remove_background": "배경 제거"
+    "remove_background": "배경 제거",
+    "download_copy": "사본 다운로드"
   },
   "filedrop": {
     "instruction": "클릭하여 업로드하거나 드래그 앤 드롭하세요",
@@ -376,7 +377,8 @@
       "page_dpi": "페이지 DPI",
       "conversion_output_format": "변환 출력 형식",
       "enable_experimental": "실험적 기능 활성화",
-      "pdf_background_removal": "PDF 배경 제거"
+      "pdf_background_removal": "PDF 배경 제거",
+      "experimental_download_link": "다운로드 링크"
     },
     "actions": {
       "unpair": "연결 해제",
@@ -430,7 +432,8 @@
       "folder_exclusion_list": "제외할 폴더 이름의 쉼표 구분 목록, 대소문자 구분",
       "conversion_output_format": "웹 기사, HTML 및 Markdown 파일의 기본 형식입니다.",
       "enable_experimental": "향후 버전에서 변경되거나 제거될 수 있는 실험적 기능에 대한 액세스 활성화",
-      "pdf_background_removal": "PDF에서 배경 이미지를 제거하는 옵션을 활성화합니다."
+      "pdf_background_removal": "PDF에서 배경 이미지를 제거하는 옵션을 활성화합니다.",
+      "experimental_download_link": "기기에 문서를 업로드한 후 임시 다운로드 링크를 표시합니다."
     },
     "status": {
       "active": "활성",

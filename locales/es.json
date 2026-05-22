@@ -61,7 +61,8 @@
     "pair_with_remarkable": "Vincular con reMarkable cloud",
     "to_upload_documents": " para subir documentos.",
     "settings_config": " Ve a Configuración para configuración adicional.",
-    "remove_background": "Eliminar Fondo"
+    "remove_background": "Eliminar Fondo",
+    "download_copy": "Descargar una copia"
   },
   "filedrop": {
     "instruction": "Haz clic para subir o arrastra y suelta",
@@ -433,7 +434,8 @@
       "page_dpi": "DPI de Página",
       "conversion_output_format": "Formato de Salida de Conversión",
       "enable_experimental": "Habilitar Funciones Experimentales",
-      "pdf_background_removal": "Eliminación de Fondo de PDF"
+      "pdf_background_removal": "Eliminación de Fondo de PDF",
+      "experimental_download_link": "Enlace de Descarga"
     },
     "actions": {
       "unpair": "Desvincular",
@@ -487,7 +489,8 @@
       "folder_depth_limit": "Profundidad máxima de carpetas a mostrar (dejar vacío para ilimitado)",
       "folder_exclusion_list": "Lista separada por comas de nombres de carpetas a excluir, sensible a mayúsculas y minúsculas",
       "enable_experimental": "Habilitar acceso a funciones experimentales que pueden cambiar o eliminarse en versiones futuras",
-      "pdf_background_removal": "Habilitar opción para eliminar imágenes de fondo de los PDFs."
+      "pdf_background_removal": "Habilitar opción para eliminar imágenes de fondo de los PDFs.",
+      "experimental_download_link": "Mostrar un enlace de descarga temporal después de subir un documento a tu dispositivo."
     },
     "status": {
       "active": "Activo",
