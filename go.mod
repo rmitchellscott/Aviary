@@ -13,7 +13,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.97.3
 	github.com/bmaupin/go-epub v1.1.0
 	github.com/coder/websocket v1.8.14
-	github.com/coreos/go-oidc/v3 v3.17.0
+	github.com/coreos/go-oidc/v3 v3.18.0
 	github.com/gabriel-vasile/mimetype v1.4.13
 	github.com/gin-gonic/gin v1.12.0
 	github.com/glebarez/sqlite v1.11.0
@@ -26,7 +26,7 @@ require (
 	github.com/vincent-petithory/dataurl v1.0.0
 	github.com/yuin/goldmark v1.7.16
 	golang.org/x/crypto v0.48.0
-	golang.org/x/oauth2 v0.35.0
+	golang.org/x/oauth2 v0.36.0
 	golang.org/x/term v0.40.0
 	golang.org/x/text v0.34.0
 	golang.org/x/time v0.14.0
@@ -60,7 +60,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gin-contrib/sse v1.1.0 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
-	github.com/go-jose/go-jose/v4 v4.1.3 // indirect
+	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-shiori/dom v0.0.0-20230515143342-73569d674e1c // indirect
