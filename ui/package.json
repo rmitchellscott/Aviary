@@ -46,6 +46,6 @@
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.0",
     "typescript": "^5",
-    "vite": "^7.0.0"
+    "vite": "^8.0.0"
   }
 }
