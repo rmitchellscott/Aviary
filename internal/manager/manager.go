@@ -321,7 +321,7 @@ func CleanupOld(prefix, rmDir string, retentionDays int, user *database.User) er
 	}
 
 	// 1) List remote files using JSON output for reliable parsing
-	proc, cleanup := rmapi.NewCommand(user, "ls", "--json", rmDir)
+	proc, cleanup := rmapi.NewCommand(user, "--json", "ls", rmDir)
 	defer cleanup()
 	out, err := proc.Output()
 	if err != nil {
