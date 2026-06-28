@@ -49,9 +49,9 @@ func main() {
 		log.Fatalf("Failed to initialize storage: %v", err)
 	}
 
+	downloads.CleanupAll(context.Background())
+	downloads.StartCleanup(5 * time.Minute)
 	if config.GetBool("EXPERIMENTAL_DOWNLOAD_LINK", false) {
-		downloads.CleanupAll(context.Background())
-		downloads.StartCleanup(5 * time.Minute)
 		logging.Logf("[STARTUP] Experimental download link feature enabled (TTL: %v)",
 			config.GetDuration("DOWNLOAD_LINK_TTL", 1*time.Hour))
 	}
