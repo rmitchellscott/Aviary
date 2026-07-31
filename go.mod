@@ -25,7 +25,7 @@ require (
 	github.com/pdfcpu/pdfcpu v0.11.1
 	github.com/vincent-petithory/dataurl v1.0.0
 	github.com/yuin/goldmark v1.7.16
-	golang.org/x/crypto v0.51.0
+	golang.org/x/crypto v0.52.0
 	golang.org/x/oauth2 v0.35.0
 	golang.org/x/term v0.43.0
 	golang.org/x/text v0.38.0
