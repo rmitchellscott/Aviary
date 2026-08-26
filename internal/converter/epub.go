@@ -5,6 +5,7 @@ package converter
 import (
 	"crypto/md5"
 	"fmt"
+	"html"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -123,9 +124,7 @@ func ConvertHTMLToEPUB(htmlContent string, outputPath string, options EPUBOption
 
 	// Prepend source URL if provided
 	if options.SourceURL != "" {
-		sourceHeader := fmt.Sprintf(`<p style="font-size: 0.85em; color: #666; margin-bottom: 1.5em;">Source: <a href="%s">%s</a></p>`,
-			options.SourceURL, options.SourceURL)
-		processedHTML = sourceHeader + processedHTML
+		processedHTML = sourceHeaderHTML(options.SourceURL) + processedHTML
 	}
 
 	// Add the main content section
@@ -142,6 +141,13 @@ func ConvertHTMLToEPUB(htmlContent string, outputPath string, options EPUBOption
 
 	logging.Logf("[EPUB] ConvertHTMLToEPUB: successfully created EPUB")
 	return nil
+}
+
+// sourceHeaderHTML renders the attribution line linking back to the source.
+func sourceHeaderHTML(sourceURL string) string {
+	escaped := html.EscapeString(sourceURL)
+	return fmt.Sprintf(`<p style="font-size: 0.85em; color: #666; margin-bottom: 1.5em;">Source: <a href="%s">%s</a></p>`,
+		escaped, escaped)
 }
 
 // ConvertHTMLFileToEPUB reads an HTML file and converts it to EPUB.
