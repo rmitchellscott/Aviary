@@ -54,20 +54,20 @@ func ValidateURL(rawURL string) error {
 }
 
 func blockPrivateIPs() bool {
-	return config.Get("BLOCK_PRIVATE_IPS", "") == "true"
+	return config.Get("BLOCK_PRIVATE_IPS", "true") != "false"
 }
 
 // checkIPAllowed rejects an address the server must never connect to. Link-local
 // space carries the cloud metadata endpoints and is refused unconditionally.
-// The wider private ranges are refused only when BLOCK_PRIVATE_IPS is set, so a
-// self-hosted deployment can still fetch from its own network.
+// The wider private ranges are refused unless BLOCK_PRIVATE_IPS is set to false,
+// which a deployment that fetches from its own network has to opt into.
 func checkIPAllowed(ip net.IP) error {
 	if isLinkLocal(ip) {
 		return fmt.Errorf("%w: %s", ErrLinkLocal, ip.String())
 	}
 
 	if blockPrivateIPs() && isPrivateIP(ip) {
-		return fmt.Errorf("%w: %s (unset BLOCK_PRIVATE_IPS to allow)", ErrPrivateIP, ip.String())
+		return fmt.Errorf("%w: %s (set BLOCK_PRIVATE_IPS=false to allow)", ErrPrivateIP, ip.String())
 	}
 
 	return nil
@@ -82,7 +82,7 @@ func IsBlockedAddress(err error) bool {
 }
 
 // checkHostAddresses validates an IP literal directly. A hostname is resolved
-// here only when BLOCK_PRIVATE_IPS is set; otherwise the guarded dialer applies
+// here only when private ranges are blocked; otherwise the guarded dialer applies
 // checkIPAllowed to whatever address the connection actually reaches, which
 // avoids a DNS lookup on every validation and closes the rebinding gap.
 func checkHostAddresses(hostname string) error {
