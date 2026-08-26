@@ -273,10 +273,13 @@ func CheckAuthHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"authenticated": authenticated})
 }
 
-// AuthRequired checks if API authentication is configured
+// AuthRequired checks if single-user authentication is configured, by either
+// an API key or a username/password pair.
 func AuthRequired() bool {
 	envApiKey := config.Get("API_KEY", "")
-	return envApiKey != ""
+	envUsername := config.Get("AUTH_USERNAME", "")
+	envPassword := config.Get("AUTH_PASSWORD", "")
+	return envApiKey != "" || (envUsername != "" && envPassword != "")
 }
 
 // CheckSingleUserPaired checks if rmapi.conf exists for single-user mode
