@@ -14,6 +14,7 @@ var (
 	ErrInvalidURL        = errors.New("invalid URL format")
 	ErrInvalidScheme     = errors.New("URL scheme must be http or https")
 	ErrPrivateIP         = errors.New("URL points to private/local IP address")
+	ErrLinkLocal         = errors.New("URL points to a link-local address")
 	ErrBlockedDomain     = errors.New("domain is in blocklist")
 	ErrEmptyURL          = errors.New("URL cannot be empty")
 	ErrIPResolutionFailed = errors.New("failed to resolve domain")
@@ -49,37 +50,76 @@ func ValidateURL(rawURL string) error {
 		}
 	}
 
-	if config.Get("BLOCK_PRIVATE_IPS", "") == "true" {
-		if err := checkPrivateIP(hostname); err != nil {
-			return err
+	return checkHostAddresses(hostname)
+}
+
+func blockPrivateIPs() bool {
+	return config.Get("BLOCK_PRIVATE_IPS", "") == "true"
+}
+
+// checkIPAllowed rejects an address the server must never connect to. Link-local
+// space carries the cloud metadata endpoints and is refused unconditionally.
+// The wider private ranges are refused only when BLOCK_PRIVATE_IPS is set, so a
+// self-hosted deployment can still fetch from its own network.
+func checkIPAllowed(ip net.IP) error {
+	if isLinkLocal(ip) {
+		return fmt.Errorf("%w: %s", ErrLinkLocal, ip.String())
+	}
+
+	if blockPrivateIPs() && isPrivateIP(ip) {
+		return fmt.Errorf("%w: %s (unset BLOCK_PRIVATE_IPS to allow)", ErrPrivateIP, ip.String())
+	}
+
+	return nil
+}
+
+// IsBlockedAddress reports whether err comes from an address or domain the
+// server refused to connect to, rather than from a network or server fault.
+func IsBlockedAddress(err error) bool {
+	return errors.Is(err, ErrLinkLocal) ||
+		errors.Is(err, ErrPrivateIP) ||
+		errors.Is(err, ErrBlockedDomain)
+}
+
+// checkHostAddresses validates an IP literal directly. A hostname is resolved
+// here only when BLOCK_PRIVATE_IPS is set; otherwise the guarded dialer applies
+// checkIPAllowed to whatever address the connection actually reaches, which
+// avoids a DNS lookup on every validation and closes the rebinding gap.
+func checkHostAddresses(hostname string) error {
+	if ip := net.ParseIP(hostname); ip != nil {
+		return checkIPAllowed(ip)
+	}
+
+	if !blockPrivateIPs() {
+		return nil
+	}
+
+	ips, err := net.LookupIP(hostname)
+	if err != nil {
+		return fmt.Errorf("%w: %v", ErrIPResolutionFailed, err)
+	}
+	if len(ips) == 0 {
+		return fmt.Errorf("%w: no IPs found for hostname", ErrIPResolutionFailed)
+	}
+	for _, resolvedIP := range ips {
+		if err := checkIPAllowed(resolvedIP); err != nil {
+			return fmt.Errorf("%s resolves to %w", hostname, err)
 		}
 	}
 
 	return nil
 }
 
-func checkPrivateIP(hostname string) error {
-	ip := net.ParseIP(hostname)
-	if ip == nil {
-		ips, err := net.LookupIP(hostname)
-		if err != nil {
-			return fmt.Errorf("%w: %v", ErrIPResolutionFailed, err)
-		}
-		if len(ips) == 0 {
-			return fmt.Errorf("%w: no IPs found for hostname", ErrIPResolutionFailed)
-		}
-		for _, resolvedIP := range ips {
-			if isPrivateIP(resolvedIP) {
-				return fmt.Errorf("%w: %s resolves to %s", ErrPrivateIP, hostname, resolvedIP.String())
-			}
-		}
-	} else {
-		if isPrivateIP(ip) {
-			return fmt.Errorf("%w: %s", ErrPrivateIP, ip.String())
-		}
+func isLinkLocal(ip net.IP) bool {
+	if ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
+		return true
 	}
 
-	return nil
+	if ip4 := ip.To4(); ip4 != nil {
+		return ip4[0] == 169 && ip4[1] == 254
+	}
+
+	return false
 }
 
 func isPrivateIP(ip net.IP) bool {

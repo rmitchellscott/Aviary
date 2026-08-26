@@ -66,9 +66,8 @@ func ExtractFromURL(urlStr string) (*ArticleContent, error) {
 	}
 	req.Header.Set("User-Agent", downloader.PickUA())
 
-	client := &http.Client{
-		Timeout: 30 * time.Second,
-	}
+	client := security.NewHTTPClient()
+	client.Timeout = 30 * time.Second
 	// codeql[go/request-forgery]: URL is validated by security.ValidateURL above
 	resp, err := client.Do(req)
 	if err != nil {
@@ -201,15 +200,18 @@ func extractImageURLs(html string) []string {
 func DownloadImage(imageURL, outputPath string) error {
 	logging.Logf("[READER] DownloadImage: fetching %s", imageURL)
 
+	if err := security.ValidateURL(imageURL); err != nil {
+		return fmt.Errorf("URL validation failed: %w", err)
+	}
+
 	req, err := http.NewRequest("GET", imageURL, nil)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("User-Agent", downloader.PickUA())
 
-	client := &http.Client{
-		Timeout: 30 * time.Second,
-	}
+	client := security.NewHTTPClient()
+	client.Timeout = 30 * time.Second
 	resp, err := client.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to download image: %w", err)

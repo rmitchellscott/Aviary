@@ -545,6 +545,8 @@
       "invalid_prefix": "Invalid prefix",
       "using_uploaded_file": "Using uploaded file",
       "no_url": "No URL found in request body",
+      "invalid_url": "Invalid URL",
+      "blocked_address": "This address is not allowed. Contact your administrator if you need access to it.",
       "downloading": "Downloading",
       "download_error": "Download error",
       "fetching_url": "Fetching article from URL",

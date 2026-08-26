@@ -545,6 +545,8 @@
       "invalid_prefix": "Ogiltigt prefix",
       "using_uploaded_file": "Använder uppladdad fil",
       "no_url": "Ingen URL hittad i begärans kropp",
+      "invalid_url": "Ogiltig URL",
+      "blocked_address": "Den här adressen är inte tillåten. Kontakta din administratör om du behöver åtkomst till den.",
       "downloading": "Laddar ner",
       "download_error": "Nedladdningsfel",
       "fetching_url": "Hämtar artikel från URL",

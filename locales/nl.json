@@ -545,6 +545,8 @@
       "invalid_prefix": "Ongeldige prefix",
       "using_uploaded_file": "Geüpload bestand gebruiken",
       "no_url": "Geen URL gevonden in verzoek body",
+      "invalid_url": "Ongeldige URL",
+      "blocked_address": "Dit adres is niet toegestaan. Neem contact op met uw beheerder als u er toegang toe nodig heeft.",
       "downloading": "Downloaden",
       "download_error": "Download fout",
       "fetching_url": "Artikel ophalen van URL",

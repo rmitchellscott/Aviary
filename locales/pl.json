@@ -545,6 +545,8 @@
       "invalid_prefix": "Nieprawidłowy prefiks",
       "using_uploaded_file": "Korzystanie z przesłanego pliku",
       "no_url": "Nie znaleziono URL w treści żądania",
+      "invalid_url": "Nieprawidłowy URL",
+      "blocked_address": "Ten adres jest niedozwolony. Skontaktuj się z administratorem, jeśli potrzebujesz do niego dostępu.",
       "downloading": "Pobieranie",
       "download_error": "Błąd pobierania",
       "fetching_url": "Pobieranie artykułu z URL",

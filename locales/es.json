@@ -359,6 +359,8 @@
       "invalid_prefix": "Prefijo inválido",
       "using_uploaded_file": "Usando archivo subido",
       "no_url": "No se encontró URL en el cuerpo de la solicitud",
+      "invalid_url": "URL no válida",
+      "blocked_address": "Esta dirección no está permitida. Ponte en contacto con tu administrador si necesitas acceder a ella.",
       "downloading": "Descargando",
       "download_error": "Error de descarga",
       "fetching_url": "Obteniendo artículo desde URL",

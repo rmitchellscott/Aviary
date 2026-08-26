@@ -1,10 +1,10 @@
 package downloader
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/rmitchellscott/aviary/internal/config"
+	"github.com/rmitchellscott/aviary/internal/security"
 )
 
 // Clients used for HTTP requests. Timeouts are configured via environment
@@ -15,8 +15,8 @@ import (
 var (
 	sniffTimeout    = 30 * time.Second
 	downloadTimeout = 60 * time.Second
-	sniffClient     = &http.Client{}
-	downloadClient  = &http.Client{}
+	sniffClient     = security.NewHTTPClient()
+	downloadClient  = security.NewHTTPClient()
 )
 
 func init() {

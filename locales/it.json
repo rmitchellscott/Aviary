@@ -359,6 +359,8 @@
       "invalid_prefix": "Prefisso non valido",
       "using_uploaded_file": "Utilizzo del file caricato",
       "no_url": "Nessun URL trovato nel corpo della richiesta",
+      "invalid_url": "URL non valido",
+      "blocked_address": "Questo indirizzo non è consentito. Contatta il tuo amministratore se hai bisogno di accedervi.",
       "downloading": "Download in corso",
       "download_error": "Errore di download",
       "fetching_url": "Recupero articolo da URL",

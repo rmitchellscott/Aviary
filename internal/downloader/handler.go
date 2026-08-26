@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rmitchellscott/aviary/internal/security"
 )
 
 // SniffHandler responds with the MIME type of the ?url parameter.
@@ -16,6 +17,10 @@ func SniffHandler(c *gin.Context) {
 
 	mt, err := SniffMime(urlStr)
 	if err != nil {
+		if security.IsBlockedAddress(err) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "backend.status.blocked_address"})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "backend.status.internal_error"})
 		return
 	}
