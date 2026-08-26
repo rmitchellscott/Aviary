@@ -545,6 +545,8 @@
       "invalid_prefix": "无效前缀",
       "using_uploaded_file": "使用上传的文件",
       "no_url": "在请求体中未找到URL",
+      "invalid_url": "无效的URL",
+      "blocked_address": "此地址不被允许。如果您需要访问它，请联系您的管理员。",
       "downloading": "下载中",
       "download_error": "下载错误",
       "fetching_url": "从URL获取文章",

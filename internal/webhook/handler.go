@@ -100,6 +100,8 @@ func keyToMessage(key string) string {
 var (
 	// urlRegex is used to find an http(s) URL within the Body string.
 	urlRegex = regexp.MustCompile(`https?://[^\s]+`)
+	// markdownClient fetches raw Markdown, validating every address it reaches.
+	markdownClient = security.NewHTTPClient()
 	// jobStore holds in-memory jobs for status polling.
 	jobStore = jobs.NewStore()
 	// supportedContentTypes lists MIME types we can process
@@ -323,6 +325,15 @@ func processPDF(jobID string, form map[string]string) (string, map[string]string
 // (if it exists on disk) or else extracts a URL from form["Body"], downloads it, and then proceeds to
 // (optionally) compress, then upload/manage on the reMarkable. Returns a human-readable status message
 // and/or an error.
+// fetchErrorKey maps a fetch failure to the message the user sees. An address the
+// server refused gets its own key so it does not read as a network fault.
+func fetchErrorKey(err error, fallbackKey string) string {
+	if security.IsBlockedAddress(err) {
+		return "backend.status.blocked_address"
+	}
+	return fallbackKey
+}
+
 func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (string, map[string]string, error) {
 
 	body := form["Body"]
@@ -410,7 +421,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.downloading", nil, "downloading")
 			localPath, err = downloader.DownloadPDFForUser(match, true, prefix, userID, nil)
 			if err != nil {
-				return "backend.status.download_error", nil, err
+				return fetchErrorKey(err, "backend.status.download_error"), nil, err
 			}
 		} else if contentType == "text/markdown" || contentType == "text/plain" {
 			// Markdown URL - fetch raw content and convert
@@ -418,13 +429,13 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			jobStore.UpdateWithOperation(jobID, "Running", "backend.status.fetching_url", nil, "fetching")
 
 			if err := security.ValidateURL(match); err != nil {
-				return "backend.status.invalid_url", nil, fmt.Errorf("URL validation failed: %w", err)
+				return fetchErrorKey(err, "backend.status.invalid_url"), nil, fmt.Errorf("URL validation failed: %w", err)
 			}
 
 			// codeql[go/request-forgery]: URL is validated by security.ValidateURL above
-			resp, err := http.Get(match)
+			resp, err := markdownClient.Get(match)
 			if err != nil {
-				return "backend.status.download_error", nil, fmt.Errorf("failed to fetch markdown: %w", err)
+				return fetchErrorKey(err, "backend.status.download_error"), nil, fmt.Errorf("failed to fetch markdown: %w", err)
 			}
 			defer resp.Body.Close()
 
@@ -494,7 +505,7 @@ func processPDFForUser(jobID string, form map[string]string, userID uuid.UUID) (
 			// Extract readable content from URL
 			articleContent, extractErr := converter.ExtractFromURL(match)
 			if extractErr != nil {
-				return "backend.status.download_error", nil, fmt.Errorf("failed to extract article: %w", extractErr)
+				return fetchErrorKey(extractErr, "backend.status.download_error"), nil, fmt.Errorf("failed to extract article: %w", extractErr)
 			}
 
 			// Determine output format

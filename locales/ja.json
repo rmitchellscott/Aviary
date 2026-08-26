@@ -545,6 +545,8 @@
       "invalid_prefix": "無効なプレフィックス",
       "using_uploaded_file": "アップロードされたファイルを使用中",
       "no_url": "リクエストボディにURLが見つかりません",
+      "invalid_url": "無効なURL",
+      "blocked_address": "このアドレスは許可されていません。アクセスが必要な場合は管理者にお問い合わせください。",
       "downloading": "ダウンロード中",
       "download_error": "ダウンロードエラー",
       "fetching_url": "URLから記事を取得中",

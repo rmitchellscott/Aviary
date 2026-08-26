@@ -545,6 +545,8 @@
       "invalid_prefix": "Ugyldig prefiks",
       "using_uploaded_file": "Bruker opplastet fil",
       "no_url": "Ingen URL funnet i forespørsel kropp",
+      "invalid_url": "Ugyldig URL",
+      "blocked_address": "Denne adressen er ikke tillatt. Kontakt administratoren din hvis du trenger tilgang til den.",
       "downloading": "Laster ned",
       "download_error": "Nedlastingsfeil",
       "fetching_url": "Henter artikkel fra URL",

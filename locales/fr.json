@@ -383,6 +383,8 @@
       "invalid_prefix": "Préfixe invalide",
       "using_uploaded_file": "Utilisation du fichier téléchargé",
       "no_url": "Aucune URL trouvée dans le corps de la requête",
+      "invalid_url": "URL invalide",
+      "blocked_address": "Cette adresse n'est pas autorisée. Contactez votre administrateur si vous avez besoin d'y accéder.",
       "downloading": "Téléchargement",
       "download_error": "Erreur de téléchargement",
       "fetching_url": "Récupération de l'article depuis l'URL",

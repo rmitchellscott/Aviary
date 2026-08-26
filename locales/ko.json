@@ -545,6 +545,8 @@
       "invalid_prefix": "잘못된 접두사",
       "using_uploaded_file": "업로드된 파일 사용 중",
       "no_url": "요청 본문에서 URL을 찾을 수 없음",
+      "invalid_url": "잘못된 URL",
+      "blocked_address": "이 주소는 허용되지 않습니다. 접근이 필요한 경우 관리자에게 문의하세요.",
       "downloading": "다운로드 중",
       "download_error": "다운로드 오류",
       "fetching_url": "URL에서 기사 가져오는 중",

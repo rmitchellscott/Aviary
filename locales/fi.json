@@ -545,6 +545,8 @@
       "invalid_prefix": "Virheellinen etuliite",
       "using_uploaded_file": "Käytetään ladattua tiedostoa",
       "no_url": "URL:ää ei löytynyt pyynnön rungosta",
+      "invalid_url": "Virheellinen URL",
+      "blocked_address": "Tämä osoite ei ole sallittu. Ota yhteyttä järjestelmänvalvojaan, jos tarvitset pääsyn siihen.",
       "downloading": "Ladataan",
       "download_error": "Latausvirhe",
       "fetching_url": "Haetaan artikkelia URL:stä",

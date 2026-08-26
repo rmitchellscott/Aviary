@@ -56,15 +56,17 @@ For more rmapi-specific configuration, see [their documentation](https://github.
 
 | Variable                 | Required? | Default | Description |
 |--------------------------|-----------|---------|-------------|
-| BLOCK_PRIVATE_IPS        | No        | false   | Set to `true` to block URLs pointing to private/local IP addresses (RFC1918, loopback, link-local) |
+| BLOCK_PRIVATE_IPS        | No        | false   | Set to `true` to block URLs pointing to private/local IP addresses (RFC1918, loopback). Link-local is always blocked. |
 | BLOCKED_DOMAINS          | No        |         | Comma-separated list of domains to block (e.g., `internal.corp,local.net`) |
 
 ### Security Configuration Notes
 
-- **BLOCK_PRIVATE_IPS**: When enabled, prevents Server-Side Request Forgery (SSRF) attacks by blocking URLs that resolve to:
+- **Link-local addresses are always blocked**, whatever `BLOCK_PRIVATE_IPS` is set to: 169.254.0.0/16 and fe80::/10. This range carries the cloud instance metadata endpoints (169.254.169.254 and 169.254.170.2), and no deployment serves documents from it. Every address is checked at connection time, including each hop of a redirect, so a redirect or a DNS record that changes between check and fetch cannot reach a blocked address.
+- **BLOCK_PRIVATE_IPS**: Left at the default, Aviary can fetch from your own network, which is what makes `http://192.168.1.50/doc.pdf` work. Set it to `true` to also block URLs that resolve to:
   - Private IPv4 ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
   - Loopback addresses: 127.0.0.0/8, ::1
-  - Link-local addresses: 169.254.0.0/16, fe80::/10
+  - Carrier-grade NAT: 100.64.0.0/10
+  - Unique local IPv6: fc00::/7
   - Other special-use addresses
 - **BLOCKED_DOMAINS**: Blocks specific domains and their subdomains. For example, setting `BLOCKED_DOMAINS=example.com` will block both `example.com` and `*.example.com`
 
