@@ -5,11 +5,16 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"testing"
 	"time"
 )
 
 func TestSniffMimeTimeout(t *testing.T) {
+	// the test server listens on loopback, which is blocked by default
+	os.Setenv("BLOCK_PRIVATE_IPS", "false")
+	defer os.Unsetenv("BLOCK_PRIVATE_IPS")
+
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(200 * time.Millisecond)
 		w.WriteHeader(http.StatusOK)

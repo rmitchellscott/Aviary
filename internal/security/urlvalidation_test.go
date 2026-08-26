@@ -145,7 +145,7 @@ func TestValidateURL(t *testing.T) {
 			if tt.blockPrivate {
 				os.Setenv("BLOCK_PRIVATE_IPS", "true")
 			} else {
-				os.Unsetenv("BLOCK_PRIVATE_IPS")
+				os.Setenv("BLOCK_PRIVATE_IPS", "false")
 			}
 			
 			if tt.blockedDomains != "" {
